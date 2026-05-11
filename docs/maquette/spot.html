@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pointe du Raz — Spot bar du bord · Carnet de Pêche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+      </span>
+      Carnet de Pêche
+    </a>
+    <nav class="nav">
+      <a href="index.html">Accueil</a>
+      <a href="carte.html">Carte</a>
+      <a href="spot.html" class="active">Spots</a>
+      <a href="guide.html">Guides</a>
+      <a href="tarifs.html">Tarifs</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost btn-sm">Connexion</a>
+      <a href="tarifs.html" class="btn btn-primary btn-sm">Créer mon carnet</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="spot-hero">
+  <div class="container spot-hero-content">
+    <div class="breadcrumb">
+      <a href="carte.html">Carte</a> · <a href="#">Bretagne</a> · <a href="#">Finistère</a> · Pointe du Raz
+    </div>
+    <div class="spot-title-row">
+      <div class="spot-title">
+        <h1>Pointe du Raz</h1>
+        <div class="spot-tags">
+          <span class="spot-tag">📍 Plogoff (29770)</span>
+          <span class="spot-tag">🎣 Canne du bord</span>
+          <span class="spot-tag">🐟 Bar · Lieu jaune · Maquereau</span>
+          <span class="spot-tag">🏞 Pointe rocheuse</span>
+          <span class="spot-tag">⭐ 47 prises loguées · 30 j</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-ghost btn-sm" style="background: rgba(255,255,255,.1); color: white; border-color: rgba(255,255,255,.2);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m17.5 12 5-5-5-5"/><path d="M22 7H10a5 5 0 0 0-5 5v8"/></svg>
+          Itinéraire
+        </button>
+        <button class="btn btn-accent btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="spot-grid">
+
+    <!-- MAIN COLUMN -->
+    <div>
+      <div class="spot-section">
+        <h2>Conditions du jour</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+          <span class="condition-chip good">● Score 94/100</span>
+          <span class="condition-chip good">Vent SW 12 nds</span>
+          <span class="condition-chip good">Coef. 88</span>
+          <span class="condition-chip warn">Houle 1,2 m</span>
+          <span class="condition-chip good">Eau 14°C</span>
+          <span class="condition-chip">Ciel couvert</span>
+        </div>
+        <p>Conditions excellentes pour le bar : marée descendante avec coefficient élevé, vent de travers modéré qui agite la surface sans gêner les lancers, lumière diffuse idéale. Les bars devraient se positionner sur les cassures à l'aval de la pointe.</p>
+      </div>
+
+      <div class="spot-section">
+        <h2>Activité estimée — 7 jours</h2>
+        <p style="margin-bottom: 12px;">Probabilité de prise calculée par l'algorithme à partir des marées, vent, lune et historique terrain.</p>
+
+        <div class="activity-bars">
+          <div class="activity-bar mid" style="height: 50%;" title="Sam 9 mai · 50%"></div>
+          <div class="activity-bar high" style="height: 80%;" title="Dim 10 mai · 80%"></div>
+          <div class="activity-bar peak" style="height: 95%;" title="Lun 11 mai · 95%"></div>
+          <div class="activity-bar high" style="height: 85%;" title="Mar 12 mai · 85%"></div>
+          <div class="activity-bar mid" style="height: 60%;" title="Mer 13 mai · 60%"></div>
+          <div class="activity-bar low" style="height: 35%;" title="Jeu 14 mai · 35%"></div>
+          <div class="activity-bar low" style="height: 30%;" title="Ven 15 mai · 30%"></div>
+        </div>
+        <div class="activity-labels">
+          <span>Sam</span><span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span>
+        </div>
+      </div>
+
+      <div class="spot-section">
+        <h2>Description du spot</h2>
+        <p>La Pointe du Raz est l'un des spots les plus emblématiques du Finistère pour la pêche du bord. Située à l'extrême ouest de la Bretagne, cette pointe rocheuse offre un terrain de chasse idéal pour le bar, particulièrement à la marée descendante. Les structures rocheuses sous-marines créent des cassures de courant où le poisson se positionne en chasse.</p>
+        <p style="margin-top: 12px;">Accès par le sentier côtier depuis le parking principal (15 minutes de marche). Attention au ressac et aux vagues scélérates par fort coefficient — équiper de chaussures à crampons. Le poste sud-ouest est le plus productif au coucher du soleil.</p>
+      </div>
+
+      <div class="spot-section">
+        <h2>Espèces ciblées ici</h2>
+        <div class="grid grid-3" style="gap: 12px;">
+          <div style="background: var(--sand-100); border-radius: 14px; padding: 16px;">
+            <div style="font-weight: 700; color: var(--navy-900);">🐟 Bar européen</div>
+            <div style="font-size: 13px; color: var(--ink-500); margin-top: 4px;">Taille mini 42 cm · Saison : avr-oct</div>
+            <div style="margin-top: 8px;">
+              <span class="condition-chip good" style="font-size: 11px; padding: 3px 8px; margin: 0;">★★★★★</span>
+            </div>
+          </div>
+          <div style="background: var(--sand-100); border-radius: 14px; padding: 16px;">
+            <div style="font-weight: 700; color: var(--navy-900);">🐟 Lieu jaune</div>
+            <div style="font-size: 13px; color: var(--ink-500); margin-top: 4px;">Taille mini 30 cm · Saison : sept-mars</div>
+            <div style="margin-top: 8px;">
+              <span class="condition-chip good" style="font-size: 11px; padding: 3px 8px; margin: 0;">★★★★☆</span>
+            </div>
+          </div>
+          <div style="background: var(--sand-100); border-radius: 14px; padding: 16px;">
+            <div style="font-weight: 700; color: var(--navy-900);">🐟 Maquereau</div>
+            <div style="font-size: 13px; color: var(--ink-500); margin-top: 4px;">Pas de taille mini · Saison : juin-sept</div>
+            <div style="margin-top: 8px;">
+              <span class="condition-chip good" style="font-size: 11px; padding: 3px 8px; margin: 0;">★★★☆☆</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spot-section">
+        <h2>Techniques recommandées</h2>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+          <li style="display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: white; border: 1px solid var(--ink-100); border-radius: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(20,184,166,.12); color: var(--teal-600); display: grid; place-items: center; flex-shrink: 0;">1</div>
+            <div>
+              <strong style="color: var(--navy-900);">Pêche au leurre souple</strong>
+              <div style="color: var(--ink-700); font-size: 14px; margin-top: 2px;">Shad de 12-15 cm, kaki ou ayu, plombée 14-21 g. Animation lente sur les cassures à l'aval.</div>
+            </div>
+          </li>
+          <li style="display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: white; border: 1px solid var(--ink-100); border-radius: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(20,184,166,.12); color: var(--teal-600); display: grid; place-items: center; flex-shrink: 0;">2</div>
+            <div>
+              <strong style="color: var(--navy-900);">Pêche au popper / stickbait</strong>
+              <div style="color: var(--ink-700); font-size: 14px; margin-top: 2px;">À l'aube et au crépuscule, surface bouillonnante. Bonne distance de lancer recommandée (canne 9'+).</div>
+            </div>
+          </li>
+          <li style="display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: white; border: 1px solid var(--ink-100); border-radius: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(20,184,166,.12); color: var(--teal-600); display: grid; place-items: center; flex-shrink: 0;">3</div>
+            <div>
+              <strong style="color: var(--navy-900);">Surfcasting / appât naturel</strong>
+              <div style="color: var(--ink-700); font-size: 14px; margin-top: 2px;">Arénicole, lançon, calmar. Préférer la marée montante de fin de jusant à mi-flot. Plombée 100 g pour tenir le courant.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="spot-section">
+        <h2>Récentes prises de la communauté</h2>
+        <p style="color: var(--ink-500); font-size: 14px; margin-bottom: 16px;">12 prises validées les 30 derniers jours</p>
+        <div class="grid grid-3" style="gap: 14px;">
+          <div style="background: white; border: 1px solid var(--ink-100); border-radius: 14px; overflow: hidden;">
+            <div style="aspect-ratio: 4/3; background: linear-gradient(135deg, #0a3a4d, #14B8A6); display: grid; place-items: center; color: white; font-size: 32px;">🐟</div>
+            <div style="padding: 12px;">
+              <strong style="font-size: 14px;">Bar · 67 cm</strong>
+              <div style="font-size: 12px; color: var(--ink-500);">Yann · 06 mai · Leurre souple</div>
+            </div>
+          </div>
+          <div style="background: white; border: 1px solid var(--ink-100); border-radius: 14px; overflow: hidden;">
+            <div style="aspect-ratio: 4/3; background: linear-gradient(135deg, #d97706, #fbbf24); display: grid; place-items: center; color: white; font-size: 32px;">🐟</div>
+            <div style="padding: 12px;">
+              <strong style="font-size: 14px;">Lieu jaune · 54 cm</strong>
+              <div style="font-size: 12px; color: var(--ink-500);">Loïc · 04 mai · Madaï</div>
+            </div>
+          </div>
+          <div style="background: white; border: 1px solid var(--ink-100); border-radius: 14px; overflow: hidden;">
+            <div style="aspect-ratio: 4/3; background: linear-gradient(135deg, #0c4a6e, #38bdf8); display: grid; place-items: center; color: white; font-size: 32px;">🐟</div>
+            <div style="padding: 12px;">
+              <strong style="font-size: 14px;">Bar · 55 cm</strong>
+              <div style="font-size: 12px; color: var(--ink-500);">Sophie · 02 mai · Stickbait</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spot-section">
+        <h2>Réglementation locale</h2>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; color: var(--ink-700);">
+          <li>📏 Bar : taille minimum <strong>42 cm</strong> · 2 prises/jour/personne (Atlantique)</li>
+          <li>📏 Lieu jaune : taille minimum <strong>30 cm</strong></li>
+          <li>🚫 Zone Natura 2000 — pas de prélèvement d'algues, respecter la flore</li>
+          <li>⚠️ Interdiction du chalutage du bord (filet maillant)</li>
+          <li>🏷️ Marquage obligatoire des poissons gardés (ablation du lobe inférieur de la queue)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="sticky-card">
+        <div style="text-align: center;">
+          <div class="score-circle"><span class="num">94</span></div>
+          <div style="color: var(--ink-700); font-size: 14px;">Score d'activité aujourd'hui</div>
+          <strong style="color: var(--teal-600); font-size: 14px;">Excellent — sors les leurres</strong>
+        </div>
+
+        <div class="tide-mini">
+          <div style="font-size: 12px; font-weight: 700; color: var(--ink-500); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px;">Marée à Audierne</div>
+          <div class="row"><span>Coefficient</span><strong>88</strong></div>
+          <div class="row"><span>BM</span><strong>16:48 · 0,9 m</strong></div>
+          <div class="row"><span>PM</span><strong>22:54 · 6,4 m</strong></div>
+          <div class="row" style="border-top: 1px solid var(--ink-200); margin-top: 6px; padding-top: 10px;"><span>Créneau optimal</span><strong style="color: var(--teal-600);">18:30 → 21:30</strong></div>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <button class="btn btn-primary" style="width: 100%; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            Notifie-moi le créneau
+          </button>
+          <button class="btn btn-ghost" style="width: 100%; justify-content: center; margin-top: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>
+            Itinéraire GPS
+          </button>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--ink-100); font-size: 12px; color: var(--ink-500);">
+          <strong style="color: var(--ink-700); display: block; margin-bottom: 6px;">À savoir</strong>
+          ⚠️ Spot exposé · prudence par houle &gt; 1,5 m<br/>
+          🅿️ Parking gratuit à 800 m<br/>
+          🚻 Toilettes au parking principal<br/>
+          📶 Réseau mobile : Orange ✓ · SFR partiel
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="brand-mark">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+          </span>
+          Carnet de Pêche
+        </div>
+        <p style="font-size: 14px; max-width: 320px;">Le réseau des pêcheurs à la canne du bord.</p>
+      </div>
+      <div><h4>Produit</h4><a href="carte.html">Carte intelligente</a><br/><a href="#">Carnet de pêche</a><br/><a href="#">Communauté</a></div>
+      <div><h4>Ressources</h4><a href="guide.html">Guides espèces</a><br/><a href="#">Régions</a><br/><a href="#">Réglementation</a></div>
+      <div><h4>Société</h4><a href="#">L'histoire</a><br/><a href="#">Charte communauté</a><br/><a href="#">Contact</a></div>
+    </div>
+    <div class="footer-meta">
+      <div>© 2026 Carnet de Pêche. « Logue. Partage. Progresse. »</div>
+      <div>CGU · Confidentialité · RGPD</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tarifs — Carnet de Pêche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+      </span>
+      Carnet de Pêche
+    </a>
+    <nav class="nav">
+      <a href="index.html">Accueil</a>
+      <a href="carte.html">Carte</a>
+      <a href="spot.html">Spots</a>
+      <a href="guide.html">Guides</a>
+      <a href="tarifs.html" class="active">Tarifs</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost btn-sm">Connexion</a>
+      <a href="#" class="btn btn-primary btn-sm">Essai gratuit</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top: 80px;">
+  <div class="container" style="text-align: center;">
+    <span class="eyebrow">💸 Trois formules. Pas plus.</span>
+    <h1 style="margin: 18px auto 16px; max-width: 720px;">Une tarification simple, claire, sans piège.</h1>
+    <p class="lead" style="margin: 0 auto 32px;">14 jours satisfait ou remboursé. Aucun engagement. Annulation en 1 clic.</p>
+
+    <div class="toggle-pill" style="display: inline-flex;">
+      <button>Mensuel</button>
+      <button class="active">Annuel · -30%</button>
+    </div>
+
+    <div class="pricing-grid" style="margin-top: 24px; text-align: left;">
+      <!-- Découverte -->
+      <div class="price-card">
+        <div class="price-name">Découverte</div>
+        <div class="price-tag"><span class="amount">0€</span><span class="period">/ pour toujours</span></div>
+        <p style="color: var(--ink-500); font-size: 14px;">Pour démarrer ton carnet et voir si l'app te parle.</p>
+        <ul class="price-feats" style="margin-top: 24px;">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg><strong>Carnet de pêche illimité</strong> avec photos</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>3 spots populaires (floutés 1 km)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Marées + météo de ta ville</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Tous les guides éditoriaux</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Fil régional (lecture)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>App iOS / Android</li>
+        </ul>
+        <a href="#" class="btn btn-ghost" style="justify-content: center;">Démarrer gratuitement</a>
+      </div>
+
+      <!-- Local -->
+      <div class="price-card featured">
+        <div class="price-name">Local</div>
+        <div class="price-tag"><span class="amount">4,90€</span><span class="period">/ mois</span></div>
+        <p style="color: var(--ink-500); font-size: 14px;">Pour le pêcheur qui pratique surtout dans son département.</p>
+        <ul class="price-feats" style="margin-top: 24px;">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg><strong>Carte complète</strong> de ton département</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Coordonnées GPS précises de tous les spots</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Score d'activité 0-100 par spot</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Filtres espèces, techniques, marées</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Mode hors ligne (carte + marées 7 j)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Notifications push créneaux optimaux</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Fil régional (publier, commenter, follow)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Stats avancées + photos HD</li>
+        </ul>
+        <a href="#" class="btn btn-accent" style="justify-content: center;">Commencer l'essai 14 jours</a>
+        <div style="text-align: center; font-size: 12px; color: var(--ink-500); margin-top: 10px;">Soit 49€/an · économise 10€</div>
+      </div>
+
+      <!-- Itinérant -->
+      <div class="price-card">
+        <div class="price-name">Itinérant</div>
+        <div class="price-tag"><span class="amount">9,90€</span><span class="period">/ mois</span></div>
+        <p style="color: var(--ink-500); font-size: 14px;">Pour le pêcheur qui voyage et veut couvrir toute la France.</p>
+        <ul class="price-feats" style="margin-top: 24px;">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg><strong>Tous les départements côtiers FR</strong></li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Tout ce qui est dans Local · partout</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Bathymétrie SHOM premium</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Itinéraires GPS multi-spots</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Stats inter-départements</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Accès anticipé nouvelles fonctionnalités</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>Support prioritaire</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="justify-content: center;">Commencer l'essai 14 jours</a>
+        <div style="text-align: center; font-size: 12px; color: var(--ink-500); margin-top: 10px;">Soit 99€/an · économise 20€</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust -->
+<section class="section-tight">
+  <div class="container">
+    <div class="grid grid-4" style="text-align: center;">
+      <div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" style="margin: 0 auto 8px;"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12z"/></svg>
+        <strong style="display: block; color: var(--navy-900);">14 jours satisfait ou remboursé</strong>
+        <span style="font-size: 13px; color: var(--ink-500);">Sans poser de questions.</span>
+      </div>
+      <div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" style="margin: 0 auto 8px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <strong style="display: block; color: var(--navy-900);">Paiement 100% sécurisé</strong>
+        <span style="font-size: 13px; color: var(--ink-500);">Stripe · SSL 256 bits</span>
+      </div>
+      <div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" style="margin: 0 auto 8px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <strong style="display: block; color: var(--navy-900);">Annulation 1 clic</strong>
+        <span style="font-size: 13px; color: var(--ink-500);">Aucun engagement.</span>
+      </div>
+      <div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" style="margin: 0 auto 8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <strong style="display: block; color: var(--navy-900);">Support 7j/7</strong>
+        <span style="font-size: 13px; color: var(--ink-500);">Réponse en moins de 24h.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" style="background: white;">
+  <div class="container" style="max-width: 760px;">
+    <span class="kicker">Questions fréquentes</span>
+    <h2 style="margin: 12px 0 32px;">Vos questions, nos réponses</h2>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">Pourquoi seulement 3 formules ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">Parce qu'on a passé un an à comprendre les pêcheurs. La grande majorité fait son département (Local), une partie voyage (Itinérant), et tout le monde veut tester avant (Découverte). Le reste, c'est du marketing inutile.</p>
+      </details>
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">Comment fonctionne l'essai 14 jours ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">Tu prends Local ou Itinérant, tu utilises tout pendant 14 jours. Si tu n'es pas satisfait, on rembourse intégralement, sans questions. Aucune carte bancaire requise pour le plan Découverte.</p>
+      </details>
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">Je peux changer de formule à tout moment ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">Oui, et c'est instantané. Tu passes Local → Itinérant en 1 clic, on calcule le prorata. Tu downgrades de la même façon.</p>
+      </details>
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">L'app fonctionne-t-elle hors ligne ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">Oui, à partir du plan Local. Tu télécharges ton département : carte vectorielle, marées 7 jours, fiches espèces. Aucune donnée mobile nécessaire au pied de la falaise.</p>
+      </details>
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">Vous couvrez toute la France ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">27 départements côtiers couverts à ce jour : Atlantique, Manche, Méditerranée. Le déploiement Corse est prévu fin 2026. Vérifie ton département avant de t'abonner.</p>
+      </details>
+      <details style="background: var(--sand-50); border-radius: 14px; padding: 18px 22px;">
+        <summary style="font-weight: 600; cursor: pointer; color: var(--navy-900);">Que se passe-t-il si je partage mon spot secret ?</summary>
+        <p style="margin-top: 10px; color: var(--ink-700);">Rien : tu peux le garder pour toi. Le carnet de pêche est privé par défaut. Les spots de notre algorithme restent à toi tant qu'aucun autre pêcheur ne te les transmet.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="brand-mark">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+          </span>
+          Carnet de Pêche
+        </div>
+        <p style="font-size: 14px; max-width: 320px;">L'outil qu'il manquait à tous les pêcheurs du bord.</p>
+      </div>
+      <div><h4>Produit</h4><a href="carte.html">Carte intelligente</a><br/><a href="#">Carnet de pêche</a><br/><a href="#">Communauté</a></div>
+      <div><h4>Ressources</h4><a href="guide.html">Guides espèces</a><br/><a href="#">Régions</a><br/><a href="#">Réglementation</a></div>
+      <div><h4>Société</h4><a href="#">L'histoire</a><br/><a href="#">Charte communauté</a><br/><a href="#">Contact</a></div>
+    </div>
+    <div class="footer-meta">
+      <div>© 2026 Carnet de Pêche. « Logue. Partage. Progresse. »</div>
+      <div>CGU · Confidentialité · RGPD</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.toggle-pill button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.toggle-pill button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

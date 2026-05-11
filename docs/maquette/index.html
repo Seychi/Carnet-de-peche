@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Carnet de Pêche — Le réseau des pêcheurs à la canne du bord</title>
+<meta name="description" content="Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots — entre passionnés." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/><path d="M18 12h.01"/></svg>
+      </span>
+      Carnet de Pêche
+    </a>
+    <nav class="nav">
+      <a href="index.html" class="active">Accueil</a>
+      <a href="carte.html">Carte</a>
+      <a href="spot.html">Spots</a>
+      <a href="guide.html">Guides</a>
+      <a href="tarifs.html">Tarifs</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost btn-sm">Connexion</a>
+      <a href="tarifs.html" class="btn btn-primary btn-sm">Créer mon carnet</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+          Le réseau des pêcheurs à la canne du bord
+        </span>
+        <h1>Le carnet, la carte, et <span class="accent">la communauté</span> qui partage.</h1>
+        <p class="lead">Carnet de Pêche, c'est ton carnet de pêche numérique, ta carte intelligente et ta communauté. Logue tes prises, vois où ça mord vraiment, échange avec les pêcheurs de ton coin — sans donner tes spots.</p>
+        <div class="hero-cta">
+          <a href="tarifs.html" class="btn btn-primary btn-lg">
+            Créer mon carnet
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="carte.html" class="btn btn-ghost btn-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Voir la carte démo
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="num">100% canne</span><span class="label">Du bord, aucun compromis</span></div>
+          <div class="stat"><span class="num">Carnet</span><span class="label">Au cœur du produit</span></div>
+          <div class="stat"><span class="num">14j</span><span class="label">Essai gratuit garanti</span></div>
+        </div>
+      </div>
+
+      <!-- App mock - now showing carnet -->
+      <div class="hero-visual">
+        <div class="app-mock">
+          <div class="app-mock-screen">
+            <div class="notch"></div>
+            <div class="app-header">
+              <div class="row">
+                <div>
+                  <h4>Mon carnet</h4>
+                  <div class="sub">14 prises · 7 sessions ce mois</div>
+                </div>
+                <span class="app-pill">● ACTIF</span>
+              </div>
+            </div>
+            <div class="app-map">
+              <span class="pin pin-1"></span>
+              <span class="pin pin-2"></span>
+              <span class="pin pin-3"></span>
+            </div>
+            <div class="app-card">
+              <h5>Bar · 67 cm</h5>
+              <div class="meta">06 mai · Coef. 88 · Shad kaki</div>
+              <div class="bars">
+                <div class="bar" style="height:30%"></div>
+                <div class="bar" style="height:45%"></div>
+                <div class="bar" style="height:60%"></div>
+                <div class="bar high" style="height:90%"></div>
+                <div class="bar high" style="height:100%"></div>
+                <div class="bar high" style="height:80%"></div>
+                <div class="bar" style="height:55%"></div>
+                <div class="bar" style="height:30%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 PILLARS -->
+<section class="section" id="features">
+  <div class="container">
+    <span class="kicker">Trois piliers, zéro bullshit</span>
+    <h2 style="margin: 12px 0 16px; max-width: 720px;">Carnet de Pêche n'est pas une énième app de marées.</h2>
+    <p class="lead" style="margin-bottom: 56px;">Les autres te vendent des cartes. Carnet de Pêche te connecte à la communauté qui les a vraiment éprouvées sur le terrain.</p>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Le carnet</h3>
+        <p>Logue chaque prise en 3 taps : photo, espèce, taille. Conditions auto-loggées (marée, vent, lune). Stats annuelles, exports, historique infini. Privé par défaut, partage à la carte.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+        </div>
+        <h3>La carte qui apprend</h3>
+        <p>L'algorithme se calibre sur les prises loguées par la communauté. Plus tu pêches, plus la carte devient précise. Heatmap d'activité, couches météo, marées — et un score 0-100 par spot.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>La communauté</h3>
+        <p>Le réseau social des pêcheurs à la canne. Profils, badges, fil régional, classements. Tes spots restent à toi (floutage GPS, charte stricte). Tu partages le savoir, pas les coins secrets.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE - CARNET -->
+<section class="section" style="background: white;">
+  <div class="container">
+    <div class="feature-row">
+      <div>
+        <span class="kicker">Le carnet de pêche</span>
+        <h2 style="margin: 12px 0 18px;">Strava pour pêcheurs. Sans la toxicité.</h2>
+        <p class="lead" style="margin-bottom: 24px;">Chaque session devient un souvenir traçable. Tu vois ton année en un coup d'œil : ta plus belle prise, ton spot fétiche, tes meilleures conditions. Et tu en apprends sur ta propre pêche.</p>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px;">
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Auto-snapshot des conditions</strong><div style="color:var(--ink-500); font-size:14px;">Marée, vent, météo, lune, pression captés au moment de la prise.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Privé par défaut</strong><div style="color:var(--ink-500); font-size:14px;">Tu décides ce que tu publies, sur quel mur, à quel cercle.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Stats et insights</strong><div style="color:var(--ink-500); font-size:14px;">Tes meilleures conditions, ton coefficient idéal, ton heure d'or.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Import / export</strong><div style="color:var(--ink-500); font-size:14px;">GPX, JSON, Fishbrain, FishFriender. Tes données sont à toi.</div></div></li>
+        </ul>
+        <a href="#" class="btn btn-primary">Voir un carnet exemple →</a>
+      </div>
+      <div class="feature-visual community">
+        <svg viewBox="0 0 400 300" class="svg-illustration">
+          <!-- Grid background -->
+          <g opacity="0.15" stroke="white" stroke-width="0.5">
+            <line x1="0" y1="60" x2="400" y2="60"/>
+            <line x1="0" y1="120" x2="400" y2="120"/>
+            <line x1="0" y1="180" x2="400" y2="180"/>
+            <line x1="0" y1="240" x2="400" y2="240"/>
+          </g>
+          <!-- Year stats -->
+          <text x="20" y="40" fill="white" font-family="Space Grotesk" font-size="20" font-weight="700">Mon année 2026</text>
+          <text x="20" y="60" fill="rgba(255,255,255,.6)" font-family="Inter" font-size="12">14 sessions · 23 prises</text>
+          <!-- Bar chart -->
+          <g transform="translate(20, 100)">
+            <rect x="0" y="50" width="22" height="60" fill="rgba(20,184,166,.5)" rx="3"/>
+            <rect x="30" y="30" width="22" height="80" fill="rgba(20,184,166,.7)" rx="3"/>
+            <rect x="60" y="40" width="22" height="70" fill="rgba(20,184,166,.6)" rx="3"/>
+            <rect x="90" y="10" width="22" height="100" fill="#14B8A6" rx="3"/>
+            <rect x="120" y="20" width="22" height="90" fill="#14B8A6" rx="3"/>
+            <rect x="150" y="35" width="22" height="75" fill="rgba(20,184,166,.7)" rx="3"/>
+            <rect x="180" y="55" width="22" height="55" fill="rgba(20,184,166,.5)" rx="3"/>
+            <rect x="210" y="60" width="22" height="50" fill="rgba(20,184,166,.4)" rx="3"/>
+            <rect x="240" y="50" width="22" height="60" fill="rgba(20,184,166,.5)" rx="3"/>
+            <rect x="270" y="40" width="22" height="70" fill="rgba(20,184,166,.6)" rx="3"/>
+            <rect x="300" y="65" width="22" height="45" fill="rgba(20,184,166,.4)" rx="3"/>
+            <rect x="330" y="80" width="22" height="30" fill="rgba(20,184,166,.3)" rx="3"/>
+          </g>
+          <!-- Top fish -->
+          <g transform="translate(20, 240)">
+            <text fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">PLUS BELLE PRISE</text>
+            <text y="20" fill="white" font-family="Space Grotesk" font-size="18" font-weight="700">Bar · 71 cm</text>
+            <text y="38" fill="rgba(255,255,255,.5)" font-family="Inter" font-size="11">12 avril · Pointe du Raz</text>
+          </g>
+          <g transform="translate(220, 240)">
+            <text fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">SPOT FÉTICHE</text>
+            <text y="20" fill="white" font-family="Space Grotesk" font-size="18" font-weight="700">Cap Sizun</text>
+            <text y="38" fill="rgba(255,255,255,.5)" font-family="Inter" font-size="11">5 sessions cette saison</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE - CARTE -->
+<section class="section" style="background: var(--sand-100);">
+  <div class="container">
+    <div class="feature-row reverse">
+      <div>
+        <span class="kicker">La carte qui apprend</span>
+        <h2 style="margin: 12px 0 18px;">Plus la communauté pêche, plus la carte est précise.</h2>
+        <p class="lead" style="margin-bottom: 24px;">L'algorithme croise marées, vent, structures et — c'est ce qui change tout — les prises réelles loguées par les membres. Une boucle vertueuse que les concurrents ne peuvent pas répliquer.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+          <div style="background: white; border-radius: 14px; padding: 20px;">
+            <div style="font-size: 12px; color: var(--ink-500); font-weight: 600;">SPOTS ACTIFS AUJOURD'HUI</div>
+            <div style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--navy-900); margin: 4px 0;">217</div>
+            <div style="font-size: 13px; color: var(--ink-700);">Score &gt; 80/100 dans ton département</div>
+          </div>
+          <div style="background: white; border-radius: 14px; padding: 20px;">
+            <div style="font-size: 12px; color: var(--ink-500); font-weight: 600;">CRÉNEAU DU JOUR</div>
+            <div style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--teal-600); margin: 4px 0;">18:30 → 21:30</div>
+            <div style="font-size: 13px; color: var(--ink-700);">Pic d'activité bar prévu</div>
+          </div>
+        </div>
+        <a href="carte.html" class="btn btn-primary">Tester la carte →</a>
+      </div>
+      <div class="feature-visual map">
+        <svg viewBox="0 0 400 300" class="svg-illustration">
+          <path d="M0,180 Q60,160 120,170 T240,180 Q300,160 400,150 L400,300 L0,300 Z" fill="rgba(20,184,166,.15)" />
+          <path d="M0,200 Q70,180 130,190 T260,200 Q320,185 400,175 L400,300 L0,300 Z" fill="rgba(20,184,166,.25)" />
+          <g opacity="0.3" stroke="white" stroke-width="0.5">
+            <line x1="0" y1="60" x2="400" y2="60"/>
+            <line x1="0" y1="120" x2="400" y2="120"/>
+            <line x1="80" y1="0" x2="80" y2="300"/>
+            <line x1="200" y1="0" x2="200" y2="300"/>
+            <line x1="320" y1="0" x2="320" y2="300"/>
+          </g>
+          <circle cx="100" cy="160" r="40" fill="rgba(20,184,166,.5)" />
+          <circle cx="100" cy="160" r="25" fill="rgba(20,184,166,.7)" />
+          <circle cx="240" cy="180" r="50" fill="rgba(245,158,11,.4)" />
+          <circle cx="240" cy="180" r="30" fill="rgba(245,158,11,.6)" />
+          <circle cx="320" cy="140" r="35" fill="rgba(20,184,166,.4)" />
+          <g><circle cx="100" cy="160" r="5" fill="white" /><circle cx="100" cy="160" r="3" fill="#14B8A6" /></g>
+          <g><circle cx="240" cy="180" r="5" fill="white" /><circle cx="240" cy="180" r="3" fill="#F59E0B" /></g>
+          <g><circle cx="320" cy="140" r="5" fill="white" /><circle cx="320" cy="140" r="3" fill="#14B8A6" /></g>
+          <text x="20" y="40" fill="white" font-family="Inter" font-size="14" font-weight="700">Finistère · Bar du bord</text>
+          <text x="20" y="58" fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">3 spots actifs · Coef. 88</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE - COMMUNITY -->
+<section class="section">
+  <div class="container">
+    <div class="feature-row">
+      <div>
+        <span class="kicker">La communauté</span>
+        <h2 style="margin: 12px 0 18px;">Une communauté qui partage le savoir, pas les spots.</h2>
+        <p class="lead" style="margin-bottom: 24px;">Anti-fishbrain : les prises se partagent (avec floutage GPS), les techniques s'échangent, mais les coins secrets restent secrets. Une charte stricte, modérée par des pêcheurs.</p>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px;">
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Profil pêcheur</strong><div style="color:var(--ink-500); font-size:14px;">Ville, technique, espèces favorites, badges, équipement. Pas de stalking GPS.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Fil régional</strong><div style="color:var(--ink-500); font-size:14px;">Conditions du jour, prises récentes, événements, alertes locales.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Floutage GPS systématique</strong><div style="color:var(--ink-500); font-size:14px;">Toute prise publique est positionnée dans un rayon de 2 km. Anti spot-burning.</div></div></li>
+          <li style="display:flex; gap:12px; align-items:flex-start;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M5 12l5 5L20 7"/></svg><div><strong>Modération humaine</strong><div style="color:var(--ink-500); font-size:14px;">Pêcheurs ambassadeurs régionaux + IA pour signaler les abus.</div></div></li>
+        </ul>
+      </div>
+      <div class="feature-visual community">
+        <svg viewBox="0 0 400 300" class="svg-illustration">
+          <!-- Profile cards stacked -->
+          <g transform="translate(40, 30)">
+            <rect width="320" height="70" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.1)"/>
+            <circle cx="35" cy="35" r="20" fill="#14B8A6"/>
+            <text x="33" y="40" fill="white" font-family="Inter" font-size="14" font-weight="700" text-anchor="middle">YL</text>
+            <text x="70" y="32" fill="white" font-family="Inter" font-size="14" font-weight="700">Yann Le Bras</text>
+            <text x="70" y="48" fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">Bar · 67 cm · Pointe du Raz · 06 mai</text>
+            <text x="70" y="62" fill="#2DD4BF" font-family="Inter" font-size="11">★★★★★  Coef. 88 · Shad kaki</text>
+          </g>
+          <g transform="translate(40, 115)">
+            <rect width="320" height="70" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.1)"/>
+            <circle cx="35" cy="35" r="20" fill="#F59E0B"/>
+            <text x="33" y="40" fill="white" font-family="Inter" font-size="14" font-weight="700" text-anchor="middle">SM</text>
+            <text x="70" y="32" fill="white" font-family="Inter" font-size="14" font-weight="700">Sophie Marec</text>
+            <text x="70" y="48" fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">Lieu jaune · 54 cm · Cap Sizun · 04 mai</text>
+            <text x="70" y="62" fill="#FBBF24" font-family="Inter" font-size="11">★★★★☆  Madaï rose</text>
+          </g>
+          <g transform="translate(40, 200)">
+            <rect width="320" height="70" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.1)"/>
+            <circle cx="35" cy="35" r="20" fill="#a78bfa"/>
+            <text x="33" y="40" fill="white" font-family="Inter" font-size="14" font-weight="700" text-anchor="middle">LB</text>
+            <text x="70" y="32" fill="white" font-family="Inter" font-size="14" font-weight="700">Loïc Briand</text>
+            <text x="70" y="48" fill="rgba(255,255,255,.6)" font-family="Inter" font-size="11">Bar · 55 cm · Anse de Térénez · 02 mai</text>
+            <text x="70" y="62" fill="#c4b5fd" font-family="Inter" font-size="11">★★★★☆  Stickbait blanc</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="background: var(--sand-100);">
+  <div class="container">
+    <div style="text-align: center; max-width: 720px; margin: 0 auto 48px;">
+      <span class="kicker">Ce qu'en disent les pêcheurs du banc</span>
+      <h2 style="margin-top: 12px;">Une communauté qui démarre fort</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>Le carnet a changé ma façon de pêcher. Je vois maintenant que mes meilleurs coefficients sont entre 75 et 95, pas au-dessus de 100 comme je croyais. Pure data sur ma propre pêche.</blockquote>
+        <div class="testimonial-author">
+          <span class="avatar">YL</span>
+          <div class="who"><strong>Yann L.</strong><span>Finistère · Pêche au leurre</span></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>Je débute, j'ai trouvé un mentor sur la communauté qui pêche à 30 km. Il m'a expliqué ses techniques par messages, sans me filer ses spots. C'est exactement ce dont j'avais besoin.</blockquote>
+        <div class="testimonial-author">
+          <span class="avatar">JR</span>
+          <div class="who"><strong>Julien R.</strong><span>Morbihan · Débutant surfcasting</span></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>Le mode hors ligne, le widget montre la prochaine marée sur l'écran d'accueil, le scoring qui s'affine avec mes prises… Carnet de Pêche fait ce que les autres apps promettent depuis 5 ans.</blockquote>
+        <div class="testimonial-author">
+          <span class="avatar">FB</span>
+          <div class="who"><strong>François B.</strong><span>Charente-Maritime · Surfcasting</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container">
+    <div class="banner-cta">
+      <span class="kicker" style="color: var(--teal-400);">Essai gratuit · 14 jours satisfait ou remboursé</span>
+      <h2 style="margin-top: 18px;">Crée ton carnet.</h2>
+      <p>Démarre avec ton département gratuit pendant 14 jours. Carnet illimité, carte intelligente, communauté locale. Sans carte bancaire pour la version Découverte.</p>
+      <div class="actions">
+        <a href="tarifs.html" class="btn btn-accent btn-lg">Démarrer gratuitement</a>
+        <a href="carte.html" class="btn btn-ghost btn-lg" style="background: rgba(255,255,255,.1); color: white; border-color: rgba(255,255,255,.2);">Voir la carte</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="brand-mark">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+          </span>
+          Carnet de Pêche
+        </div>
+        <p style="font-size: 14px; max-width: 320px;">Le réseau des pêcheurs à la canne du bord. Fait par un pêcheur, pour les pêcheurs.</p>
+        <div class="social">
+          <a href="#" aria-label="TikTok"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.5 12 3.5 12 3.5s-7.6 0-9.4.6A3 3 0 0 0 .5 6.2C0 8 0 12 0 12s0 4 .5 5.8a3 3 0 0 0 2.1 2.1c1.8.6 9.4.6 9.4.6s7.6 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.8.5-5.8.5-5.8s0-4-.5-5.8zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h4>Produit</h4>
+        <a href="carte.html">Carte intelligente</a><br/>
+        <a href="#">Carnet de pêche</a><br/>
+        <a href="#">Communauté</a><br/>
+        <a href="#">App iOS / Android</a>
+      </div>
+      <div>
+        <h4>Ressources</h4>
+        <a href="guide.html">Guides espèces</a><br/>
+        <a href="#">Régions</a><br/>
+        <a href="#">Réglementation</a><br/>
+        <a href="#">Blog</a>
+      </div>
+      <div>
+        <h4>Société</h4>
+        <a href="#">L'histoire</a><br/>
+        <a href="#">Charte communauté</a><br/>
+        <a href="#">Contact</a><br/>
+        <a href="#">Mentions légales</a>
+      </div>
+    </div>
+    <div class="footer-meta">
+      <div>© 2026 Carnet de Pêche. « Logue. Partage. Progresse. »</div>
+      <div>CGU · Politique de confidentialité · RGPD</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

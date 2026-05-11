@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Carte interactive — Carnet de Pêche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="assets/style.css" />
+<style>
+  body { background: white; }
+  .leaflet-container { background: #d6e0e6; font-family: var(--font-sans); }
+  .pin-marker {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--teal-500), var(--teal-600));
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    display: grid; place-items: center;
+    color: white; font-weight: 700; font-size: 12px;
+  }
+  .pin-marker span { transform: rotate(45deg); display: block; }
+  .pin-amber { background: linear-gradient(135deg, var(--amber-500), #d97706); }
+  .pin-red { background: linear-gradient(135deg, var(--red-500), #b91c1c); }
+
+  .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: var(--shadow-md); }
+  .leaflet-popup-content { margin: 14px 16px; font-family: var(--font-sans); }
+  .leaflet-popup-content h4 { font-family: var(--font-display); margin: 0 0 4px; color: var(--navy-900); }
+  .leaflet-popup-content .popup-meta { font-size: 12px; color: var(--ink-500); margin-bottom: 8px; }
+  .popup-score { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(20,184,166,.15); color: var(--teal-600); font-size: 11px; font-weight: 700; }
+  .popup-cta { display: inline-block; margin-top: 8px; color: var(--teal-600); font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+      </span>
+      Carnet de Pêche
+    </a>
+    <nav class="nav">
+      <a href="index.html">Accueil</a>
+      <a href="carte.html" class="active">Carte</a>
+      <a href="spot.html">Spots</a>
+      <a href="guide.html">Guides</a>
+      <a href="tarifs.html">Tarifs</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost btn-sm">Connexion</a>
+      <a href="tarifs.html" class="btn btn-primary btn-sm">Créer mon carnet</a>
+    </div>
+  </div>
+</header>
+
+<div class="map-shell">
+  <!-- SIDEBAR -->
+  <aside class="map-sidebar">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Une ville, un département, un spot…" />
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Technique</div>
+      <div class="chips">
+        <span class="chip active">Toutes</span>
+        <span class="chip">Leurres</span>
+        <span class="chip">Surfcasting</span>
+        <span class="chip">Flottante</span>
+        <span class="chip">Vif</span>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Espèce</div>
+      <div class="chips">
+        <span class="chip active">Bar</span>
+        <span class="chip">Dorade royale</span>
+        <span class="chip">Lieu jaune</span>
+        <span class="chip">Maquereau</span>
+        <span class="chip">Sar</span>
+        <span class="chip">Orphie</span>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Couches affichées</div>
+      <div class="layer-row">
+        <div class="layer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/></svg>
+        </div>
+        <div class="layer-text"><strong>Spots</strong><span>3 247 sur la zone</span></div>
+        <div class="switch on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/></svg>
+        </div>
+        <div class="layer-text"><strong>Heatmap activité</strong><span>Probabilité de prise</span></div>
+        <div class="switch on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M2 12s2-4 6-4 6 4 6 4 2-4 6-4"/></svg>
+        </div>
+        <div class="layer-text"><strong>Marées</strong><span>Zones découvrantes</span></div>
+        <div class="switch" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6l4 4"/><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <div class="layer-text"><strong>Vent & météo</strong><span>Open-Meteo · live</span></div>
+        <div class="switch" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 9 11 13 15 21 7"/></svg>
+        </div>
+        <div class="layer-text"><strong>Bathymétrie SHOM</strong><span>Profondeur</span></div>
+        <div class="switch" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Top 3 du jour</div>
+      <div class="spot-card-mini" onclick="window.location='spot.html'">
+        <div class="badge">94</div>
+        <div class="info">
+          <h5>Pointe du Raz</h5>
+          <div class="info-meta">Finistère · Bar du bord · 5 km</div>
+        </div>
+      </div>
+      <div class="spot-card-mini">
+        <div class="badge" style="background: linear-gradient(135deg, #F59E0B, #D97706);">87</div>
+        <div class="info">
+          <h5>Cap Sizun</h5>
+          <div class="info-meta">Finistère · Bar / Lieu jaune · 12 km</div>
+        </div>
+      </div>
+      <div class="spot-card-mini">
+        <div class="badge">82</div>
+        <div class="info">
+          <h5>Anse de Térénez</h5>
+          <div class="info-meta">Finistère · Bar · Maquereau · 18 km</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAP CANVAS -->
+  <div class="map-canvas">
+    <div id="map"></div>
+
+    <!-- Overlay tide card -->
+    <div class="map-overlay tide-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h4>Marée à Audierne</h4>
+        <span class="coef-pill">Coef. 88</span>
+      </div>
+      <div style="font-size: 12px; color: var(--ink-500); margin-bottom: 10px;">Sam. 9 mai · 14:32</div>
+      <div class="tide-bar">
+        <span style="font-size: 12px; color: var(--ink-700);">PM</span>
+        <div class="progress"><div style="width: 72%;"></div></div>
+        <span style="font-size: 12px; color: var(--ink-700);">BM</span>
+      </div>
+      <div class="tide-meta">
+        <span>BM 16:48 · 0,9 m</span>
+        <span>PM 22:54 · 6,4 m</span>
+      </div>
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ink-100); font-size: 13px; color: var(--ink-700);">
+        <strong style="color: var(--teal-600);">● Créneau optimal</strong> — 18:30 → 21:30
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="map-overlay legend-card">
+      <div style="font-size: 12px; font-weight: 700; color: var(--ink-500); margin-bottom: 8px; letter-spacing: .04em; text-transform: uppercase;">Score d'activité</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #14B8A6;"></span> 80-100 · Excellent</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #F59E0B;"></span> 50-79 · Correct</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #EF4444;"></span> 0-49 · Difficile</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Initialize map centered on Brittany
+  const map = L.map('map', { zoomControl: true, attributionControl: false }).setView([48.05, -4.55], 9);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors © CARTO'
+  }).addTo(map);
+
+  // Custom icons
+  function makeIcon(score, type) {
+    const cls = type === 'amber' ? 'pin-marker pin-amber' : type === 'red' ? 'pin-marker pin-red' : 'pin-marker';
+    return L.divIcon({
+      html: `<div class="${cls}"><span>${score}</span></div>`,
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -28]
+    });
+  }
+
+  // Sample fishing spots in Brittany
+  const spots = [
+    { lat: 48.0381, lng: -4.7361, score: 94, name: 'Pointe du Raz', tag: 'Bar · Lieu jaune', kind: 'good' },
+    { lat: 48.06, lng: -4.66, score: 87, name: 'Cap Sizun', tag: 'Bar du bord', kind: 'amber' },
+    { lat: 48.09, lng: -4.50, score: 82, name: 'Anse de Térénez', tag: 'Bar · Maquereau', kind: 'good' },
+    { lat: 47.96, lng: -4.31, score: 78, name: 'Plage de Penhors', tag: 'Surfcasting · Bar', kind: 'amber' },
+    { lat: 48.17, lng: -4.78, score: 91, name: 'Île de Sein', tag: 'Bar · Maquereau', kind: 'good' },
+    { lat: 47.87, lng: -4.27, score: 73, name: 'Loctudy', tag: 'Dorade · Sar', kind: 'amber' },
+    { lat: 48.21, lng: -4.43, score: 68, name: 'Brest - Le Diben', tag: 'Lieu jaune', kind: 'amber' },
+    { lat: 47.99, lng: -4.18, score: 45, name: 'Bénodet', tag: 'Bar (faible)', kind: 'red' },
+    { lat: 48.30, lng: -4.20, score: 86, name: 'Anse de Térénez', tag: 'Bar · Maquereau', kind: 'good' },
+    { lat: 48.13, lng: -4.95, score: 84, name: 'Île d\'Ouessant - Lampaul', tag: 'Bar · Vieille', kind: 'good' },
+  ];
+
+  spots.forEach(s => {
+    L.marker([s.lat, s.lng], { icon: makeIcon(s.score, s.kind) })
+      .addTo(map)
+      .bindPopup(`
+        <h4>${s.name}</h4>
+        <div class="popup-meta">${s.tag}</div>
+        <span class="popup-score">● ${s.score}/100</span>
+        <a href="spot.html" class="popup-cta">Voir le spot →</a>
+      `);
+  });
+
+  // Heatmap-style circle (simulation)
+  const heatZones = [
+    { lat: 48.04, lng: -4.73, r: 4000, color: '#14B8A6', op: 0.18 },
+    { lat: 48.17, lng: -4.78, r: 3500, color: '#14B8A6', op: 0.18 },
+    { lat: 48.06, lng: -4.66, r: 3000, color: '#F59E0B', op: 0.16 },
+    { lat: 48.09, lng: -4.50, r: 3200, color: '#14B8A6', op: 0.18 },
+    { lat: 47.99, lng: -4.18, r: 2500, color: '#EF4444', op: 0.15 },
+  ];
+  heatZones.forEach(z => {
+    L.circle([z.lat, z.lng], {
+      radius: z.r, color: z.color, fillColor: z.color, fillOpacity: z.op, opacity: 0.4, weight: 1
+    }).addTo(map);
+  });
+
+  // Filter chips toggle
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', e => {
+      const group = chip.parentElement;
+      group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
