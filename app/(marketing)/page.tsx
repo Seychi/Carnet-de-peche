@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Play, Check, Map, BookOpen, Users } from "lucide-react";
 
-export const revalidate = 3600;
-
 /* ─── Composants helpers ──────────────────────────────────────────────── */
 
 function Kicker({ children }: { children: React.ReactNode }) {
