@@ -1,0 +1,161 @@
+# Pêcher la dorade royale au surfcasting — le guide pour débuter
+
+## La dorade royale (Sparus aurata)
+
+La dorade royale est l'un des poissons les plus convoités du bord. Combative, méfiante et souvent capricieuse, elle récompense les pêcheurs qui comprennent ses habitudes alimentaires et ses postes de prédilection. Le surfcasting reste la technique reine pour la cibler depuis les plages et les zones de ressac.
+
+La « royale » se reconnaît à sa barre dorée entre les yeux — d'où son nom — et à la tache noire qui marque le départ de sa ligne latérale. C'est un poisson de groupe, qui patrouille en petits bancs de 3 à 10 individus, sauf les très gros spécimens qui finissent souvent solitaires.
+
+**Son régime** est large mais marqué : c'est avant tout une broyeuse. Ses molaires puissantes sont faites pour écraser les coquillages — moules, palourdes, coques, donaces, telines. Elle complète avec des **crustacés** (crabes verts, ermites, petites crevettes), des **vers marins** (arénicoles, néréides), et plus occasionnellement des **petits poissons** ou des **céphalopodes**. Cette spécialisation explique pourquoi les bons appâts sont rarement des leurres : pour la dorade, on revient aux fondamentaux du surfcasting avec des appâts naturels frais.
+
+**Géographiquement**, elle remonte chaque année plus haut sur la **côte atlantique** : autrefois cantonnée au golfe de Gascogne, on la prend désormais jusqu'en Bretagne nord et en Manche, conséquence directe du réchauffement des eaux. La saison y est étroite (juin à octobre). En **Méditerranée**, elle est présente toute l'année, avec un pic de mai à novembre. Les **étangs littoraux** (Thau, Salses-Leucate, Diana) abritent des populations sédentaires énormes et accessibles depuis le bord.
+
+## Le matériel de surfcasting
+
+### La canne
+
+Pour cibler la dorade au surfcasting, vise une canne de **4 m à 4,50 m**, en 3 brins. C'est la longueur qui te permet de lancer loin par-dessus la barre de ressac (souvent 80 à 120 m) et de tenir ta ligne haute au-dessus de l'écume.
+
+La **puissance de lancer** se situe entre **100 g et 200 g**. Cette plage couvre les plombs de 100-150 g que tu utiliseras 90 % du temps, avec une marge pour les jours de vent fort où il faut monter à 180 g.
+
+L'**action parabolique** est idéale pour la dorade : la canne plie progressivement sur toute sa longueur. Trois avantages :
+
+1. Elle accompagne les coups de tête vifs de la dorade et évite que l'hameçon ne s'arrache (sa gueule est solide mais l'attache reste fragile).
+2. Elle propulse mieux les gros plombs sur la distance.
+3. Elle absorbe la traction du courant, qui peut décrocher un plomb sur un blank trop raide.
+
+Distingue deux familles de cannes :
+
+- **Cannes match** (compétition) : techniques, légères, conçues pour des lancers ultra-précis à grande distance. Souvent en 3 brins emboîtés, blank fin et nerveux. Prix : à partir de 200-250 € pour de l'utile, ça monte vite. Réservées aux pêcheurs réguliers qui font de la distance.
+- **Cannes beach** (loisir/polyvalentes) : plus robustes, plus pardonnantes, montées télescopiques ou en 3 brins. Prix à partir de 50 € en télescopique, 90-150 € en 3 brins corrects.
+
+**Budget pour débuter** : 80-150 € pour une canne 3 brins beach honnête (Vercelli Oxygen, Daiwa Sealine X Surf, Shimano Beastmaster Surf, Sunset Spectro). **Budget intermédiaire** : 200-350 € pour passer en cannes type Tubertini ou Vercelli Enygma quand tu veux progresser en distance et précision.
+
+### Le moulinet
+
+Le surfcasting demande des **moulinets grande taille : 6000 à 8000** (numérotation Shimano/Daiwa) ou « SurfCasting/Long Cast » selon les marques.
+
+Le **tambour grand diamètre** est non-négociable : un tambour large laisse la tresse ou le nylon se dérouler avec moins de friction au lancer, ce qui te gagne facilement 15 à 20 mètres. Cherche les mentions « Long Cast Spool », « ABS » (Anti-Backlash Spool, Daiwa) ou « AeroWrap » (Shimano).
+
+Le **ratio de récupération** est secondaire en surfcasting : tu pêches en attente, pas en animation. Un ratio standard 4.0:1 à 4.7:1 fait parfaitement le job.
+
+Le **freinage progressif** est crucial pour la dorade : elle attaque souvent en marche arrière, démarre fort, puis ralentit, puis repart. Un frein qui sursaute te coûte le poisson. Vise les moulinets avec frein avant multi-disques (au moins 4-5 disques carbone ou feutre), pas un frein arrière minimaliste.
+
+**Recommandations par budget** :
+
+- Entrée de gamme (50-90 €) : Shimano Alivio 8000, Daiwa Emcast Surf, Penn Wrath 8000.
+- Milieu de gamme (130-200 €) : Daiwa Crosscast 6000 / 8000, Shimano Ultegra XSD, Penn Surfblaster III.
+- Haut de gamme (300-500 €) : Daiwa Tournament Basia, Shimano Aerocast, Penn Surfblaster Long Cast.
+
+**Entretien après chaque session** : c'est là que beaucoup de débutants flinguent leur matériel en une saison. Après chaque sortie en mer : **rinçage à l'eau douce tiède au jet doux** (jamais en pression directe sur le mécanisme), démontage du tambour pour sécher l'axe, **graissage léger** une fois par mois en saison. Le sable est pire que le sel : il use mécaniquement les engrenages. Si tu poses ton moulinet dans le sable, démonte et nettoie le soir même.
+
+### Le bas de ligne
+
+Sur le moulinet, deux écoles : **nylon de corps** en 28-35/100 (plus pardonnant pour les lancers, meilleur retard) ou **tresse** en PE 1.5 à 2.5 (plus de sensibilité, lancers plus longs, mais moins tolérante aux frottements). Pour démarrer, reste sur le nylon — tu perdras moins de plombs.
+
+Au bout, un **bas de ligne en fluorocarbone de 40 à 60/100** (≈ 12-25 kg). Longueur : **80 cm à 1,5 m** selon le montage.
+
+**Pourquoi le fluoro est indispensable sur fond clair** : la dorade est l'un des poissons les plus méfiants des côtes françaises. Sur sable blanc ou tessons clairs, elle voit un nylon coloré et refuse l'appât. Le fluorocarbone, avec son indice de réfraction proche de l'eau (1,42 contre 1,33 pour l'eau et 1,53 pour le nylon), devient quasi invisible.
+
+Il a aussi une résistance à l'abrasion supérieure — utile contre les molaires de la dorade qui peuvent sectionner un nylon classique en quelques secondes pendant le combat.
+
+**Les deux montages dorade à connaître** :
+
+- **Le paternoster** : un bas de ligne avec un ou deux empiles (hameçons branchés perpendiculairement) au-dessus du plomb. Avantage : les appâts décollent du fond, plus visibles. Idéal sur plage de sable, fonds plats. C'est le montage de référence.
+- **Le running ledger** (plomb coulissant) : le plomb coulisse librement sur la ligne, l'appât traîne au fond derrière. Avantage : la dorade prend l'appât sans sentir la résistance du plomb avant de mâcher tranquillement. Très efficace en méditerranée et sur les dorades méfiantes.
+
+**Hameçons** : taille 1 à 2/0, fer fort, modèles type Mustad Beak ou Owner Cutting Point. Aiguise systématiquement après chaque touche manquée.
+
+## Les montages et appâts
+
+### Le ver de vase et le ver de sable
+
+Ce sont les appâts de référence, ceux qui prennent de la dorade partout en France quand ils sont **frais**.
+
+L'**arénicole** (ver de sable) est le grand classique de l'Atlantique. Long, charnu, plein de sang qui diffuse en pleine eau, il attire la dorade à distance. Tu l'enfiles entier sur l'hameçon en commençant par la tête, en remontant sur la hampe et même sur le bas de ligne, en laissant les 2-3 cm de queue libres. Pour les grosses dorades, double-le ou triple-le sur le même hameçon.
+
+La **néréide** (ver de vase ou ver américain) est plus fine, plus mobile, particulièrement efficace en méditerranée. Présentation similaire mais avec plus de soin : c'est un appât fragile.
+
+**Conservation et reconditionnement** : tes vers se gardent 4-5 jours au frais (5-8 °C, jamais au congélateur). À l'achat ou la récolte, sors-les de leur sciure ou de leur algue, rince-les rapidement à l'eau de mer, mets-les sur du papier journal légèrement humide. Avant la sortie, **passe-les dans un mélange de farine de maïs (Polenta)** : ça les raidit, les fait durer au lancer et limite leur acidité de surface qui repousse les poissons quand ils dégradent. Astuce surfcasting compétition.
+
+### Le crustacé (crabe vert, ermite)
+
+Sur les **zones rocheuses** ou les plages avec **enrochements**, le crustacé surclasse souvent les vers. C'est l'appât naturel n°1 de la dorade dans ces zones : ses molaires sont littéralement faites pour ça.
+
+Le **crabe vert** (Carcinus maenas) se présente entier pour les grosses dorades : taille 2-3 cm, attache l'hameçon entre la 3ème et la 4ème patte par-dessous, fil ressort par le dos. Pour les dorades plus modestes, casse-le en deux et utilise un demi-crabe pince-fer mou (mue récente) — l'appât roi.
+
+L'**ermite** (Pagurus, le « bernard l'ermite ») est encore plus efficace mais demande un peu de préparation : casse la coquille avec un caillou, retire le corps mou. Tu peux l'utiliser tel quel ou couper le céphalothorax pour ne garder que le « cul ». Diffuseur de jus puissant, irrésistible.
+
+**Réglementation de collecte** : la pêche à pied à des fins d'appâts est encadrée. La règle générale : usage **strictement personnel**, **quotas journaliers** (souvent 100 g à 500 g selon l'espèce et le département), **outils manuels** uniquement, **respect des tailles minimales** (5 cm pour le crabe vert dans certains départements). Vérifie l'arrêté préfectoral de ton département sur le site de la DDTM. Et ne pille pas les flaques de marée basse : un retournement de rochers se remet **toujours** dans le bon sens.
+
+### La moule et la palourde
+
+En **Méditerranée** et sur certaines côtes atlantiques, la **moule** et la **palourde** sont les appâts de prédilection pour la grosse dorade. Logique : c'est exactement ce qu'elle broie naturellement.
+
+**Astuce de fixation** pour tenir au lancer (le grand défi des appâts mous) :
+
+1. Décoque la moule ou la palourde.
+2. Pique l'hameçon dans la partie la plus dure (le « pied » de la moule, le « siphon » de la palourde).
+3. **Ligature** ensuite l'ensemble avec du **fil élastique de cuisine** (« bait elastic » des magasins de pêche, 0,2-0,3 mm) en 4-5 tours autour de l'appât et de la hampe.
+
+Sans cette ligature, ton appât s'arrache au lancer. Avec, il tient même sur un lancer à 100 m.
+
+**Collecte dans le respect des quotas** : moule, palourde, coque relèvent de la pêche à pied récréative. Quotas indicatifs (à vérifier dans ton département) : **5 kg de moules**, **2 kg de palourdes**, **3 kg de coques** par jour et par personne, **outils manuels uniquement**. Zones de **classement sanitaire** : certaines zones sont interdites au ramassage pour cause de pollution. Consulte la carte du Ifremer ou de l'ARS de ta région. Et **n'utilise jamais** des coquillages achetés en grande surface comme appâts : la cuisson les rend inefficaces.
+
+## Quand et où pêcher la dorade ?
+
+**La saison principale** dépend fortement de ta façade :
+
+- **Atlantique et Manche** : pic de **juin à octobre**, avec souvent les meilleures sessions entre **mi-août et fin septembre** quand l'eau atteint son maximum thermique (18-22 °C en surface). En dehors de cette fenêtre, la dorade se rabat vers le large et devient quasi-introuvable depuis le bord.
+- **Méditerranée** : présente **toute l'année**, avec un pic de **mai à novembre**. L'hiver, elle se concentre dans les étangs littoraux (Thau, Berre, Salses-Leucate) où elle reste prenable les jours de redoux.
+
+**Les meilleures conditions** sont assez précises :
+
+- **Température de l'eau** : la dorade s'active à partir de **17-18 °C** et devient mordeuse à **20-22 °C**. En dessous de 15 °C, elle ralentit son alimentation.
+- **État de la mer** : **calme à légèrement agitée** (houle 0,3-1 m). En grosse mer, elle décroche du bord ; en mer d'huile par grand soleil, elle devient ultra-méfiante. Le « petit ressac » qui rebrasse le sable est la condition idéale — c'est lui qui libère vers et petits crustacés.
+- **Vent** : **vent de terre** modéré (off-shore) en début/fin de journée, qui aplatit la mer et concentre les proies en bordure. Évite les vents on-shore forts.
+- **Lumière** : la dorade chasse essentiellement à **l'aube et au crépuscule**, et **toute la nuit**. Le surfcasting nocturne d'été (22h-3h) est un must.
+
+**La marée**, sur les plages atlantiques, est centrale. La dorade vient se nourrir **à marée haute** dans la zone de ressac, là où les vagues retournent le sable et libèrent les coquillages. Vise les **deux heures avant à deux heures après la pleine mer**. Sur les **coefficients 60-90**, le mouvement d'eau est optimal. Au-delà de 100, le courant peut devenir trop fort sur certaines plages. En Méditerranée, la marée est négligeable mais la **pression barométrique** et le vent jouent le même rôle.
+
+## Lire une plage de surfcasting
+
+Une plage qui paraît plate vue de la côte ne l'est jamais sous l'eau. **Tout l'art du surfcasting commence par l'observation à marée basse.**
+
+**Repérer les structures clés** :
+
+- **Les bancs de sable** (« barres ») sont des reliefs parallèles à la côte. Vus de la dune ou d'une dune surélevée à marée basse, ils apparaissent comme des bandes plus claires (sable émergent) séparées par des bandes plus foncées (creux remplis d'eau). La dorade patrouille **derrière** les bancs, dans la fosse qui suit côté large, ou **devant** dans le couloir qui borde le bord.
+- **Les bâches** sont des cuvettes plus profondes qui restent en eau à marée basse, perpendiculaires ou parallèles à la plage. Elles concentrent les coquillages et les vers — donc les dorades qui les chassent à marée montante. Une bâche, c'est un point chaud quasi-systématique.
+- **Les couloirs** (ou « rip currents », baïnes en Aquitaine) sont des courants perpendiculaires à la côte qui évacuent l'eau du ressac vers le large. Ils emportent vers et coquillages mobilisés par les vagues, **les déversant en chapelet** au large. Les prédateurs comme la dorade et le bar se postent à l'embouchure du couloir, en aval, pour avaler le tapis roulant. **Attention** : les baïnes sont aussi dangereuses pour les baigneurs. Pêcher à côté, jamais dedans, jamais en marchant dans l'eau.
+
+**L'observation à marée basse, mode d'emploi** : repère la plage à coef > 90 lors d'une grande marée basse. Photographie, prends des notes, **place des amers** (un poteau, un arbre, un point fixe sur la dune). Quand tu reviens à marée montante, tu sais exactement où lancer — alors que tout est sous l'eau et invisible.
+
+**Les outils Carnet de Pêche** te font gagner des saisons sur cette lecture du terrain. La **carte intelligente** te montre la bathymétrie (relief sous-marin), te superpose le **score d'activité 0-100** par zone calculé sur les prises de dorade loguées par la communauté, et te filtre par **espèce et technique** (uniquement les spots performants en surfcasting dorade, par exemple). Tu visualises en quelques secondes les bancs, bâches et couloirs validés par des dizaines d'autres surfcasteurs, plus besoin de passer cinq étés à reconnaître une plage.
+
+## La réglementation
+
+- Taille minimale de capture : 25 cm (règlement UE 2019/1241 — valable en Atlantique, Manche et Méditerranée).
+- Quota journalier : pas de quota spécifique pour la pêche récréative à ce jour, mais pratique raisonnée recommandée.
+- Zones de collecte d'appâts : la collecte de moules, palourdes et coques est soumise à des quotas journaliers et des zones autorisées — renseigne-toi auprès de la DDTM de ton département.
+
+## Loguer ta prise sur Carnet de Pêche
+
+Tu viens de sortir une dorade royale, et son flanc doré scintille encore sur ton trépied. Avant de la relâcher (no-kill conseillé sur les petits sujets et les femelles) ou de la garder pour la planche, prends 20 secondes pour la loguer dans **Carnet de Pêche**.
+
+L'enregistrement est calé pour aller vite, même les doigts pleins de sable :
+
+- **Espèce** : Dorade royale (déjà filtrée dans tes favoris depuis l'onboarding).
+- **Taille** : un curseur entre 20 et 70 cm. Mesure rapide contre ta canne ou un mètre ruban à plat.
+- **Poids** (optionnel) : pesée à la balance ou estimation visuelle (une dorade de 40 cm pèse en moyenne 1,2 kg).
+- **Technique** : Surfcasting. Sous-menu pour le montage (paternoster / running ledger / autre).
+- **Appât utilisé** : précise — arénicole, néréide, crabe vert entier, demi-crabe, ermite, moule, palourde, mix. Cette donnée est cruciale pour tes stats annuelles et pour calibrer le score communautaire.
+- **Photo** (optionnelle, recommandée) : redimensionnée et compressée automatiquement.
+- **Conditions auto-enregistrées** : marée, coefficient, hauteur d'eau, vent direction/force, houle, température de l'air et de l'eau, pression atmosphérique, phase lunaire. Tu ne saisis rien, tout est récupéré en arrière-plan via Open-Meteo Marine.
+
+Côté **confidentialité**, ta prise est **privée par défaut**. Tu peux la rendre visible à tes amis (coords précises) ou à la communauté (coords floutées à 1 km pour protéger ta plage contre le spot-burning).
+
+**Pourquoi ça compte au-delà de ton carnet perso** : la dorade est l'espèce qui réagit le plus finement aux conditions (température, marée, pression). Chaque prise loguée affine le **score d'activité** des plages autour de toi. Ta dorade prise à 4h47 du matin par marée descendante coef 78 et pression 1018 hPa fait monter le score de cette zone pour les sessions futures à conditions équivalentes — pour toi, et pour tous les pêcheurs de dorade de ton département.
+
+C'est exactement comme ça que la carte devient plus intelligente à chaque saison qui passe.
+
+**Logue. Partage. Progresse.** Ta prochaine session démarrera avec un cran d'avance.

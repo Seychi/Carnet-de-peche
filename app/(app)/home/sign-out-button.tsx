@@ -10,8 +10,12 @@ export function SignOutButton() {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Session locale effacée même si Supabase est injoignable
+    }
+    router.push("/auth/login");
   }
 
   return (

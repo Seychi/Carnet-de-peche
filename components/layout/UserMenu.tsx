@@ -1,0 +1,97 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { LogOut, User, BookOpen, ChevronDown } from 'lucide-react'
+
+interface UserMenuProps {
+  username: string | null
+  avatarUrl: string | null
+}
+
+export function UserMenu({ username, avatarUrl }: UserMenuProps) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+
+  // Fermer si clic en dehors
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+    router.refresh()
+  }
+
+  const initials = username ? username.slice(0, 2).toUpperCase() : '?'
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 min-h-[44px] px-2 rounded-xl hover:bg-ink-100 transition-colors"
+        aria-label="Menu utilisateur"
+        aria-expanded={open}
+      >
+        {/* Avatar */}
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={username ?? 'Avatar'} className="w-8 h-8 rounded-full object-cover" />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-navy-900 flex items-center justify-center shrink-0">
+            <span className="text-white text-xs font-bold">{initials}</span>
+          </div>
+        )}
+        <span className="hidden sm:block text-sm font-medium text-navy-900 max-w-[120px] truncate">
+          {username ?? 'Pêcheur'}
+        </span>
+        <ChevronDown size={14} className={`text-ink-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-ink-100 rounded-[14px] shadow-lg overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-ink-100">
+            <p className="text-sm font-semibold text-navy-900 truncate">{username ?? 'Pêcheur'}</p>
+          </div>
+          <nav className="py-1.5">
+            <Link
+              href="/profil"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <User size={15} className="text-ink-400" />
+              Mon profil
+            </Link>
+            <Link
+              href="/carnet"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <BookOpen size={15} className="text-ink-400" />
+              Mon carnet
+            </Link>
+          </nav>
+          <div className="py-1.5 border-t border-ink-100">
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-red-600 transition-colors"
+            >
+              <LogOut size={15} className="text-ink-400" />
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

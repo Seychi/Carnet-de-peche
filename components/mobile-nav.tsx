@@ -1,24 +1,39 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LogOut, User, BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { label: 'Carte', href: '#' },
-  { label: 'Spots', href: '#' },
-  { label: 'Guides', href: '#' },
-  { label: 'Tarifs', href: '#tarifs' },
+  { label: 'Carte', href: '/carte' },
+  { label: 'Spots', href: '/spots' },
+  { label: 'Guides', href: '/guides' },
+  { label: 'Tarifs', href: '/tarifs' },
 ]
 
-export function MobileNav() {
-  const [open, setOpen] = useState(false)
+interface MobileNavProps {
+  isAuthenticated?: boolean
+  username?: string | null
+}
 
-  // Bloque le scroll body quand le menu est ouvert
+export function MobileNav({ isAuthenticated = false, username = null }: MobileNavProps) {
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
+
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setOpen(false)
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <>
@@ -33,13 +48,7 @@ export function MobileNav() {
 
       {open && (
         <>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 z-40 lg:hidden bg-ink-900/20"
-            onClick={() => setOpen(false)}
-          />
-
-          {/* Drawer */}
+          <div className="fixed inset-0 z-40 lg:hidden bg-ink-900/20" onClick={() => setOpen(false)} />
           <div
             className="fixed top-[68px] left-0 right-0 z-50 lg:hidden border-b border-ink-100"
             style={{
@@ -48,7 +57,7 @@ export function MobileNav() {
               WebkitBackdropFilter: 'saturate(180%) blur(16px)',
             }}
           >
-            <nav className="mx-auto max-w-[1200px] px-5 pb-5">
+            <nav className="mx-auto max-w-[1280px] px-6 pb-6">
               <div className="flex flex-col">
                 {NAV_ITEMS.map((item) => (
                   <Link
@@ -62,27 +71,54 @@ export function MobileNav() {
                 ))}
               </div>
 
-              <div className="flex flex-col gap-2.5 pt-5">
-                <Link
-                  href="/auth/login"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center px-4 rounded-full text-[15px] font-semibold text-navy-900 border-[1.5px] border-ink-200 min-h-[48px] transition-colors hover:bg-ink-100"
-                >
-                  Connexion
-                </Link>
-                <Link
-                  href="/auth/register"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center px-4 rounded-full text-[15px] font-semibold min-h-[48px]"
-                  style={{
-                    background: 'var(--navy-900)',
-                    color: '#fff',
-                    boxShadow: '0 4px 14px rgba(10,47,61,.18)',
-                  }}
-                >
-                  Créer mon carnet
-                </Link>
-              </div>
+              {isAuthenticated ? (
+                <div className="flex flex-col gap-2 pt-5 border-t border-ink-100 mt-2">
+                  {username && (
+                    <p className="text-sm text-ink-500 mb-1">Connecté en tant que <strong>{username}</strong></p>
+                  )}
+                  <Link
+                    href="/profil"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors"
+                  >
+                    <User size={18} className="text-ink-400" />
+                    Mon profil
+                  </Link>
+                  <Link
+                    href="/carnet"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors border-b border-ink-100"
+                  >
+                    <BookOpen size={18} className="text-ink-400" />
+                    Mon carnet
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-red-600 transition-colors w-full text-left mt-1"
+                  >
+                    <LogOut size={18} className="text-ink-400" />
+                    Déconnexion
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2.5 pt-5">
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center px-4 rounded-full text-[15px] font-semibold text-navy-900 border-[1.5px] border-ink-200 min-h-[48px] transition-colors hover:bg-ink-100"
+                  >
+                    Connexion
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center px-4 rounded-full text-[15px] font-semibold min-h-[48px] text-white"
+                    style={{ background: 'var(--navy-900)', boxShadow: '0 4px 14px rgba(10,47,61,.18)' }}
+                  >
+                    Créer mon carnet
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </>

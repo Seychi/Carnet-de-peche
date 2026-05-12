@@ -1,46 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { sendMagicLink } from "./actions";
+import { sendMagicLink, type LoginState } from "./actions";
 
-const loginSchema = z.object({
-  email: z.string().email("Adresse email invalide."),
-});
+const loginInitialState: LoginState = {
+  error: null,
+  success: false,
+  email: "",
+  submittedAt: null,
+};
 
-type LoginValues = z.infer<typeof loginSchema>;
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      className="min-h-[52px] rounded-full text-[15px] font-semibold w-full"
+      style={{
+        background: "var(--navy-900)",
+        color: "#fff",
+        boxShadow: "0 6px 24px rgba(10,47,61,.14)",
+      }}
+    >
+      {pending ? (
+        <>
+          <Loader2 size={16} className="animate-spin mr-2" />
+          Envoi en cours…
+        </>
+      ) : (
+        "M'envoyer le lien"
+      )}
+    </Button>
+  );
+}
 
 export default function LoginPage() {
-  const [sent, setSent] = useState(false);
-  const [sentEmail, setSentEmail] = useState("");
+  const [state, formAction] = useActionState(sendMagicLink, loginInitialState);
+  const [showSent, setShowSent] = useState(false);
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "" },
-  });
+  useEffect(() => {
+    if (state.success && state.submittedAt) setShowSent(true);
+  }, [state.submittedAt]);
 
-  async function onSubmit(values: LoginValues) {
-    const result = await sendMagicLink(values.email);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      setSentEmail(values.email);
-      setSent(true);
-      toast.success("Vérifie ton email, le lien arrive.");
-    }
-  }
-
-  if (sent) {
+  if (showSent) {
     return (
       <div className="w-full max-w-[420px] text-center">
         <div
@@ -52,13 +64,13 @@ export default function LoginPage() {
         <h1 className="text-[26px] mb-2">Vérifie ton email</h1>
         <p className="text-ink-500 text-[15px] leading-relaxed mb-6">
           On vient d&apos;envoyer un lien de connexion à{" "}
-          <strong className="text-ink-900">{sentEmail}</strong>.
+          <strong className="text-ink-900">{state.email}</strong>.
           Clique dessus depuis ton téléphone ou ton ordi.
         </p>
         <p className="text-[13px] text-ink-500">
           Pas reçu ?{" "}
           <button
-            onClick={() => setSent(false)}
+            onClick={() => setShowSent(false)}
             className="text-teal-600 font-medium hover:underline"
           >
             Renvoyer
@@ -70,7 +82,6 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-[420px]">
-      {/* Titre */}
       <div className="text-center mb-8">
         <h1 className="text-[28px] mb-2">Connexion à ton carnet</h1>
         <p className="text-ink-500 text-[15px]">
@@ -78,65 +89,45 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Formulaire */}
       <div
         className="bg-white rounded-[22px] p-6 sm:p-8 border border-ink-100"
         style={{ boxShadow: "0 4px 24px rgba(10,47,61,.06)" }}
       >
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[14px] font-semibold text-ink-900">
-                    Ton email
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="toi@exemple.fr"
-                      autoComplete="email"
-                      className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="min-h-[52px] rounded-full text-[15px] font-semibold w-full"
-              style={{
-                background: "var(--navy-900)",
-                color: "#fff",
-                boxShadow: "0 6px 24px rgba(10,47,61,.14)",
-              }}
+        <form action={formAction} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label
+              htmlFor="email"
+              className="text-[14px] font-semibold text-ink-900"
             >
-              {form.formState.isSubmitting ? (
-                <>
-                  <Loader2 size={16} className="animate-spin mr-2" />
-                  Envoi en cours…
-                </>
-              ) : (
-                "M'envoyer le lien"
-              )}
-            </Button>
-          </form>
-        </Form>
+              Ton email
+            </Label>
+            <Input
+              key={state.email || "empty"}
+              id="email"
+              name="email"
+              type="email"
+              placeholder="toi@exemple.fr"
+              autoComplete="email"
+              defaultValue={state.email}
+              className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
+              required
+            />
+            {state.error && (
+              <p className="text-[13px] text-red-600" role="alert">
+                {state.error}
+              </p>
+            )}
+          </div>
 
-        {/* Séparateur */}
+          <SubmitButton />
+        </form>
+
         <div className="flex items-center gap-3 my-5">
           <Separator className="flex-1" />
           <span className="text-[12px] text-ink-500 shrink-0">ou</span>
           <Separator className="flex-1" />
         </div>
 
-        {/* OAuth désactivés */}
         <div className="flex flex-col gap-3">
           <button
             disabled
@@ -169,13 +160,9 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Lien register */}
       <p className="text-center text-[14px] text-ink-500 mt-6">
         Pas encore de compte ?{" "}
-        <Link
-          href="/auth/register"
-          className="text-teal-600 font-semibold hover:underline"
-        >
+        <Link href="/auth/register" className="text-teal-600 font-semibold hover:underline">
           Crée le tien
         </Link>
       </p>
