@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Fix Windows : pnpm résout les symlinks avec deux casings différents
+  // (Carnet-de-peche vs carnet-de-peche), ce qui fait charger certains
+  // modules Next.js en double et casse GlobalLayoutRouterContext.
+  webpack: (config) => {
+    config.resolve.symlinks = false;
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -52,9 +52,9 @@ export async function sendMagicLink(
   const email = parsed.data;
   const supabase = await createClient();
   const headersList = await headers();
-  const origin =
-    headersList.get("origin") ??
-    process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(".supabase.co", "");
+  const host = headersList.get("host") ?? "localhost:3000";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  const origin = `${protocol}://${host}`;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
