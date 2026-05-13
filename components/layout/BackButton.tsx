@@ -38,7 +38,7 @@ export function BackButton({
       type="button"
       onClick={handleClick}
       aria-label={label ?? 'Retour'}
-      className={`md:hidden flex items-center gap-1.5 -ml-2 px-2 py-1.5 rounded-[8px] text-ink-600 active:bg-slate-100 transition-colors ${className}`}
+      className={`md:hidden flex items-center gap-1.5 -ml-2 px-2 py-1.5 rounded-[8px] text-ink-700 active:bg-slate-100 transition-colors ${className}`}
     >
       <ArrowLeft size={20} strokeWidth={2.25} />
       {label && <span className="text-[14px] font-medium">{label}</span>}
