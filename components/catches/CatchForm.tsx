@@ -200,6 +200,25 @@ export function CatchForm(props: CatchFormProps) {
     }
   }, [watchedSizeCm, watchedSpecies, setValue])
 
+  // Reset des champs conditionnels au changement de technique
+  // (sinon la marque du leurre persiste quand on passe sur surfcasting, etc.)
+  const prevTechniqueRef = useRef<typeof watchedTechnique>(watchedTechnique)
+  useEffect(() => {
+    const prev = prevTechniqueRef.current
+    prevTechniqueRef.current = watchedTechnique
+    // Premier rendu : on initialise le ref, on ne nettoie rien
+    if (prev === watchedTechnique) return
+
+    if (watchedTechnique === 'leurres') {
+      // Bait n'est plus pertinent
+      setValue('bait_type', undefined, { shouldDirty: true })
+    } else {
+      // surfcasting / flottante / vif / undefined : marque & modèle de leurre n'ont plus de sens
+      setValue('lure_brand', undefined, { shouldDirty: true })
+      setValue('lure_model', undefined, { shouldDirty: true })
+    }
+  }, [watchedTechnique, setValue])
+
   // Brouillon (création uniquement)
   useEffect(() => {
     if (isEdit) return
