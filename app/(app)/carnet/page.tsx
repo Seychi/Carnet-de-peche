@@ -8,6 +8,7 @@ import { CatchStatsRow } from '@/components/catches/CatchStatsRow'
 import { CatchStatsDetailed } from '@/components/catches/CatchStatsDetailed'
 import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
+import { BackButton } from '@/components/layout/BackButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,6 +92,9 @@ export default async function CarnetPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-sand-50">
       <div className="max-w-5xl mx-auto px-4 py-8">
+
+        {/* Flèche retour mobile (cachée sur desktop) */}
+        <BackButton fallbackHref="/home" className="mb-3" />
 
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">
