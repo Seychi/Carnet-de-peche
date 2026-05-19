@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -586,6 +586,7 @@ export type Database = {
           bait: string | null
           bait_type: string | null
           caught_at: string | null
+          conditions: Json | null
           created_at: string | null
           department: string | null
           display_name: string | null
@@ -597,8 +598,10 @@ export type Database = {
           lure_model: string | null
           notes: string | null
           photo_path: string | null
+          precise_for_friends: boolean | null
           privacy: string | null
           released: boolean | null
+          reveal_precise_to_public: boolean | null
           size_cm: number | null
           species: string | null
           spot_id: string | null
@@ -608,9 +611,6 @@ export type Database = {
           username: string | null
           water_temperature_c: number | null
           weight_g: number | null
-          conditions: Json | null
-          precise_for_friends: boolean | null
-          reveal_precise_to_public: boolean | null
         }
         Relationships: [
           {
@@ -1044,6 +1044,29 @@ export type Database = {
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
+      get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
+      get_spots_for_map: {
+        Args: {
+          dept_filter?: string
+          species_filter?: string[]
+          technique_filter?: string[]
+        }
+        Returns: {
+          department: string
+          difficulty: number
+          id: string
+          is_precise: boolean
+          lat: number
+          lng: number
+          name: string
+          region: string
+          slug: string
+          species: string[]
+          structure: string
+          techniques: string[]
+          verified: boolean
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
@@ -1844,3 +1867,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
