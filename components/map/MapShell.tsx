@@ -9,15 +9,16 @@ import MapView from '@/components/map/MapView'
 import SpotPopup from '@/components/map/SpotPopup'
 import type { SpotMarker } from '@/lib/map/utils'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
-
-type UserTier = 'anonymous' | 'discovery' | 'local' | 'itinerant'
+import type { UserTier } from '@/lib/auth/tier'
 
 type MapShellProps = {
   spots: SpotMarker[]
   userTier: UserTier
+  initialCenter?: [number, number]
+  initialZoom?: number
 }
 
-export default function MapShell({ spots, userTier }: MapShellProps) {
+export default function MapShell({ spots, userTier, initialCenter, initialZoom }: MapShellProps) {
   const [activeSpot, setActiveSpot] = useState<SpotMarker | null>(null)
   const [isGeolocating, setIsGeolocating] = useState(false)
   const mapInstanceRef = useRef<MapLibreMap | null>(null)
@@ -58,8 +59,8 @@ export default function MapShell({ spots, userTier }: MapShellProps) {
     <div className="relative w-full h-full">
       <MapView
         spots={spots}
-        initialCenter={COASTAL_DEFAULT_CENTER}
-        initialZoom={COASTAL_DEFAULT_ZOOM}
+        initialCenter={initialCenter ?? COASTAL_DEFAULT_CENTER}
+        initialZoom={initialZoom ?? COASTAL_DEFAULT_ZOOM}
         className="w-full h-full"
         onMarkerClick={setActiveSpot}
         onMapReady={(map) => {
