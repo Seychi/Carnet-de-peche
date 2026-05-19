@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import MapShell from '@/components/map/MapShell'
 import { getUserTier } from '@/lib/auth/tier'
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
   description:
     'Carte interactive des spots de pêche à la canne du bord en France. Filtre par espèce et technique, marées et météo en temps réel. Logue tes prises pour affiner les scores.',
 }
+
+const UPSELL_COOKIE = 'upsell-dismissed-at'
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 
 async function fetchProfile(userId: string) {
   const supabase = await createClient()
@@ -29,15 +33,12 @@ async function fetchSpots(tier: UserTier, homeDept: string | null): Promise<Spot
   let deptFilter: string | null = null
   switch (tier) {
     case 'local':
-      // Tous les spots du département principal de l'user
       deptFilter = homeDept
       break
     case 'itinerant':
-      // Tous les spots de tous les départements côtiers — pas de filtre
       deptFilter = null
       break
     default:
-      // anonymous / discovery : pas de filtre, on limitera ensuite
       deptFilter = null
   }
 
@@ -76,12 +77,21 @@ export default async function CartePage() {
 
   const spots = await fetchSpots(tier, homeDept)
 
+  // Bandeau upsell : uniquement pour les discovery, sauf si déjà fermé récemment
+  const cookieStore = await cookies()
+  const dismissedAt = cookieStore.get(UPSELL_COOKIE)?.value
+  const isDismissed = dismissedAt
+    ? Date.now() - parseInt(dismissedAt, 10) < SEVEN_DAYS_MS
+    : false
+  const showUpsell = tier === 'discovery' && !isDismissed
+
   return (
     <MapShell
       spots={spots}
       userTier={tier}
       initialCenter={initialCenter}
       initialZoom={initialZoom}
+      showUpsell={showUpsell}
     />
   )
 }

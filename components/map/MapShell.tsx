@@ -7,6 +7,7 @@ import Link from 'next/link'
 import type { Map as MapLibreMap } from 'maplibre-gl'
 import MapView from '@/components/map/MapView'
 import SpotPopup from '@/components/map/SpotPopup'
+import UpsellBanner from '@/components/map/UpsellBanner'
 import type { SpotMarker } from '@/lib/map/utils'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
@@ -16,9 +17,10 @@ type MapShellProps = {
   userTier: UserTier
   initialCenter?: [number, number]
   initialZoom?: number
+  showUpsell?: boolean
 }
 
-export default function MapShell({ spots, userTier, initialCenter, initialZoom }: MapShellProps) {
+export default function MapShell({ spots, userTier, initialCenter, initialZoom, showUpsell = false }: MapShellProps) {
   const [activeSpot, setActiveSpot] = useState<SpotMarker | null>(null)
   const [isGeolocating, setIsGeolocating] = useState(false)
   const mapInstanceRef = useRef<MapLibreMap | null>(null)
@@ -102,7 +104,7 @@ export default function MapShell({ spots, userTier, initialCenter, initialZoom }
         />
       )}
 
-      {/* Bandeau CTA pour les anonymes — en bas, z-index inférieur à la popup */}
+      {/* Bandeau CTA pour les anonymes */}
       {isAnonymous && !activeSpot && (
         <div className="absolute bottom-0 left-0 right-0 z-10 p-3 pointer-events-none">
           <div className="max-w-lg mx-auto bg-navy-900/95 backdrop-blur-sm text-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3 shadow-lg pointer-events-auto">
@@ -119,6 +121,9 @@ export default function MapShell({ spots, userTier, initialCenter, initialZoom }
           </div>
         </div>
       )}
+
+      {/* Bandeau upsell pour les discovery (non-abonnés connectés) */}
+      {showUpsell && !activeSpot && <UpsellBanner />}
     </div>
   )
 }
