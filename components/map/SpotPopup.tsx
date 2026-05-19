@@ -115,12 +115,13 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
         aria-modal="true"
         aria-label={`Spot : ${spot.name}`}
         className={[
-          // Mobile : panel fixe en bas
+          // Mobile : panel fixe en bas (position: fixed)
           'fixed bottom-0 left-0 right-0 z-20',
           'rounded-t-2xl bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.12)]',
-          // Desktop : popup absolute top-right, largeur fixe, coins arrondis partout
-          'md:fixed md:bottom-auto md:left-auto md:top-auto md:right-auto',
-          'md:absolute md:top-4 md:right-4 md:w-80 md:rounded-2xl md:shadow-xl',
+          // Desktop : override en absolute top-right (position: absolute écrase fixed via md:)
+          // Le parent MapShell doit avoir position: relative
+          'md:absolute md:bottom-auto md:left-auto md:top-4 md:right-4 md:w-80',
+          'md:rounded-2xl md:shadow-xl',
         ].join(' ')}
       >
         {/* Drag handle visuel (mobile only) */}

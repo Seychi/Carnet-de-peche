@@ -110,7 +110,7 @@ export default function MapShell({ spots, userTier }: MapShellProps) {
               <span className="text-white/70">Crée ton carnet pour voir tous les spots.</span>
             </p>
             <Link
-              href="/auth/register"
+              href="/auth/login?tab=register"
               className="shrink-0 px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
             >
               C'est gratuit

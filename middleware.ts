@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes qui nécessitent d'être authentifié
-const APP_ROUTES = ["/home", "/carnet", "/carte", "/spot", "/onboarding"];
+const APP_ROUTES = ["/home", "/carnet", "/onboarding"];
 // Routes réservées aux visiteurs non-connectés
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 
