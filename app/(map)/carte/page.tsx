@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import MapShell from '@/components/map/MapShell'
+import { getUserTier } from '@/lib/auth/tier'
+import type { UserTier } from '@/lib/auth/tier'
 import { toSpotMarker, limitSpotsPerDept } from '@/lib/map/utils'
 import type { SpotMarker } from '@/lib/map/utils'
 
@@ -10,31 +12,28 @@ export const metadata: Metadata = {
     'Carte interactive des spots de pêche à la canne du bord en France. Filtre par espèce et technique, marées et météo en temps réel. Logue tes prises pour affiner les scores.',
 }
 
-type UserTier = 'anonymous' | 'discovery' | 'local' | 'itinerant'
-
-async function getUserTier(): Promise<UserTier> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return 'anonymous'
-
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('plan, status')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .maybeSingle()
-
-  if (!sub) return 'discovery'
-  if (sub.plan === 'local') return 'local'
-  if (sub.plan === 'itinerant') return 'itinerant'
-  return 'discovery'
-}
-
 async function fetchSpots(tier: UserTier): Promise<SpotMarker[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc('get_spots_for_map')
+
+  // Local : filtre sur le département principal de l'utilisateur
+  let deptFilter: string | null = null
+  if (tier === 'local') {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('home_department')
+        .eq('id', user.id)
+        .single()
+      deptFilter = profile?.home_department ?? null
+    }
+  }
+
+  const { data, error } = await supabase.rpc('get_spots_for_map', {
+    dept_filter: deptFilter,
+  })
 
   if (error || !data) return []
 
