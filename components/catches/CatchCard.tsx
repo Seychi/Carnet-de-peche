@@ -5,21 +5,7 @@ import { fr } from 'date-fns/locale'
 import type { ElementType } from 'react'
 import type { CatchRow } from '@/lib/catches/queries'
 
-const SPECIES_LABELS: Record<string, string> = {
-  bar: 'Bar',
-  dorade_royale: 'Dorade royale',
-  lieu_jaune: 'Lieu jaune',
-  maquereau: 'Maquereau',
-  sar: 'Sar',
-  orphie: 'Orphie',
-}
-
-const TECHNIQUE_LABELS: Record<string, string> = {
-  leurres: 'Leurres',
-  surfcasting: 'Surfcasting',
-  flottante: 'Flottante',
-  vif: 'Vif',
-}
+import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 
 const PRIVACY_CONFIG: Record<
   string,
