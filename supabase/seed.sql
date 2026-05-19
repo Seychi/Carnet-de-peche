@@ -15,7 +15,7 @@ values
    'Extrême ouest de la Bretagne. Spot iconique pour le bar à la marée descendante. Les structures rocheuses créent des cassures où le poisson se positionne.',
    'Sentier côtier depuis le parking principal (15 min de marche). Poste sud-ouest le plus productif au coucher du soleil.',
    array['ressac','vagues_scelerats','rochers_glissants'],
-   'subscriber', true),
+   'public', true),
 
   ('Cap Sizun', 'cap-sizun', '29', 'bretagne',
    ST_SetSRID(ST_MakePoint(-4.66, 48.06), 4326)::geography,
@@ -25,7 +25,7 @@ values
    'Côte sauvage entre la Pointe du Raz et Audierne. Plusieurs postes accessibles depuis le sentier des douaniers.',
    'Plusieurs accès, le plus simple via le parking de Pors Loubous.',
    array['vagues','sentier_exposé'],
-   'subscriber', true),
+   'public', true),
 
   ('Anse de Térénez', 'anse-de-terenez', '29', 'bretagne',
    ST_SetSRID(ST_MakePoint(-4.50, 48.09), 4326)::geography,
@@ -35,7 +35,7 @@ values
    'Anse abritée idéale pour les débutants. Bar et maquereau en saison estivale, sar en automne.',
    'Parking en bord d''anse, accès direct.',
    '{}'::text[],
-   'subscriber', true),
+   'public', true),
 
   ('Île de Sein - Cale Nord', 'ile-de-sein-cale-nord', '29', 'bretagne',
    ST_SetSRID(ST_MakePoint(-4.85, 48.04), 4326)::geography,
@@ -45,7 +45,7 @@ values
    'Spot magique mais engagé. Les courants forts attirent les gros bars. Accessible uniquement en bateau (navette depuis Audierne).',
    'Navette depuis Audierne, ~1h de traversée. Vérifier la météo avant.',
    array['courants_forts','isolation'],
-   'subscriber', true),
+   'public', true),
 
   ('Plage de Penhors', 'plage-de-penhors', '29', 'bretagne',
    ST_SetSRID(ST_MakePoint(-4.31, 47.96), 4326)::geography,
@@ -65,7 +65,7 @@ values
    'Spot d''exception sur la côte nord de l''île. Vieilles trophées en juin-juillet, bars toute l''année.',
    'Bateau depuis Brest ou Le Conquet. Compter une journée complète.',
    array['vagues','courants','isolation','ressac'],
-   'subscriber', true),
+   'public', true),
 
   ('Le Diben (Brest)', 'le-diben-brest', '29', 'bretagne',
    ST_SetSRID(ST_MakePoint(-4.43, 48.21), 4326)::geography,
@@ -85,7 +85,7 @@ values
    'Face aux Tas de Pois. Postes engagés mais bars régulièrement de plus de 60 cm en saison.',
    'Parking au sémaphore. Descente à pied ~10 min, prudence par houle.',
    array['ressac','rochers_glissants'],
-   'subscriber', true),
+   'public', true),
 
   ('Quiberon - Côte Sauvage', 'quiberon-cote-sauvage', '56', 'bretagne',
    ST_SetSRID(ST_MakePoint(-3.13, 47.50), 4326)::geography,
@@ -105,7 +105,7 @@ values
    'Pointe nord de Belle-Île. Spot mythique pour le bar au leurre de surface en été.',
    'Bateau depuis Quiberon, navette puis location voiture/vélo sur l''île.',
    array['vagues','courants'],
-   'subscriber', true);
+   'public', true);
 
 -- Note : le trigger blur_spot_geom remplit geom_public automatiquement.
 -- Note : ajustez les coordonnées si nécessaire avec une vraie cartographie.
