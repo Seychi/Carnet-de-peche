@@ -7,6 +7,7 @@ import type { UserTier } from '@/lib/auth/tier'
 import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
 import type { SpotMarker } from '@/lib/map/utils'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
+import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url'
 
 export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
@@ -30,17 +31,7 @@ async function fetchProfile(userId: string) {
 async function fetchSpots(tier: UserTier, homeDept: string | null): Promise<SpotMarker[]> {
   const supabase = await createClient()
 
-  let deptFilter: string | null = null
-  switch (tier) {
-    case 'local':
-      deptFilter = homeDept
-      break
-    case 'itinerant':
-      deptFilter = null
-      break
-    default:
-      deptFilter = null
-  }
+  const deptFilter = tier === 'local' ? homeDept : null
 
   const { data, error } = await supabase.rpc('get_spots_for_map', {
     dept_filter: deptFilter,
@@ -56,7 +47,11 @@ async function fetchSpots(tier: UserTier, homeDept: string | null): Promise<Spot
   return spots
 }
 
-export default async function CartePage() {
+export default async function CartePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -77,7 +72,14 @@ export default async function CartePage() {
 
   const spots = await fetchSpots(tier, homeDept)
 
-  // Bandeau upsell : uniquement pour les discovery, sauf si déjà fermé récemment
+  // Départements disponibles pour le sélecteur itinérant
+  const availableDepartments = [...new Set(spots.map((s) => s.department))].sort()
+
+  // Filtres initiaux depuis l'URL
+  const params = await searchParams
+  const initialFilters = parseFiltersFromSearchParams(params)
+
+  // Bandeau upsell discovery
   const cookieStore = await cookies()
   const dismissedAt = cookieStore.get(UPSELL_COOKIE)?.value
   const isDismissed = dismissedAt
@@ -92,6 +94,9 @@ export default async function CartePage() {
       initialCenter={initialCenter}
       initialZoom={initialZoom}
       showUpsell={showUpsell}
+      initialFilters={initialFilters}
+      userDepartment={homeDept ?? undefined}
+      availableDepartments={availableDepartments}
     />
   )
 }
