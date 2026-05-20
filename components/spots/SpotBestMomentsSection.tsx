@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Info } from 'lucide-react'
 import type { DailyForecast } from '@/lib/solunar/types'
+import type { PersonalInsight } from '@/lib/scoring/types'
 import { WeeklyCalendar } from '@/components/solunar/WeeklyCalendar'
 import { DayBestMoments } from '@/components/solunar/DayBestMoments'
 import {
@@ -17,26 +18,39 @@ type SpotBestMomentsSectionProps = {
   weekly: DailyForecast[]
   spotName: string
   weatherCodes?: Record<string, number>
+  insights?: PersonalInsight[]
 }
 
 export function SpotBestMomentsSection({
   weekly,
   spotName,
   weatherCodes,
+  insights,
 }: SpotBestMomentsSectionProps) {
   const [selectedDate, setSelectedDate] = useState(weekly[0]?.date ?? '')
   const selectedDaily = weekly.find(d => d.date === selectedDate) ?? weekly[0]
 
   if (!selectedDaily) return null
 
+  const isPersonalized = weekly.some(d =>
+    d.windows.some(w => w.factors.reasons.some(r => r.includes('Personnalisé')))
+  )
+
   return (
     <section className="bg-white rounded-[18px] border border-ink-100 p-5 md:p-7 flex flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-navy-900 text-xl">
-          Meilleurs moments à {spotName}
-        </h2>
-        <HowItWorksDialog />
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="font-display text-navy-900 text-xl">
+            Meilleurs moments à {spotName}
+          </h2>
+          {isPersonalized && (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-700 border border-teal-500/20">
+              ⚡ Perso
+            </span>
+          )}
+        </div>
+        <HowItWorksDialog isPersonalized={isPersonalized} />
       </div>
 
       {/* Calendrier 7 jours */}
@@ -48,14 +62,14 @@ export function SpotBestMomentsSection({
       />
 
       {/* Détail du jour sélectionné */}
-      <DayBestMoments daily={selectedDaily} showMoonInfo />
+      <DayBestMoments daily={selectedDaily} showMoonInfo insights={insights} />
     </section>
   )
 }
 
 // ─── Tooltip "Comment c'est calculé ?" ───────────────────────────────────────
 
-function HowItWorksDialog() {
+function HowItWorksDialog({ isPersonalized }: { isPersonalized: boolean }) {
   return (
     <Dialog>
       <DialogTrigger
@@ -94,10 +108,18 @@ function HowItWorksDialog() {
               </span>
             </li>
           </ul>
-          <p className="text-[12px] text-ink-400 border-t border-ink-100 pt-3 mt-1">
-            Ce scoring est générique (identique pour tous les pêcheurs).
-            Le scoring personnalisé basé sur <strong>tes prises historiques</strong> arrivera prochainement.
-          </p>
+          {isPersonalized ? (
+            <p className="text-[12px] text-teal-700 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2.5">
+              ⚡ Ce score est <strong>personnalisé</strong> d&apos;après ton historique de prises.
+              Les conditions où tu pêches le mieux boostent le score.
+            </p>
+          ) : (
+            <p className="text-[12px] text-ink-400 border-t border-ink-100 pt-3 mt-1">
+              Ce scoring est générique (identique pour tous les pêcheurs).
+              Logue tes prises pour obtenir un score personnalisé basé sur
+              <strong> tes</strong> patterns de pêche.
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

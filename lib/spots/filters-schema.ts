@@ -9,7 +9,7 @@ export const spotFiltersSchema = z.object({
     .regex(/^(0[1-9]|[1-8][0-9]|9[0-5]|2[AB])$/)
     .optional(),
   structure: z
-    .enum(['pointe_rocheuse', 'plage', 'digue', 'estuaire', 'cale', 'falaise'])
+    .enum(['digue', 'plage', 'pointe_rocheuse', 'estuaire', 'cale', 'passe', 'cassure'])
     .optional(),
   difficulty: z.coerce.number().int().min(1).max(5).optional(),
 })

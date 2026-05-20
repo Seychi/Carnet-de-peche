@@ -1,5 +1,7 @@
 import { Info } from 'lucide-react'
 import type { FishingWindow, QualityLevel } from '@/lib/solunar/types'
+import type { PersonalInsight } from '@/lib/scoring/types'
+import { InsightChip } from '@/components/scoring/InsightChip'
 
 // ─── Config qualité ───────────────────────────────────────────────────────────
 
@@ -19,10 +21,13 @@ const QUALITY_CONFIG: Record<
 type BestMomentCardProps = {
   window: FishingWindow
   isCurrent?: boolean
+  relevantInsight?: PersonalInsight
 }
 
-export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardProps) {
+export function BestMomentCard({ window: w, isCurrent = false, relevantInsight }: BestMomentCardProps) {
   const cfg = QUALITY_CONFIG[w.quality]
+  const isPersonalized = w.factors.reasons.some(r => r.includes('Personnalisé'))
+  const displayReasons = w.factors.reasons.filter(r => !r.includes('Personnalisé'))
 
   return (
     <article
@@ -61,17 +66,35 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
         </div>
       </div>
 
-      {/* Label qualitatif */}
-      <p className={`mt-0.5 text-[13px] font-bold ${cfg.textCls}`}>
-        {cfg.label}
-      </p>
+      {/* Label qualitatif + badge perso */}
+      <div className="mt-0.5 flex items-center justify-between gap-2">
+        <p className={`text-[13px] font-bold ${cfg.textCls}`}>
+          {cfg.label}
+        </p>
+        {isPersonalized && (
+          <span
+            className="text-[13px] leading-none"
+            title="Score personnalisé d'après tes prises"
+            aria-label="Score personnalisé d'après tes prises"
+          >
+            ⚡
+          </span>
+        )}
+      </div>
 
       {/* Raisons astronomiques */}
-      {w.factors.reasons.length > 0 && (
+      {displayReasons.length > 0 && (
         <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-ink-500">
           <Info size={13} className="shrink-0 text-ink-400" aria-hidden />
-          {w.factors.reasons.join(' · ')}
+          {displayReasons.join(' · ')}
         </p>
+      )}
+
+      {/* Insight personnel pertinent */}
+      {relevantInsight && (
+        <div className="mt-2 border-t border-slate-100 pt-2">
+          <InsightChip insight={relevantInsight} />
+        </div>
       )}
     </article>
   )

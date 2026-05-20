@@ -11,6 +11,8 @@ import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
+import { getCachedPersonalProfile } from '@/lib/scoring/personal-fetcher'
+import { PERSONAL_SCORING_CONFIG } from '@/lib/scoring/personal-config'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
@@ -237,15 +239,22 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions, forecastWeek] = await Promise.all([
+  const [catches, catchCount, conditions, forecastWeek, personalProfile] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
     fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
+    user ? getCachedPersonalProfile(user.id).catch(() => null) : Promise.resolve(null),
   ])
 
+  const personalMultiplier =
+    personalProfile &&
+    personalProfile.multiplier.basedOnCatches >= PERSONAL_SCORING_CONFIG.MIN_CATCHES_FOR_MULTIPLIER
+      ? personalProfile.multiplier
+      : undefined
+
   const weekly = forecastWeek.length > 0
-    ? await computeWeeklyForecast(new Date(), spot.lat, spot.lng, forecastWeek)
+    ? await computeWeeklyForecast(new Date(), spot.lat, spot.lng, forecastWeek, personalMultiplier)
     : []
 
   // WMO code par date pour les icônes météo du calendrier
@@ -391,6 +400,7 @@ export default async function SpotPage({
                 weekly={weekly}
                 spotName={spot.name}
                 weatherCodes={weatherCodes}
+                insights={personalMultiplier ? personalProfile?.insights : undefined}
               />
             )}
 

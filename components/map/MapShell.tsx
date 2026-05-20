@@ -28,6 +28,7 @@ import MapFilters from '@/components/map/MapFilters'
 import UpsellBanner from '@/components/map/UpsellBanner'
 import NearbyPanel from '@/components/map/NearbyPanel'
 import UserLocationMarker from '@/components/map/UserLocationMarker'
+import MapLegend from '@/components/map/MapLegend'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import type { SpotMarker } from '@/lib/map/utils'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
@@ -462,6 +463,9 @@ export default function MapShell({
             </span>
           )}
         </button>
+
+        {/* Légende qualité — desktop uniquement */}
+        <MapLegend />
 
         {/* Marqueur position utilisateur — affiché après géolocalisation */}
         <UserLocationMarker map={mapInstance} position={userPosition} />

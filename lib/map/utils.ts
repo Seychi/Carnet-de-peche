@@ -7,6 +7,7 @@
 // centralisée en SQL (SECURITY DEFINER).
 
 import type { Database } from '@/lib/types'
+import type { QualityLevel } from '@/lib/solunar/types'
 
 export type SpotMarker = {
   id: string
@@ -22,6 +23,24 @@ export type SpotMarker = {
   difficulty: number
   structure?: string | null
   verified: boolean
+  // Qualité actuelle pré-calculée par le cron (spot_scores). undefined si pas
+  // encore de score (cron pas passé / spot récent) → marker gris neutre.
+  currentQuality?: QualityLevel
+}
+
+// Couleur de marker par qualité (markers carte + légende).
+export const QUALITY_MARKER_COLORS: Record<QualityLevel, string> = {
+  faible:         '#9CA3AF', // gray-400
+  moyenne:        '#F59E0B', // amber-500
+  bonne:          '#84CC16', // lime-500
+  tres_bonne:     '#14B8A6', // teal-500
+  exceptionnelle: '#059669', // emerald-600
+}
+
+export const QUALITY_NEUTRAL_COLOR = '#9CA3AF' // gray-400 (undefined)
+
+export function markerColorForQuality(q?: QualityLevel | null): string {
+  return q ? QUALITY_MARKER_COLORS[q] : QUALITY_NEUTRAL_COLOR
 }
 
 type MapSpotRow = Database['public']['Functions']['get_spots_for_map']['Returns'][number]
@@ -32,7 +51,7 @@ export function createFuzzyCircle(
   spot: SpotMarker,
   radiusKm = 1,
   steps = 64
-): GeoJSON.Feature<GeoJSON.Polygon, { spotId: string }> {
+): GeoJSON.Feature<GeoJSON.Polygon, { spotId: string; quality: string }> {
   const coords: [number, number][] = []
   const lngScale = 1 / Math.cos((spot.lat * Math.PI) / 180)
   for (let i = 0; i <= steps; i++) {
@@ -44,7 +63,7 @@ export function createFuzzyCircle(
   }
   return {
     type: 'Feature',
-    properties: { spotId: spot.id },
+    properties: { spotId: spot.id, quality: spot.currentQuality ?? '' },
     geometry: { type: 'Polygon', coordinates: [coords] },
   }
 }

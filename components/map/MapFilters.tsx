@@ -29,7 +29,8 @@ const ALL_STRUCTURES: StructureValue[] = [
   'digue',
   'estuaire',
   'cale',
-  'falaise',
+  'passe',
+  'cassure',
 ]
 
 export type MapFiltersProps = {
@@ -67,7 +68,9 @@ function FilterChip({
       className={[
         'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
-        active ? 'bg-teal-500 text-white' : 'bg-ink-100 text-ink-700 hover:bg-ink-200',
+        active
+          ? 'bg-teal-500 text-white border border-teal-500'
+          : 'bg-ink-100 text-ink-700 border border-ink-200 hover:bg-ink-200 hover:border-ink-300',
       ].join(' ')}
     >
       {label}
@@ -93,7 +96,7 @@ function DifficultyPicker({
           className={[
             'text-xl leading-none transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded',
-            n <= (value ?? 0) ? 'text-amber-400' : 'text-ink-200 hover:text-amber-300',
+            n <= (value ?? 0) ? 'text-amber-400' : 'text-ink-300 hover:text-amber-300',
           ].join(' ')}
         >
           ★
@@ -142,6 +145,10 @@ export default function MapFilters({
       const saved = localStorage.getItem(LS_KEY)
       if (!saved) return
       const parsed = JSON.parse(saved) as SpotFilters
+      // setState intentionnel au montage : on restaure les filtres depuis
+      // localStorage APRÈS le premier render pour éviter un mismatch
+      // d'hydratation SSR (le serveur ne connaît pas localStorage).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (hasActiveFilters(parsed)) setFilters(parsed)
     } catch {
       // localStorage indisponible (SSR, mode privé) — on ignore
@@ -285,7 +292,13 @@ export default function MapFilters({
           <SectionLabel>Structure</SectionLabel>
           <Select value={filters.structure ?? '_all'} onValueChange={setStructure}>
             <SelectTrigger className="w-full h-9 text-sm">
-              <SelectValue placeholder="Toutes les structures" />
+              <SelectValue>
+                {(value) =>
+                  !value || value === '_all'
+                    ? 'Toutes les structures'
+                    : STRUCTURE_LABELS[value] ?? value
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">Toutes les structures</SelectItem>
@@ -321,7 +334,13 @@ export default function MapFilters({
           ) : userTier === 'itinerant' ? (
             <Select value={filters.department ?? '_all'} onValueChange={setDepartment}>
               <SelectTrigger className="w-full h-9 text-sm">
-                <SelectValue placeholder="Tous les départements" />
+                <SelectValue>
+                  {(value) =>
+                    !value || value === '_all'
+                      ? 'Tous les départements'
+                      : `${value} — ${DEPARTMENT_LABELS[value] ?? value}`
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="_all">Tous les départements</SelectItem>

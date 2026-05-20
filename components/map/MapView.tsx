@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Map as MapLibreMap, Marker, GeoJSONSource } from 'maplibre-gl'
-import { type SpotMarker, createFuzzyCircle } from '@/lib/map/utils'
+import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification } from 'maplibre-gl'
+import { type SpotMarker, createFuzzyCircle, markerColorForQuality } from '@/lib/map/utils'
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -14,7 +14,22 @@ const TEAL_500 = '#14B8A6'
 const TEAL_600 = '#0D9488'
 const TEAL_700 = '#0F766E'
 const AMBER_500 = '#F59E0B'
+const GRAY_400 = '#9CA3AF'
+const LIME_500 = '#84CC16'
+const EMERALD_600 = '#059669'
 const FRANCE_CENTER: [number, number] = [-2.5, 47.0]
+
+// Couleur data-driven d'un feature GeoJSON selon sa propriété `quality`.
+// Défaut (faible / inconnu / score absent) → gris neutre.
+const QUALITY_COLOR_EXPR: ExpressionSpecification = [
+  'match',
+  ['get', 'quality'],
+  'moyenne', AMBER_500,
+  'bonne', LIME_500,
+  'tres_bonne', TEAL_500,
+  'exceptionnelle', EMERALD_600,
+  GRAY_400,
+]
 
 // Layers mode HTML (spots < MAX_HTML_MARKERS)
 const FUZZY_SOURCE = 'fuzzy-spots'
@@ -54,6 +69,18 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   wrapper.title = spot.name
   wrapper.setAttribute('aria-label', `Spot : ${spot.name}`)
 
+  // Couleur de base selon la qualité — mémorisée pour la restaurer après un
+  // highlight nearby (cf. dataset.qcolor dans l'effet nearby).
+  const color = markerColorForQuality(spot.currentQuality)
+  wrapper.dataset.qcolor = color
+
+  // Ring "exceptionnelle" : pulse permanent emerald (uniquement les meilleurs spots)
+  if (spot.currentQuality === 'exceptionnelle') {
+    const exc = document.createElement('div')
+    exc.className = 'marker-exceptional-ring'
+    wrapper.appendChild(exc)
+  }
+
   // Anneau de pulse — activé via JS quand le spot est nearby
   const ring = document.createElement('div')
   ring.className = 'marker-nearby-ring'
@@ -63,7 +90,7 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   svgWrap.innerHTML = `
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-            fill="${TEAL_500}" stroke="white" stroke-width="1.5"/>
+            fill="${color}" stroke="white" stroke-width="1.5"/>
       <circle cx="12" cy="9" r="2.5" fill="white"/>
     </svg>
   `
@@ -104,13 +131,13 @@ function addSpotsToMap(
       id: FUZZY_FILL_LAYER,
       type: 'fill',
       source: FUZZY_SOURCE,
-      paint: { 'fill-color': TEAL_500, 'fill-opacity': 0.2 },
+      paint: { 'fill-color': QUALITY_COLOR_EXPR, 'fill-opacity': 0.2 },
     })
     map.addLayer({
       id: FUZZY_LINE_LAYER,
       type: 'line',
       source: FUZZY_SOURCE,
-      paint: { 'line-color': TEAL_600, 'line-width': 1.5 },
+      paint: { 'line-color': QUALITY_COLOR_EXPR, 'line-width': 1.5 },
     })
     map.on('mouseenter', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = 'pointer' })
     map.on('mouseleave', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = '' })
@@ -134,7 +161,7 @@ function addClusteredSpotsToMap(
   const features = spots.map((s) => ({
     type: 'Feature' as const,
     geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] as [number, number] },
-    properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name },
+    properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '' },
   }))
 
   map.addSource(CLUSTER_SOURCE, {
@@ -191,7 +218,7 @@ function addClusteredSpotsToMap(
     source: CLUSTER_SOURCE,
     filter: ['!', ['has', 'point_count']],
     paint: {
-      'circle-color': TEAL_500,
+      'circle-color': QUALITY_COLOR_EXPR,
       'circle-radius': 7,
       'circle-stroke-width': 2,
       'circle-stroke-color': 'white',
@@ -244,9 +271,13 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerElemsRef = useRef<Map<string, HTMLElement>>(new Map())
-  const [error, setError] = useState<MapError | null>(null)
-
   const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY
+
+  // État d'erreur dérivé au montage : si la clé MapTiler manque, l'erreur est
+  // connue dès le render (pas besoin de setState dans l'effect).
+  const [error, setError] = useState<MapError | null>(
+    maptilerKey ? null : 'missing-key',
+  )
 
   useEffect(() => {
     // Protection contre le double-rendering de React Strict Mode
@@ -254,7 +285,7 @@ export default function MapView({
 
     if (!maptilerKey) {
       console.warn('[MapView] NEXT_PUBLIC_MAPTILER_KEY manquante — carte désactivée')
-      setError('missing-key')
+      // L'erreur 'missing-key' est déjà positionnée dans l'état initial.
       return
     }
 
@@ -332,23 +363,23 @@ export default function MapView({
     const isClustered = spots.length >= MAX_HTML_MARKERS
 
     if (!nearbySpotIds || nearbySpotIds.size === 0) {
-      // Réinitialise tous les marqueurs / layers
+      // Réinitialise tous les marqueurs / layers à leur couleur de qualité
       markerElemsRef.current.forEach((el) => {
         el.style.opacity = '1'
         const ring = el.querySelector<HTMLElement>('.marker-nearby-ring')
         if (ring) ring.style.display = 'none'
         const path = el.querySelector('path')
-        if (path) path.setAttribute('fill', TEAL_500)
+        if (path) path.setAttribute('fill', el.dataset.qcolor || TEAL_500)
       })
       if (map.getLayer(FUZZY_FILL_LAYER)) {
-        map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-color', TEAL_500)
+        map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-color', QUALITY_COLOR_EXPR)
         map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-opacity', 0.2)
       }
       if (map.getLayer(FUZZY_LINE_LAYER)) {
-        map.setPaintProperty(FUZZY_LINE_LAYER, 'line-color', TEAL_600)
+        map.setPaintProperty(FUZZY_LINE_LAYER, 'line-color', QUALITY_COLOR_EXPR)
       }
       if (isClustered && map.getLayer(UNCLUSTERED_LAYER)) {
-        map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-color', TEAL_500)
+        map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-color', QUALITY_COLOR_EXPR)
         map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-opacity', [
           'case', ['get', 'isPrecise'], 1, 0.7,
         ])
@@ -369,7 +400,7 @@ export default function MapView({
         if (path) path.setAttribute('fill', AMBER_500)
       } else {
         if (ring) ring.style.display = 'none'
-        if (path) path.setAttribute('fill', TEAL_500)
+        if (path) path.setAttribute('fill', el.dataset.qcolor || TEAL_500)
       }
     })
 
@@ -379,7 +410,7 @@ export default function MapView({
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
         AMBER_500,
-        TEAL_500,
+        QUALITY_COLOR_EXPR,
       ])
       map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-opacity', [
         'case',
@@ -393,7 +424,7 @@ export default function MapView({
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
         AMBER_500,
-        TEAL_600,
+        QUALITY_COLOR_EXPR,
       ])
     }
 
@@ -403,7 +434,7 @@ export default function MapView({
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
         AMBER_500,
-        TEAL_500,
+        QUALITY_COLOR_EXPR,
       ])
       map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-opacity', [
         'case',

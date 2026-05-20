@@ -15,3 +15,18 @@ export function getNextBestWindow(daily: DailyForecast[]): FishingWindow | null 
 
   return upcoming.find(w => w.score >= goodThreshold) ?? upcoming[0]
 }
+
+// Fenêtre dont l'intervalle [start, end] contient l'instant présent, sinon null.
+export function findCurrentWindow(daily: DailyForecast[]): FishingWindow | null {
+  const now = Date.now()
+
+  for (const day of daily) {
+    for (const w of day.windows) {
+      const start = new Date(w.startTimeISO).getTime()
+      const end = new Date(w.endTimeISO).getTime()
+      if (now >= start && now <= end) return w
+    }
+  }
+
+  return null
+}

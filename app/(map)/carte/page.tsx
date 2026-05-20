@@ -9,6 +9,7 @@ import type { SpotMarker } from '@/lib/map/utils'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
+import type { QualityLevel } from '@/lib/solunar/types'
 
 export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
@@ -65,6 +66,25 @@ async function fetchSpots(
   return spots
 }
 
+// Scores pré-calculés par le cron (spot_scores). On ne garde que les scores
+// frais (valid_until > now). Renvoie une Map spot_id → qualité actuelle.
+async function fetchFreshScores(spotIds: string[]): Promise<Map<string, QualityLevel>> {
+  const map = new Map<string, QualityLevel>()
+  if (spotIds.length === 0) return map
+
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('spot_scores')
+    .select('spot_id, current_quality, valid_until')
+    .gt('valid_until', new Date().toISOString())
+    .in('spot_id', spotIds)
+
+  for (const row of (data ?? []) as { spot_id: string; current_quality: QualityLevel }[]) {
+    map.set(row.spot_id, row.current_quality)
+  }
+  return map
+}
+
 export default async function CartePage({
   searchParams,
 }: {
@@ -95,7 +115,11 @@ export default async function CartePage({
   const isPaid = tier === 'local' || tier === 'itinerant'
 
   // Sécurité : les tiers gratuits ne peuvent pas filtrer via URL (bypass de la limite 3 spots/dept)
-  const spots = await fetchSpots(tier, homeDept, isPaid ? urlFilters : {})
+  const spotsRaw = await fetchSpots(tier, homeDept, isPaid ? urlFilters : {})
+
+  // Merge des scores de qualité pré-calculés (markers colorisés)
+  const scores = await fetchFreshScores(spotsRaw.map((s) => s.id))
+  const spots = spotsRaw.map((s) => ({ ...s, currentQuality: scores.get(s.id) }))
 
   // Départements disponibles pour le sélecteur itinérant
   const availableDepartments = [...new Set(spots.map((s) => s.department))].sort()

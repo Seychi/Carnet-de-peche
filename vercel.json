@@ -1,3 +1,6 @@
 {
-  "installCommand": "rm -rf node_modules && pnpm install"
+  "installCommand": "rm -rf node_modules && pnpm install",
+  "crons": [
+    { "path": "/api/crons/compute-spot-scores", "schedule": "0 * * * *" }
+  ]
 }
