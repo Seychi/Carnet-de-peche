@@ -1,5 +1,6 @@
 import type { SolunarEvent, ScoringFactors, QualityLevel } from './types'
 import type { TidePoint, TideExtremum } from '@/lib/conditions/spot-forecast'
+import type { PersonalMultiplier } from '@/lib/scoring/types'
 import { SOLUNAR_CONFIG } from './config'
 
 // ─── Scoring solunar ─────────────────────────────────────────────────────────
@@ -100,24 +101,52 @@ export function scoreWindow(
   windowEndISO: string,
   tidePoints: TidePoint[],
   tideExtrema: TideExtremum[],
-  windSpeed_kmh: number | null
+  windSpeed_kmh: number | null,
+  personalMultiplier?: PersonalMultiplier
 ): { score: number; factors: ScoringFactors } {
-  const solunar = scoreSolunar(centerEvent)
-  const tide = scoreTide(windowStartISO, windowEndISO, tidePoints, tideExtrema)
-  const wind = scoreWind(windSpeed_kmh)
+  const solunarRaw = scoreSolunar(centerEvent)
+  const tideRaw = scoreTide(windowStartISO, windowEndISO, tidePoints, tideExtrema)
+  const windRaw = scoreWind(windSpeed_kmh)
+
+  const { MIN_CATCHES_FOR_MULTIPLIER } = { MIN_CATCHES_FOR_MULTIPLIER: 5 }
+  const applyMultiplier =
+    personalMultiplier !== undefined &&
+    personalMultiplier.basedOnCatches >= MIN_CATCHES_FOR_MULTIPLIER
+
+  const solunar = applyMultiplier
+    ? Math.min(solunarRaw * personalMultiplier!.solunar, 1.0)
+    : solunarRaw
+  const tide = applyMultiplier
+    ? Math.min(tideRaw * personalMultiplier!.tide, 1.0)
+    : tideRaw
+  const wind = applyMultiplier
+    ? Math.min(windRaw * personalMultiplier!.wind, 1.0)
+    : windRaw
 
   const score01 =
     solunar * SOLUNAR_CONFIG.WEIGHTS.solunar +
     tide * SOLUNAR_CONFIG.WEIGHTS.tide +
     wind * SOLUNAR_CONFIG.WEIGHTS.wind
 
+  const baseScore01 =
+    solunarRaw * SOLUNAR_CONFIG.WEIGHTS.solunar +
+    tideRaw * SOLUNAR_CONFIG.WEIGHTS.tide +
+    windRaw * SOLUNAR_CONFIG.WEIGHTS.wind
+
   const score = Math.round(Math.min(100, Math.max(0, score01 * 100)))
 
   const reasons: string[] = []
   reasons.push(formatEventReason(centerEvent))
-  if (tide > 0.7 && tidePoints.length > 0) reasons.push('Marée favorable')
-  if (wind > 0.85) reasons.push('Vent idéal')
-  else if (wind < 0.3) reasons.push('Vent fort')
+  if (tideRaw > 0.7 && tidePoints.length > 0) reasons.push('Marée favorable')
+  if (windRaw > 0.85) reasons.push('Vent idéal')
+  else if (windRaw < 0.3) reasons.push('Vent fort')
+
+  if (applyMultiplier) {
+    const scoreDiff = Math.abs(score - Math.round(baseScore01 * 100))
+    if (scoreDiff >= 5) {
+      reasons.push(`Personnalisé sur tes ${personalMultiplier!.basedOnCatches} prises`)
+    }
+  }
 
   return { score, factors: { solunar, tide, wind, reasons } }
 }
