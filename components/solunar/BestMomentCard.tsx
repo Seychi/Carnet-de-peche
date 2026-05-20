@@ -48,7 +48,7 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
         {/* Badge score rond 40×40 */}
         <div className="relative shrink-0">
           {cfg.pulse && (
-            <span className="absolute inset-0 rounded-full bg-emerald-600/40 animate-pulse" />
+            <span className="absolute inset-0 rounded-full bg-emerald-600/40 motion-safe:animate-pulse" />
           )}
           <div
             className={[
