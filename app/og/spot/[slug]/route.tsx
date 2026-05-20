@@ -5,6 +5,12 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 export const runtime = 'edge'
 
+async function loadInterFont(weight: 400 | 700 | 900 = 700): Promise<ArrayBuffer> {
+  const url = `https://fonts.bunny.net/inter/files/inter-latin-${weight}-normal.woff2`
+  const res = await fetch(url)
+  return res.arrayBuffer()
+}
+
 // ── Charte ─────────────────────────────────────────────────────────────────────
 const NAVY  = '#0A2F3D'
 const NAVY2 = '#103E50'
@@ -50,9 +56,14 @@ export async function GET(
     (s) => SPECIES_LABELS[s] ?? s,
   )
   const structureLabel = (spot.structure && STRUCTURE_LABELS[spot.structure]) ?? null
-  const deptLabel = DEPARTMENT_LABELS[spot.department] ?? spot.department
+  const deptLabel = DEPARTMENT_LABELS[String(spot.department)] ?? spot.department
   const displayName = spot.name.length > 48 ? `${spot.name.slice(0, 45)}…` : spot.name
   const fontSize = displayName.length > 32 ? 60 : displayName.length > 22 ? 72 : 84
+
+  const [fontBold, fontBlack] = await Promise.all([
+    loadInterFont(700),
+    loadInterFont(900),
+  ])
 
   return new ImageResponse(
     (
@@ -64,7 +75,7 @@ export async function GET(
           height: '630px',
           background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY2} 100%)`,
           padding: '64px 72px',
-          fontFamily: 'sans-serif',
+          fontFamily: 'Inter',
         }}
       >
         {/* Label catégorie */}
@@ -190,6 +201,13 @@ export async function GET(
         </div>
       </div>
     ),
-    { width: 1200, height: 630 },
+    {
+      width: 1200,
+      height: 630,
+      fonts: [
+        { name: 'Inter', data: fontBold,  weight: 700, style: 'normal' },
+        { name: 'Inter', data: fontBlack, weight: 900, style: 'normal' },
+      ],
+    },
   )
 }
