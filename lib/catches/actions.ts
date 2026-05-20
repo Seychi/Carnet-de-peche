@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createCatchSchema, updateCatchSchema } from './schema'
 import type { CreateCatchInput, UpdateCatchInput } from './schema'
-import { fetchConditionsAt } from '@/lib/conditions/openmeteo'
+import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -78,6 +78,11 @@ export async function createCatch(
       conditions: conditions as unknown,
       photo_path: data.photo_path ?? null,
       location_label: data.location_label ?? null,
+      wind_speed_kmh: conditions?.wind_speed_kmh ?? null,
+      wind_direction_deg: conditions?.wind_direction_deg ?? null,
+      tide_state: conditions?.tide_state === 'rising' || conditions?.tide_state === 'falling'
+        ? conditions.tide_state
+        : null,
     })
     .select('id')
     .single()
@@ -152,7 +157,15 @@ export async function updateCatch(
   if (data.privacy !== undefined) payload.privacy = data.privacy
   if (data.precise_for_friends !== undefined) payload.precise_for_friends = data.precise_for_friends
   if (data.reveal_precise_to_public !== undefined) payload.reveal_precise_to_public = data.reveal_precise_to_public
-  if (conditions !== undefined) payload.conditions = conditions
+  if (conditions !== undefined) {
+    payload.conditions = conditions
+    const c = conditions as ConditionsSnapshot | null
+    payload.wind_speed_kmh = c?.wind_speed_kmh ?? null
+    payload.wind_direction_deg = c?.wind_direction_deg ?? null
+    payload.tide_state = c?.tide_state === 'rising' || c?.tide_state === 'falling'
+      ? c.tide_state
+      : null
+  }
   if (data.photo_path !== undefined) payload.photo_path = data.photo_path
 
   const { error } = await supabase
