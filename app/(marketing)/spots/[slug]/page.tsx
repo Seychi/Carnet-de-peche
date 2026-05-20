@@ -100,10 +100,11 @@ export async function generateMetadata(
 
   const structureLabel = (spot.structure && STRUCTURE_LABELS[spot.structure]) ?? 'Spot'
   const topSpecies = spot.species.slice(0, 3).map((s) => SPECIES_LABELS[s] ?? s).join(', ')
-  const deptLabel = DEPARTMENT_LABELS[spot.department] ?? spot.department
+  const deptKey = String(spot.department).trim()
+  const deptLabel = DEPARTMENT_LABELS[deptKey] ?? deptKey
   const canonicalUrl = `${BASE_URL}/spots/${spot.slug}`
 
-  const title = `Pêche à ${spot.name} (${spot.department}) — ${topSpecies} · Carnet de Pêche`
+  const title = `Pêche à ${spot.name} (${deptKey}) — ${topSpecies} · Carnet de Pêche`
   const description = `${structureLabel} pour pêcher ${topSpecies} dans le ${deptLabel}. Conditions, marées et techniques recommandées.`.slice(0, 158)
   const ogDescription = spot.description
     ? `${spot.description.slice(0, 150)}${spot.description.length > 150 ? '…' : ''}`
@@ -248,6 +249,7 @@ export default async function SpotPage({
     `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
 
   const structureLabel = STRUCTURE_LABELS[spot.structure ?? ''] ?? spot.structure ?? ''
+  const deptKey = String(spot.department).trim()
 
   // JSON-LD Place — tous les spots non-privés, coords toujours à 2dp (fuzzy safe pour le markup public)
   const jsonLd = spot.visibility !== 'private' ? {
@@ -286,7 +288,7 @@ export default async function SpotPage({
             <ChevronRight size={14} />
             <span className="capitalize">{spot.region}</span>
             <ChevronRight size={14} />
-            <span>Dép. {spot.department}</span>
+            <span>Dép. {deptKey}</span>
             <ChevronRight size={14} />
             <span className="text-white/80 truncate max-w-[160px]">{spot.name}</span>
           </nav>
@@ -308,7 +310,7 @@ export default async function SpotPage({
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
-              Dép. {spot.department}
+              Dép. {deptKey}
             </span>
             {structureLabel && (
               <span className="text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
