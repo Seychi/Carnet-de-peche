@@ -124,10 +124,10 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
         <div className="flex flex-col items-center gap-2 rounded-[14px] border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center">
           <CalendarX size={28} className="text-ink-300" />
           <p className="text-[14px] font-medium text-ink-700">
-            Pas de créneau optimal aujourd'hui
+            Pas de créneau optimal aujourd&apos;hui
           </p>
           <p className="text-[12px] text-ink-400">
-            Reviens demain — les conditions s'améliorent.
+            Reviens demain — les conditions s&apos;améliorent.
           </p>
         </div>
       )}

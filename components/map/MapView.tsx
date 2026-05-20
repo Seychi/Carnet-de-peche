@@ -289,6 +289,12 @@ export default function MapView({
 
       mapRef.current = map
 
+      // Erreur style (401 clé invalide, 403 domaine non autorisé, réseau, etc.)
+      map.on('error', (e) => {
+        console.error('[MapView] Erreur MapLibre:', e.error?.message ?? e)
+        if (mounted && !map.isStyleLoaded()) setError('init-error')
+      })
+
       map.on('load', () => {
         if (!mounted) return
         onMapReady?.(map)
@@ -416,11 +422,21 @@ export default function MapView({
     )
   }
 
-  if (error === 'no-webgl' || error === 'init-error') {
+  if (error === 'no-webgl') {
     return (
       <div className={`flex items-center justify-center bg-gray-100 rounded-xl ${className ?? ''}`}>
         <p className="text-sm text-gray-500">
           Ton navigateur ne supporte pas la carte interactive
+        </p>
+      </div>
+    )
+  }
+
+  if (error === 'init-error') {
+    return (
+      <div className={`flex items-center justify-center bg-gray-100 rounded-xl ${className ?? ''}`}>
+        <p className="text-sm text-gray-500">
+          La carte n&apos;a pas pu se charger — vérifie ta connexion ou réessaie.
         </p>
       </div>
     )

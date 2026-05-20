@@ -1,13 +1,106 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { X, MapPin, Navigation, Lock, Fish } from 'lucide-react'
+import { X, MapPin, Navigation, Lock, Fish, Clock } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { getSpotNextWindow } from '@/app/actions/solunar'
+import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/solunar/types'
+
+// ─── Solunar helpers ─────────────────────────────────────────────────────────
+
+const QUALITY_LABELS: Record<QualityLevel, string> = {
+  faible: 'Faible',
+  moyenne: 'Moyenne',
+  bonne: 'Bonne',
+  tres_bonne: 'Très bonne',
+  exceptionnelle: 'Exceptionnelle',
+}
+
+const QUALITY_COLORS: Record<QualityLevel, string> = {
+  faible: 'text-gray-400',
+  moyenne: 'text-amber-500',
+  bonne: 'text-lime-600',
+  tres_bonne: 'text-teal-500',
+  exceptionnelle: 'text-emerald-600',
+}
+
+const EVENT_LABELS: Record<SolunarEventType, string> = {
+  sunrise: 'Lever de soleil',
+  sunset: 'Coucher de soleil',
+  moonrise: 'Lever de lune',
+  moonset: 'Coucher de lune',
+  moon_apex: 'Transit lunaire',
+  moon_nadir: 'Nadir lunaire',
+}
+
+function relativeDay(startISO: string): string {
+  const fmt = (d: Date) => d.toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' })
+  const windowDate = fmt(new Date(startISO))
+  if (windowDate === fmt(new Date())) return "Aujourd'hui"
+  if (windowDate === fmt(new Date(Date.now() + 86_400_000))) return 'Demain'
+  return new Date(startISO).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long' })
+}
+
+function WindowSkeleton() {
+  return (
+    <div className="rounded-xl bg-sand-50 border border-ink-100 p-3 space-y-2 animate-pulse">
+      <div className="h-2.5 w-24 bg-ink-200 rounded" />
+      <div className="h-4 w-40 bg-ink-200 rounded" />
+      <div className="h-2.5 w-32 bg-ink-200 rounded" />
+    </div>
+  )
+}
+
+function NextWindowDisplay({ window: w }: { window: FishingWindow }) {
+  return (
+    <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Clock size={13} className="text-ink-500 shrink-0" />
+        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Prochain créneau</span>
+      </div>
+      <p className="text-sm font-semibold text-ink-900">
+        {relativeDay(w.startTimeISO)} {w.startLocal} – {w.endLocal}
+      </p>
+      <p className={`text-xs font-medium mt-0.5 ${QUALITY_COLORS[w.quality]}`}>
+        {QUALITY_LABELS[w.quality]} · {EVENT_LABELS[w.centerEvent.type]}
+      </p>
+    </div>
+  )
+}
+
+function NextWindowEmpty() {
+  return (
+    <div className="rounded-xl bg-sand-50 border border-ink-100 p-3 flex items-center gap-2">
+      <Clock size={13} className="text-ink-400 shrink-0" />
+      <span className="text-xs text-ink-400">Aucun créneau optimal dans les 7 prochains jours</span>
+    </div>
+  )
+}
+
+function NextWindowTeaser() {
+  return (
+    <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Clock size={13} className="text-ink-500 shrink-0" />
+        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Prochain créneau</span>
+      </div>
+      <div className="blur-sm select-none pointer-events-none" aria-hidden="true">
+        <p className="text-sm font-semibold text-ink-900">Aujourd&apos;hui 18:30 – 20:30</p>
+        <p className="text-xs font-medium text-teal-500 mt-0.5">Très bonne · Coucher de soleil</p>
+      </div>
+      <Link href="/tarifs" className="mt-2 block text-xs text-teal-600 hover:underline font-medium">
+        Voir les créneaux →
+      </Link>
+    </div>
+  )
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type SpotPopupProps = {
   spot: SpotMarker
@@ -117,6 +210,28 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
   useFocusTrap(containerRef, onClose)
 
   const isPaid = userTier === 'local' || userTier === 'itinerant'
+
+  // ── Prochain créneau : lazy-load via Server Action ────────────────────────
+  const [windowStatus, setWindowStatus] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [nextWindow, setNextWindow] = useState<FishingWindow | null>(null)
+
+  useEffect(() => {
+    if (!isPaid) return
+    let cancelled = false
+    setWindowStatus('loading') // eslint-disable-line react-hooks/set-state-in-effect
+    setNextWindow(null)
+    getSpotNextWindow(spot.id, spot.lat, spot.lng)
+      .then((result) => {
+        if (!cancelled) { setNextWindow(result); setWindowStatus('done') }
+      })
+      .catch(() => {
+        if (!cancelled) { setNextWindow(null); setWindowStatus('done') }
+      })
+    return () => { cancelled = true }
+  // spot.lat et spot.lng ne changent pas sans que spot.id change (même objet)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spot.id, isPaid])
+
   const showGps = spot.isPrecise
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
 
@@ -194,6 +309,18 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           </div>
         </>
       )}
+
+      {/* Prochain créneau */}
+      {isPaid && (
+        windowStatus === 'loading'
+          ? <WindowSkeleton />
+          : nextWindow
+          ? <NextWindowDisplay window={nextWindow} />
+          : windowStatus === 'done'
+          ? <NextWindowEmpty />
+          : null
+      )}
+      {userTier === 'discovery' && <NextWindowTeaser />}
 
       {/* Message gating */}
       {!isPaid && (

@@ -33,7 +33,6 @@ function findMoonApexNadir(
   dayStart: Date,
   lat: number,
   lng: number,
-  illum: SunCalc.GetMoonIlluminationResult
 ): { apex: Date | null; nadir: Date | null } {
   // 48 samples (30 min) sur 24h
   const SAMPLES = 48
@@ -80,7 +79,7 @@ export function getSolunarEvents(date: Date, lat: number, lng: number): SolunarE
   }).format(date)
   const dayStart = new Date(`${dayStartStr}T00:00:00+02:00`)
 
-  const { apex, nadir } = findMoonApexNadir(dayStart, lat, lng, illum)
+  const { apex, nadir } = findMoonApexNadir(dayStart, lat, lng)
 
   const events: SolunarEvent[] = []
 

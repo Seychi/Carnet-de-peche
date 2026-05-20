@@ -31,9 +31,6 @@ export function scoreTide(
   // retourne le score neutre. À améliorer quand tidePoints sera rempli.
   if (tidePoints.length === 0) return 0.5
 
-  const startMs = new Date(windowStartISO).getTime()
-  const endMs = new Date(windowEndISO).getTime()
-
   // Heures couvrant la fenêtre
   const startHour = new Date(windowStartISO).getUTCHours()
   const endHour = new Date(windowEndISO).getUTCHours()
