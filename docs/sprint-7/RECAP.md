@@ -6,6 +6,25 @@
 
 _Généré le 2026-05-20 — phase 5 (consolidation finale)._
 
+> **⚠️ Mise à jour 2026-05-20 (post-review produit)** — deux changements majeurs après
+> test sur données réelles :
+> 1. **Bug corrigé** : `getCachedPersonalProfile` plantait systématiquement
+>    (`cookies` appelés dans `unstable_cache`) → la section perso ne s'affichait jamais.
+>    Cache retiré, calcul à la volée.
+> 2. **Pivot des « multiplicateurs » vers du descriptif honnête** : l'approche
+>    « tu pêches mieux que ta moyenne par vent X » a été abandonnée car non démontrable
+>    (le carnet ne logue que les prises, jamais les sorties bredouilles → pas de vrai
+>    taux de réussite ; le proxy « taille > médiane » mesure la grosseur, pas le succès ;
+>    échantillons trop petits). Remplacée par `computeCatchPatterns` : on décrit
+>    seulement **où et quand tombent tes prises** (condition dominante par facteur).
+>    Composants `MultiplierGauge` et `InsightCard` supprimés.
+>
+> **À faire (suivi)** : le scoring perso des fiches spots (badge « ⚡ Perso » + ajustement
+> du score solunar par le multiplicateur) repose sur la même logique abandonnée. Il est
+> inerte en pratique (conditions des prises rarement renseignées) mais reste à neutraliser
+> pour cohérence, idéalement avec le futur chantier « scoring de vraie performance basé
+> sur les sorties loguées ».
+
 ---
 
 ## A. Fichiers créés

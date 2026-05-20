@@ -8,6 +8,7 @@ import {
   computeMedianLength,
   computeConditionStats,
 } from './catch-analysis'
+import { computeCatchPatterns } from './patterns'
 import { PERSONAL_SCORING_CONFIG as CFG } from './personal-config'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -240,9 +241,10 @@ export function computePersonalProfile(
   catches: DbCatch[]
 ): PersonalProfile {
   const samples = toCatchSamples(catches)
+  const patterns = computeCatchPatterns(samples)
   const insights = computeInsights(samples)
   const multiplier = computePersonalMultiplier(samples)
   const hasEnoughData = samples.length >= CFG.MIN_CATCHES_FOR_INSIGHTS
 
-  return { userId, insights, multiplier, hasEnoughData }
+  return { userId, patterns, insights, multiplier, hasEnoughData }
 }

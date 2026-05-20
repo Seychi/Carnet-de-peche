@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
-import type { PersonalProfile, PersonalInsight, PersonalMultiplier } from '@/lib/scoring/types'
+import type { PersonalProfile, PersonalInsight, PersonalMultiplier, CatchPattern } from '@/lib/scoring/types'
 import { PersonalScoreSection } from '@/components/scoring/PersonalScoreSection'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 
@@ -58,8 +58,17 @@ const RICH_MULTIPLIER: PersonalMultiplier = {
   basedOnCatches: 28,
 }
 
+// Patterns descriptifs : 4 facteurs renseignés (vue complète)
+const RICH_PATTERNS: CatchPattern[] = [
+  { factor: 'wind',   dominantLabel: 'Modéré (15-25 km/h)', count: 16, total: 28, hasData: true },
+  { factor: 'tide',   dominantLabel: 'Marée montante',      count: 18, total: 26, hasData: true },
+  { factor: 'hour',   dominantLabel: "À l'aube",            count: 11, total: 28, hasData: true },
+  { factor: 'season', dominantLabel: 'Au printemps',        count: 17, total: 28, hasData: true },
+]
+
 const profileRich: PersonalProfile = {
   userId: 'mock-rich',
+  patterns: RICH_PATTERNS,
   insights: RICH_INSIGHTS,
   multiplier: RICH_MULTIPLIER,
   hasEnoughData: true,
@@ -68,14 +77,21 @@ const profileRich: PersonalProfile = {
 // 2 prises → pas assez de données → empty state
 const profileEmpty: PersonalProfile = {
   userId: 'mock-empty',
+  patterns: [],
   insights: [],
   multiplier: { wind: 1, tide: 1, solunar: 1, computedAt: NOW, basedOnCatches: 2 },
   hasEnoughData: false,
 }
 
-// 4 prises → insights visibles mais pas encore de multiplicateurs (< 5)
+// 4 prises → heure/saison renseignées, vent/marée manquants (cas typique début)
 const profileMid: PersonalProfile = {
   userId: 'mock-mid',
+  patterns: [
+    { factor: 'wind',   dominantLabel: null,         count: 0, total: 0, hasData: false },
+    { factor: 'tide',   dominantLabel: null,         count: 0, total: 0, hasData: false },
+    { factor: 'hour',   dominantLabel: 'Le matin',   count: 2, total: 4, hasData: true },
+    { factor: 'season', dominantLabel: 'Au printemps', count: 4, total: 4, hasData: true },
+  ],
   insights: [
     { factor: 'wind', label: 'Léger (5-15 km/h)', description: '75% de tes prises (sur 3 sessions)', catchRate: 0.75, sampleCount: 3, isPositive: true,  confidence: 'low' },
     { factor: 'hour', label: 'Le matin',          description: '40% de tes prises (sur 2 sessions)', catchRate: 0.40, sampleCount: 2, isPositive: false, confidence: 'low' },

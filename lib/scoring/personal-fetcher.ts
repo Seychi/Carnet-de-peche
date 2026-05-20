@@ -1,7 +1,5 @@
-import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { computePersonalProfile } from './insights'
-import { PERSONAL_SCORING_CONFIG } from './personal-config'
 import type { DbCatch } from './catch-analysis'
 import type { PersonalProfile } from './types'
 
@@ -35,23 +33,15 @@ async function fetchUserCatches(
   }))
 }
 
-// ─── Calcul du profil personnel ───────────────────────────────────────────────
+// ─── Profil personnel ───────────────────────────────────────────────────────
+// NOTE : pas de `unstable_cache` ici. Le fetch utilise `createClient()` qui lit
+// les cookies de la requête — or Next.js interdit l'accès aux cookies dans un
+// scope `unstable_cache` (lève une exception). Le calcul est de toute façon
+// trivial (< 5 ms pour ~100 catches) et la requête est indexée sur `user_id`,
+// donc on calcule à la volée : toujours à jour, jamais de cache obsolète.
 
-async function fetchAndComputePersonalProfile(userId: string): Promise<PersonalProfile> {
+export async function getCachedPersonalProfile(userId: string): Promise<PersonalProfile> {
   const supabase = await createClient()
   const catches = await fetchUserCatches(userId, supabase)
   return computePersonalProfile(userId, catches)
 }
-
-// ─── Cache 24h ────────────────────────────────────────────────────────────────
-// Tag : `personal-profile-${userId}` → invalider via revalidateTag à chaque nouvelle catch
-
-export const getCachedPersonalProfile = (userId: string): Promise<PersonalProfile> =>
-  unstable_cache(
-    () => fetchAndComputePersonalProfile(userId),
-    [`personal-profile-${userId}`],
-    {
-      revalidate: PERSONAL_SCORING_CONFIG.CACHE_TTL_HOURS * 3600,
-      tags: [`personal-profile-${userId}`],
-    }
-  )()

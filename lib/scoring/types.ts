@@ -42,8 +42,19 @@ export type PersonalMultiplier = {
   basedOnCatches: number
 }
 
+// Pattern descriptif : la condition dominante d'un facteur parmi TES prises.
+// Pas de jugement de performance — on décrit seulement où/quand tombent tes prises.
+export type CatchPattern = {
+  factor: 'wind' | 'tide' | 'hour' | 'season'
+  dominantLabel: string | null  // ex "Le matin" — null si aucune donnée
+  count: number                 // prises dans la condition dominante
+  total: number                 // prises ayant cette donnée renseignée
+  hasData: boolean              // false si le facteur n'est jamais renseigné
+}
+
 export type PersonalProfile = {
   userId: string
+  patterns: CatchPattern[]
   insights: PersonalInsight[]
   multiplier: PersonalMultiplier
   hasEnoughData: boolean
