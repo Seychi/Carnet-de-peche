@@ -53,7 +53,7 @@ _Généré le 2026-05-20 — phase 5 (consolidation finale)._
 - `components/map/MapLegend.tsx` — légende des markers colorisés
 
 **Infra / DB**
-- `app/api/crons/compute-spot-scores/route.ts` — Vercel Cron horaire (fail-closed sur `CRON_SECRET`)
+- `app/api/crons/compute-spot-scores/route.ts` — Vercel Cron quotidien (fail-closed sur `CRON_SECRET`)
 - `lib/supabase/admin.ts` — client service-role (serveur uniquement, pour le cron)
 - `supabase/migrations/014_spot_scores.sql` — table `spot_scores` + index + RLS
 - `supabase/migrations/015_catches_scoring_columns_reconcile.sql` — réconciliation colonnes
@@ -81,7 +81,7 @@ _Généré le 2026-05-20 — phase 5 (consolidation finale)._
 - `lib/catches/actions.ts` — invalidation cache profil après log d'une prise
 - `app/(app)/profil/page.tsx` — `PersonalScoreSection`
 - `lib/map/utils.ts`, `lib/spots/filters-schema.ts` — support markers/scores
-- `vercel.json` — déclaration du cron horaire
+- `vercel.json` — déclaration du cron quotidien (Hobby Vercel = 1 cron/jour max)
 - `.env.example`, `app/globals.css` — vars (`CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`) + styles
 
 ## C. Packages ajoutés
@@ -103,13 +103,14 @@ _Généré le 2026-05-20 — phase 5 (consolidation finale)._
 ## E. Décisions notables prises seul
 
 - **Déclencheur cron = Vercel Cron** (`vercel.json` → `/api/crons/compute-spot-scores`,
-  schedule `0 * * * *`). Choisi plutôt que pg_cron / Edge Function car : déjà sur Vercel,
+  schedule `0 5 * * *`, quotidien à 05:00 UTC — le plan Hobby limite les crons à 1/jour ;
+  passer Pro pour repasser en horaire). Choisi plutôt que pg_cron / Edge Function car : déjà sur Vercel,
   zéro infra supplémentaire, auth native via `CRON_SECRET`, logs centralisés.
 - **Cron fail-closed** : refuse tout appel sans `Authorization: Bearer <CRON_SECRET>`
   (401). Utilise un client service-role (`lib/supabase/admin.ts`) → nécessite
   `SUPABASE_SERVICE_ROLE_KEY`.
 - **Scoring perso ≠ scoring carte** : la carte affiche un score **générique** par spot
-  (markers colorisés, identiques pour tous, recalculés chaque heure). Le scoring
+  (markers colorisés, identiques pour tous, recalculés 1×/jour sur Hobby). Le scoring
   **personnalisé** n'apparaît que sur les fiches spots et /profil. Décision assumée pour
   le v1 (perf + simplicité).
 - **Matching insight → fenêtre** approximatif : on rapproche un insight (ex. « marée

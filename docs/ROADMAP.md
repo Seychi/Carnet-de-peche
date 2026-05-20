@@ -1,7 +1,7 @@
 # 🗺️ Roadmap Carnet de Pêche
 
 > **Document vivant.** À tenir à jour à chaque fin de sprint.
-> **Dernière mise à jour** : 2026-05-20 (post-sprint 7, scoring personnalisé livré).
+> **Dernière mise à jour** : 2026-05-20 (post-sprint 7 mergé + audit complet — sprint 7.5 converti en obligatoire).
 > **Auteur** : Claude (web) + Claude Code, validé par John.
 
 ---
@@ -31,42 +31,72 @@ Conventions de référence dans tout le doc :
 | **Long terme** : Monétisation secondaire + extensions | Phase 2+ | Diversifier revenus, étendre périmètre | MRR 15 000 €+, 30 % revenus non-abo |
 
 ```
-    Sprints  8  9  10 11 | 12-13 14-15 16 17 18 19 | 20 21 22 23 | Phase 2
-             ───────────  ─────────────────────────  ───────────  ────────
-             Web complet  Mobile (Expo)              Lancement    Diversif.
-                       ⛳                          ⛳            ⛳
-                     Gate 1                      Gate 2        Gate 3
-                  Go mobile ?                 Go lancement ?  5k abonnés ?
+    Sprints 7.5 8  9  10 11 | 12-13 14-15 16 17 18 19 | 20 21 22 23 | Phase 2
+            ──────────────── ───────────────────────── ─────────── ────────
+            Hygiène+Web      Mobile (Expo)             Lancement   Diversif.
+                          ⛳                          ⛳           ⛳
+                        Gate 1                      Gate 2       Gate 3
+                     Go mobile ?                 Go lancement ? 5k abonnés ?
 ```
 
 ---
 
-## 🟠 Sprint 7.5 (optionnel, hors plan) — Polish carte
+## 🔴 Sprint 7.5 — Hygiène produit + dette technique (OBLIGATOIRE, 3-5 jours)
 
-**Décision attendue avant de partir sur sprint 8** : faut-il glisser 1-2 semaines de polish carte avant le fil communautaire ?
+**Status** : converti d'optionnel à **obligatoire** suite à l'audit du 2026-05-20 (`docs/AUDIT-2026-05.md`).
 
-**Arguments pour** :
-- Markers colorisés par qualité actuelle (skippé en sprint 6 pour cause de N+1 Open-Meteo) rendrait la carte beaucoup plus vivante AVANT que les utilisateurs commencent à voir des posts dessus
-- Marée précise (WorldTides API ~3$/mois ou SHOM) corrigerait la neutralité 0.5 du sprint 6 qui plombe artificiellement les scores actuels
-- Tarif WorldTides = 3$/mois = négligeable, gain UX énorme sur fiches spots
+**Objectif** : aligner le site live avec la réalité produit, corriger les bugs SEO/UX P0 + dette technique critique, avant d'engager le pivot social du sprint 8 sur une base saine. **Pas de nouvelle feature**, uniquement du nettoyage.
 
-**Arguments contre** :
-- Repousse le pivot social qui est le différenciateur communautaire face à spot-de-peche.com
-- Le scoring perso du sprint 7 vient juste d'arriver, il faut le laisser respirer et collecter des catches avant de l'enrichir
-- WorldTides ajoute une dépendance externe payante, casse la promesse "zéro coût variable v1"
+**Pourquoi obligatoire** : l'audit a remonté un bug SEO majeur (`metadataBase` vercel.app au lieu de .com), 3 liens cassés en footer, des incohérences pricing (7j vs 14j), des promesses marketing non livrées (import/export, modération humaine, mode hors ligne sur la home), des témoignages fictifs et 365 erreurs lint pré-existantes. Empiler le sprint 8 par-dessus = ré-amplification de ces bugs.
 
-**Découpage si on le fait** :
-1. Edge Function `compute_spot_scores` (cron 1h) → table `spot_scores(spot_id, score_now, score_next_24h, computed_at)`
-2. Frontend carte : color-code markers via `score_now` (Faible / Bonne / Très bonne / Exceptionnelle)
-3. Intégrer WorldTides API dans `lib/conditions/spot-forecast.ts` (nouveau bloc à côté d'Open-Meteo)
-4. Refactor `lib/solunar/scoring.ts` pour utiliser les vraies marées → pondération 40/35/25 redevient honnête
+**Composé de** : tâches P0 (audit) + sélection de P1 + dette spécifique sprint 7 (scoring inerte à neutraliser, lint 365 erreurs).
 
-**Critères d'acceptation** :
-- Les markers de la carte ont 4 couleurs visibles dès chargement, sans flash
-- Score `now` affiché sur fiche spot diffère d'au moins 0.1 vs sprint 6 sur 3 spots de test (preuve que la marée a un poids réel)
-- Coût mensuel WorldTides observé ≤ 5 €
+**Brief détaillé d'exécution** : voir `docs/sprint-7.5/brief-sprint-7.5.md` (chaque tâche avec fichiers, lignes, critères d'acceptation).
 
-**Recommandation** : **skip pour l'instant**, traiter après sprint 11 (beta) quand on aura du feedback réel. Le fil communautaire crée plus de valeur perçue à court terme.
+### Bloc A — Corrections marketing & SEO (≈ 4-5h)
+- Corriger `metadataBase` dans `app/layout.tsx:19` → `.com` au lieu de `.vercel.app`
+- Footer : créer 3 stubs `/fil`, `/especes`, `/techniques` OU commenter les liens (`components/layout/Footer.tsx:32-34`)
+- Décision pricing 7j vs 14j → propager dans home + tarifs + CLAUDE.md
+- Corriger les 4 CTAs `href="#"` du home + virer le toast "sprint 4" sur tarifs
+- Aligner copy home : retirer ou marquer "bientôt" les promesses non livrées (import/export, modération ambassadeurs+IA, mode hors ligne dans la liste carnet, 217 spots), fix floutage 2 km → 1 km
+- Retirer / remplacer les 3 témoignages fictifs Yann L. / Julien R. / François B.
+
+### Bloc B — Dette technique sprint 7 (≈ 2h)
+- **Neutraliser le scoring perso inerte sur fiches spots** : retirer le badge `⚡ Perso` du `SpotBestMomentsSection` et l'`InsightChip` du `BestMomentCard`/`DayBestMoments` tant que la logique n'est pas remplacée par le futur scoring "vraie performance" (cf RECAP sprint 7 § "À faire (suivi)")
+- Garder uniquement le mode descriptif honnête sur `/profil` (PersonalScoreSection)
+
+### Bloc C — Dette lint 365 erreurs (≈ 1-2h)
+- Fix automatique des 365 `react/no-unescaped-entities` (apostrophes FR `'` → `&apos;` ou `'`) via script ou MultiEdit
+- Une fois propre : retirer `eslint: { ignoreDuringBuilds: true }` de `next.config.ts`
+
+### Bloc D — Infra & discipline (≈ 4h)
+- `env.ts` : ajouter `SUPABASE_SERVICE_ROLE_KEY` (optionnel client, required serveur) + `CRON_SECRET`
+- Réconciliation migrations local/remote : `supabase db diff`, identifier le drift documenté en migration 015, documenter la procédure dans `supabase/README.md`
+- Régénérer `lib/types.ts` après migration 016
+- Setup CI GitHub Actions minimal (`.github/workflows/check.yml`) : install + lint + typecheck + test
+- Cleanup : nettoyer les routes dev exposées en prod (`/app/test`, `/api/dev-test`, `/dev/scoring-preview`, `/dev/test-photo` → guard `NODE_ENV` ou suppression), gitignore `dev-server.log`
+- Vérifier Vercel env vars en prod : `CRON_SECRET` + `SUPABASE_SERVICE_ROLE_KEY`
+- Déclencher manuellement le cron 1× pour peupler `spot_scores` (sinon markers carte gris)
+
+### Reporté à plus tard (post sprint 7.5)
+- Intégration WorldTides API (sprint 8-9 ou sprint 11)
+- Audit RLS systématique (à faire au début du sprint 8 avant d'ajouter les tables `feed_*`)
+- Tests E2E Playwright (sprint 11)
+
+### Critères de sortie sprint 7.5
+- `pnpm lint` = 0 erreur
+- `pnpm typecheck` = 0 erreur
+- `pnpm test` = 116/116 vert
+- CI GitHub Actions vert sur `main`
+- Lighthouse SEO ≥ 90 sur `/spots/[slug]` avec canonical `.com`
+- Aucun CTA pointant vers `#` sur la home
+- Aucune mention "sprint X" visible utilisateur
+- Footer : 0 lien cassé
+- Vercel env vars confirmées en prod
+- Cron `compute-spot-scores` a tourné au moins 1× en prod (vérifiable dans `spot_scores`)
+
+### Estimation totale
+**3-5 jours ouvrés** (~10-15h de Claude Code + 2h de validation John).
 
 ---
 
@@ -941,10 +971,11 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 
 | Sprint | Période estimée | Phase | Statut |
 |---|---|---|---|
-| 8 | 2026-05-21 → 2026-06-03 | Fil | 🔜 |
-| 9 | 2026-06-04 → 2026-06-17 | Stripe | 🔜 |
-| 10 | 2026-06-18 → 2026-07-01 | Guides + SEO | 🔜 |
-| 11 | 2026-07-02 → 2026-07-15 | Polish + Beta | 🔜 |
+| **7.5** | **2026-05-21 → 2026-05-27** (3-5j) | **Hygiène + dette** | 🔴 **Obligatoire** |
+| 8 | 2026-05-28 → 2026-06-10 | Fil | 🔜 |
+| 9 | 2026-06-11 → 2026-06-24 | Stripe | 🔜 |
+| 10 | 2026-06-25 → 2026-07-08 | Guides + SEO | 🔜 |
+| 11 | 2026-07-09 → 2026-07-22 | Polish + Beta | 🔜 |
 | ⛳ Gate 1 | ~2026-07-16 | Décision mobile | ❓ |
 | 12-13 | 2026-07-17 → 2026-09-09 (été + buffer) | Setup mobile | 🔜 |
 | 14-15 | 2026-09-10 → 2026-10-07 | Carnet + carte mobile | 🔜 |

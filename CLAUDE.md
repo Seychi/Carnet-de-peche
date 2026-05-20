@@ -28,28 +28,33 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour mai 2026)
+## 2. État actuel du projet (à jour 2026-05-20, post-sprint 7)
 
-✅ **Fait**
+✅ **Fait (sprints 1 à 7)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
 - Maquette HTML cliquable (5 pages) — voir `docs/maquette/`
-- Schéma SQL Supabase complet — voir `supabase/migrations/`
-- Repo GitHub privé créé : <https://github.com/Seychi/Carnet-de-peche>
-- Projet Supabase créé (URL + clés ci-dessous)
-- Projet Vercel créé et connecté au GitHub
-- Brief et docs internes — voir `docs/`
+- Repo GitHub privé : <https://github.com/Seychi/Carnet-de-peche>
+- Projet Supabase + Vercel en prod, auto-deploy depuis `main`
+- **Site live** : <https://www.carnet-de-peche.com>
+- **Sprint 1-2** : Next.js 15 + Supabase (SSR) + auth (email/password + Google OAuth + reset) + onboarding 6 étapes + design system Tailwind v4 / shadcn
+- **Sprint 3 + 3.5** : Carnet complet (CRUD prises, photos Storage, conditions auto-loggées Open-Meteo, profil, stats, polish form + flèche retour mobile)
+- **Sprint 4** : Carte MapLibre + clustering + freemium gating (3 spots/dépt gratuit) + fiche spot riche (marées, météo, vagues, houle, soleil) + SEO programmatique (sitemap, JSON-LD, OG dynamiques) + mobile UX
+- **Sprint 6** : "Meilleurs moments" solunar (suncalc, calendrier 7j, scoring 40/35/25, badges, justifications astronomiques)
+- **Sprint 7** : Scoring personnalisé (mode descriptif "où et quand tombent tes prises") + cron Vercel `compute-spot-scores` + markers carte colorisés + table `spot_scores` + 116 tests Vitest verts
+- 16 migrations Supabase appliquées (001 → 016)
+- **Audit complet** du projet livré le 2026-05-20 → `docs/AUDIT-2026-05.md`
 
-🚧 **À faire MAINTENANT (Sprint 1-2)**
-- Initialiser Next.js 15 + TypeScript + Tailwind + shadcn/ui
-- Connecter Supabase (client browser + server)
-- Appliquer les 4 migrations SQL dans Supabase
-- Page d'accueil basique reprenant le hero de `docs/maquette/index.html`
-- Routes `/auth/login` et `/auth/register` (Supabase Auth)
-- Variables d'environnement Vercel
-- Premier déploiement Vercel
+🔴 **MAINTENANT — Sprint 7.5 obligatoire (3-5 jours)**
+Sprint de nettoyage avant pivot social. **Pas de nouvelle feature.** Suite de l'audit.
+- Bloc A — Marketing & SEO : fix `metadataBase` (`.vercel.app` → `.com`), footer stubs `/fil`/`/especes`/`/techniques`, décision pricing 7j ou 14j, CTAs `#`, copy home alignée avec la réalité, témoignages fictifs retirés
+- Bloc B — Dette sprint 7 : neutraliser le badge `⚡ Perso` inerte sur fiches spots (cf RECAP sprint 7)
+- Bloc C — Dette lint : 365 erreurs `react/no-unescaped-entities` fixées + retrait `eslint.ignoreDuringBuilds`
+- Bloc D — Infra : `lib/env.ts` complété (CRON_SECRET + SERVICE_ROLE_KEY), réconciliation migrations local/remote, types regen, CI GitHub Actions minimal, cleanup routes dev, Vercel env vars confirmées, cron déclenché 1× en prod
+- **Brief d'exécution détaillé** : `docs/sprint-7.5/brief-sprint-7.5.md`
+- Critères de sortie : checklist en bas du brief
 
-🔜 **Suite (Sprint 3-12)**
-Voir section "Roadmap" plus bas.
+🔜 **Suite (sprints 8 → 23 + phase 2)**
+Voir `docs/ROADMAP.md` pour le découpage complet (Fil → Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
 
 ---
 

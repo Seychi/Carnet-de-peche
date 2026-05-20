@@ -5,7 +5,8 @@ import { computeAndStoreSpotScores } from '@/lib/scoring/spot-scores-job'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-// Cron horaire (déclaré dans vercel.json). Vercel envoie automatiquement
+// Cron quotidien à 05:00 UTC (déclaré dans vercel.json — le plan Hobby de Vercel
+// limite les crons à 1 exécution par jour). Vercel envoie automatiquement
 // l'en-tête `Authorization: Bearer <CRON_SECRET>` si la var CRON_SECRET est
 // définie sur le projet. On refuse tout appel non authentifié (fail-closed).
 export async function GET(request: NextRequest) {
