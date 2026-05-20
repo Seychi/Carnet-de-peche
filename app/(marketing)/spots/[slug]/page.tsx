@@ -8,7 +8,9 @@ import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
-import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
+import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
+import { computeWeeklyForecast } from '@/lib/solunar/index'
+import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
@@ -235,11 +237,22 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions] = await Promise.all([
+  const [catches, catchCount, conditions, forecastWeek] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
+    fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
   ])
+
+  const weekly = forecastWeek.length > 0
+    ? await computeWeeklyForecast(new Date(), spot.lat, spot.lng, forecastWeek)
+    : []
+
+  // WMO code par date pour les icônes météo du calendrier
+  const weatherCodes: Record<string, number> = {}
+  for (const fc of forecastWeek) {
+    if (fc.weather.code != null) weatherCodes[fc.date] = fc.weather.code
+  }
 
   const ctaHref = user
     ? `/carnet/nouvelle?spot_id=${spot.id}`
@@ -371,6 +384,15 @@ export default async function SpotPage({
                 </p>
               )}
             </div>
+
+            {/* Meilleurs moments */}
+            {weekly.length > 0 && (
+              <SpotBestMomentsSection
+                weekly={weekly}
+                spotName={spot.name}
+                weatherCodes={weatherCodes}
+              />
+            )}
 
             {/* Conditions */}
             {conditions && (
