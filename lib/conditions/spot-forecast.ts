@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -252,3 +253,183 @@ export async function fetchSpotConditions(
   await writeCache(key, result)
   return result
 }
+
+// ─── Fetch 7 jours ───────────────────────────────────────────────────────────
+
+export type SpotForecastWeek = SpotConditions[]
+
+async function fetchMarineDataWeek(
+  lat: number,
+  lng: number,
+  startDate: string,
+  endDate: string
+): Promise<MarineResponse['hourly'] | null> {
+  const url =
+    `https://marine-api.open-meteo.com/v1/marine` +
+    `?latitude=${lat}&longitude=${lng}` +
+    `&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
+    `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`
+  try {
+    const res = await fetch(url, { next: { revalidate: 0 } })
+    if (!res.ok) return null
+    const json: MarineResponse = await res.json()
+    return json.hourly
+  } catch {
+    return null
+  }
+}
+
+async function fetchForecastDataWeek(
+  lat: number,
+  lng: number,
+  startDate: string,
+  endDate: string
+): Promise<{ hourly: ForecastHourlyResponse['hourly']; daily: ForecastHourlyResponse['daily'] } | null> {
+  const url =
+    `https://api.open-meteo.com/v1/forecast` +
+    `?latitude=${lat}&longitude=${lng}` +
+    `&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,precipitation,precipitation_probability,pressure_msl,cloud_cover,relative_humidity_2m` +
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset` +
+    `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`
+  try {
+    const res = await fetch(url, { next: { revalidate: 0 } })
+    if (!res.ok) return null
+    const json: ForecastHourlyResponse = await res.json()
+    return { hourly: json.hourly, daily: json.daily }
+  } catch {
+    return null
+  }
+}
+
+// Groupe les indices du tableau hourly.time par date locale ("2026-05-20" → [0,1,...,23])
+function groupIndexByDate(times: string[]): Map<string, number[]> {
+  const map = new Map<string, number[]>()
+  for (let i = 0; i < times.length; i++) {
+    const dateStr = times[i].split('T')[0]
+    if (!map.has(dateStr)) map.set(dateStr, [])
+    map.get(dateStr)!.push(i)
+  }
+  return map
+}
+
+function buildEmptyConditions(dateStr: string): SpotConditions {
+  return {
+    fetched_at: new Date().toISOString(),
+    date: dateStr,
+    tide: { points: [], extrema: [], current_height_m: null },
+    weather: {
+      code: null, air_temp_c: null, min_temp_c: null, max_temp_c: null,
+      wind_speed_kmh: null, wind_direction_deg: null, precipitation_mm: null,
+      precipitation_probability: null, pressure_hpa: null, cloud_cover_pct: null,
+      humidity_pct: null, sunrise: null, sunset: null,
+    },
+    waves: { height_m: null, direction_deg: null, period_s: null, water_temp_c: null },
+    swell: { height_m: null, period_s: null },
+  }
+}
+
+function buildDayConditions(
+  dateStr: string,
+  dayIdx: number,
+  isToday: boolean,
+  currentHourIdx: number,
+  marine: MarineResponse['hourly'] | null,
+  forecast: { hourly: ForecastHourlyResponse['hourly']; daily: ForecastHourlyResponse['daily'] },
+  hourIndices: number[]
+): SpotConditions {
+  // Heure de référence : heure courante pour aujourd'hui, midi pour les jours futurs
+  const refLocalHour = isToday ? currentHourIdx : 12
+  const refGlobalIdx = hourIndices[Math.min(refLocalHour, hourIndices.length - 1)]
+
+  const waves = {
+    height_m:      marine?.wave_height?.[refGlobalIdx] ?? null,
+    direction_deg: marine?.wave_direction?.[refGlobalIdx] ?? null,
+    period_s:      marine?.wave_period?.[refGlobalIdx] ?? null,
+    water_temp_c:  marine?.sea_surface_temperature?.[refGlobalIdx] ?? null,
+  }
+  const swell = {
+    height_m: marine?.swell_wave_height?.[refGlobalIdx] ?? null,
+    period_s: marine?.swell_wave_period?.[refGlobalIdx] ?? null,
+  }
+  const weather = {
+    code:                      forecast.hourly.weather_code?.[refGlobalIdx] ?? null,
+    air_temp_c:                forecast.hourly.temperature_2m?.[refGlobalIdx] ?? null,
+    min_temp_c:                forecast.daily.temperature_2m_min?.[dayIdx] ?? null,
+    max_temp_c:                forecast.daily.temperature_2m_max?.[dayIdx] ?? null,
+    wind_speed_kmh:            forecast.hourly.wind_speed_10m?.[refGlobalIdx] ?? null,
+    wind_direction_deg:        forecast.hourly.wind_direction_10m?.[refGlobalIdx] ?? null,
+    precipitation_mm:          forecast.hourly.precipitation?.[refGlobalIdx] ?? null,
+    precipitation_probability: forecast.hourly.precipitation_probability?.[refGlobalIdx] ?? null,
+    pressure_hpa:              forecast.hourly.pressure_msl?.[refGlobalIdx] ?? null,
+    cloud_cover_pct:           forecast.hourly.cloud_cover?.[refGlobalIdx] ?? null,
+    humidity_pct:              forecast.hourly.relative_humidity_2m?.[refGlobalIdx] ?? null,
+    sunrise:                   forecast.daily.sunrise?.[dayIdx] ?? null,
+    sunset:                    forecast.daily.sunset?.[dayIdx] ?? null,
+  }
+
+  return {
+    fetched_at: new Date().toISOString(),
+    date: dateStr,
+    // Marées : non disponibles via Open-Meteo Marine (vides jusqu'à intégration WorldTides)
+    tide: { points: [], extrema: [], current_height_m: null },
+    weather,
+    waves,
+    swell,
+  }
+}
+
+async function _fetchSpotForecastWeek(lat: number, lng: number): Promise<SpotConditions[]> {
+  const { dateStr: todayStr, currentHourIdx } = getParisInfo()
+
+  // Calculer la date de fin (aujourd'hui + 6 jours)
+  const endDay = new Date()
+  endDay.setDate(endDay.getDate() + 6)
+  const endDateStr = getParisInfo(endDay).dateStr
+
+  const [marine, forecast] = await Promise.all([
+    fetchMarineDataWeek(lat, lng, todayStr, endDateStr),
+    fetchForecastDataWeek(lat, lng, todayStr, endDateStr),
+  ])
+
+  // Fallback si Open-Meteo ne répond pas
+  if (!forecast) {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() + i)
+      return buildEmptyConditions(getParisInfo(d).dateStr)
+    })
+  }
+
+  // Grouper les indices horaires par date (clé = "2026-05-20")
+  const hoursByDate = groupIndexByDate(forecast.hourly.time)
+  const dates = Array.from(hoursByDate.keys()).sort().slice(0, 7)
+
+  const result: SpotConditions[] = []
+  for (let dayIdx = 0; dayIdx < dates.length; dayIdx++) {
+    const dateStr = dates[dayIdx]
+    const hourIndices = hoursByDate.get(dateStr) ?? []
+    result.push(buildDayConditions(
+      dateStr,
+      dayIdx,
+      dateStr === todayStr,
+      currentHourIdx,
+      marine,
+      forecast,
+      hourIndices,
+    ))
+  }
+
+  // Compléter à 7 si l'API retourne moins (cas rares en fin de période)
+  while (result.length < 7) {
+    result.push(buildEmptyConditions(result[result.length - 1]?.date ?? todayStr))
+  }
+
+  return result
+}
+
+// Cache Next.js 1h — la clé inclut lat/lng automatiquement via les arguments
+export const fetchSpotForecastWeek = unstable_cache(
+  _fetchSpotForecastWeek,
+  ['spot-forecast-week'],
+  { revalidate: 3600 }
+)
