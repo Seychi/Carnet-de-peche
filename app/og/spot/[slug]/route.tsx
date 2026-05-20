@@ -50,7 +50,8 @@ export async function GET(
     (s) => SPECIES_LABELS[s] ?? s,
   )
   const structureLabel = (spot.structure && STRUCTURE_LABELS[spot.structure]) ?? null
-  const deptLabel = DEPARTMENT_LABELS[String(spot.department)] ?? spot.department
+  const deptKey = String(spot.department).trim()
+  const deptLabel = DEPARTMENT_LABELS[deptKey] ?? deptKey
   const displayName = spot.name.length > 48 ? `${spot.name.slice(0, 45)}…` : spot.name
   const fontSize = displayName.length > 32 ? 60 : displayName.length > 22 ? 72 : 84
 
@@ -114,7 +115,7 @@ export async function GET(
           }}
         >
           <span style={{ fontSize: '25px', color: 'rgba(255,255,255,0.55)' }}>
-            {deptLabel} ({spot.department})
+            {deptLabel} ({deptKey})
           </span>
           {structureLabel && (
             <span style={{ fontSize: '25px', color: 'rgba(20,184,166,0.65)' }}>
