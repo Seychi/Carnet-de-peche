@@ -3,12 +3,8 @@ import { computeWeeklyForecast } from '@/lib/solunar/index'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 import { SolunarPreviewClient } from './SolunarPreviewClient'
 
-// ─── Protection prod ──────────────────────────────────────────────────────────
-// Cette route est exclusivement réservée au développement local.
-
-if (process.env.NODE_ENV !== 'development') {
-  notFound()
-}
+// force-dynamic : empêche le pre-rendering au build (notFound() serait déclenché en prod)
+export const dynamic = 'force-dynamic'
 
 // ─── Mock conditions ──────────────────────────────────────────────────────────
 
@@ -39,6 +35,8 @@ const MOCK_CONDITIONS: SpotConditions = {
 const WMO_BY_DAY = [1, 2, 3, 61, 80, 1, 0]
 
 export default async function SolunarPreviewPage() {
+  if (process.env.NODE_ENV !== 'development') notFound()
+
   const today = new Date()
   const LAT = 48.04
   const LNG = -4.73
