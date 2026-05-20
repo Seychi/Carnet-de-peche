@@ -3,12 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
 
-async function loadInterFont(weight: 400 | 700 | 900 = 700): Promise<ArrayBuffer> {
-  const url = `https://fonts.bunny.net/inter/files/inter-latin-${weight}-normal.woff2`
-  const res = await fetch(url)
-  return res.arrayBuffer()
-}
-
 // ── Charte ─────────────────────────────────────────────────────────────────────
 const NAVY  = '#0A2F3D'
 const NAVY2 = '#103E50'
@@ -66,11 +60,7 @@ const DOTS: Dot[] = [
 // ── Route ──────────────────────────────────────────────────────────────────────
 
 export async function GET() {
-  const [count, fontBold, fontBlack] = await Promise.all([
-    fetchSpotCount(),
-    loadInterFont(700),
-    loadInterFont(900),
-  ])
+  const count = await fetchSpotCount()
   const countStr = count > 0 ? `${count}` : '…'
 
   return new ImageResponse(
@@ -83,7 +73,7 @@ export async function GET() {
           height: '630px',
           background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY2} 100%)`,
           padding: '64px 72px',
-          fontFamily: 'Inter',
+          fontFamily: 'sans-serif',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -207,13 +197,6 @@ export async function GET() {
         </div>
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-      fonts: [
-        { name: 'Inter', data: fontBold,  weight: 700, style: 'normal' },
-        { name: 'Inter', data: fontBlack, weight: 900, style: 'normal' },
-      ],
-    },
+    { width: 1200, height: 630 },
   )
 }
