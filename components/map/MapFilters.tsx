@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 import type { UserTier } from '@/lib/auth/tier'
-import { serializeFiltersToSearchParams, countActiveFilters } from '@/lib/spots/filter-url'
+import { serializeFiltersToSearchParams, countActiveFilters, hasActiveFilters } from '@/lib/spots/filter-url'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
@@ -38,7 +38,7 @@ export type MapFiltersProps = {
   availableDepartments?: string[]
   userDepartment?: string
   onFiltersChange?: (filters: SpotFilters) => void
-  onApply?: () => void
+  onApply?: (filters: SpotFilters) => void
   spotCount?: number
   layout?: 'sidebar' | 'sheet'
 }
@@ -112,6 +112,8 @@ function DifficultyPicker({
   )
 }
 
+const LS_KEY = 'carte:last-filters'
+
 export default function MapFilters({
   initialFilters,
   userTier,
@@ -132,8 +134,25 @@ export default function MapFilters({
   useEffect(() => { routerRef.current = router }, [router])
   useEffect(() => { onFiltersChangeRef.current = onFiltersChange }, [onFiltersChange])
 
-  // Sync URL avec debounce 300ms — déclenché seulement après le premier render
+  // Restaure depuis localStorage au mount si aucun filtre actif dans l'URL (sidebar uniquement)
   useEffect(() => {
+    if (layout === 'sheet') return  // le sheet démarre toujours depuis l'état committed
+    if (hasActiveFilters(initialFilters)) return
+    try {
+      const saved = localStorage.getItem(LS_KEY)
+      if (!saved) return
+      const parsed = JSON.parse(saved) as SpotFilters
+      if (hasActiveFilters(parsed)) setFilters(parsed)
+    } catch {
+      // localStorage indisponible (SSR, mode privé) — on ignore
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Sync URL + localStorage avec debounce 300ms — sidebar uniquement
+  // En mode sheet, le commit se fait uniquement via le bouton "Appliquer"
+  useEffect(() => {
+    if (layout === 'sheet') return
     if (!mounted.current) {
       mounted.current = true
       return
@@ -143,9 +162,18 @@ export default function MapFilters({
       const qs = params.toString()
       routerRef.current.replace(pathname + (qs ? '?' + qs : ''), { scroll: false })
       onFiltersChangeRef.current?.(filters)
+      try {
+        if (hasActiveFilters(filters)) {
+          localStorage.setItem(LS_KEY, JSON.stringify(filters))
+        } else {
+          localStorage.removeItem(LS_KEY)
+        }
+      } catch {
+        // ignore
+      }
     }, 300)
     return () => clearTimeout(id)
-  }, [filters, pathname])
+  }, [filters, pathname, layout])
 
   const isGated = userTier === 'anonymous' || userTier === 'discovery'
   const activeCount = countActiveFilters(filters)
@@ -187,6 +215,7 @@ export default function MapFilters({
 
   function resetFilters() {
     setFilters({})
+    try { localStorage.removeItem(LS_KEY) } catch { /* ignore */ }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -336,18 +365,22 @@ export default function MapFilters({
         </button>
 
         <div className="flex-1 text-center">
-          {spotCount !== undefined && (
+          {spotCount !== undefined && spotCount === 0 && activeCount > 0 ? (
+            <span className="text-xs text-amber-600 font-medium">
+              Aucun spot · élargis les filtres
+            </span>
+          ) : spotCount !== undefined ? (
             <span className="text-xs text-ink-500">
               <span className="font-semibold text-ink-900">{spotCount}</span>{' '}
               spot{spotCount !== 1 ? 's' : ''}
             </span>
-          )}
+          ) : null}
         </div>
 
         {layout === 'sheet' && onApply && (
           <button
             type="button"
-            onClick={onApply}
+            onClick={() => onApply(filters)}
             className="px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
           >
             Appliquer

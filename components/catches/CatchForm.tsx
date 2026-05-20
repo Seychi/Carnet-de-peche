@@ -105,8 +105,17 @@ function rowToDefaults(row: CatchRow): Partial<CreateCatchInput> {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
+export type SpotContext = {
+  id: string
+  name: string
+  slug: string
+  department: string
+  lat: number
+  lng: number
+}
+
 type CatchFormProps =
-  | { mode: 'create' }
+  | { mode: 'create'; spotContext?: SpotContext }
   | {
       mode: 'edit'
       catchId: string
@@ -124,6 +133,7 @@ export function CatchForm(props: CatchFormProps) {
   const catchId = props.mode === 'edit' ? props.catchId : undefined
   const initialValues = props.mode === 'edit' ? props.initialValues : undefined
   const existingPhotoUrl = props.mode === 'edit' ? props.existingPhotoUrl : null
+  const spotContext = props.mode === 'create' ? props.spotContext : undefined
 
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [geoLoading, setGeoLoading] = useState(false)
@@ -138,7 +148,8 @@ export function CatchForm(props: CatchFormProps) {
     catch { return null }
   })
 
-  const [locationMode, setLocationMode] = useState<'gps' | 'manual'>(() => {
+  const [locationMode, setLocationMode] = useState<'gps' | 'manual' | 'spot'>(() => {
+    if (spotContext) return 'spot'
     if (initialValues) {
       return initialValues.location_method === 'manual' ? 'manual' : 'gps'
     }
@@ -150,7 +161,11 @@ export function CatchForm(props: CatchFormProps) {
     : {
         caught_at: draft?.caught_at ?? new Date().toISOString(),
         released: draft?.released ?? false,
-        location_method: draft?.location_method ?? 'gps',
+        location_method: spotContext ? 'spot' : (draft?.location_method ?? 'gps'),
+        spot_id: spotContext?.id ?? undefined,
+        latitude: spotContext?.lat ?? draft?.latitude,
+        longitude: spotContext?.lng ?? draft?.longitude,
+        location_label: spotContext?.name ?? draft?.location_label,
         privacy: draft?.privacy ?? 'private',
         precise_for_friends: draft?.precise_for_friends ?? true,
         reveal_precise_to_public: draft?.reveal_precise_to_public ?? false,
@@ -159,12 +174,9 @@ export function CatchForm(props: CatchFormProps) {
         size_cm: draft?.size_cm,
         weight_kg: draft?.weight_kg,
         notes: draft?.notes,
-        location_label: draft?.location_label,
         lure_brand: draft?.lure_brand,
         lure_model: draft?.lure_model,
         bait_type: draft?.bait_type,
-        latitude: draft?.latitude,
-        longitude: draft?.longitude,
       }
 
   const {
@@ -370,6 +382,33 @@ export function CatchForm(props: CatchFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-32">
 
+      {/* ── Bandeau spot pré-sélectionné ── */}
+      {spotContext && (
+        <div className="flex items-center justify-between gap-3 bg-teal-50 border border-teal-200 rounded-[14px] px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-600 mb-0.5">
+              Tu logues une prise sur :
+            </p>
+            <div className="flex items-center gap-2 min-w-0">
+              <MapPin size={14} className="text-teal-600 shrink-0" />
+              <p className="text-[14px] font-semibold text-teal-900 truncate">
+                {spotContext.name}
+              </p>
+              <span className="text-[12px] text-teal-600 shrink-0">
+                · Dép. {spotContext.department}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.replace('/carnet/nouvelle')}
+            className="shrink-0 text-[12px] text-teal-600 underline underline-offset-2 hover:text-teal-800 whitespace-nowrap"
+          >
+            Changer de spot
+          </button>
+        </div>
+      )}
+
       {/* ── Section 1 : Espèce ── */}
       <Card>
         <SectionTitle required>Espèce</SectionTitle>
@@ -566,6 +605,21 @@ export function CatchForm(props: CatchFormProps) {
       {/* ── Section 4 : Lieu ── */}
       <Card>
         <SectionTitle required={!isEdit}>Lieu</SectionTitle>
+
+        {locationMode === 'spot' && spotContext && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-[10px] px-3 py-2.5">
+              <MapPin size={16} className="text-teal-600 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-medium text-teal-800">{spotContext.name}</p>
+                <p className="text-[11px] text-teal-600">Position du spot · Dép. {spotContext.department}</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-ink-400">
+              La position est pré-remplie depuis le spot sélectionné.
+            </p>
+          </div>
+        )}
 
         {locationMode === 'gps' && (
           <div className="mt-3 space-y-3">

@@ -18,12 +18,13 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 - **Nom** : Carnet de Pêche
 - **Tagline** : « Logue. Partage. Progresse. »
-- **Concept** : le réseau social et le carnet de pêche numérique des pêcheurs à la canne du bord en France. Une carte intelligente qui apprend des prises loguées par la communauté.
+- **Concept** : le carnet de pêche numérique et le réseau social des pêcheurs à la canne du bord en France. Le carnet apprend de tes prises pour te dire QUAND et OÙ pêcher selon TES patterns — pas selon des moyennes génériques.
 - **Périmètre v1** : pêche à la canne du bord uniquement. Pas de pêche à pied, pas de bateau, pas d'eau douce.
 - **Espèces ciblées** : bar, dorade royale, lieu jaune, maquereau, sar, orphie.
 - **Géographie** : France métropolitaine (Atlantique, Manche, Méditerranée).
-- **Concurrent direct #1** : [spot-de-peche.com](https://spot-de-peche.com) — WordPress, pas de carnet, pas de social, pas d'app mobile. Faible.
+- **Concurrent direct #1** : [spot-de-peche.com](https://spot-de-peche.com) — **sérieux, à ne pas sous-estimer**. Carte interactive avec heatmap de qualité, fiche spot complète (courbe de marée 24h avec curseur "maintenant", météo détaillée : vent + direction, temp air + eau, vagues + houle + période, précipitations + probabilité, pression, nébulosité), section "Meilleurs moments" avec scoring solunar (lever/coucher de lune, lever/coucher de soleil, justifications astronomiques par créneau), explorer en cascade (dépt → technique → espèce → spot), bouton itinéraire GPS. Forces = exhaustivité des données environnementales + UX maps soignée + couverture multi-techniques (pêche à pied + canne + leurre). Faiblesses = pas de carnet personnel, pas de fil social, scoring 100% générique (modèles océanographiques + solunar standard, identique pour tous), pas d'app mobile native, pas de personnalisation. **Notre angle vs eux** = carnet personnel + scoring qui apprend de TES catches + signal communautaire ("3 prises ici aujourd'hui") + app mobile native iOS/Android. Implication concrète : on ne peut PAS sortir une carte squelettique face à eux — les données environnementales (marées + météo + vagues) sont des table stakes, pas un différenciateur. C'est fusionné dans le sprint 4.
 - **Concurrent direct #2** : [FishFriender](https://www.fishfriender.com/) — 4,7/5 sur 3 200 avis, lancé 2016, généraliste toutes pêches, 12 langues. Force = boîte de pêche numérique (130k produits scannables). Faiblesses = carte 100% paywall, pas spécialisé FR, pas de fil régional. Notre angle = hyper-spécialisation canne du bord en mer FR + carte basique gratuite + fil régional par département.
+- **Différenciateur principal défendable** : le **carnet personnel comme moat**. Les concurrents donnent les MÊMES infos environnementales à tout le monde (météo générique, marées astronomiques, solunar standard). Nous, on overlay TES patterns historiques par-dessus ces données : "Tu pêches mieux en marée descendante coef > 80, le matin, après 3 jours sans pluie". Cette personnalisation est impossible sans carnet utilisateur. Long terme, plus l'utilisateur log de prises, plus le produit devient irremplaçable pour LUI spécifiquement — c'est notre vrai lock-in.
 
 ---
 
@@ -331,21 +332,22 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 
 ## 9. Roadmap par sprint
 
-Chaque sprint = 2 semaines.
+Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurrentielle approfondie** : spot-de-peche.com est plus fort que prévu (cf. section 1), donc fusion des ex-sprints 5+6+7 dans le sprint 4 pour ne pas paraître squelettique au lancement. Le scoring (ex-sprint 8) reste séparé mais avec un angle "personnalisé" qui devient le vrai différenciateur. La numérotation décale de 3 sprints à partir de l'ex-sprint 9.
 
 | Sprint | Période | Livrable |
 |---|---|---|
-| **1-2** | S1-S2 | **Foundations** : Next.js + Supabase + auth (email + OAuth) + page d'accueil + onboarding + design system |
-| **3-4** | S3-S4 | **Carnet de pêche** : CRUD prises, photo upload Storage, conditions auto-loggées, page profil + stats |
-| **5-6** | S5-S6 | **Carte et spots** : MapLibre intégré, filtres technique/espèce, fiches spots, RPC `nearby_spots` |
-| **7** | S7 | **Marées + météo** : Edge Function fetch Open-Meteo, cache horaire, page calendrier marées |
-| **8** | S8 | **Algorithme scoring** : Edge Function `score(spot_id, datetime)`, visualisation activité 7 jours |
-| **9** | S9 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows |
-| **10** | S10 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 14j |
-| **11** | S11 | **Guides éditoriaux** : MDX + 20 guides phares + SEO programmatique |
-| **12** | S12 | **Polish + Beta privée** : SEO, sitemap, emails transactionnels, 50 testeurs invités |
-| **13-20** | S13-S20 | **Mobile iOS/Android** : Expo + mode hors ligne + push + IAP |
-| **21-24** | S21-S24 | **Lancement public** : App Store + Play Store + campagne acquisition |
+| **1-2** | S1-S2 | **Foundations** ✅ : Next.js + Supabase + auth + page d'accueil + onboarding + design system |
+| **3** | S3 | **Carnet de pêche** ✅ : CRUD prises, photo upload Storage, conditions auto-loggées, page profil + stats |
+| **3.5** | — | **Polish hors sprint** ✅ : bug fix form carnet (reset champs au changement de technique), flèche retour mobile, refonte auth (email/password + Google OAuth, magic link en option) |
+| **4** | S4-S5 | **Carte + spots + données environnementales** (gros sprint, ~3 semaines, fusion ex-5/6/7) : MapLibre intégré, freemium gating (3 spots/dépt vs tout), filtres espèces/techniques/dépt, fiches spots avec marées 24h + météo complète + vagues/houle (Open-Meteo Marine), RPC nearby_spots, SEO programmatique (sitemap, JSON-LD), mobile UX polish |
+| **6** | S6 | **"Meilleurs moments" solunar** : library suncalc, calcul des fenêtres optimales par jour/spot (lever/coucher lune + marée + vent), calendrier 7 jours par spot, badges qualitatifs (Faible/Bonne/Très Bonne/Exceptionnelle) avec justifications astronomiques. Match au minimum la feature équivalente de spot-de-peche. |
+| **7** | S7 | **Scoring personnalisé** (notre vrai différenciateur) : overlay sur les conditions = "Tu pêches mieux quand…" basé sur l'historique des catches du user. Algorithme côté Edge Function. Affiché sur fiche spot + sur la carte sous forme de "ton score" en plus du "score global". |
+| **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
+| **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 14j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
+| **10** | S10 | **Guides éditoriaux** : MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques). |
+| **11** | S11 | **Polish + Beta privée** : emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. |
+| **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |
+| **20-23** | S20-S23 | **Lancement public** : App Store + Play Store + campagne acquisition (organique + partenariats fédérations + presse pêche). |
 
 ---
 

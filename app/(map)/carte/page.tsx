@@ -8,6 +8,7 @@ import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAUL
 import type { SpotMarker } from '@/lib/map/utils'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url'
+import type { SpotFilters } from '@/lib/spots/filters-schema'
 
 export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
@@ -28,13 +29,30 @@ async function fetchProfile(userId: string) {
   return data
 }
 
-async function fetchSpots(tier: UserTier, homeDept: string | null): Promise<SpotMarker[]> {
+async function fetchSpots(
+  tier: UserTier,
+  homeDept: string | null,
+  filters: SpotFilters = {},
+): Promise<SpotMarker[]> {
   const supabase = await createClient()
 
-  const deptFilter = tier === 'local' ? homeDept : null
+  const isPaid = tier === 'local' || tier === 'itinerant'
+
+  const deptFilter: string | null =
+    tier === 'local' ? homeDept :
+    tier === 'itinerant' ? (filters.department ?? null) :
+    null
+
+  const speciesFilter: string[] | null =
+    isPaid && filters.species?.length ? filters.species : null
+
+  const techniqueFilter: string[] | null =
+    isPaid && filters.techniques?.length ? filters.techniques : null
 
   const { data, error } = await supabase.rpc('get_spots_for_map', {
     dept_filter: deptFilter,
+    species_filter: speciesFilter,
+    technique_filter: techniqueFilter,
   })
 
   if (error || !data) return []
@@ -70,14 +88,20 @@ export default async function CartePage({
   const initialZoom: number =
     tier !== 'anonymous' && homeDept ? 9 : COASTAL_DEFAULT_ZOOM
 
-  const spots = await fetchSpots(tier, homeDept)
+  // Filtres initiaux depuis l'URL
+  const params = await searchParams
+  const urlFilters = parseFiltersFromSearchParams(params)
+
+  const isPaid = tier === 'local' || tier === 'itinerant'
+
+  // Sécurité : les tiers gratuits ne peuvent pas filtrer via URL (bypass de la limite 3 spots/dept)
+  const spots = await fetchSpots(tier, homeDept, isPaid ? urlFilters : {})
 
   // Départements disponibles pour le sélecteur itinérant
   const availableDepartments = [...new Set(spots.map((s) => s.department))].sort()
 
-  // Filtres initiaux depuis l'URL
-  const params = await searchParams
-  const initialFilters = parseFiltersFromSearchParams(params)
+  // Ne restaure pas les filtres URL pour les tiers gratuits
+  const initialFilters = isPaid ? urlFilters : {}
 
   // Bandeau upsell discovery
   const cookieStore = await cookies()

@@ -281,6 +281,7 @@ export default function LoginPage() {
                 Ton email
               </Label>
               <Input
+                key={resetState.submittedAt ?? "reset-email-initial"}
                 id="reset-email"
                 name="email"
                 type="email"
@@ -312,6 +313,7 @@ export default function LoginPage() {
                 Ton email
               </Label>
               <Input
+                key={signinState.submittedAt ?? "signin-email-initial"}
                 id="signin-email"
                 name="email"
                 type="email"
@@ -360,6 +362,7 @@ export default function LoginPage() {
                 Ton email
               </Label>
               <Input
+                key={signupState.submittedAt ?? "signup-email-initial"}
                 id="signup-email"
                 name="email"
                 type="email"
