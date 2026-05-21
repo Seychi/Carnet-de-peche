@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/auth/callback', '/onboarding/', '/home', '/profil', '/carnet'],
       },
     ],
-    sitemap: 'https://carnet-de-peche.vercel.app/sitemap.xml',
+    sitemap: 'https://www.carnet-de-peche.com/sitemap.xml',
   }
 }

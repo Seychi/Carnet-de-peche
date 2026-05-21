@@ -93,7 +93,7 @@ async function fetchCatchCount(spotId: string): Promise<number> {
 
 export const revalidate = 1800
 
-const BASE_URL = 'https://carnet-de-peche.vercel.app'
+const BASE_URL = 'https://www.carnet-de-peche.com'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }

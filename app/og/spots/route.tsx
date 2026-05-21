@@ -192,7 +192,7 @@ export async function GET() {
           </div>
 
           <span style={{ fontSize: '16px', color: 'rgba(255,255,255,0.3)' }}>
-            carnet-de-peche.vercel.app/spots
+            carnet-de-peche.com/spots
           </span>
         </div>
       </div>

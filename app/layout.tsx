@@ -16,7 +16,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://carnet-de-peche.vercel.app'),
+  metadataBase: new URL('https://www.carnet-de-peche.com'),
   title: "Carnet de Pêche — Le réseau des pêcheurs à la canne du bord",
   description:
     "Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots — entre passionnés.",

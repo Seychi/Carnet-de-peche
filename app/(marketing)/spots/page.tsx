@@ -6,7 +6,7 @@ import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
 
 export const revalidate = 3600
 
-const BASE_URL = 'https://carnet-de-peche.vercel.app'
+const BASE_URL = 'https://www.carnet-de-peche.com'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
