@@ -2,6 +2,39 @@
 
 Schéma initial pour démarrer le projet sur une base **complètement vierge**.
 
+## ⚠️ Discipline migrations — règle d'or
+
+**Toute modification du schéma DB DOIT passer par un fichier de migration committé.**
+
+Procédure obligatoire :
+1. Créer `supabase/migrations/0XX_description.sql` (numéro suivant disponible)
+2. Tester en dev local : `supabase db reset` ou `supabase db push`
+3. Commit + push
+4. Appliquer en remote via Supabase Studio SQL Editor (copier-coller) OU `supabase db push`
+5. Régénérer les types : `pnpm dlx supabase gen types typescript --project-id glgciwwnpmgifyhbvxsw > lib/types.ts`
+6. Commit `lib/types.ts`
+
+**Jamais** :
+- ❌ Modifier une migration déjà appliquée (créer une migration corrective à la place)
+- ❌ Éditer le schéma directement dans Supabase Studio sans créer la migration locale (cf drift ci-dessous)
+- ❌ Push de code qui dépend d'une colonne ou RPC non encore en remote
+
+Avant chaque sprint, lancer `supabase db diff --linked` pour vérifier l'absence de drift.
+
+### État du tracking au 2026-05-21 (sprint 7.5 / D2)
+
+Le **schéma remote est complet et correct** : tous les objets des migrations `001`→`016`
+existent (colonnes scoring sur `catches`, table `spot_scores`, RPC `get_spots_for_scoring`,
+`get_spot_by_slug`, `get_spot_by_id`, `get_spots_for_map`, `nearby_spots`…). Vérifié objet
+par objet via MCP → **pas de drift de schéma, aucune migration corrective nécessaire**.
+
+En revanche l'**historique tracké** (`supabase_migrations`) diverge des fichiers locaux :
+`001`-`005` et `013` ne sont pas enregistrés comme migrations appliquées (objets créés très
+tôt ou via Studio), et quelques entrées remote portent des noms libres
+(`catches_location_label`, `catches_for_viewer_add_conditions_privacy`, `catch_extended_stats`).
+C'est sans incidence fonctionnelle, mais ça illustre exactement pourquoi la règle d'or
+ci-dessus existe. **Ne pas re-jouer 001-005/013 en remote** (les objets existent déjà).
+
 ## Ordre d'exécution
 
 ```bash
