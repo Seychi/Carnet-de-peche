@@ -128,8 +128,33 @@ update public.subscriptions set
 where user_id = 'c0000000-0000-0000-0000-000000000029';
 
 -- ---------------------------------------------------------------------
+-- 4) Garde-fou post-seed (sprint 9) : current_tier doit refléter les UPDATE.
+--    Si la fonction current_tier (migration 021) n'est pas alignée avec les
+--    lignes seedées, on échoue bruyamment plutôt que de laisser un gating faux.
+-- ---------------------------------------------------------------------
+do $$
+declare
+  expected constant jsonb := jsonb_build_object(
+    'a0000000-0000-0000-0000-000000000029', 'discovery',
+    'b0000000-0000-0000-0000-000000000029', 'local',
+    'b0000000-0000-0000-0000-000000000056', 'local',
+    'c0000000-0000-0000-0000-000000000029', 'itinerant'
+  );
+  k text;
+  got text;
+begin
+  for k in select jsonb_object_keys(expected) loop
+    got := public.current_tier(k::uuid);
+    if got is distinct from (expected ->> k) then
+      raise exception 'seed assert : current_tier(%) = % (attendu %)', k, got, expected ->> k;
+    end if;
+  end loop;
+  raise notice 'seed_test_accounts : current_tier OK pour les 4 comptes test.';
+end $$;
+
+-- ---------------------------------------------------------------------
 -- Vérif rapide (décommente pour contrôler après exécution) :
--- select p.username, p.home_department, s.plan, s.status
+-- select p.username, p.home_department, s.plan, s.status, public.current_tier(p.id)
 -- from public.profiles p
 -- join public.subscriptions s on s.user_id = p.id
 -- where p.username like 'test_%'

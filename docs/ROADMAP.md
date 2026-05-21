@@ -200,7 +200,14 @@ Tout est déjà en place : Supabase Realtime, shadcn, date-fns. Pas de lib de ma
 
 ---
 
-## 🟢 Sprint 9 — Paiements Stripe (2 semaines)
+## ✅ Sprint 9 — Paiements Stripe (CODE-COMPLET, branche `sprint-9`, 2026-05-21)
+
+> **État** : tous les blocs codés, **215 tests verts**, build OK, flow Checkout validé en test.
+> Décisions verrouillées : pricing 4,90/9,90 € TTC `inclusive` -17 %, essai **7j AVEC CB**
+> (option a retenue, pas le faux essai DB), EUR + FR métropole (DOM-TOM bloqués), Stripe Tax ON.
+> Reste avant merge/déploiement (manuel John) : QA `docs/sprint-9/qa-checklist.md`, vars LIVE
+> Vercel + endpoint webhook prod, arbitrage 2 comptes seed payés (`supabase/README.md` § anti-traîne).
+> Détail : `docs/sprint-9/RECAP.md`. Finding : API Stripe `2026-04-22.dahlia` (current_period sur items, invoice.parent).
 
 **Objectif** : remplacer les inserts manuels en DB par du vrai paiement Stripe. Gating réel des tiers Local/Itinérant.
 

@@ -35,6 +35,49 @@ tôt ou via Studio), et quelques entrées remote portent des noms libres
 C'est sans incidence fonctionnelle, mais ça illustre exactement pourquoi la règle d'or
 ci-dessus existe. **Ne pas re-jouer 001-005/013 en remote** (les objets existent déjà).
 
+## ⚠️ Seed test accounts — JAMAIS en prod (sprint 9)
+
+Le fichier `supabase/seed_test_accounts.sql` (sprint 8) crée des comptes test avec des
+subscriptions UPDATE-ées vers `local`/`itinerant` **SANS passer par Stripe**. C'est
+exclusivement pour tester le tier gating en dev/preview.
+
+**Depuis le sprint 9, la SEULE façon d'obtenir un tier payant en prod = passer par Stripe**
+Checkout → webhook → upsert subscription (cf `app/api/stripe/webhook/route.ts`). Aucune
+écriture dans `subscriptions` hors du webhook (sauf ce seed dev/preview).
+
+**Jamais en prod** :
+- Ne pas inclure `seed_test_accounts.sql` dans un `supabase db push` automatique.
+- Le fichier a un garde-fou en tête (refus si des profils réels existent) + une assertion
+  `current_tier` en fin.
+
+### Purge des comptes test résiduels en prod
+
+Requête anti-traîne (à lancer avant tout merge/déploiement de paiements) — identifie les
+subscriptions en tier payant **sans lien Stripe** (= test ayant fui en prod) :
+
+```sql
+select u.email, s.user_id, s.plan, s.status, s.updated_at
+from public.subscriptions s
+join auth.users u on u.id = s.user_id
+where s.plan in ('local','itinerant')
+  and (s.stripe_customer_id is null or s.stripe_subscription_id is null);
+```
+
+Si non vide : ce sont des comptes test. Pour les **remettre en discovery** (sans supprimer
+le compte/carnet) :
+
+```sql
+update public.subscriptions
+set plan = 'discovery', status = 'active',
+    stripe_subscription_id = null, stripe_price_id = null,
+    trial_end = null, cancel_at_period_end = false, updated_at = now()
+where plan in ('local','itinerant')
+  and stripe_customer_id is null and stripe_subscription_id is null;
+```
+
+> État au 2026-05-21 : 2 comptes concernés (`redkps4+local`, `redkps4+itinerant`) — comptes
+> de QA de John, à arbitrer avant la mise en prod réelle des paiements.
+
 ## Ordre d'exécution
 
 ```bash

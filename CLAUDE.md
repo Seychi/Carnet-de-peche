@@ -28,7 +28,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-05-21, post-sprint 8 — branche `sprint-8`)
+## 2. État actuel du projet (à jour 2026-05-21, sprint 9 code-complet — branche `sprint-9`)
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -56,10 +56,16 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
   - Hooks Realtime, 6 composants `components/feed/`, routes `/fil`·`/fil/[dept]`·`/u/[username]`·`/follows`, signal social fiche spot, seed dev `/dev/seed-feed`
   - **Reste avant merge** : QA manuelle (`docs/sprint-8/qa-checklist.md`), tests Realtime/tier cross-onglets, captures composer, puis merge `sprint-8` → `main` + déploiement. RLS-FIX-06 (geom catch en accès direct) → backlog. Voir `docs/sprint-8/RECAP.md`.
 
-🔜 **MAINTENANT — Sprint 9 : Paiements (Stripe)**
-Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts manuels / seed dev de subscriptions). C'est ce qui rendra le tier gating du sprint 8 réellement opérant en prod. Voir `docs/ROADMAP.md`.
+ℹ️ **Sprint 8 mergé** : `main` == `sprint-8` (commit `0bcb0cf`) → le fil communautaire est sur `main`.
 
-🔜 **Suite (sprints 9 → 23 + phase 2)**
+✅ **Sprint 9 — Paiements (Stripe) — CODE-COMPLET (branche `sprint-9`, pas encore mergé/déployé)**
+Stripe Checkout + Customer Portal + webhooks idempotents + essai 7j avec CB + Stripe Tax FR + gating réel des tiers via RPC `current_tier` (remplace les inserts manuels / seed dev). Migration 021 appliquée en prod. **215 tests verts, build OK.** Flow Checkout validé en mode test le 2026-05-21.
+- **Reste avant merge** (manuel John) : QA `docs/sprint-9/qa-checklist.md` + captures écran, vars **LIVE** dans Vercel + endpoint webhook prod, arbitrer 2 comptes seed payés sans Stripe (cf `supabase/README.md` § anti-traîne). Voir `docs/sprint-9/RECAP.md`.
+- **Finding API** : SDK Stripe 22.x / API `2026-04-22.dahlia` → `current_period_*` sur les SubscriptionItem, `Invoice` → `parent.subscription_details.subscription`.
+
+🔜 **SUITE — Sprint 10 : Guides éditoriaux** (MDX + 20 guides + SEO programmatique).
+
+🔜 **Suite (sprints 10 → 23 + phase 2)**
 Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
 
 ---
@@ -115,11 +121,14 @@ SUPABASE_PROJECT_REF=glgciwwnpmgifyhbvxsw
 # Service role (à demander à John quand on aura besoin pour les Edge Functions)
 # SUPABASE_SERVICE_ROLE_KEY=
 
+# Stripe (sprint 9) — requis selon VERCEL_ENV (LIVE en prod, TEST en dev/preview).
+# sk_ et whsec_ = serveur uniquement, jamais NEXT_PUBLIC_. Liste complète : .env.example.
+# LIVE : STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY + 4 STRIPE_PRICE_*
+# TEST : STRIPE_TEST_SECRET_KEY, STRIPE_TEST_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY + 4 STRIPE_TEST_PRICE_*
+
 # À ajouter plus tard
 # NEXT_PUBLIC_MAPTILER_KEY=
 # RESEND_API_KEY=
-# STRIPE_SECRET_KEY=
-# STRIPE_WEBHOOK_SECRET=
 # SENTRY_DSN=
 # ANTHROPIC_API_KEY=
 ```
@@ -321,6 +330,8 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 - Support prioritaire
 
 **Essai 7 jours avec CB** sur Local/Itinérant. **Garantie satisfait ou remboursé.**
+
+> ✅ **Stripe opérant depuis le sprint 9** (code-complet) : Checkout + Customer Portal + webhooks, prix TTC `inclusive`, Stripe Tax FR. Le tier est lu via la RPC `current_tier` (source de vérité = webhook Stripe). DOM-TOM bloqués v1.
 
 **Règle d'or implémentation** :
 - Ce qui se TOUCHE / se VOIT précisément (coords GPS exactes, score, filtres) → **payant**
