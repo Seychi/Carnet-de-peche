@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -618,9 +618,13 @@ export type Database = {
           cancel_at_period_end: boolean | null
           created_at: string
           current_period_end: string | null
+          current_period_start: string | null
+          default_payment_method: string | null
+          latest_invoice_id: string | null
           plan: string
           status: string | null
           stripe_customer_id: string | null
+          stripe_price_id: string | null
           stripe_subscription_id: string | null
           trial_end: string | null
           unlocked_departments: string[] | null
@@ -631,9 +635,13 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          default_payment_method?: string | null
+          latest_invoice_id?: string | null
           plan?: string
           status?: string | null
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           unlocked_departments?: string[] | null
@@ -644,9 +652,13 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          default_payment_method?: string | null
+          latest_invoice_id?: string | null
           plan?: string
           status?: string | null
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           unlocked_departments?: string[] | null
@@ -1035,6 +1047,7 @@ export type Database = {
         Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
         Returns: unknown
       }
+      current_tier: { Args: { uid: string }; Returns: string }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -1252,6 +1265,7 @@ export type Database = {
       }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
+      is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
       nearby_spots: {
         Args: {
@@ -2050,3 +2064,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
