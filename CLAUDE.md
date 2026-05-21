@@ -28,9 +28,9 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-05-20, post-sprint 7)
+## 2. État actuel du projet (à jour 2026-05-21, post-sprint 7.5)
 
-✅ **Fait (sprints 1 à 7)**
+✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
 - Maquette HTML cliquable (5 pages) — voir `docs/maquette/`
 - Repo GitHub privé : <https://github.com/Seychi/Carnet-de-peche>
@@ -43,18 +43,19 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 - **Sprint 7** : Scoring personnalisé (mode descriptif "où et quand tombent tes prises") + cron Vercel `compute-spot-scores` + markers carte colorisés + table `spot_scores` + 116 tests Vitest verts
 - 16 migrations Supabase appliquées (001 → 016)
 - **Audit complet** du projet livré le 2026-05-20 → `docs/AUDIT-2026-05.md`
+- **Sprint 7.5** (hygiène produit post-audit, déployé 2026-05-21) :
+  - **Bloc A** — SEO domaine `.com` (metadataBase, sitemap, robots, canonical, OG), stubs footer `/fil`·`/especes`·`/techniques`, essai aligné **7 jours avec CB** (décision verrouillée), CTAs `#` branchés, copy home assainie (fin des affirmations mensongères : exports, "217 spots", floutage 1 km), témoignages fictifs → bloc "Pourquoi maintenant"
+  - **Bloc B** — badge `⚡ Perso` neutralisé sur les fiches spots (multiplicateur non démontrable, cf `docs/sprint-7.5/scoring-perso-deferred.md`)
+  - **Bloc D** — `lib/env.ts` durci (CRON_SECRET + SERVICE_ROLE_KEY requis en prod), discipline migrations documentée (`supabase/README.md`), `lib/types.ts` regen, CI GitHub Actions, cleanup routes dev, **cron `spot_scores` passé en quotidien + validité 26h** (plan Hobby)
+  - **Bloc E** (audit Claude-in-Chrome) — **pages légales RGPD/LCEN complètes** (mentions/confidentialité/CGU avec vrai SIRET), `/home` refondu en mini-dashboard, messages de validation **zod en français**, placeholder lat/long, corrections copy, carnet de test nettoyé, tap targets ≥ 44 px, skeleton carte, itinéraire multi-app (Google/Plans/Waze)
+  - **Reporté en backlog** (`docs/ROADMAP.md`) : bloc C (lint ~360 apostrophes `react/no-unescaped-entities` + retrait `eslint.ignoreDuringBuilds`), date-picker FR custom (E3), domiciliation commerciale + médiateur conso
 
-🔴 **MAINTENANT — Sprint 7.5 obligatoire (3-5 jours)**
-Sprint de nettoyage avant pivot social. **Pas de nouvelle feature.** Suite de l'audit.
-- Bloc A — Marketing & SEO : fix `metadataBase` (`.vercel.app` → `.com`), footer stubs `/fil`/`/especes`/`/techniques`, décision pricing 7j ou 14j, CTAs `#`, copy home alignée avec la réalité, témoignages fictifs retirés
-- Bloc B — Dette sprint 7 : neutraliser le badge `⚡ Perso` inerte sur fiches spots (cf RECAP sprint 7)
-- Bloc C — Dette lint : 365 erreurs `react/no-unescaped-entities` fixées + retrait `eslint.ignoreDuringBuilds`
-- Bloc D — Infra : `lib/env.ts` complété (CRON_SECRET + SERVICE_ROLE_KEY), réconciliation migrations local/remote, types regen, CI GitHub Actions minimal, cleanup routes dev, Vercel env vars confirmées, cron déclenché 1× en prod
-- **Brief d'exécution détaillé** : `docs/sprint-7.5/brief-sprint-7.5.md`
-- Critères de sortie : checklist en bas du brief
+🔜 **MAINTENANT — Sprint 8 : Fil communautaire (pivot social)**
+feed_posts + Realtime + profils sociaux + follows + signal social local ("X prises ici aujourd'hui à Y heure"). Voir `docs/ROADMAP.md`.
+- **Pré-requis avant de coder** : audit RLS systématique sur les tables `feed_*` (cf backlog technique ROADMAP) + traiter le bloc C lint si on veut un CI 100 % vert.
 
-🔜 **Suite (sprints 8 → 23 + phase 2)**
-Voir `docs/ROADMAP.md` pour le découpage complet (Fil → Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
+🔜 **Suite (sprints 9 → 23 + phase 2)**
+Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
 
 ---
 
