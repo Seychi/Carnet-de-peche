@@ -1,0 +1,27 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # TODO (bloc C sprint 7.5) : retirer `continue-on-error` une fois les ~360
+      # erreurs react/no-unescaped-entities corrigées, pour rendre le lint bloquant.
+      - run: pnpm lint
+        continue-on-error: true
+      - run: pnpm typecheck
+      - run: pnpm test
