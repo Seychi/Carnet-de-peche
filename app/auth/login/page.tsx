@@ -1,13 +1,29 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useState,
+  type FormEvent,
+  type FocusEvent,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { useFormStatus } from "react-dom";
 import { Eye, EyeOff, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import type { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  signinSchema,
+  signupSchema,
+  emailOnlySchema,
+  zodToFieldErrors,
+  type FieldErrors,
+} from "@/lib/auth/schema";
 import {
   sendMagicLink,
   signInWithPassword,
@@ -16,6 +32,54 @@ import {
   signInWithGoogle,
   type LoginState,
 } from "./actions";
+
+// ─── Validation client ──────────────────────────────────────────────────────
+// On garde les Server Actions (qui valident aussi côté serveur), mais on ajoute
+// une validation client synchrone en français pour : (1) tuer les messages
+// natifs HTML5 en anglais (via noValidate), (2) afficher une erreur sous chaque
+// champ — au blur (live) et au submit (bloque l'envoi si invalide).
+
+// Valide tout le formulaire au submit ; bloque l'envoi si un champ est invalide.
+function gateSubmit(
+  schema: z.ZodType,
+  setErrors: (errors: FieldErrors) => void
+) {
+  return (e: FormEvent<HTMLFormElement>) => {
+    const data = Object.fromEntries(new FormData(e.currentTarget).entries());
+    const res = schema.safeParse(data);
+    if (!res.success) {
+      e.preventDefault();
+      setErrors(zodToFieldErrors(res.error));
+    } else {
+      setErrors({});
+    }
+  };
+}
+
+// Valide le seul champ qui perd le focus (sans révéler les erreurs des autres).
+function gateBlur(
+  schema: z.ZodType,
+  setErrors: Dispatch<SetStateAction<FieldErrors>>
+) {
+  return (e: FocusEvent<HTMLInputElement>) => {
+    const form = e.currentTarget.form;
+    const name = e.currentTarget.name;
+    if (!form || !name) return;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const res = schema.safeParse(data);
+    const msg = res.success ? undefined : zodToFieldErrors(res.error)[name];
+    setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p className="text-[13px] text-red-600" role="alert">
+      {message}
+    </p>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -65,10 +129,14 @@ function PasswordInput({
   id,
   name,
   autoComplete,
+  onBlur,
+  invalid,
 }: {
   id?: string;
   name: string;
   autoComplete?: string;
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  invalid?: boolean;
 }) {
   const [show, setShow] = useState(false);
   return (
@@ -79,6 +147,8 @@ function PasswordInput({
         type={show ? "text" : "password"}
         placeholder="••••••••"
         autoComplete={autoComplete}
+        onBlur={onBlur}
+        aria-invalid={invalid || undefined}
         className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500 pr-10"
         required
       />
@@ -162,6 +232,12 @@ export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("signin");
   const [showReset, setShowReset] = useState(false);
   const [showMagicLink, setShowMagicLink] = useState(false);
+
+  // Erreurs de validation client, par formulaire.
+  const [signinErrors, setSigninErrors] = useState<FieldErrors>({});
+  const [signupErrors, setSignupErrors] = useState<FieldErrors>({});
+  const [resetErrors, setResetErrors] = useState<FieldErrors>({});
+  const [magicErrors, setMagicErrors] = useState<FieldErrors>({});
   const [sent, setSent] = useState<{ reason: SentReason; email: string } | null>(
     null
   );
@@ -261,7 +337,12 @@ export default function LoginPage() {
 
         {/* ── Mode reset ── */}
         {showReset ? (
-          <form action={resetAction} className="flex flex-col gap-5">
+          <form
+            action={resetAction}
+            noValidate
+            onSubmit={gateSubmit(emailOnlySchema, setResetErrors)}
+            className="flex flex-col gap-5"
+          >
             <button
               type="button"
               onClick={() => setShowReset(false)}
@@ -288,9 +369,12 @@ export default function LoginPage() {
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
                 defaultValue={resetState.email}
+                onBlur={gateBlur(emailOnlySchema, setResetErrors)}
+                aria-invalid={resetErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
                 required
               />
+              <FieldError message={resetErrors.email} />
               {resetState.error && (
                 <p className="text-[13px] text-red-600" role="alert">
                   {resetState.error}
@@ -304,7 +388,12 @@ export default function LoginPage() {
           </form>
         ) : tab === "signin" ? (
           /* ── Formulaire connexion ── */
-          <form action={signinAction} className="flex flex-col gap-5">
+          <form
+            action={signinAction}
+            noValidate
+            onSubmit={gateSubmit(signinSchema, setSigninErrors)}
+            className="flex flex-col gap-5"
+          >
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="signin-email"
@@ -320,9 +409,12 @@ export default function LoginPage() {
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
                 defaultValue={signinState.email}
+                onBlur={gateBlur(signinSchema, setSigninErrors)}
+                aria-invalid={signinErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
                 required
               />
+              <FieldError message={signinErrors.email} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label
@@ -335,7 +427,10 @@ export default function LoginPage() {
                 id="signin-password"
                 name="password"
                 autoComplete="current-password"
+                onBlur={gateBlur(signinSchema, setSigninErrors)}
+                invalid={!!signinErrors.password}
               />
+              <FieldError message={signinErrors.password} />
               <button
                 type="button"
                 onClick={() => setShowReset(true)}
@@ -353,7 +448,12 @@ export default function LoginPage() {
           </form>
         ) : (
           /* ── Formulaire inscription ── */
-          <form action={signupAction} className="flex flex-col gap-5">
+          <form
+            action={signupAction}
+            noValidate
+            onSubmit={gateSubmit(signupSchema, setSignupErrors)}
+            className="flex flex-col gap-5"
+          >
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="signup-email"
@@ -369,9 +469,12 @@ export default function LoginPage() {
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
                 defaultValue={signupState.email}
+                onBlur={gateBlur(signupSchema, setSignupErrors)}
+                aria-invalid={signupErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
                 required
               />
+              <FieldError message={signupErrors.email} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label
@@ -384,10 +487,16 @@ export default function LoginPage() {
                 id="signup-password"
                 name="password"
                 autoComplete="new-password"
+                onBlur={gateBlur(signupSchema, setSignupErrors)}
+                invalid={!!signupErrors.password}
               />
-              <p className="text-[12px] text-ink-500">
-                Minimum 8 caractères dont 1 chiffre.
-              </p>
+              {signupErrors.password ? (
+                <FieldError message={signupErrors.password} />
+              ) : (
+                <p className="text-[12px] text-ink-500">
+                  Minimum 8 caractères dont 1 chiffre.
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label
@@ -400,7 +509,10 @@ export default function LoginPage() {
                 id="signup-confirm"
                 name="password_confirm"
                 autoComplete="new-password"
+                onBlur={gateBlur(signupSchema, setSignupErrors)}
+                invalid={!!signupErrors.password_confirm}
               />
+              <FieldError message={signupErrors.password_confirm} />
             </div>
             {signupState.error && (
               <p className="text-[13px] text-red-600 -mt-2" role="alert">
@@ -476,6 +588,8 @@ export default function LoginPage() {
             {showMagicLink && (
               <form
                 action={magicAction}
+                noValidate
+                onSubmit={gateSubmit(emailOnlySchema, setMagicErrors)}
                 className="flex flex-col gap-3 mt-3 pt-3 border-t border-ink-100"
               >
                 <Input
@@ -483,9 +597,12 @@ export default function LoginPage() {
                   type="email"
                   placeholder="toi@exemple.fr"
                   autoComplete="email"
+                  onBlur={gateBlur(emailOnlySchema, setMagicErrors)}
+                  aria-invalid={magicErrors.email ? true : undefined}
                   className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
                   required
                 />
+                <FieldError message={magicErrors.email} />
                 {magicState.error && (
                   <p className="text-[13px] text-red-600" role="alert">
                     {magicState.error}
