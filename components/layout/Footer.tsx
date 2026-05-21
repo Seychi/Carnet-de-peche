@@ -38,7 +38,7 @@ const legalLinks = [
   { label: 'Mentions légales', href: '/legal/mentions-legales' },
   { label: 'Confidentialité', href: '/legal/confidentialite' },
   { label: 'CGU', href: '/legal/cgu' },
-  { label: 'Contact', href: 'mailto:contact@carnet-de-peche.com' },
+  { label: 'Contact', href: '/contact' },
 ]
 
 export function Footer() {
