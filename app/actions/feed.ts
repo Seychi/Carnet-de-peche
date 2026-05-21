@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { isCoastalDepartment } from '@/lib/geo/coastal-departments'
+import { isCoastalDepartment } from '@/lib/geo/departments'
+import type { FeedPost, FeedTab } from '@/lib/feed/types'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -370,4 +371,78 @@ export async function getComments(
     }
   })
   return ok(result)
+}
+
+// ---------------------------------------------------------------------------
+// getFeedPage — page de posts (20) selon l'onglet, avec URLs photos signées.
+//   tab 'dept' : posts du département `region`
+//   tab 'all'  : tous départements (réservé itinerant côté UI)
+//   tab 'follows' : posts des pêcheurs que je suis
+// Pagination par curseur created_at (desc).
+// ---------------------------------------------------------------------------
+const PAGE_SIZE = 20
+
+export type FeedPostEnriched = FeedPost & { catchPhotoUrl: string | null }
+
+export async function getFeedPage(params: {
+  tab: FeedTab
+  region: string
+  cursor?: string
+}): Promise<ActionResult<{ posts: FeedPostEnriched[]; nextCursor: string | null }>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  let query = supabase
+    .from('feed_posts_for_viewer')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(PAGE_SIZE)
+
+  if (params.tab === 'dept') {
+    query = query.eq('region', params.region)
+  } else if (params.tab === 'follows') {
+    const { data: following } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+    const ids = (following ?? []).map((f) => f.following_id)
+    if (ids.length === 0) return ok({ posts: [], nextCursor: null })
+    query = query.in('author_id', ids)
+  }
+  // tab 'all' : aucun filtre de département
+
+  if (params.cursor) query = query.lt('created_at', params.cursor)
+
+  const { data, error } = await query
+  if (error) {
+    console.error('[getFeedPage]', error.message)
+    return fail('Impossible de charger le fil.')
+  }
+
+  const posts = (data ?? []) as FeedPost[]
+
+  // URLs signées des photos de prise (bucket privé catches).
+  const paths = posts
+    .map((p) => p.catch_photo_path)
+    .filter((p): p is string => Boolean(p))
+  const signedByPath = new Map<string, string>()
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage.from('catches').createSignedUrls(paths, 3600)
+    for (const s of signed ?? []) {
+      if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl)
+    }
+  }
+
+  const enriched: FeedPostEnriched[] = posts.map((p) => ({
+    ...p,
+    catchPhotoUrl: p.catch_photo_path ? (signedByPath.get(p.catch_photo_path) ?? null) : null,
+  }))
+
+  const nextCursor =
+    enriched.length === PAGE_SIZE ? (enriched[enriched.length - 1].created_at ?? null) : null
+
+  return ok({ posts: enriched, nextCursor })
 }

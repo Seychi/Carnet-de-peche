@@ -28,6 +28,10 @@ export const COASTAL_DEPARTMENTS: readonly string[] = [
   '2B', // Haute-Corse
 ] as const
 
+export function isCoastalDepartment(dept: string): boolean {
+  return COASTAL_DEPARTMENTS.includes(dept)
+}
+
 export const DEPARTMENT_LABELS: Record<string, string> = {
   '14': 'Calvados',
   '17': 'Charente-Maritime',
