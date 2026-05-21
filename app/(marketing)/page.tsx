@@ -288,7 +288,7 @@ export default function HomePage() {
               {
                 icon: <BookOpen size={22} />,
                 title: "Le carnet",
-                body: "Logue chaque prise en 3 taps : photo, espèce, taille. Conditions auto-loggées (marée, vent, lune). Stats annuelles, exports, historique infini. Privé par défaut, partage à la carte.",
+                body: "Logue chaque prise en 3 taps : photo, espèce, taille. Conditions auto-loggées (marée, vent, lune). Stats annuelles, historique infini. Privé par défaut, partage à la carte.",
               },
               {
                 icon: <Map size={22} />,
@@ -335,7 +335,7 @@ export default function HomePage() {
                   { title: "Auto-snapshot des conditions", desc: "Marée, vent, météo, lune, pression captés au moment de la prise." },
                   { title: "Privé par défaut", desc: "Tu décides ce que tu publies, sur quel mur, à quel cercle." },
                   { title: "Stats et insights", desc: "Tes meilleures conditions, ton coefficient idéal, ton heure d'or." },
-                  { title: "Import / export", desc: "GPX, JSON, Fishbrain, FishFriender. Tes données sont à toi." },
+                  { title: "Tes données t'appartiennent", desc: "Export GPX/JSON prévu cette année. Pas d'enfermement." },
                 ].map((item) => <CheckItem key={item.title} {...item} />)}
               </ul>
               <Link
@@ -370,9 +370,9 @@ export default function HomePage() {
               </p>
               <div className="grid grid-cols-2 gap-3 mb-8">
                 <div className="bg-white rounded-[14px] p-4 sm:p-5">
-                  <div className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide">Spots actifs aujourd&apos;hui</div>
-                  <div className="font-display text-[28px] sm:text-[32px] font-bold text-navy-900 my-1">217</div>
-                  <div className="text-[12px] sm:text-[13px] text-ink-700">Score &gt; 80/100 dans ton département</div>
+                  <div className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide">Objectif lancement</div>
+                  <div className="font-display text-[28px] sm:text-[32px] font-bold text-navy-900 my-1">100+</div>
+                  <div className="text-[12px] sm:text-[13px] text-ink-700">spots ciblés · couverture France entière</div>
                 </div>
                 <div className="bg-white rounded-[14px] p-4 sm:p-5">
                   <div className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide">Créneau du jour</div>
@@ -405,8 +405,8 @@ export default function HomePage() {
                 {[
                   { title: "Profil pêcheur", desc: "Ville, technique, espèces favorites, badges, équipement. Pas de stalking GPS." },
                   { title: "Fil régional", desc: "Conditions du jour, prises récentes, événements, alertes locales." },
-                  { title: "Floutage GPS systématique", desc: "Toute prise publique est positionnée dans un rayon de 2 km. Anti spot-burning." },
-                  { title: "Modération humaine", desc: "Pêcheurs ambassadeurs régionaux + IA pour signaler les abus." },
+                  { title: "Floutage GPS systématique", desc: "Toute prise publique est positionnée dans un rayon de 1 km. Anti spot-burning." },
+                  { title: "Modération communautaire", desc: "Signalement à 1 clic. Charte stricte. Modération IA prévue post-beta." },
                 ].map((item) => <CheckItem key={item.title} {...item} />)}
               </ul>
             </div>
