@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -38,10 +38,13 @@ export type Database = {
           species: string
           spot_id: string | null
           technique: string | null
+          tide_state: string | null
           updated_at: string
           user_id: string
           water_temperature_c: number | null
           weight_g: number | null
+          wind_direction_deg: number | null
+          wind_speed_kmh: number | null
         }
         Insert: {
           bait?: string | null
@@ -66,10 +69,13 @@ export type Database = {
           species: string
           spot_id?: string | null
           technique?: string | null
+          tide_state?: string | null
           updated_at?: string
           user_id: string
           water_temperature_c?: number | null
           weight_g?: number | null
+          wind_direction_deg?: number | null
+          wind_speed_kmh?: number | null
         }
         Update: {
           bait?: string | null
@@ -94,10 +100,13 @@ export type Database = {
           species?: string
           spot_id?: string | null
           technique?: string | null
+          tide_state?: string | null
           updated_at?: string
           user_id?: string
           water_temperature_c?: number | null
           weight_g?: number | null
+          wind_direction_deg?: number | null
+          wind_speed_kmh?: number | null
         }
         Relationships: [
           {
@@ -455,6 +464,57 @@ export type Database = {
         }
         Relationships: []
       }
+      spot_scores: {
+        Row: {
+          computed_at: string
+          current_quality: string
+          current_score: number
+          day_score: number | null
+          id: string
+          next_window_quality: string | null
+          next_window_start: string | null
+          spot_id: string
+          valid_until: string
+        }
+        Insert: {
+          computed_at?: string
+          current_quality: string
+          current_score: number
+          day_score?: number | null
+          id?: string
+          next_window_quality?: string | null
+          next_window_start?: string | null
+          spot_id: string
+          valid_until: string
+        }
+        Update: {
+          computed_at?: string
+          current_quality?: string
+          current_score?: number
+          day_score?: number | null
+          id?: string
+          next_window_quality?: string | null
+          next_window_start?: string | null
+          spot_id?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spot_scores_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: true
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spot_scores_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: true
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spots: {
         Row: {
           access_notes: string | null
@@ -607,10 +667,13 @@ export type Database = {
           spot_id: string | null
           spot_name: string | null
           technique: string | null
+          tide_state: string | null
           user_id: string | null
           username: string | null
           water_temperature_c: number | null
           weight_g: number | null
+          wind_direction_deg: number | null
+          wind_speed_kmh: number | null
         }
         Relationships: [
           {
@@ -1045,6 +1108,42 @@ export type Database = {
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
+      get_spot_by_id: {
+        Args: { p_id: string }
+        Returns: {
+          department: string
+          id: string
+          is_precise: boolean
+          lat: number
+          lng: number
+          name: string
+          region: string
+          slug: string
+        }[]
+      }
+      get_spot_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          access_notes: string
+          created_at: string
+          department: string
+          description: string
+          difficulty: number
+          hazards: string[]
+          id: string
+          is_precise: boolean
+          lat: number
+          lng: number
+          name: string
+          region: string
+          slug: string
+          species: string[]
+          structure: string
+          techniques: string[]
+          verified: boolean
+          visibility: string
+        }[]
+      }
       get_spots_for_map: {
         Args: {
           dept_filter?: string
@@ -1065,6 +1164,14 @@ export type Database = {
           structure: string
           techniques: string[]
           verified: boolean
+        }[]
+      }
+      get_spots_for_scoring: {
+        Args: never
+        Returns: {
+          id: string
+          lat: number
+          lng: number
         }[]
       }
       gettransactionid: { Args: never; Returns: unknown }
@@ -1867,4 +1974,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
