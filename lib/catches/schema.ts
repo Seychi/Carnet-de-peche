@@ -1,3 +1,4 @@
+import '@/lib/zod-config'
 import { z } from 'zod'
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -9,14 +10,14 @@ export const catchSpeciesEnum = z.enum([
   'maquereau',
   'sar',
   'orphie',
-])
+], { error: () => 'Choisis une espèce pour continuer' })
 
 export const catchTechniqueEnum = z.enum([
   'leurres',
   'surfcasting',
   'flottante',
   'vif',
-])
+], { error: () => 'Choisis une technique de pêche' })
 
 export const catchPrivacyEnum = z.enum(['private', 'friends', 'public'])
 
@@ -56,14 +57,14 @@ export const createCatchSchema = baseCatchObject.superRefine((data, ctx) => {
     if (data.latitude === undefined) {
       ctx.addIssue({
         code: 'custom',
-        message: 'latitude est requis pour cette méthode de localisation',
+        message: 'Indique la latitude (ou choisis un autre mode de localisation).',
         path: ['latitude'],
       })
     }
     if (data.longitude === undefined) {
       ctx.addIssue({
         code: 'custom',
-        message: 'longitude est requis pour cette méthode de localisation',
+        message: 'Indique la longitude (ou choisis un autre mode de localisation).',
         path: ['longitude'],
       })
     }
@@ -72,7 +73,7 @@ export const createCatchSchema = baseCatchObject.superRefine((data, ctx) => {
   if (data.location_method === 'spot' && !data.spot_id) {
     ctx.addIssue({
       code: 'custom',
-      message: 'spot_id est requis quand location_method est "spot"',
+      message: 'Choisis un spot dans la liste.',
       path: ['spot_id'],
     })
   }

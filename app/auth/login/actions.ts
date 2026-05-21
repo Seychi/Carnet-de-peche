@@ -1,5 +1,6 @@
 "use server";
 
+import "@/lib/zod-config";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import "@/lib/zod-config";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronRight } from "lucide-react";
