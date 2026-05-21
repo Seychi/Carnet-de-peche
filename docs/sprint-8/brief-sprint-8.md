@@ -25,6 +25,8 @@ Même format que `docs/sprint-7.5/brief-sprint-7.5.md` :
 
 Le ROADMAP §8 pose 4 décisions. Le brief propose les recommandations par défaut. **John doit lire et trancher** avant que Claude Code n'attaque le Bloc A.
 
+> ✅ **VERROUILLÉ par John le 2026-05-21.** Les 4 recommandations sont validées telles quelles. Détail des décisions ci-dessous sous chaque point.
+
 ## 0.1 — Granularité du fil
 
 **Recommandation** : un fil **par département** (`/fil/[dept]`) + un onglet "Mes follows" (`/fil?tab=follows`) + un onglet "Mon dept" qui présélectionne `profile.home_department` (= défaut sur `/fil` tout court).
@@ -33,17 +35,25 @@ Le ROADMAP §8 pose 4 décisions. Le brief propose les recommandations par défa
 
 **Action** : valider ou non par John. Si validé, la suite du brief s'applique tel quel.
 
+> ✅ **Décision John (2026-05-21)** : fil **par département** validé. Pas de fil global France en v1. Onglets « Ton département » (défaut sur `home_department`) + « Tes follows » + « Tous les départements côtiers » (itinerant uniquement, cf E4).
+
 ## 0.2 — Posts génériques vs posts ancrés sur une catch
 
 **Recommandation** : **les deux**. Un post peut être (a) un texte libre (question matos, alerte spot pollué, conditions du jour) ou (b) le partage d'une de tes catches du carnet (avec photo + conditions snapshot affichées en card).
 
 **Implémentation** : le schéma DB le supporte déjà (`feed_posts.catch_id` nullable, `feed_posts.text` ≤ 2000 chars). Le composer aura un toggle "Partager une prise" qui ouvre un picker de tes 20 dernières catches.
 
+> ✅ **Décision John (2026-05-21)** : les **deux** types de posts (texte libre + catch ancrée) validés.
+>
+> **Géoloc des posts ancrés sur une catch** : on **respecte le privacy de la catch** — pas de règle spéciale "masquage forcé" côté fil. Implémentation obligatoire : la vue `feed_posts_for_viewer` lit la catch **via `catches_for_viewer`** (déjà le cas dans B1, ligne `left join public.catches_for_viewer`), qui applique le floutage selon le viewer. Conséquence : la geom précise n'apparaît dans un post que si l'auteur a explicitement coché `reveal_precise_to_public=true` sur cette catch ; sinon les non-amis voient le point flouté 1 km. Le partage n'introduit **aucune** voie de contournement du floutage. ⚠️ Ne jamais lire `catches` en direct dans la vue/RPC du fil — toujours `catches_for_viewer` (CLAUDE.md règle #6).
+
 ## 0.3 — Modération
 
 **Recommandation** : **libre au lancement**, comme prévu dans CLAUDE.md §8. `feed_posts.moderation_status` default `'approved'` reste tel quel. Ajout d'un bouton "Signaler" qui crée une ligne dans `reports`. Modération auto Claude API = sprint post-beta si volume reports > 5/jour.
 
 **Bonus** : email alerte à John à chaque report (template Resend dispo sprint 11, en sprint 8 on logue en console + table `reports`).
+
+> ✅ **Décision John (2026-05-21)** : modération **libre au lancement** validée. `moderation_status` default `'approved'`. Bouton « Signaler » → ligne dans `reports` + log console. Bascule en modération a priori (`'pending'`) seulement si volume reports > 5/jour. Email Resend reporté au sprint 11.
 
 ## 0.4 — Limites tier (verrouillé par CLAUDE.md §8, à coder)
 
@@ -66,14 +76,23 @@ Le ROADMAP §8 pose 4 décisions. Le brief propose les recommandations par défa
 
 **Objectif** : valider ligne par ligne que les policies existantes (`002_rls.sql`) ne laissent rien fuiter, AVANT d'ajouter la couche tier.
 
-**Méthode** :
+> ✅ **Décision John (2026-05-21) — comptes test & abonnements** : Stripe n'arrive qu'au sprint 9. On **code le gating tier maintenant**, mais on le teste via un **seed dev/preview-only** (`supabase/seed_test_accounts.sql`, cf A0 ci-dessous) qui insère les lignes `subscriptions` des comptes test. Ce seed n'est **JAMAIS** appliqué en prod (aucune fausse subscription en prod). Un flag env Next ne suffit pas : le RLS et `can_post_in_department` tournent dans Postgres et ont besoin de vraies lignes `subscriptions` pour être testés.
 
-1. Créer 3 comptes test via le formulaire d'inscription (ou via SQL si plus pratique) :
-   - `test_anon@carnet.test` — pas de profil créé
-   - `test_disco_29@carnet.test` — `home_department='29'`, pas d'abonnement
-   - `test_local_29@carnet.test` — `home_department='29'`, abonnement `local` actif (insert manuel dans `subscriptions` cf sprint 4)
-   - `test_local_56@carnet.test` — `home_department='56'`, abonnement `local`
-   - `test_itin@carnet.test` — `home_department='29'`, abonnement `itinerant`
+## A0 — Seed dev des comptes test (`supabase/seed_test_accounts.sql`, dev/preview only) (30 min)
+
+Créer les 5 comptes test via SQL (dev/preview uniquement), puis insérer leur profil + abonnement :
+
+- `test_anon@carnet.test` — pas de compte créé (= utilisateur non authentifié dans la matrice)
+- `test_disco_29@carnet.test` — `home_department='29'`, subscription `discovery`/`active` (créée d'office par le trigger `handle_new_user`, on n'y touche pas)
+- `test_local_29@carnet.test` — `home_department='29'`, subscription **UPDATE** vers plan `local`, status `active`
+- `test_local_56@carnet.test` — `home_department='56'`, subscription **UPDATE** vers plan `local`, status `active`
+- `test_itin@carnet.test` — `home_department='29'`, subscription **UPDATE** vers plan `itinerant`, status `active`
+
+⚠️ **Le trigger `handle_new_user` (004) crée déjà profil + subscription `discovery/active` à l'insert dans `auth.users`.** Le seed ne fait donc que **UPDATE** ces lignes (poser `username`/`home_department`/`onboarded` sur le profil, basculer le plan sur la subscription), jamais INSERT.
+
+**Garde-fou** : entête du fichier en commentaire `-- ⚠️ DEV/PREVIEW ONLY — ne jamais appliquer en prod`. Ne pas inclure dans `supabase db push` automatique.
+
+**Méthode audit** :
 2. Pour chaque table (`feed_posts`, `feed_comments`, `feed_likes`, `follows`), pour chaque verbe (SELECT/INSERT/UPDATE/DELETE), construire une matrice : "user X peut faire Y sur ressource Z créée par W ?"
 3. Tester via Supabase Studio SQL Editor en switchant `set local role authenticated; set local request.jwt.claims to '{"sub": "<user-id>"}'`. Document la sortie attendue / réelle.
 4. Documenter dans `docs/sprint-8/rls-audit.md` : matrice 5×4×4 = 80 cases minimum.
@@ -88,7 +107,7 @@ Le ROADMAP §8 pose 4 décisions. Le brief propose les recommandations par défa
 **Hypothèse de départ** (à confirmer par A1) :
 - `feed_posts_insert_own` accepte tous les users authentifiés → DOIT être restreint à `local`/`itinerant` qui postent dans leur dept.
 - `feed_comments_insert_own` idem.
-- `feed_likes` n'a pas de policy d'INSERT explicite dans 002_rls.sql à confirmer.
+- ~~`feed_likes` n'a pas de policy d'INSERT explicite~~ → **FAUX, vérifié** : `feed_likes_insert_own` ET `feed_likes_select_all` ET `feed_likes_delete_own` existent déjà (002_rls.sql l.160-169). B1 les droppe avant recréation (cf correctif §4 de B1).
 
 **Action si confirmé** : créer la migration 017 (cf B1) qui ajoute les nouvelles policies tier-gated et drop les anciennes.
 
@@ -104,24 +123,21 @@ stable
 security definer
 set search_path = public
 as $$
-  with me as (
-    select id, home_department
-    from public.profiles
-    where id = auth.uid()
-  ),
-  sub as (
-    select plan from public.subscriptions
-    where user_id = auth.uid()
-      and status in ('active','trialing')
-      and (current_period_end is null or current_period_end > now())
-    order by created_at desc limit 1
-  )
-  select case
-    when (select plan from sub) = 'itinerant' then true
-    when (select plan from sub) = 'local'
-      and dept = (select home_department from me) then true
-    else false
-  end;
+  -- Une seule requête : pas de CTE ni de tri (subscriptions.user_id est PRIMARY KEY,
+  -- donc au plus une ligne par user). exists() retourne false si aucune ligne ne matche
+  -- (discovery, status null, ou local sur un autre dept) → fail-closed.
+  select exists (
+    select 1
+    from public.subscriptions s
+    join public.profiles p on p.id = s.user_id
+    where s.user_id = auth.uid()
+      and s.status in ('active','trialing')
+      and (s.current_period_end is null or s.current_period_end > now())
+      and (
+        s.plan = 'itinerant'
+        or (s.plan = 'local' and dept = p.home_department)
+      )
+  );
 $$;
 
 comment on function public.can_post_in_department is
@@ -185,8 +201,12 @@ create policy "feed_comments_insert_tier_gated"
   );
 
 -- 4) RLS feed_likes : tier-gated en INSERT, suppression libre par l'auteur
+-- NB: feed_likes_select_all + feed_likes_insert_own + feed_likes_delete_own
+--     existent déjà depuis 002_rls.sql → on les droppe TOUTES avant de recréer
+--     (create policy n'a pas de "if not exists" → sinon la migration plante).
 drop policy if exists "feed_likes_insert_own" on public.feed_likes;
 drop policy if exists "feed_likes_delete_own" on public.feed_likes;
+drop policy if exists "feed_likes_select_all" on public.feed_likes;
 
 create policy "feed_likes_select_all"
   on public.feed_likes for select using (true);
@@ -236,12 +256,15 @@ select
   prof.avatar_url     as author_avatar_url,
   prof.home_department as author_home_department,
   -- Catch (si liée, via la vue catches_for_viewer qui gère déjà le floutage)
+  -- NB colonnes réelles : weight_g (grammes, integer) + photo_path (pas weight_kg/photo_url)
   c.species           as catch_species,
   c.size_cm           as catch_size_cm,
-  c.weight_kg         as catch_weight_kg,
+  c.weight_g          as catch_weight_g,
   c.caught_at         as catch_caught_at,
-  c.photo_url         as catch_photo_url,
+  c.photo_path        as catch_photo_path,
   c.technique         as catch_technique,
+  c.spot_name         as catch_spot_name,
+  sp.slug             as catch_spot_slug,   -- catches_for_viewer n'expose pas le slug → join spots
   -- Flag perso
   exists (
     select 1 from public.feed_likes l
@@ -250,6 +273,7 @@ select
 from public.feed_posts fp
 join public.profiles prof on prof.id = fp.author_id
 left join public.catches_for_viewer c on c.id = fp.catch_id
+left join public.spots sp on sp.id = c.spot_id
 where fp.moderation_status = 'approved';
 
 comment on view public.feed_posts_for_viewer is
@@ -276,13 +300,46 @@ drop trigger if exists touch_updated_at_feed_posts on public.feed_posts;
 create trigger touch_updated_at_feed_posts
   before update on public.feed_posts
   for each row execute function public.touch_updated_at();
+
+-- 9) RLS-FIX-04 / RLS-FIX-05 (findings audit A1, validés par John 2026-05-21)
+--    « Fil = login requis » au niveau RLS, pas seulement via le redirect app.
+--    Avant : un anonyme avec la clé publishable lisait posts approuvés + tous
+--    commentaires/likes + tout le graphe de follows. On exige auth.uid() not null.
+
+-- feed_posts : lecture réservée aux authentifiés (RLS-FIX-04)
+drop policy if exists "feed_posts_select_approved" on public.feed_posts;
+create policy "feed_posts_select_approved"
+  on public.feed_posts for select
+  using (
+    auth.uid() is not null
+    and (moderation_status = 'approved' or author_id = auth.uid())
+  );
+
+-- feed_comments / feed_likes / follows : SELECT réservé aux authentifiés (RLS-FIX-05)
+drop policy if exists "feed_comments_select_all" on public.feed_comments;
+create policy "feed_comments_select_authenticated"
+  on public.feed_comments for select
+  using (auth.uid() is not null);
+
+drop policy if exists "feed_likes_select_all" on public.feed_likes;
+create policy "feed_likes_select_authenticated"
+  on public.feed_likes for select
+  using (auth.uid() is not null);
+
+drop policy if exists "follows_select_all" on public.follows;
+create policy "follows_select_authenticated"
+  on public.follows for select
+  using (auth.uid() is not null);
 ```
+
+> ⚠️ Le §4 ci-dessus (feed_likes) recrée `feed_likes_select_all` puis le §9 le droppe pour le remplacer par `feed_likes_select_authenticated`. Quand tu écriras réellement la migration, **fusionne** : ne recrée pas `feed_likes_select_all` au §4, crée directement `feed_likes_select_authenticated`. (Le brief garde les deux étapes séparées pour la traçabilité des findings.)
 
 **Critère d'acceptation**
 - `supabase db reset` en local applique 001 → 017 sans erreur
 - `supabase db push --linked` réussit en remote
 - `select * from feed_posts_for_viewer limit 1` ne plante pas (table peut être vide, OK)
 - `select can_post_in_department('29')` retourne `false` pour anon, `true` pour itinerant, `true`/`false` selon dept pour local
+- **RLS-FIX-04/05** : en rôle `anon`, `select count(*)` sur `feed_posts`, `feed_comments`, `feed_likes`, `follows` retourne **0** (lecture fermée aux non-authentifiés)
 
 ## B2 — RPC `get_spot_activity(spot_id uuid, days integer)` — pour signal social (45 min)
 
@@ -320,7 +377,7 @@ as $$
       select
         id,
         username, display_name, avatar_url,
-        species, size_cm, weight_kg, caught_at
+        species, size_cm, weight_g, caught_at
       from relevant
       order by caught_at desc
       limit 3
@@ -341,6 +398,24 @@ comment on function public.get_spot_activity is
 **Critère d'acceptation**
 - `select * from get_spot_activity('<uuid spot pointe-du-raz>', 7)` renvoie une ligne (potentiellement 0/0/null/[] mais sans erreur)
 - Un anonymous user appelant la RPC ne voit que les catches `public` (et jamais les `friends` d'un user inconnu) — validation via test SQL.
+
+## B4 — `supabase/migrations/019_reports_details.sql` (10 min)
+
+La table `reports` n'a pas de colonne pour le texte libre du `ReportDialog` (E5). On l'ajoute.
+
+```sql
+-- Migration 019 — Sprint 8 : colonne details sur reports (texte libre du signalement)
+alter table public.reports
+  add column if not exists details text check (char_length(details) <= 1000);
+
+comment on column public.reports.details is
+  'Texte libre optionnel saisi par le rapporteur (ReportDialog E5). reason = catégorie, details = précision.';
+```
+
+**Critère d'acceptation**
+
+- `supabase db reset` applique 019 sans erreur
+- `reports` possède la colonne `details` (nullable, ≤ 1000 chars)
 
 ## B3 — Regen `lib/types.ts` (5 min)
 
@@ -377,7 +452,7 @@ reportPost(postId: string, reason: 'spam'|'inapproprie'|'spot_burning'|'autre', 
 - `createPost` : exiger `text` OU `catchId`, pas les deux vides. Si `catchId`, vérifier que la catch appartient à l'auteur. `region` doit matcher un dept FR côtier (whitelist `lib/geo/coastal-departments.ts` à créer si manquante).
 - `text` : trim + sanitize (pas de HTML, plain text + emojis OK). Limite 2000 chars (rappel : DB check).
 - `addComment` : trim, 1-1000 chars.
-- `reportPost` : insère dans `reports(target_type='feed_post', target_id, reason, details, reporter_id)`. Si plus de 3 reports sur le même post → log warn (à brancher Sentry sprint 11).
+- `reportPost` : insère dans `reports(reporter_id, target_type, target_id, reason, details)`. ⚠️ `target_type` doit valoir **`'post'`** (le check constraint de `reports` n'autorise que `'post'|'comment'|'catch'|'profile'|'spot'`, **pas** `'feed_post'`). La colonne `details` **n'existe pas encore** dans `reports` → ajoutée par la migration 019 (cf B4). `reason` stocke la catégorie (`spam`/`inapproprie`/`spot_burning`/`autre`), `details` le texte libre optionnel. Si plus de 3 reports sur le même post → log warn (à brancher Sentry sprint 11).
 
 **Critère d'acceptation**
 - Tests Vitest : `app/actions/__tests__/feed.test.ts` couvre les 6 actions × happy path + 1 cas d'erreur tier + 1 cas d'erreur validation = 24+ tests

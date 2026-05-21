@@ -895,6 +895,7 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | Optim `char(3)` → `varchar` department | Sprint 4 | Migration 015+ | Cosmétique, évite les `.trim()` partout |
 | Polices custom dans OG images | Sprint 4 | Backlog | Satori demande TTF |
 | Modération auto Claude API | CLAUDE.md §8 | Post-beta si volume reports élevé | Sinon backlog |
+| **RLS-FIX-06 : durcir le RLS de `catches`** | Sprint 8 (audit A1) | Post-sprint 8 | La geom précise est lisible en accès **direct** table par ami/public sans respecter `precise_for_friends`/`reveal_precise_to_public` — le floutage n'est que dans la vue `catches_for_viewer`. Mitigé tant qu'on passe par les vues (règle CLAUDE.md #6). Déplacer le floutage au niveau ligne RLS. Touche au carnet (sprint 3) → tests de non-régression dédiés. Cf `docs/sprint-8/rls-audit.md`. |
 | Validation éphémérides vs NOAA/IMCCE | Sprint 6 | Sprint 11 | Vérifier l'astronomie sur données de référence |
 
 ---
