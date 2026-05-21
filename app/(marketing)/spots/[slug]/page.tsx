@@ -11,6 +11,7 @@ import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
+import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
@@ -421,7 +422,10 @@ export default async function SpotPage({
               />
             )}
 
-            {/* Prises récentes */}
+            {/* Signal social 7 jours (masqué si aucune activité) */}
+            <SpotActivitySection spotId={spot.id} ctaHref={ctaHref} />
+
+            {/* Prises récentes (historique complet) */}
             <RecentCatchesSection
               catches={catches}
               totalCount={catchCount}
