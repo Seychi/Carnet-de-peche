@@ -7,6 +7,10 @@ export type UserTier = 'anonymous' | 'discovery' | 'local' | 'itinerant'
 // On ne passe PAS supabase en paramètre : cache() utilise les args comme clé de cache,
 // et un objet supabase n'a pas de référence stable entre deux appels. On crée le client
 // à l'intérieur pour garantir un seul fetch réseau par requête HTTP entrante.
+//
+// Depuis le sprint 9, la source de vérité du tier est la RPC SQL `current_tier`
+// (cf migration 021), alimentée en upstream par le seul webhook Stripe. Un unique
+// round-trip DB remplace l'ancien combo has_active_subscription + fetch du plan.
 export const getUserTier = cache(async (): Promise<UserTier> => {
   const supabase = await createClient()
 
@@ -17,26 +21,12 @@ export const getUserTier = cache(async (): Promise<UserTier> => {
   } = await supabase.auth.getUser()
   if (authError || !user) return 'anonymous'
 
-  // b. Check abonnement actif via RPC (évite un join manuel)
-  const { data: hasActiveSub, error: rpcError } = await supabase.rpc(
-    'has_active_subscription',
-    { uid: user.id }
-  )
-  if (rpcError || !hasActiveSub) return 'discovery'
+  // b. Tier via RPC current_tier (trial / active / cancel_at_period_end gérés en SQL)
+  const { data, error } = await supabase.rpc('current_tier', { uid: user.id })
+  if (error) {
+    console.error('[tier] erreur RPC current_tier', error)
+    return 'discovery' // fallback safe — jamais plus permissif que mérité
+  }
 
-  // c. Fetch le plan pour distinguer local / itinérant
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('plan')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (sub?.plan === 'itinerant') return 'itinerant'
-  if (sub?.plan === 'local') return 'local'
-
-  // d. Fallback safe — ne jamais retourner un tier plus permissif que mérité
-  return 'discovery'
+  return (data as UserTier) ?? 'discovery'
 })

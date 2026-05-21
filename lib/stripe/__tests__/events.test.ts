@@ -6,7 +6,7 @@ import { STRIPE_PRICES } from "@/lib/stripe/pricing";
 const { fromMock, upsertMock, updateMock, eqMock } = vi.hoisted(() => {
   const upsertMock = vi.fn();
   const eqMock = vi.fn();
-  const updateMock = vi.fn(() => ({ eq: eqMock }));
+  const updateMock = vi.fn((_payload?: unknown) => ({ eq: eqMock }));
   const fromMock = vi.fn(() => ({ upsert: upsertMock, update: updateMock }));
   return { fromMock, upsertMock, updateMock, eqMock };
 });
