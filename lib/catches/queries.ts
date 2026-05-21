@@ -9,6 +9,7 @@ export type MyCatchStats = {
   thisMonthCount: number
   biggestCatch: { species: string; size_cm: number } | null
   favoriteSpecies: string | null
+  /** Pourcentage 0-100 (déjà multiplié par 100 par la RPC). Ne PAS remultiplier à l'affichage. */
   releasedRate: number
 }
 

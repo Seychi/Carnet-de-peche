@@ -38,7 +38,7 @@ export default function CatchDetailLoading() {
           </div>
         </div>
 
-        {/* Section Comment */}
+        {/* Section Méthode */}
         <div className="bg-white rounded-[14px] border border-slate-100 p-5 shadow-sm mb-4 animate-pulse space-y-3">
           <div className="h-3 w-16 bg-slate-200 rounded" />
           <div className="h-4 bg-slate-100 rounded" />

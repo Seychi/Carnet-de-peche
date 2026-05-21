@@ -177,8 +177,8 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* ── Section Comment ── */}
-        <Section title="Comment">
+        {/* ── Section Méthode ── */}
+        <Section title="Méthode">
           <Row label="Technique" value={TECHNIQUE_LABELS[c.technique ?? ''] ?? c.technique ?? '—'} />
           {(c.lure_brand || c.lure_model) && (
             <Row
@@ -228,7 +228,7 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
         </Section>
 
-        {/* ── Mini carte placeholder (sprint 5) ── */}
+        {/* ── Mini carte placeholder ── */}
         <div className="mt-4 bg-slate-100 rounded-[14px] overflow-hidden aspect-[16/7] relative flex items-center justify-center">
           {/* Grille imitant une carte */}
           <div
@@ -246,7 +246,7 @@ export default async function CatchDetailPage({ params }: Props) {
             ) : (
               <p className="text-[13px] font-semibold text-slate-500">Position enregistrée</p>
             )}
-            <p className="text-[11px] text-slate-400 mt-1">Carte interactive · Sprint 5</p>
+            <p className="text-[11px] text-slate-400 mt-1">Carte interactive à venir</p>
           </div>
         </div>
 

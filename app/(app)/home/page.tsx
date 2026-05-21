@@ -97,7 +97,7 @@ export default async function HomePage() {
               <StatCard
                 label="Espèce favorite"
                 value={speciesLabel(stats?.favoriteSpecies ?? null)}
-                hint={`${Math.round((stats?.releasedRate ?? 0) * 100)}% relâchées`}
+                hint={`${Math.round(stats?.releasedRate ?? 0)}% relâchées`}
               />
             </div>
 

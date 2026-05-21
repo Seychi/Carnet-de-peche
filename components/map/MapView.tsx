@@ -297,6 +297,18 @@ export default function MapView({
 
     let markers: Marker[] = []
     let mounted = true
+    let attribObserver: MutationObserver | null = null
+
+    // MapLibre rend les liens d'attribution (MapTiler, OpenStreetMap) via innerHTML
+    // à partir du style, sans rel="noopener" → faille tabnabbing. On patche les
+    // ancres après chaque (re)rendu de l'attribution.
+    const patchAttributionLinks = () => {
+      containerRef.current
+        ?.querySelectorAll<HTMLAnchorElement>('.maplibregl-ctrl-attrib a[target="_blank"]')
+        .forEach((a) => {
+          a.rel = 'noopener noreferrer'
+        })
+    }
 
     const init = async () => {
       await import('maplibre-gl/dist/maplibre-gl.css')
@@ -332,6 +344,15 @@ export default function MapView({
         if (!mounted) return
         setLoaded(true)
         onMapReady?.(map)
+
+        // Patch initial + observation des réécritures d'attribution par MapLibre.
+        patchAttributionLinks()
+        const attribInner = containerRef.current?.querySelector('.maplibregl-ctrl-attrib-inner')
+        if (attribInner) {
+          attribObserver = new MutationObserver(patchAttributionLinks)
+          attribObserver.observe(attribInner, { childList: true, subtree: true })
+        }
+
         if (useCluster) {
           addClusteredSpotsToMap(map, visibleSpots, onMarkerClick)
         } else {
@@ -350,6 +371,7 @@ export default function MapView({
     return () => {
       mounted = false
       ro.disconnect()
+      attribObserver?.disconnect()
       markers.forEach((m) => m.remove())
       markerElemsRef.current.clear()
       mapRef.current?.remove()
