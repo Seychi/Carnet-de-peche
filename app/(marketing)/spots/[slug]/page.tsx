@@ -262,6 +262,8 @@ export default async function SpotPage({
 
   const googleMapsUrl =
     `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
+  const appleMapsUrl = `https://maps.apple.com/?daddr=${spot.lat},${spot.lng}`
+  const wazeUrl = `https://waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`
 
   const structureLabel = STRUCTURE_LABELS[spot.structure ?? ''] ?? spot.structure ?? ''
   const deptKey = String(spot.department).trim()
@@ -369,16 +371,29 @@ export default async function SpotPage({
                 />
               </div>
 
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-ink-200 bg-white text-ink-700 text-sm font-medium hover:bg-ink-50 hover:border-teal-400 transition-colors"
-              >
-                <Navigation size={15} className="text-teal-500" />
-                Itinéraire GPS
-                <span className="text-xs text-ink-400">· Google Maps</span>
-              </a>
+              <div className="mt-3">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-ink-500 mb-1.5">
+                  <Navigation size={14} className="text-teal-500" />
+                  Itinéraire GPS
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Google Maps', href: googleMapsUrl },
+                    { label: 'Plans', href: appleMapsUrl },
+                    { label: 'Waze', href: wazeUrl },
+                  ].map((nav) => (
+                    <a
+                      key={nav.label}
+                      href={nav.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center min-h-[44px] px-2 rounded-xl border border-ink-200 bg-white text-ink-700 text-[13px] font-medium hover:bg-ink-50 hover:border-teal-400 transition-colors text-center"
+                    >
+                      {nav.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
 
               {!spot.is_precise && (
                 <p className="text-xs text-ink-400 text-center mt-2">

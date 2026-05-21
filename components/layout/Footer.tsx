@@ -73,7 +73,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -92,7 +92,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -111,7 +111,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -132,7 +132,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur Instagram"
-              className="text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
             >
               <InstagramIcon />
             </a>
@@ -141,7 +141,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur TikTok"
-              className="text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
             >
               <TikTokIcon />
             </a>
@@ -150,7 +150,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur YouTube"
-              className="text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
             >
               <YoutubeIcon />
             </a>

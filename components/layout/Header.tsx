@@ -68,7 +68,7 @@ export async function Header() {
             <Link
               key={item.label}
               href={item.href}
-              className="text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors py-2"
+              className="inline-flex items-center min-h-[44px] text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors"
             >
               {item.label}
             </Link>

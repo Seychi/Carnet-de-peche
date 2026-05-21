@@ -278,6 +278,8 @@ export default function MapView({
   const [error, setError] = useState<MapError | null>(
     maptilerKey ? null : 'missing-key',
   )
+  // Skeleton tant que MapLibre + tuiles ne sont pas chargés (évite le flash blanc).
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     // Protection contre le double-rendering de React Strict Mode
@@ -328,6 +330,7 @@ export default function MapView({
 
       map.on('load', () => {
         if (!mounted) return
+        setLoaded(true)
         onMapReady?.(map)
         if (useCluster) {
           addClusteredSpotsToMap(map, visibleSpots, onMarkerClick)
@@ -473,7 +476,18 @@ export default function MapView({
     )
   }
 
-  return <div ref={containerRef} className={className} />
+  return (
+    <div className={className} style={{ position: 'relative' }}>
+      <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      {!loaded && (
+        <div
+          aria-hidden
+          className="absolute inset-0 motion-safe:animate-pulse pointer-events-none"
+          style={{ background: 'linear-gradient(180deg, #0A2F3D 0%, #103E50 55%, #14B8A6 170%)' }}
+        />
+      )}
+    </div>
+  )
 }
 
 export type { MapViewProps }
