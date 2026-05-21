@@ -417,47 +417,36 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TÉMOIGNAGES ─────────────────────────────────────────────────── */}
+      {/* ── POURQUOI MAINTENANT ─────────────────────────────────────────── */}
       <section className="py-16 lg:py-24 bg-sand-100">
         <div className="mx-auto max-w-[1200px] px-5">
           <div className="text-center max-w-[680px] mx-auto mb-10 lg:mb-12">
-            <Kicker>Ce qu&apos;en disent les pêcheurs du banc</Kicker>
-            <h2 className="mt-3">Une communauté qui démarre fort</h2>
+            <Kicker>Le bon moment</Kicker>
+            <h2 className="mt-3">Pourquoi un carnet de pêche maintenant ?</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
-                quote: "Le carnet a changé ma façon de pêcher. Je vois maintenant que mes meilleurs coefficients sont entre 75 et 95, pas au-dessus de 100 comme je croyais. Pure data sur ma propre pêche.",
-                initials: "YL", name: "Yann L.", desc: "Finistère · Pêche au leurre",
+                icon: "🎣",
+                title: "Une pêche accessible à tous",
+                body: "La canne du bord, c'est la façon la plus simple de pêcher en mer : pas de bateau, pas de permis. Juste une canne, le littoral, et l'envie d'apprendre.",
               },
               {
-                quote: "Je débute, j'ai trouvé un mentor sur la communauté qui pêche à 30 km. Il m'a expliqué ses techniques par messages, sans me filer ses spots. C'est exactement ce dont j'avais besoin.",
-                initials: "JR", name: "Julien R.", desc: "Morbihan · Débutant surfcasting",
+                icon: "📈",
+                title: "L'envie de comprendre sa pêche",
+                body: "Marées, vent, saisons, heures : tout ce qui fait une bonne sortie restait dans la tête ou sur un carnet papier. On veut t'aider à y voir clair, à partir de tes propres prises.",
               },
               {
-                quote: "Le mode hors ligne, le scoring qui s'affine avec mes prises… Carnet de Pêche fait ce que les autres apps promettent depuis 5 ans.",
-                initials: "FB", name: "François B.", desc: "Charente-Maritime · Surfcasting",
+                icon: "🇫🇷",
+                title: "Rien de pensé pour nos côtes",
+                body: "Les apps existantes sont généralistes ou américaines. Aucune ne parle vraiment de la canne du bord en mer, des espèces et des spots de chez nous.",
               },
-            ].map((t) => (
-              <div key={t.name} className="bg-white rounded-[22px] p-6 sm:p-8 border border-ink-100">
-                <div className="text-amber-500 text-base mb-3">★★★★★</div>
-                <blockquote className="text-[15px] sm:text-[16px] leading-relaxed text-ink-700 italic mb-5 relative pl-5">
-                  <span className="absolute left-0 -top-3 text-[48px] text-teal-500 font-serif leading-none">&ldquo;</span>
-                  {t.quote}
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <span
-                    className="w-10 h-10 rounded-full grid place-items-center text-white font-bold text-[13px] shrink-0"
-                    style={{ background: "linear-gradient(135deg, var(--navy-700), var(--teal-500))" }}
-                  >
-                    {t.initials}
-                  </span>
-                  <div>
-                    <strong className="block text-[14px] text-navy-900">{t.name}</strong>
-                    <span className="text-[12px] text-ink-500">{t.desc}</span>
-                  </div>
-                </div>
+            ].map((c) => (
+              <div key={c.title} className="bg-white rounded-[22px] p-6 sm:p-8 border border-ink-100">
+                <div className="text-2xl mb-3" aria-hidden>{c.icon}</div>
+                <h3 className="font-display text-lg text-navy-900 mb-2">{c.title}</h3>
+                <p className="text-[14px] sm:text-[15px] leading-relaxed text-ink-700">{c.body}</p>
               </div>
             ))}
           </div>
