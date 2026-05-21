@@ -314,7 +314,7 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 - Accès anticipé nouvelles features
 - Support prioritaire
 
-**Essai 14 jours sans CB** sur Local/Itinérant. **Garantie satisfait ou remboursé.**
+**Essai 7 jours avec CB** sur Local/Itinérant. **Garantie satisfait ou remboursé.**
 
 **Règle d'or implémentation** :
 - Ce qui se TOUCHE / se VOIT précisément (coords GPS exactes, score, filtres) → **payant**
@@ -348,7 +348,7 @@ Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurre
 | **6** | S6 | **"Meilleurs moments" solunar** : library suncalc, calcul des fenêtres optimales par jour/spot (lever/coucher lune + marée + vent), calendrier 7 jours par spot, badges qualitatifs (Faible/Bonne/Très Bonne/Exceptionnelle) avec justifications astronomiques. Match au minimum la feature équivalente de spot-de-peche. |
 | **7** | S7 | **Scoring personnalisé** (notre vrai différenciateur) : overlay sur les conditions = "Tu pêches mieux quand…" basé sur l'historique des catches du user. Algorithme côté Edge Function. Affiché sur fiche spot + sur la carte sous forme de "ton score" en plus du "score global". |
 | **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
-| **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 14j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
+| **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
 | **10** | S10 | **Guides éditoriaux** : MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques). |
 | **11** | S11 | **Polish + Beta privée** : emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. |
 | **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |

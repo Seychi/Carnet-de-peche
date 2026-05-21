@@ -254,7 +254,7 @@ export default function HomePage() {
                 {[
                   { num: "100% canne", label: "Du bord, aucun compromis" },
                   { num: "Carnet", label: "Au cœur du produit" },
-                  { num: "14j", label: "Essai gratuit garanti" },
+                  { num: "7j", label: "Essai garanti" },
                 ].map((s) => (
                   <div key={s.num}>
                     <span className="block font-display text-[24px] sm:text-[28px] font-bold text-navy-900">{s.num}</span>
