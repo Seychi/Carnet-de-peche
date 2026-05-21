@@ -100,7 +100,10 @@ Conventions de référence dans tout le doc :
 
 ---
 
-## 🟢 Sprint 8 — Fil communautaire (2 semaines)
+## 🟢 Sprint 8 — Fil communautaire (2 semaines) ✅ **FAIT (branche `sprint-8`, 2026-05-21 — à merger/déployer après QA manuelle)**
+
+> **Statut** : code-complet sur la branche `sprint-8`, migrations 017→020 appliquées en prod, 183 tests verts, build OK. Reste : QA manuelle (`docs/sprint-8/qa-checklist.md`), tests Realtime cross-onglets, merge `sprint-8` → `main` + déploiement. Détail complet : `docs/sprint-8/RECAP.md`.
+> **Findings retenus** : audit RLS a corrigé 2 trous non prévus (lecture anonyme fil + graphe social → RLS-FIX-04/05 en migration 017). RLS-FIX-06 (geom catch en accès direct) → backlog ci-dessous. Whitelist côtière canonique = `lib/geo/departments.ts`.
 
 **Objectif** : activer le pivot "réseau social" du produit. Les tables `feed_posts`, `feed_comments`, `feed_likes`, `follows`, `profiles` sont déjà en DB depuis sprint 1, dormantes. On allume.
 

@@ -28,7 +28,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-05-21, post-sprint 7.5)
+## 2. État actuel du projet (à jour 2026-05-21, post-sprint 8 — branche `sprint-8`)
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -49,10 +49,15 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
   - **Bloc D** — `lib/env.ts` durci (CRON_SECRET + SERVICE_ROLE_KEY requis en prod), discipline migrations documentée (`supabase/README.md`), `lib/types.ts` regen, CI GitHub Actions, cleanup routes dev, **cron `spot_scores` passé en quotidien + validité 26h** (plan Hobby)
   - **Bloc E** (audit Claude-in-Chrome) — **pages légales RGPD/LCEN complètes** (mentions/confidentialité/CGU avec vrai SIRET), `/home` refondu en mini-dashboard, messages de validation **zod en français**, placeholder lat/long, corrections copy, carnet de test nettoyé, tap targets ≥ 44 px, skeleton carte, itinéraire multi-app (Google/Plans/Waze)
   - **Reporté en backlog** (`docs/ROADMAP.md`) : bloc C (lint ~360 apostrophes `react/no-unescaped-entities` + retrait `eslint.ignoreDuringBuilds`), date-picker FR custom (E3), domiciliation commerciale + médiateur conso
+- **Sprint 8** (Fil communautaire — pivot social, sur branche `sprint-8`, **pas encore mergé/déployé**) :
+  - Audit RLS complet (`docs/sprint-8/rls-audit.md`) → a trouvé 2 trous non prévus (lecture anonyme du fil + graphe social via clé publishable) corrigés en migration 017 (RLS-FIX-04/05)
+  - Migrations **017→020 appliquées en prod** : tier gating (`can_post_in_department`), vue `feed_posts_for_viewer`, RPC `get_spot_activity` + `get_feed_unread_counts`, `reports.details`, Realtime (publication + replica identity)
+  - Server Actions `app/actions/feed.ts` (createPost/toggleLike/addComment/deletePost/deleteComment/reportPost/getComments/getFeedPage) + `follow.ts` — **183 tests Vitest verts**
+  - Hooks Realtime, 6 composants `components/feed/`, routes `/fil`·`/fil/[dept]`·`/u/[username]`·`/follows`, signal social fiche spot, seed dev `/dev/seed-feed`
+  - **Reste avant merge** : QA manuelle (`docs/sprint-8/qa-checklist.md`), tests Realtime/tier cross-onglets, captures composer, puis merge `sprint-8` → `main` + déploiement. RLS-FIX-06 (geom catch en accès direct) → backlog. Voir `docs/sprint-8/RECAP.md`.
 
-🔜 **MAINTENANT — Sprint 8 : Fil communautaire (pivot social)**
-feed_posts + Realtime + profils sociaux + follows + signal social local ("X prises ici aujourd'hui à Y heure"). Voir `docs/ROADMAP.md`.
-- **Pré-requis avant de coder** : audit RLS systématique sur les tables `feed_*` (cf backlog technique ROADMAP) + traiter le bloc C lint si on veut un CI 100 % vert.
+🔜 **MAINTENANT — Sprint 9 : Paiements (Stripe)**
+Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts manuels / seed dev de subscriptions). C'est ce qui rendra le tier gating du sprint 8 réellement opérant en prod. Voir `docs/ROADMAP.md`.
 
 🔜 **Suite (sprints 9 → 23 + phase 2)**
 Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
