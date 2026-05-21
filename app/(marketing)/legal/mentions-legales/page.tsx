@@ -3,17 +3,18 @@ import { LegalLayout } from '@/components/layout/LegalLayout'
 
 export const metadata: Metadata = {
   title: 'Mentions légales — Carnet de Pêche',
-  description: 'Mentions légales du site Carnet de Pêche, conformément à la loi pour la confiance dans l\'économie numérique (LCEN).',
+  description: 'Mentions légales du site Carnet de Pêche, conformément à l’article 6-III de la loi pour la confiance dans l’économie numérique (LCEN).',
   robots: { index: true, follow: true },
 }
 
 const toc = [
   { id: 'editeur', label: 'Éditeur du site' },
-  { id: 'directeur-publication', label: 'Directeur de publication' },
   { id: 'hebergement', label: 'Hébergement' },
   { id: 'propriete-intellectuelle', label: 'Propriété intellectuelle' },
+  { id: 'donnees-personnelles', label: 'Données personnelles' },
+  { id: 'cookies', label: 'Cookies' },
   { id: 'responsabilite', label: 'Limitation de responsabilité' },
-  { id: 'reglementation-peche', label: 'Réglementation de la pêche' },
+  { id: 'droit-applicable', label: 'Droit applicable' },
   { id: 'contact', label: 'Contact' },
 ]
 
@@ -21,91 +22,116 @@ export default function MentionsLegalesPage() {
   return (
     <LegalLayout
       title="Mentions légales"
-      lastUpdated="mai 2026"
+      lastUpdated="21 mai 2026"
       toc={toc}
     >
       <h2 id="editeur">Éditeur du site</h2>
       <p>
-        Le site <strong>carnet-de-peche.com</strong> est édité par :
+        Le site <strong>www.carnet-de-peche.com</strong> est édité par :
       </p>
       <ul>
-        <li><strong>Dénomination sociale</strong> : [À COMPLÉTER PAR JOHN — ex. : Carnet de Pêche SAS / EI John Dupont]</li>
-        <li><strong>Forme juridique</strong> : [À COMPLÉTER — EI / SASU / SAS]</li>
-        <li><strong>Numéro SIRET</strong> : [À COMPLÉTER]</li>
-        <li><strong>Adresse du siège social</strong> : [À COMPLÉTER — adresse postale complète]</li>
-        <li><strong>Adresse email</strong> : contact@carnet-de-peche.com</li>
-        <li><strong>Numéro de TVA intracommunautaire</strong> : [À COMPLÉTER si applicable]</li>
+        <li><strong>John Sebastien CAMPBELL</strong>, Entrepreneur Individuel</li>
+        <li><strong>Activité</strong> : développeur informatique (libérale non réglementée)</li>
+        <li><strong>SIREN</strong> : 977 995 174</li>
+        <li><strong>SIRET</strong> (établissement principal) : 977 995 174 00025</li>
+        <li><strong>Code APE</strong> : 6201Z — Programmation informatique</li>
+        <li><strong>Immatriculation au Registre National des Entreprises (RNE)</strong> : 24 avril 2024</li>
+        <li><strong>Adresse de l’établissement</strong> : 627 Chemin des Impiniers, 06220 Vallauris, France</li>
+        <li><strong>Email</strong> : <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a></li>
       </ul>
-
-      <h2 id="directeur-publication">Directeur de publication</h2>
       <p>
-        Le directeur de la publication est <strong>[À COMPLÉTER — Prénom Nom]</strong>, en sa qualité de représentant légal de la société éditrice.
+        N° de TVA intracommunautaire : non applicable (franchise en base de TVA, article 293 B du CGI).
+      </p>
+      <p>
+        <strong>Directeur de la publication</strong> : John Sebastien Campbell.
       </p>
 
       <h2 id="hebergement">Hébergement</h2>
-      <h3>Hébergement web (frontend)</h3>
+      <p>Le site est hébergé par :</p>
       <ul>
-        <li><strong>Société</strong> : Vercel Inc.</li>
-        <li><strong>Adresse</strong> : 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis</li>
-        <li><strong>Site web</strong> : <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">vercel.com</a></li>
+        <li><strong>Vercel Inc.</strong></li>
+        <li>440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis</li>
+        <li>Téléphone : +1 (559) 288-7060</li>
+        <li><a href="https://vercel.com" target="_blank" rel="noopener noreferrer">vercel.com</a></li>
       </ul>
-
-      <h3>Hébergement base de données</h3>
+      <p>Le stockage des bases de données et fichiers est assuré par :</p>
       <ul>
-        <li><strong>Société</strong> : Supabase Inc.</li>
-        <li><strong>Adresse</strong> : 970 Toa Payoh North #07-04, Singapore 318992</li>
-        <li><strong>Région de stockage des données</strong> : eu-west-3 (Frankfurt, Allemagne, Union européenne)</li>
-        <li><strong>Site web</strong> : <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">supabase.com</a></li>
-      </ul>
-
-      <h3>Service d'envoi d'emails transactionnels</h3>
-      <ul>
-        <li><strong>Société</strong> : Resend Inc.</li>
-        <li><strong>Adresse</strong> : 2261 Market Street #5039, San Francisco, CA 94114, États-Unis</li>
-        <li><strong>Site web</strong> : <a href="https://resend.com" target="_blank" rel="noopener noreferrer">resend.com</a></li>
+        <li><strong>Supabase Inc.</strong></li>
+        <li>970 Toa Payoh North #07-04, Singapour 318992</li>
+        <li>Région d’hébergement des données : eu-west-3 (Paris, France)</li>
+        <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer">supabase.com</a></li>
       </ul>
 
       <h2 id="propriete-intellectuelle">Propriété intellectuelle</h2>
       <p>
-        L'ensemble des éléments constituant le site Carnet de Pêche (structure, textes, graphismes, logiciels, images, sons, vidéos, base de données, etc.) est la propriété exclusive de l'éditeur ou fait l'objet d'une autorisation d'utilisation.
+        Sauf mention contraire, l’ensemble des contenus présents sur le site (textes, illustrations,
+        photographies, code source, logos, marque «&nbsp;Carnet de Pêche&nbsp;», architecture, design)
+        sont la propriété exclusive de John Sebastien Campbell ou font l’objet d’une autorisation
+        d’utilisation.
       </p>
       <p>
-        Toute reproduction, représentation, modification, publication ou adaptation, totale ou partielle, de ces éléments, quel que soit le moyen ou le procédé utilisé, est interdite sans l'autorisation préalable et écrite de l'éditeur, sous peine de poursuites judiciaires.
+        Toute reproduction, représentation, modification, publication, adaptation ou exploitation de
+        tout ou partie des éléments du site, par quelque procédé que ce soit, est interdite sans
+        autorisation écrite préalable.
       </p>
       <p>
-        Les contenus publiés par les utilisateurs (prises loguées, photos, posts du fil régional) restent la propriété de leurs auteurs. En publiant du contenu sur Carnet de Pêche, l'utilisateur concède à l'éditeur une licence non-exclusive d'affichage, conformément aux <a href="/legal/cgu">Conditions Générales d'Utilisation</a>.
+        Les contenus publiés par les utilisateurs (prises loguées, photos, commentaires, posts du fil
+        régional) restent la propriété de leurs auteurs respectifs. En les publiant sur le site,
+        l’utilisateur concède à John Sebastien Campbell une licence non exclusive d’utilisation à des
+        fins de diffusion sur la plateforme, conformément aux{' '}
+        <a href="/legal/cgu">Conditions Générales d’Utilisation</a>.
+      </p>
+
+      <h2 id="donnees-personnelles">Données personnelles</h2>
+      <p>
+        Le traitement des données personnelles est régi par notre{' '}
+        <a href="/legal/confidentialite">Politique de confidentialité</a>, conforme au Règlement
+        (UE) 2016/679 (RGPD) et à la loi Informatique et Libertés modifiée.
+      </p>
+      <p>
+        Pour toute demande relative à tes données personnelles (accès, rectification, suppression,
+        portabilité, opposition) : <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>.
+      </p>
+
+      <h2 id="cookies">Cookies</h2>
+      <p>
+        Le site utilise uniquement des cookies strictement nécessaires à son fonctionnement (session
+        d’authentification, préférences). Aucun cookie publicitaire ni de mesure d’audience tierce
+        n’est déposé sans consentement préalable. Pour plus de détails, consulte notre{' '}
+        <a href="/legal/confidentialite">Politique de confidentialité</a>.
       </p>
 
       <h2 id="responsabilite">Limitation de responsabilité</h2>
       <p>
-        L'éditeur s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, il ne peut garantir l'exactitude, la précision, l'exhaustivité ou la pertinence de ces informations.
+        <strong>Pêche en mer : sécurité avant tout.</strong> Le site fournit des informations
+        indicatives sur les conditions météo, marées, et les spots de pêche, à partir de sources
+        tierces (Open-Meteo, données utilisateurs). Ces informations sont fournies à titre informatif
+        et <strong>ne sauraient se substituer à ton propre jugement</strong> ni aux bulletins
+        officiels (Météo-France, SHOM, CROSS) pour évaluer les conditions de sortie.
       </p>
       <p>
-        Les informations relatives aux spots de pêche, aux espèces, aux conditions météorologiques et aux marées sont fournies à titre indicatif, sur la base des données communautaires et de services tiers (Open-Meteo). L'éditeur ne saurait être tenu responsable des décisions prises par les utilisateurs sur la base de ces informations.
+        La pêche du bord, notamment depuis les zones rocheuses et exposées, comporte des risques
+        (vagues scélérates, ressac, marées, accès dangereux). Tu es seul responsable de l’évaluation
+        de ces risques et de ta sécurité. John Sebastien Campbell ne pourra être tenu responsable
+        d’aucun dommage corporel, matériel ou immatériel résultant de l’utilisation des informations
+        diffusées sur le site.
       </p>
       <p>
-        L'éditeur ne peut être tenu responsable des dommages directs ou indirects résultant de l'accès ou de l'utilisation du site, ni d'une éventuelle indisponibilité du service.
+        Les coordonnées GPS des spots sont fournies à titre indicatif. L’utilisateur reste
+        responsable du respect des réglementations locales (tailles légales, quotas, périodes de
+        pêche, zones interdites, autorisations communales).
       </p>
 
-      <h2 id="reglementation-peche">Réglementation de la pêche</h2>
+      <h2 id="droit-applicable">Droit applicable et juridiction compétente</h2>
       <p>
-        Carnet de Pêche est un outil numérique d'aide à la pratique de la pêche récréative. L'utilisation du service est subordonnée au respect de la réglementation française en vigueur, notamment :
-      </p>
-      <ul>
-        <li>Les tailles minimales de capture par espèce</li>
-        <li>Les périodes de fermeture et d'ouverture de la pêche</li>
-        <li>Les quotas journaliers et les limites de captures autorisées</li>
-        <li>Les zones de pêche réglementées ou interdites</li>
-        <li>L'obligation de détenir les autorisations requises (permis, adhésion fédérale le cas échéant)</li>
-      </ul>
-      <p>
-        L'éditeur décline toute responsabilité en cas de non-respect par les utilisateurs de la réglementation applicable. Il appartient à chaque pêcheur de se renseigner auprès des autorités compétentes (DPMA, DDTM, fédérations de pêche) avant toute sortie.
+        Les présentes mentions légales sont régies par le <strong>droit français</strong>. Tout
+        litige relatif au site relèvera de la compétence des tribunaux français.
       </p>
 
       <h2 id="contact">Contact</h2>
       <p>
-        Pour toute question relative aux présentes mentions légales, tu peux nous contacter à l'adresse suivante :{' '}
-        <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>
+        Pour toute question ou réclamation relative aux présentes mentions légales :{' '}
+        <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>.
       </p>
     </LegalLayout>
   )

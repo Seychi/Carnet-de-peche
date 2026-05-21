@@ -880,6 +880,8 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 
 | Item | Source | Sprint cible | Notes |
 |---|---|---|---|
+| **Domiciliation commerciale (pages légales)** | Sprint 7.5 (E1) | Post-sprint 8 | Remplacer l'adresse perso (627 Chemin des Impiniers, Vallauris) par une domiciliation (SeDomicilier/Kandbaz ~15 €/mois) dans les 3 pages légales |
+| Désigner un médiateur de la consommation (CGU art. 14) | Sprint 7.5 (E1) | Avant sprint 9 (Stripe) | Liste sur economie.gouv.fr, ~75 €/an (CMAP, AME Conso…) |
 | Markers carte colorisés par qualité | Sprint 6 | Sprint 7.5 ou post-beta | Edge Function cron + table `spot_scores` |
 | Marée précise WorldTides / SHOM | Sprint 6 | Sprint 7.5 ou post-beta | Open-Meteo Marine ne fournit pas la marée astronomique |
 | Coef de marée | Sprint 6 | Sprint 7.5 ou post-beta | Lié à WorldTides |

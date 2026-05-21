@@ -3,173 +3,254 @@ import { LegalLayout } from '@/components/layout/LegalLayout'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité — Carnet de Pêche',
-  description: 'Comment Carnet de Pêche collecte, utilise et protège tes données personnelles. Conformité RGPD.',
+  description: 'Comment Carnet de Pêche collecte, utilise et protège tes données personnelles, conformément au RGPD et à la loi Informatique et Libertés.',
   robots: { index: true, follow: true },
 }
 
 const toc = [
-  { id: 'responsable', label: 'Responsable du traitement' },
-  { id: 'donnees-collectees', label: 'Données collectées' },
-  { id: 'finalites', label: 'Finalités du traitement' },
-  { id: 'base-legale', label: 'Base légale' },
-  { id: 'sous-traitants', label: 'Sous-traitants' },
-  { id: 'conservation', label: 'Durée de conservation' },
-  { id: 'droits', label: 'Tes droits' },
-  { id: 'cookies', label: 'Cookies' },
-  { id: 'cnil', label: 'Droit de plainte' },
+  { id: 'preambule', label: '1. Préambule' },
+  { id: 'responsable', label: '2. Responsable du traitement' },
+  { id: 'donnees', label: '3. Données collectées' },
+  { id: 'finalites', label: '4. Finalités et bases légales' },
+  { id: 'destinataires', label: '5. Destinataires' },
+  { id: 'transferts', label: '6. Transferts hors UE' },
+  { id: 'conservation', label: '7. Durée de conservation' },
+  { id: 'droits', label: '8. Tes droits' },
+  { id: 'securite', label: '9. Sécurité' },
+  { id: 'cookies', label: '10. Cookies' },
+  { id: 'modification', label: '11. Modification' },
+  { id: 'contact', label: '12. Contact' },
 ]
 
 export default function ConfidentialitePage() {
   return (
     <LegalLayout
       title="Politique de confidentialité"
-      lastUpdated="mai 2026"
+      lastUpdated="21 mai 2026"
       toc={toc}
     >
+      <h2 id="preambule">1. Préambule</h2>
       <p>
-        Chez Carnet de Pêche, la protection de tes données personnelles est une priorité. Cette politique t'explique quelles données nous collectons, pourquoi, comment nous les utilisons, et quels sont tes droits.
+        La présente politique décrit comment <strong>Carnet de Pêche</strong> (édité par John
+        Sebastien CAMPBELL, Entrepreneur Individuel, SIREN 977 995 174) collecte, utilise et protège
+        tes données personnelles dans le cadre de l’utilisation du site{' '}
+        <strong>www.carnet-de-peche.com</strong>.
+      </p>
+      <p>
+        Nous attachons une importance particulière à la protection de la vie privée et à la sécurité
+        des données. Cette politique est conforme au <strong>Règlement (UE) 2016/679 (RGPD)</strong>{' '}
+        et à la <strong>loi Informatique et Libertés du 6 janvier 1978 modifiée</strong>.
       </p>
 
-      <h2 id="responsable">Responsable du traitement</h2>
-      <p>
-        Le responsable du traitement des données personnelles collectées via le site <strong>carnet-de-peche.com</strong> est :
-      </p>
+      <h2 id="responsable">2. Responsable du traitement</h2>
+      <p>Le responsable du traitement est :</p>
       <ul>
-        <li><strong>Dénomination</strong> : [À COMPLÉTER PAR JOHN]</li>
-        <li><strong>Adresse</strong> : [À COMPLÉTER]</li>
-        <li><strong>Email DPO / contact vie privée</strong> : contact@carnet-de-peche.com</li>
+        <li><strong>John Sebastien CAMPBELL</strong> (Entrepreneur Individuel)</li>
+        <li>SIREN : 977 995 174</li>
+        <li>Adresse : 627 Chemin des Impiniers, 06220 Vallauris, France</li>
+        <li>Email : <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a></li>
       </ul>
       <p>
-        En phase de démarrage, le fondateur assume les fonctions de délégué à la protection des données (DPO de facto). Une désignation formelle sera effectuée si le volume de traitement le nécessite.
-      </p>
-
-      <h2 id="donnees-collectees">Données collectées</h2>
-      <h3>Données d'identité et de profil</h3>
-      <ul>
-        <li>Adresse email (fournie à l'inscription)</li>
-        <li>Pseudo (username) — public</li>
-        <li>Ville et département principal de pêche</li>
-        <li>Fréquence de pratique et années d'expérience</li>
-        <li>Photo de profil (optionnelle)</li>
-      </ul>
-
-      <h3>Données de préférences</h3>
-      <ul>
-        <li>Espèces ciblées (bar, dorade, lieu jaune, maquereau, sar, orphie)</li>
-        <li>Techniques pratiquées (leurres, surfcasting, flottante, vif)</li>
-        <li>Niveau de pratique (débutant / intermédiaire / expert)</li>
-      </ul>
-
-      <h3>Contenus générés par l'utilisateur</h3>
-      <ul>
-        <li>Prises loguées dans le carnet : espèce, taille, poids, technique, date, heure, conditions</li>
-        <li>Coordonnées GPS des prises (floutées d'environ 1 km par défaut avant tout partage public)</li>
-        <li>Photos associées aux prises</li>
-        <li>Posts publiés sur le fil régional, commentaires et réactions</li>
-      </ul>
-
-      <h3>Données techniques</h3>
-      <ul>
-        <li>Adresse IP (collectée par les serveurs d'hébergement, non stockée dans notre base)</li>
-        <li>User-agent du navigateur ou de l'application mobile</li>
-        <li>Token de session Supabase Auth (stocké dans un cookie HttpOnly sécurisé)</li>
-        <li>Données d'analytics anonymisées via Plausible (voir section Cookies)</li>
-      </ul>
-
-      <h2 id="finalites">Finalités du traitement</h2>
-      <ul>
-        <li><strong>Fourniture du service</strong> : gestion du compte, carnet de pêche, carte, fil régional</li>
-        <li><strong>Personnalisation</strong> : adapter les suggestions de spots et les contenus éditoriaux à tes préférences</li>
-        <li><strong>Communications transactionnelles</strong> : emails de confirmation d'inscription, réinitialisation de mot de passe, notifications de service</li>
-        <li><strong>Modération du contenu</strong> : prévenir les abus, le spam et les contenus illicites</li>
-        <li><strong>Amélioration du produit</strong> : analyser les usages de manière agrégée et anonymisée</li>
-        <li><strong>Sécurité</strong> : détecter les tentatives de fraude ou d'accès non autorisé</li>
-      </ul>
-      <p>
-        Nous <strong>n'envoyons jamais d'emails marketing</strong> sans que tu aies donné ton consentement explicite et séparé via une case à cocher dédiée. Ce consentement n'est pas demandé lors de l'inscription.
+        Carnet de Pêche n’a pas désigné de Délégué à la Protection des Données (DPO) car le
+        traitement de données ne le rend pas obligatoire (article 37 RGPD). Pour toute question
+        relative à tes données, contacte directement le responsable du traitement à l’adresse
+        ci-dessus.
       </p>
 
-      <h2 id="base-legale">Base légale des traitements</h2>
+      <h2 id="donnees">3. Données collectées</h2>
+      <h3>3.1 Données d’inscription et de profil</h3>
       <ul>
-        <li><strong>Exécution du contrat</strong> (art. 6.1.b RGPD) : toutes les données nécessaires au fonctionnement du service — compte, carnet, carte, profil.</li>
-        <li><strong>Intérêt légitime</strong> (art. 6.1.f RGPD) : modération anti-spam, sécurité du service, analytics agrégées.</li>
-        <li><strong>Consentement</strong> (art. 6.1.a RGPD) : notifications push, communications marketing futures, géolocalisation précise si l'utilisateur l'autorise explicitement.</li>
+        <li>Email</li>
+        <li>Mot de passe (stocké sous forme de hash cryptographique, jamais en clair)</li>
+        <li>Pseudo (username)</li>
+        <li>Bio (texte libre, optionnel, max 280 caractères)</li>
+        <li>Ville et département principal</li>
+        <li>Niveau de pêche (débutant / intermédiaire / expert)</li>
+        <li>Techniques pratiquées, espèces favorites</li>
+        <li>Fréquence de pêche, années de pratique</li>
+        <li>Avatar (photo de profil, optionnel)</li>
       </ul>
-
-      <h2 id="sous-traitants">Sous-traitants et transferts</h2>
+      <h3>3.2 Données de connexion via fournisseurs tiers</h3>
       <p>
-        Nous faisons appel aux sous-traitants suivants. Tous ont été sélectionnés pour leur niveau de conformité RGPD.
+        Si tu te connectes via <strong>Google OAuth</strong> ou <strong>Apple Sign-In</strong> (à
+        venir) : nom, prénom, email, photo de profil — uniquement les informations strictement
+        nécessaires à la création de ton compte.
       </p>
+      <h3>3.3 Données de pêche (le carnet)</h3>
+      <p>À chaque prise loguée, nous collectons les données que tu fournis :</p>
       <ul>
-        <li>
-          <strong>Supabase</strong> — base de données PostgreSQL hébergée en région <strong>eu-west-3 (Frankfurt, UE)</strong>. Pas de transfert hors UE pour les données utilisateurs. <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-        </li>
-        <li>
-          <strong>Vercel</strong> — hébergement du frontend, serveurs edge aux États-Unis. Transfert encadré par des <strong>clauses contractuelles types (CCT)</strong> de la Commission européenne. <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-        </li>
-        <li>
-          <strong>Resend</strong> — envoi des emails transactionnels. Serveurs aux États-Unis, transfert encadré par CCT. <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-        </li>
-        <li>
-          <strong>Open-Meteo</strong> — API météo et conditions marines publique. Aucune donnée personnelle transmise (appels depuis le serveur, sans identification utilisateur).
-        </li>
-        <li>
-          <strong>Plausible Analytics</strong> — analytics web anonymisées, sans cookies, sans empreinte digitale, hébergé en UE. <a href="https://plausible.io/privacy" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-        </li>
+        <li>Espèce, taille, poids</li>
+        <li>Technique utilisée, leurre / appât</li>
+        <li>Photo (optionnelle), date et heure</li>
+        <li>Position GPS de la prise</li>
+        <li>Conditions environnementales captées automatiquement (météo, vent, vagues, marée, lune) via l’API <strong>Open-Meteo</strong></li>
+        <li>Niveau de confidentialité que tu choisis (privée / amis / publique)</li>
+        <li>Notes libres</li>
       </ul>
-
-      <h2 id="conservation">Durée de conservation</h2>
+      <h3>3.4 Données techniques</h3>
       <ul>
-        <li><strong>Compte actif</strong> : données conservées tant que le compte est actif.</li>
-        <li><strong>Compte inactif</strong> : après <strong>3 ans d'inactivité</strong>, un email d'avertissement est envoyé. Sans réponse sous 30 jours, le compte et l'ensemble des données associées sont supprimés.</li>
-        <li><strong>Suppression du compte</strong> : toutes les données personnelles identifiables sont supprimées dans un délai de <strong>30 jours</strong> suivant la demande. Les données agrégées et anonymisées peuvent être conservées à des fins statistiques.</li>
-        <li><strong>Sauvegardes</strong> : les sauvegardes automatiques sont conservées <strong>30 jours glissants</strong>, puis purgées.</li>
-        <li><strong>Données comptables et financières</strong> (abonnements Stripe) : conservées <strong>10 ans</strong> conformément aux obligations légales françaises.</li>
+        <li>Adresse IP (conservée 13 mois max)</li>
+        <li>Type de navigateur, système d’exploitation, langue</li>
+        <li>Pages visitées et timestamps</li>
+        <li>Identifiants de session (cookies strictement nécessaires)</li>
       </ul>
-
-      <h2 id="droits">Tes droits</h2>
       <p>
-        Conformément au RGPD (articles 15 à 22) et à la loi Informatique et Libertés, tu disposes des droits suivants sur tes données :
+        Aucun outil d’analytique tiers (Google Analytics, Plausible, PostHog) n’est actuellement
+        actif. Si nous en ajoutons à l’avenir, cette politique sera mise à jour et ton consentement
+        préalable sera demandé pour les outils non-essentiels.
       </p>
+      <h3>3.5 Données de paiement (à venir)</h3>
+      <p>
+        Lorsque tu souscris à un abonnement Local ou Itinérant (paiements activés au sprint 9 — non
+        disponibles actuellement) : email de facturation, informations relatives à la souscription
+        (plan, dates, statut). Les données de carte bancaire <strong>ne transitent JAMAIS</strong>{' '}
+        par nos serveurs : elles sont collectées et traitées exclusivement par <strong>Stripe</strong>,
+        prestataire conforme PCI-DSS Niveau 1.
+      </p>
+
+      <h2 id="finalites">4. Finalités et bases légales</h2>
+      <table>
+        <thead>
+          <tr><th>Finalité</th><th>Données utilisées</th><th>Base légale</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Création et gestion du compte</td><td>Inscription, profil</td><td>Exécution du contrat (CGU)</td></tr>
+          <tr><td>Affichage du carnet personnel</td><td>Prises, photos, conditions</td><td>Exécution du contrat</td></tr>
+          <tr><td>Calcul du scoring personnalisé</td><td>Prises, historique</td><td>Intérêt légitime + exécution du contrat</td></tr>
+          <tr><td>Affichage des prises publiques (fil régional)</td><td>Prises publiques, géolocalisation floutée à 1 km</td><td>Consentement</td></tr>
+          <tr><td>Communication par email (confirmation, reset, notifications)</td><td>Email</td><td>Exécution du contrat</td></tr>
+          <tr><td>Facturation et gestion de l’abonnement</td><td>Données paiement (via Stripe)</td><td>Exécution du contrat</td></tr>
+          <tr><td>Modération et signalement</td><td>Tous types de contenus</td><td>Intérêt légitime</td></tr>
+          <tr><td>Sécurité, prévention de la fraude</td><td>Adresse IP, logs</td><td>Intérêt légitime</td></tr>
+          <tr><td>Respect des obligations légales (comptable, fiscale)</td><td>Données de facturation</td><td>Obligation légale</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="destinataires">5. Destinataires des données</h2>
+      <h3>5.1 Sous-traitants techniques</h3>
+      <table>
+        <thead>
+          <tr><th>Sous-traitant</th><th>Rôle</th><th>Localisation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Supabase Inc.</strong></td><td>Base de données, authentification, stockage photos</td><td>eu-west-3 (Paris, France)</td></tr>
+          <tr><td><strong>Vercel Inc.</strong></td><td>Hébergement du site et exécution du code</td><td>USA (SCC, DPA disponible)</td></tr>
+          <tr><td><strong>Open-Meteo</strong></td><td>Conditions météo, marines, solunaires</td><td>Allemagne (UE), données anonymes</td></tr>
+          <tr><td><strong>Stripe Inc.</strong> (sprint 9)</td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
+          <tr><td><strong>Resend Inc.</strong> (sprint 11)</td><td>Emails transactionnels</td><td>USA (SCC, DPA disponible)</td></tr>
+        </tbody>
+      </table>
+      <h3>5.2 Pas de revente, pas de publicité</h3>
+      <p>
+        Nous ne vendons, ne louons et ne partageons jamais tes données avec des tiers à des fins de
+        prospection commerciale. Aucune publicité tierce n’est diffusée sur le site.
+      </p>
+      <h3>5.3 Visibilité par les autres utilisateurs</h3>
       <ul>
-        <li><strong>Droit d'accès</strong> : obtenir une copie de toutes les données que nous détenons sur toi.</li>
-        <li><strong>Droit de rectification</strong> : corriger des données inexactes ou incomplètes.</li>
-        <li><strong>Droit à l'effacement</strong> ("droit à l'oubli") : demander la suppression de tes données — disponible directement depuis ton profil.</li>
-        <li><strong>Droit à la portabilité</strong> : recevoir tes données dans un format structuré et lisible par machine (JSON).</li>
-        <li><strong>Droit d'opposition</strong> : t'opposer à un traitement fondé sur l'intérêt légitime.</li>
-        <li><strong>Droit à la limitation</strong> : demander la suspension temporaire d'un traitement.</li>
-        <li><strong>Retrait du consentement</strong> : à tout moment, sans frais, pour les traitements fondés sur le consentement.</li>
+        <li><strong>Données toujours publiques</strong> : pseudo, avatar, bio, ville/département (sur ton profil public)</li>
+        <li><strong>Données dépendantes de tes choix</strong> : prises (privée / amis / publique), géolocalisation (précise / floutée 1 km)</li>
+      </ul>
+
+      <h2 id="transferts">6. Transferts hors Union Européenne</h2>
+      <p>
+        Certains de nos sous-traitants sont basés hors UE (Vercel, Stripe à venir). Ces transferts
+        sont encadrés par les <strong>Clauses Contractuelles Types (SCC)</strong> de la Commission
+        européenne, conformément à l’article 46 du RGPD. Tu peux demander une copie des garanties
+        applicables en contactant <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>.
+      </p>
+
+      <h2 id="conservation">7. Durée de conservation</h2>
+      <table>
+        <thead>
+          <tr><th>Type de donnée</th><th>Durée de conservation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Compte actif (toutes données)</td><td>Tant que ton compte existe</td></tr>
+          <tr><td>Compte supprimé</td><td>Effacement immédiat des données identifiantes ; logs anonymisés 13 mois max</td></tr>
+          <tr><td>Données de facturation</td><td>10 ans (article L102 B du Livre des procédures fiscales)</td></tr>
+          <tr><td>Données de connexion (IP, logs)</td><td>13 mois (article L34-1 du CPCE)</td></tr>
+          <tr><td>Cookies de session</td><td>Durée de la session (effacés à la déconnexion)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Tu peux supprimer ton compte à tout moment depuis <strong>/profil</strong>. La suppression
+        est irréversible et effective immédiatement.
+      </p>
+
+      <h2 id="droits">8. Tes droits</h2>
+      <p>Conformément aux articles 15 à 22 du RGPD, tu disposes des droits suivants :</p>
+      <table>
+        <thead>
+          <tr><th>Droit</th><th>Comment l’exercer</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Accès</strong></td><td>Demande à contact@carnet-de-peche.com</td></tr>
+          <tr><td><strong>Rectification</strong></td><td>Modifie depuis /profil ou demande par email</td></tr>
+          <tr><td><strong>Effacement</strong> (droit à l’oubli)</td><td>Suppression du compte sur /profil — immédiat et irréversible</td></tr>
+          <tr><td><strong>Limitation</strong> du traitement</td><td>Demande à contact@carnet-de-peche.com</td></tr>
+          <tr><td><strong>Portabilité</strong> (format JSON)</td><td>Demande par email (réponse sous 30 jours)</td></tr>
+          <tr><td><strong>Opposition</strong></td><td>Demande à contact@carnet-de-peche.com</td></tr>
+          <tr><td><strong>Retrait du consentement</strong></td><td>Paramètres de confidentialité ou demande par email</td></tr>
+          <tr><td><strong>Réclamation CNIL</strong></td><td><a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a> — 3 Place de Fontenoy, TSA 80715, 75334 PARIS CEDEX 07</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Tu disposes également du <strong>droit de définir des directives</strong> relatives à la
+        conservation, à l’effacement et à la communication de tes données après ton décès (article 85
+        de la loi du 6 janvier 1978).
+      </p>
+
+      <h2 id="securite">9. Sécurité</h2>
+      <p>Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger tes données :</p>
+      <ul>
+        <li>Chiffrement TLS/HTTPS de toutes les communications</li>
+        <li>Mots de passe hashés (bcrypt), jamais stockés en clair</li>
+        <li>Politiques d’accès strictes (Row Level Security Supabase) : chacun n’accède qu’à ses propres données + les contenus publics autorisés</li>
+        <li>Sauvegardes automatiques quotidiennes de la base de données (rétention 7 jours)</li>
+        <li>Accès au panneau d’administration limité au responsable du traitement</li>
       </ul>
       <p>
-        Pour exercer ces droits, écris-nous à{' '}
+        En cas de violation de données affectant tes données personnelles, nous nous engageons à
+        notifier la CNIL dans les 72 heures et à t’informer directement si la violation est
+        susceptible d’engendrer un risque élevé pour tes droits et libertés (articles 33-34 RGPD).
+      </p>
+
+      <h2 id="cookies">10. Cookies</h2>
+      <p>Le site utilise uniquement les cookies suivants :</p>
+      <table>
+        <thead>
+          <tr><th>Cookie</th><th>Type</th><th>Finalité</th><th>Durée</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>sb-*</code> (Supabase Auth)</td><td>Strictement nécessaire</td><td>Maintenir ta session connectée</td><td>7 jours</td></tr>
+          <tr><td>Préférences (filtres carte…)</td><td>Strictement nécessaire</td><td>Mémoriser tes choix d’interface</td><td>Session</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Ces cookies sont <strong>strictement nécessaires</strong> au fonctionnement du site (article
+        82 de la loi Informatique et Libertés, dispense de consentement préalable). Aucun cookie
+        publicitaire ni de mesure d’audience tierce n’est déposé sans consentement. Tu peux les
+        supprimer via les paramètres de ton navigateur, mais la connexion à ton compte sera alors
+        interrompue.
+      </p>
+
+      <h2 id="modification">11. Modification de la politique</h2>
+      <p>
+        Cette politique peut évoluer en fonction des changements légaux, techniques ou fonctionnels
+        du service. Toute modification substantielle sera notifiée par email aux utilisateurs
+        inscrits <strong>au moins 30 jours avant</strong> son entrée en vigueur. La version
+        applicable est toujours celle datée en bas de page.
+      </p>
+
+      <h2 id="contact">12. Contact</h2>
+      <p>
+        Pour toute question relative à la présente politique ou à tes données personnelles :{' '}
         <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>.
-        Nous répondrons dans un délai maximum de <strong>30 jours</strong>.
       </p>
-
-      <h2 id="cookies">Cookies et traceurs</h2>
       <p>
-        Nous utilisons uniquement des cookies strictement nécessaires au fonctionnement du service :
+        Nous nous engageons à répondre dans un délai maximum de <strong>30 jours</strong> à compter
+        de la réception de ta demande, conformément à l’article 12 du RGPD.
       </p>
-      <ul>
-        <li>
-          <strong>Cookie de session Supabase</strong> : authentification et maintien de la session. Technique, indispensable, exempté de consentement CNIL.
-        </li>
-        <li>
-          <strong>Plausible Analytics</strong> : mesure d'audience anonymisée, sans cookie, sans collecte d'adresse IP, sans empreinte. Conforme à la recommandation CNIL du 19 juin 2021 — <strong>exempté de bandeau de consentement</strong>.
-        </li>
-      </ul>
-      <p>
-        Nous n'utilisons <strong>aucun cookie publicitaire</strong>, aucun pixel de tracking tiers (Meta, Google Ads), aucun outil de fingerprinting.
-      </p>
-
-      <h2 id="cnil">Droit de plainte auprès de la CNIL</h2>
-      <p>
-        Si tu estimes que le traitement de tes données ne respecte pas la réglementation, tu as le droit d'introduire une réclamation auprès de la <strong>Commission Nationale de l'Informatique et des Libertés (CNIL)</strong> :
-      </p>
-      <ul>
-        <li>En ligne : <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer">cnil.fr/fr/plaintes</a></li>
-        <li>Par courrier : CNIL, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
-      </ul>
     </LegalLayout>
   )
 }
