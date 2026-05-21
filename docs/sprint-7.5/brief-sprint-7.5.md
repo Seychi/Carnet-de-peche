@@ -1,9 +1,11 @@
 # 🔧 Brief Sprint 7.5 — Hygiène produit + dette technique
 
-> **Durée** : 3-5 jours ouvrés
+> **Durée** : 4-6 jours ouvrés (étendu suite à l'audit Claude in Chrome du 21 mai)
 > **Type** : sprint de nettoyage, **pas de nouvelle feature**
 > **Objectif** : repasser le site live à la réalité produit, corriger la dette critique du sprint 7, mettre en place CI + discipline migrations — pour engager le sprint 8 (fil communautaire) sur du propre.
-> **Référence audit** : `docs/AUDIT-2026-05.md` (Claude — 2026-05-20)
+> **Références audit** :
+> - `docs/AUDIT-2026-05.md` (Claude Cowork — 2026-05-20, audit fondateur)
+> - `docs/audits/ux-discovery/2026-05-21-claude-chrome.md` (Claude in Chrome — 2026-05-21, audit UX terrain) 🆕
 > **Référence roadmap** : `docs/ROADMAP.md` section "Sprint 7.5"
 
 ---
@@ -46,9 +48,11 @@ metadataBase: new URL('https://www.carnet-de-peche.com'),
 
 ## A2 — Footer : créer stubs ou retirer liens cassés (1h)
 
+> **Mise à jour 21 mai** : l'audit Claude in Chrome a confirmé que `/contact` aussi est en 404 (le footer pointe vers `mailto:` mais l'URL `/contact` est attendue par certains visiteurs / liens externes). Inclure une 4ème stub ou laisser le mailto: seul. Recommandation : ajouter `/contact` aux stubs avec un mini formulaire mailto.
+
 **Fichiers concernés** :
-- `components/layout/Footer.tsx:31-35` (les 3 liens cassés)
-- À créer si Option A : `app/(marketing)/fil/page.tsx`, `app/(marketing)/especes/page.tsx`, `app/(marketing)/techniques/page.tsx`
+- `components/layout/Footer.tsx:31-35` (les 3 liens cassés) + entrée `mailto:contact@carnet-de-peche.com` à compléter
+- À créer si Option A : `app/(marketing)/fil/page.tsx`, `app/(marketing)/especes/page.tsx`, `app/(marketing)/techniques/page.tsx`, `app/(marketing)/contact/page.tsx`
 
 **Option recommandée : A — créer 3 stubs "Bientôt disponible"**
 
@@ -528,7 +532,250 @@ curl -X GET \
 
 ---
 
-# Reporté à plus tard (post sprint 7.5)
+# Bloc E — Découvertes audit Claude in Chrome (4-6h) 🆕
+
+> Ce bloc consolide les trouvailles de `docs/audits/ux-discovery/2026-05-21-claude-chrome.md` non encore couvertes par les blocs A-D.
+
+## E1 — 🚨 P0 RGPD : compléter les pages légales (1-2h)
+
+**Criticité maximale** : `/legal/confidentialite` et `/legal/mentions-legales` contiennent `[À COMPLÉTER PAR JOHN]` en clair sur la prod. **Non-conformité RGPD + L121 Code Conso**. À traiter en TOUT PREMIER, avant même les corrections SEO du Bloc A.
+
+> **🆕 21 mai** : John a fourni son extrait INPI. **Contenu prêt à intégrer dans 3 fichiers, sans placeholder** :
+> - `docs/sprint-7.5/legal-content/mentions-legales.md`
+> - `docs/sprint-7.5/legal-content/confidentialite.md`
+> - `docs/sprint-7.5/legal-content/cgu.md`
+>
+> **Décision adresse (21 mai)** : John a choisi de publier son adresse perso (627 Chemin des Impiniers, 06220 Vallauris) pour débloquer le sprint 7.5. Une domiciliation commerciale (SeDomicilier / Kandbaz ~15 €/mois) sera setup dans 2-4 semaines (post-sprint 8) et les 3 pages seront mises à jour à ce moment-là.
+>
+> Procédure recommandée pour Claude Code :
+> 1. Lire les 3 fichiers MD (contenu prêt, adresse déjà intégrée)
+> 2. Intégrer le contenu dans les pages `.tsx` correspondantes en respectant le design system (composant `LegalLayout` qui existe déjà dans `components/layout/LegalLayout.tsx`)
+> 3. Auditer avant push : `grep -r "À COMPLÉTER" app/` doit retourner 0 résultat.
+> 4. **TODO post-sprint 8** : créer un issue/reminder "Remplacer adresse perso par domiciliation commerciale" dans `docs/ROADMAP.md` backlog technique.
+
+**Fichiers cibles** :
+- `app/(marketing)/legal/confidentialite/page.tsx`
+- `app/(marketing)/legal/mentions-legales/page.tsx`
+- `app/(marketing)/legal/cgu/page.tsx`
+
+**Sources de contenu** (à copier-adapter, contenu déjà rédigé conforme RGPD + LCEN) :
+- `docs/sprint-7.5/legal-content/mentions-legales.md`
+- `docs/sprint-7.5/legal-content/confidentialite.md`
+- `docs/sprint-7.5/legal-content/cgu.md`
+
+**Infos INPI consolidées** (déjà intégrées dans les contenus MD) :
+- Dénomination : John Sebastien CAMPBELL (Entrepreneur Individuel)
+- SIREN : 977 995 174
+- SIRET : 977 995 174 00025
+- Code APE : 6201Z Programmation informatique
+- Date immatriculation RNE : 24/04/2024
+- TVA : franchise en base (non applicable, article 293 B CGI)
+- Directeur de publication : John Sebastien Campbell
+
+**Critère d'acceptation**
+- `grep -r "À COMPLÉTER" app/` retourne 0 résultat
+- `grep -r "{{ADRESSE_DOMICILIATION}}" app/` retourne 0 résultat (avant push prod)
+- SIRET réel présent dans `/legal/mentions-legales`
+- Hébergeur Vercel déclaré
+- Politique confidentialité contient les 10 sections du fichier MD
+- CGU contient les 16 articles du fichier MD
+- Date de dernière mise à jour visible en pied de chaque page
+
+---
+
+## E2 — 🚨 P0 Refonte `/home` post-login (1h)
+
+**Problème** : la page `/home` affiche actuellement "Le carnet, la carte et la communauté arrivent bientôt" alors que toutes ces features fonctionnent. Un utilisateur loggé après onboarding voit un message de waitlist, ce qui est totalement incohérent et casse la confiance.
+
+**Fichier** : `app/(app)/home/page.tsx`
+
+**Avant** (probable) : page statique avec un message générique
+
+**Après** : mini-dashboard avec :
+```tsx
+// Pseudo-code
+- Salutation : "Salut {profile.username}"
+- 3 stats clés : total prises, plus belle prise (espèce + taille), spot fétiche
+- "Prochaine session optimale" : prochain créneau exceptionnel via getNextBestWindow (du sprint 6)
+- 2 CTA principaux :
+  - "Logger une prise" → /carnet/nouvelle
+  - "Voir la carte" → /carte
+- Section "Tes 3 dernières prises" avec lien "Voir tout le carnet"
+```
+
+**Récupérer les données** : RPC `get_my_catch_stats` (migration 007) qui existe déjà.
+
+**Empty state** (user qui n'a aucune prise) : "Bienvenue {username}. Pour démarrer, logue ta première prise ou explore la carte." + 2 CTA.
+
+**Critère d'acceptation**
+- `/home` connecté n'affiche plus aucun mot "bientôt" ou "waitlist"
+- Stats personnelles affichées (au moins username + nb prises)
+- 2 CTA visibles sans scroll
+
+---
+
+## E3 — P0 Date inputs en français (30 min)
+
+**Problème** : les `<input type="datetime-local">` s'affichent en format US (MM/DD/YYYY) au lieu de DD/MM/YYYY.
+
+**Cause probable** : pas de `lang="fr-FR"` ou `lang="fr"` sur le `<html>` ou attribut absent du `<input>`. Le format datetime-local est régi par la locale du navigateur, mais Next.js avec un `<html lang="fr">` devrait suffire.
+
+**Fichiers à vérifier** :
+- `app/layout.tsx` : confirmer `<html lang="fr">` (devrait déjà être là)
+- Tous les `<input type="datetime-local">` et `<input type="date">` dans :
+  - `components/catches/CatchForm.tsx`
+  - `app/(app)/profil/profile-form.tsx`
+
+**Si `lang="fr"` est déjà là** : le bug peut venir du navigateur de John en mode US. Mais l'audit Claude in Chrome l'a vu en `fr-FR`, donc c'est probablement Next.js qui ne propage pas la locale au natif des inputs.
+
+**Fix** : ajouter explicitement `lang="fr-FR"` sur les inputs OU passer à un date picker custom (react-day-picker, déjà dispo via shadcn).
+
+**Critère d'acceptation**
+- Form `/carnet/nouvelle` : le placeholder vide affiche `JJ/MM/AAAA` ou équivalent
+- Une date saisie s'affiche en format français
+
+---
+
+## E4 — P0 Messages de validation en français (30 min)
+
+**Problème** : sur `/carnet/nouvelle`, soumission avec champ Espèce vide → erreur affichée "Invalid input" (en anglais).
+
+**Cause** : zod messages par défaut en anglais, pas localisés.
+
+**Fix** : utiliser les message custom de zod en français dans `lib/catches/schema.ts` :
+
+```ts
+// Avant
+export const catchSpeciesEnum = z.enum([...])
+
+// Après
+export const catchSpeciesEnum = z.enum([...], {
+  errorMap: () => ({ message: 'Choisis une espèce pour continuer' }),
+})
+```
+
+**Et pour tous les autres champs critiques** : species, technique, location_method, latitude, longitude, size_cm, etc.
+
+**Alternative globale** (recommandée) : configurer un errorMap global zod en français dans `lib/zod-config.ts` qui couvre tous les codes d'erreur standard ("Required", "Invalid input", "Number must be greater than", etc.).
+
+**Critère d'acceptation**
+- Aucun message d'erreur en anglais visible sur `/carnet/nouvelle`, `/profil`, `/auth/*`
+- Messages spécifiques par champ (pas un générique "Invalid input")
+
+---
+
+## E5 — P0 Lat/long picker "Saisir manuellement" (30 min)
+
+**Problème** : sur `/carnet/nouvelle` quand l'utilisateur choisit "Saisir manuellement" pour la localisation, les inputs lat/long affichent des valeurs en placeholder (ex: `48.0382`) mais ne sont PAS pré-remplies. L'utilisateur croit que les champs sont remplis, submit, et la validation échoue avec un message rouge sous le bloc — confus.
+
+**Fichiers** :
+- `components/catches/CatchForm.tsx` (cherchez la section lieu manuel)
+
+**Deux options de fix** :
+
+**Option A — Pré-remplir vraiment** : si la dernière prise du user avait des coordonnées, pré-remplir avec celles-là. Sinon, géoloc browser (si autorisée) puis pré-remplir. Sinon, laisser vides avec placeholder neutre "ex : 48.0382".
+
+**Option B — Placeholder neutre uniquement** : changer le placeholder en quelque chose qui ne ressemble pas à une valeur (ex: "Latitude (ex : 48.0382)"). Plus simple, moins risqué.
+
+**Recommandation** : Option B pour le sprint 7.5, Option A en sprint 8+ si retours utilisateurs.
+
+**Critère d'acceptation**
+- Le placeholder ne ressemble plus à une valeur réelle pré-remplie
+- L'utilisateur comprend qu'il doit saisir une valeur
+- La validation rouge à la submission ne surprend plus
+
+---
+
+## E6 — P1 Mots de copy à corriger (30 min)
+
+Corrections rapides, toutes < 5 min chacune :
+
+| Fichier | Avant | Après |
+|---|---|---|
+| `components/catches/CatchCard.tsx` ou détail fiche prise | Label section `COMMENT` (= "How" en anglais) | `MÉTHODE` ou `TECHNIQUE` |
+| `components/map/NearbyPanel.tsx` (drawer title) | "Spots autour de toi" | "Spots autour de moi" (cohérent avec le bouton qui le déclenche) |
+| `app/(marketing)/tarifs/pricing-cards.tsx:21` | "App iOS / Android (sprint 13+)" | "App iOS / Android — bientôt" |
+
+**Critère d'acceptation**
+- `grep -ri "sprint " app/(marketing)/` ne retourne aucun match (vocabulaire interne hors UI publique)
+- `grep -ri "autour de toi" app/` retourne 0 match
+- `grep -ri "comment" components/catches/` ne révèle pas de label visible utilisateur (le mot reste OK en code/commentaires)
+
+---
+
+## E7 — P1 Cleanup seed carnet (15 min)
+
+**Problème** : le compte test "Seychi" a 3 prises identiques "Bar · Leurres · 52cm · 1.80kg" + des spots non-côtiers (Grazac, Vallauris) alors que le produit est positionné "à la canne du bord en mer".
+
+**Cause** : seed data ou test data laissée traîner.
+
+**Fix** : nettoyer manuellement via SQL :
+```sql
+-- À adapter selon le user_id de Seychi
+delete from public.catches
+where user_id = '<UUID Seychi>'
+  and (
+    location_label in ('Grazac', 'Vallauris')
+    or id in (
+      -- garder seulement la première des 3 doublons, supprimer les 2 autres
+      select id from (
+        select id, row_number() over (partition by species, technique, size_cm, weight_kg order by created_at) as rn
+        from public.catches
+        where user_id = '<UUID Seychi>'
+      ) sub where rn > 1
+    )
+  );
+```
+
+**Bonus** : ajouter une contrainte UI dans `/carnet/nouvelle` pour limiter le picker spot/location aux départements côtiers (déjà filtré pour les spots officiels, mais en saisie manuelle ou label libre, on peut taper "Grazac"). Acceptable de laisser ouvert v1.
+
+**Critère d'acceptation**
+- Compte Seychi a un carnet sans doublon évident et sans spots intérieurs
+- (Optionnel) le picker location dans `/carnet/nouvelle` warning si la lat/long n'est pas dans un département côtier
+
+---
+
+## E8 — P2 Quick wins UX (1-1.5h)
+
+Items moins critiques mais à grouper :
+
+**E8.1 — Tap targets header & footer**
+- Nav header = 39px de haut, footer = 17px — sous le seuil 44px (W3C/Apple)
+- Fichiers : `components/layout/Header.tsx`, `components/layout/Footer.tsx`
+- Fix : padding vertical `py-3` au lieu de `py-2` sur les `<li>` du footer, +6px sur les liens du header
+- Critère : tous les tap targets cliquables ≥ 44×44 px
+
+**E8.2 — Skeleton sur la carte au premier paint**
+- Actuellement, la zone carte reste blanche ~3s pendant que MapLibre charge le bundle + les tiles
+- Fichier : `components/map/MapView.tsx` (init useEffect)
+- Fix : afficher un skeleton (couleur bleu marine / océan) en `position: absolute inset-0` qui disparaît quand `map.on('load')` se déclenche
+- Critère : plus de zone blanche, transition propre
+
+**E8.3 — Picker itinéraire multi-app**
+- Actuellement seul Google Maps est proposé
+- Fichier : `components/spots/SpotDetailsActions.tsx` ou équivalent (bouton "Itinéraire GPS")
+- Fix : un menu dropdown avec 3 options : Google Maps, Apple Plans (`maps://?daddr=lat,lng`), Waze (`https://waze.com/ul?ll=lat,lng&navigate=yes`)
+- Critère : 3 options visibles, chacune fonctionnelle sur la plateforme cible
+
+**E8.4 — Hero images sur 2 guides manquants**
+- Liste `/guides` : 2 cards sur 3 sans hero image (placeholder teal vide)
+- Fichiers : guides MDX correspondants dans `app/(marketing)/guides/*/page.tsx`
+- Fix : ajouter une image (Unsplash gratuite, libre de droits, ou photo perso de John) en frontmatter `cover_image`
+- Critère : les 3 guides ont une hero image visible en card et en haut de page
+
+---
+
+## E9 — P2 Sécurité externe (10 min)
+
+**Problème** : les liens d'attribution MapTiler / OSM ont `target="_blank"` sans `rel="noopener noreferrer"` (vulnérabilité tabnabbing mineure).
+
+**Fix** : Grep `target="_blank"` dans le repo, ajouter `rel="noopener noreferrer"` partout.
+
+**Critère** : `grep -rE 'target=("|\\")_blank' --include="*.tsx" . | grep -v "noopener"` retourne 0 résultat.
+
+---
+
+
 
 | Item | Sprint cible | Pourquoi pas maintenant |
 |---|---|---|
@@ -548,23 +795,53 @@ curl -X GET \
 
 Avant de marquer le sprint 7.5 comme terminé et de passer au sprint 8 :
 
-- [ ] `pnpm lint` = 0 erreur
-- [ ] `pnpm typecheck` = 0 erreur
-- [ ] `pnpm test` = 116/116 vert
-- [ ] `pnpm build` passe sans `ignoreDuringBuilds`
-- [ ] CI GitHub Actions vert sur `main`
+**Bloc A — Marketing & SEO**
 - [ ] Site live `/spots/pointe-du-raz` retourne `canonical = .com/spots/pointe-du-raz`
-- [ ] Footer : 3 liens `/fil`, `/especes`, `/techniques` → soit pages stubs OK, soit liens retirés
+- [ ] Footer : 4 liens (`/fil`, `/especes`, `/techniques`, `/contact`) → soit pages stubs OK, soit liens retirés
 - [ ] Pricing live cohérent (7j ou 14j partout, jamais les deux dans la même session de scroll)
 - [ ] Page `/tarifs` : bouton "Essayer X jours" redirige vers `/auth/register` (plus de toast "sprint 4")
 - [ ] Home : aucun `href="#"`, aucune mention "import/export", "ambassadeurs", "217 spots actifs", "2 km"
 - [ ] Témoignages fictifs retirés ou clairement marqués
+
+**Bloc B — Dette sprint 7**
 - [ ] Fiches spots : plus de badge "⚡ Perso" inerte
 - [ ] `/profil` : `PersonalScoreSection` fonctionne (mode descriptif)
+
+**Bloc C — Lint**
+- [ ] `pnpm lint` = 0 erreur
+- [ ] `pnpm build` passe sans `ignoreDuringBuilds`
+
+**Bloc D — Infra**
+- [ ] `pnpm typecheck` = 0 erreur
+- [ ] `pnpm test` = 116/116 vert
+- [ ] CI GitHub Actions vert sur `main`
 - [ ] Vercel : `CRON_SECRET` + `SUPABASE_SERVICE_ROLE_KEY` configurés en prod
 - [ ] Cron a tourné au moins 1× : `spot_scores` contient ≥ 10 lignes
 - [ ] Carte live : markers colorisés (pas tous gris)
 - [ ] `supabase db diff --linked` = "no schema difference"
+
+**Bloc E — Discovery UX (Claude in Chrome 21 mai)** 🆕
+- [ ] 🚨 `grep -r "À COMPLÉTER" app/` retourne 0 résultat (RGPD)
+- [ ] `/legal/mentions-legales` contient SIRET + hébergeur réels
+- [ ] `/legal/confidentialite` couvre toutes les sections RGPD
+- [ ] `/home` post-login affiche un dashboard, plus de message "arrivent bientôt"
+- [ ] Date inputs en format FR (DD/MM/YYYY) sur `/carnet/nouvelle` et `/profil`
+- [ ] Plus aucun message d'erreur en anglais ("Invalid input") sur les forms
+- [ ] Lat/long picker manuel : placeholder neutre ou valeur réellement pré-remplie
+- [ ] Label "COMMENT" → "MÉTHODE" sur fiche prise
+- [ ] Drawer carte titré "Spots autour de moi" (cohérent avec le bouton)
+- [ ] Card Découverte sans mention "sprint 13+"
+- [ ] Durée guide `peche-au-bar-au-leurre` synchronisée entre liste et page
+- [ ] Compte test Seychi : carnet nettoyé (pas de doublons, pas de Grazac/Vallauris)
+
+**Bloc E2 — Quick wins (optionnel mais recommandé)**
+- [ ] Tap targets header/footer ≥ 44px
+- [ ] Skeleton sur la carte au premier paint
+- [ ] Picker itinéraire avec Google Maps + Apple Plans + Waze
+- [ ] 3 guides ont une hero image
+- [ ] `grep -rE 'target=("|\\")_blank' . | grep -v noopener` = 0 résultat
+
+**Méta**
 - [ ] CLAUDE.md §2 mis à jour : sprint 7 ✅ + sprint 7.5 ✅
 
 Une fois tous ces points cochés → on attaque sprint 8 (fil communautaire).
