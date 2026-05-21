@@ -17,7 +17,7 @@ const plans = {
       { text: 'Marées + météo pour ta ville' },
       { text: 'Tous les guides éditoriaux' },
       { text: 'Fil régional en lecture seule' },
-      { text: 'App iOS / Android (sprint 13+)' },
+      { text: 'App iOS / Android — bientôt' },
     ],
   },
   local: {

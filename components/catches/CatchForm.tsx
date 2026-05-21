@@ -695,7 +695,7 @@ export function CatchForm(props: CatchFormProps) {
                 <input
                   type="number"
                   step="any"
-                  placeholder="48.2744"
+                  placeholder="ex : 48.2744"
                   {...register('latitude', {
                     setValueAs: (v) => (v === '' ? undefined : parseFloat(v)),
                   })}
@@ -708,7 +708,7 @@ export function CatchForm(props: CatchFormProps) {
                 <input
                   type="number"
                   step="any"
-                  placeholder="-4.5765"
+                  placeholder="ex : -4.5765"
                   {...register('longitude', {
                     setValueAs: (v) => (v === '' ? undefined : parseFloat(v)),
                   })}

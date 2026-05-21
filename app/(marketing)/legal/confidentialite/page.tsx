@@ -101,7 +101,7 @@ export default function ConfidentialitePage() {
       </p>
       <h3>3.5 Données de paiement (à venir)</h3>
       <p>
-        Lorsque tu souscris à un abonnement Local ou Itinérant (paiements activés au sprint 9 — non
+        Lorsque tu souscris à un abonnement Local ou Itinérant (paiements à venir — non
         disponibles actuellement) : email de facturation, informations relatives à la souscription
         (plan, dates, statut). Les données de carte bancaire <strong>ne transitent JAMAIS</strong>{' '}
         par nos serveurs : elles sont collectées et traitées exclusivement par <strong>Stripe</strong>,
@@ -136,8 +136,8 @@ export default function ConfidentialitePage() {
           <tr><td><strong>Supabase Inc.</strong></td><td>Base de données, authentification, stockage photos</td><td>eu-west-3 (Paris, France)</td></tr>
           <tr><td><strong>Vercel Inc.</strong></td><td>Hébergement du site et exécution du code</td><td>USA (SCC, DPA disponible)</td></tr>
           <tr><td><strong>Open-Meteo</strong></td><td>Conditions météo, marines, solunaires</td><td>Allemagne (UE), données anonymes</td></tr>
-          <tr><td><strong>Stripe Inc.</strong> (sprint 9)</td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
-          <tr><td><strong>Resend Inc.</strong> (sprint 11)</td><td>Emails transactionnels</td><td>USA (SCC, DPA disponible)</td></tr>
+          <tr><td><strong>Stripe Inc.</strong> (à venir)</td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
+          <tr><td><strong>Resend Inc.</strong> (à venir)</td><td>Emails transactionnels</td><td>USA (SCC, DPA disponible)</td></tr>
         </tbody>
       </table>
       <h3>5.2 Pas de revente, pas de publicité</h3>

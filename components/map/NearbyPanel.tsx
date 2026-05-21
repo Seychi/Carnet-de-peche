@@ -119,7 +119,7 @@ export default function NearbyPanel({
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h2 className="font-semibold text-ink-900 text-base leading-tight">
-              Spots autour de toi
+              Spots autour de moi
             </h2>
             {!isLoading && !error && (
               <p className="text-xs text-ink-500 mt-0.5">

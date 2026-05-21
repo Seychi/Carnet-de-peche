@@ -618,7 +618,7 @@ export default function MapShell({
           side="bottom"
           showCloseButton={false}
           className="flex flex-col p-0 overflow-hidden pb-[env(safe-area-inset-bottom)]"
-          aria-label="Spots autour de toi"
+          aria-label="Spots autour de moi"
         >
           <NearbyPanel {...nearbyPanelProps} layout="sheet" />
         </SheetContent>
