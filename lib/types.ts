@@ -206,6 +206,13 @@ export type Database = {
             referencedRelation: "feed_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "feed_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts_for_viewer"
+            referencedColumns: ["id"]
+          },
         ]
       }
       feed_likes: {
@@ -230,6 +237,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts_for_viewer"
             referencedColumns: ["id"]
           },
         ]
@@ -392,6 +406,7 @@ export type Database = {
       reports: {
         Row: {
           created_at: string
+          details: string | null
           id: string
           reason: string
           reporter_id: string | null
@@ -403,6 +418,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          details?: string | null
           id?: string
           reason: string
           reporter_id?: string | null
@@ -414,6 +430,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          details?: string | null
           id?: string
           reason?: string
           reporter_id?: string | null
@@ -688,6 +705,48 @@ export type Database = {
             columns: ["spot_id"]
             isOneToOne: false
             referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_posts_for_viewer: {
+        Row: {
+          author_avatar_url: string | null
+          author_display_name: string | null
+          author_home_department: string | null
+          author_id: string | null
+          author_username: string | null
+          catch_caught_at: string | null
+          catch_id: string | null
+          catch_photo_path: string | null
+          catch_size_cm: number | null
+          catch_species: string | null
+          catch_spot_name: string | null
+          catch_spot_slug: string | null
+          catch_technique: string | null
+          catch_weight_g: number | null
+          comments_count: number | null
+          created_at: string | null
+          id: string | null
+          liked_by_me: boolean | null
+          likes_count: number | null
+          region: string | null
+          text: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_posts_catch_id_fkey"
+            columns: ["catch_id"]
+            isOneToOne: false
+            referencedRelation: "catches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_catch_id_fkey"
+            columns: ["catch_id"]
+            isOneToOne: false
+            referencedRelation: "catches_for_viewer"
             referencedColumns: ["id"]
           },
         ]
@@ -971,6 +1030,7 @@ export type Database = {
             }
             Returns: string
           }
+      can_post_in_department: { Args: { dept: string }; Returns: boolean }
       catch_visible_geom: {
         Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
         Returns: unknown
@@ -1106,8 +1166,24 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_feed_unread_counts: {
+        Args: never
+        Returns: {
+          nb_posts_24h: number
+          region: string
+        }[]
+      }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
+      get_spot_activity: {
+        Args: { p_days?: number; p_spot_id: string }
+        Returns: {
+          catches_count: number
+          fishers_count: number
+          last_catch_at: string
+          recent_catches: Json
+        }[]
+      }
       get_spot_by_id: {
         Args: { p_id: string }
         Returns: {
