@@ -10,8 +10,11 @@ type Props = {
 
 function createUserLocationElement(): HTMLElement {
   const wrapper = document.createElement('div')
+  // Pas de `position` inline : MapLibre impose `position: absolute` via
+  // `.maplibregl-marker` pour repositionner au pan/zoom. Un `position: relative`
+  // l'écraserait → marqueur qui glisse. Le flex reste valable comme bloc conteneur.
   wrapper.style.cssText =
-    'position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;pointer-events:none;'
+    'display:flex;align-items:center;justify-content:center;width:40px;height:40px;pointer-events:none;'
 
   const ring = document.createElement('div')
   ring.className = 'user-location-ring'

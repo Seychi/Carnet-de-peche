@@ -64,8 +64,13 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   // <button> = navigable au clavier (Tab + Entrée) + annoncé par les lecteurs d'écran
   const wrapper = document.createElement('button')
   wrapper.type = 'button'
+  // NB : ne PAS forcer `position` ici. MapLibre applique `position: absolute` via
+  // sa classe `.maplibregl-marker` pour repositionner le marqueur au pan/zoom.
+  // Un style inline `position: relative` écraserait cette règle → marqueurs mal
+  // placés qui glissent au zoom. Le marqueur reste un bloc conteneur pour ses
+  // anneaux enfants (en position: absolute) même sans `position` explicite.
   wrapper.style.cssText =
-    'position: relative; cursor: pointer; width: 28px; height: 28px; background: none; border: none; padding: 0;'
+    'cursor: pointer; width: 28px; height: 28px; background: none; border: none; padding: 0;'
   wrapper.title = spot.name
   wrapper.setAttribute('aria-label', `Spot : ${spot.name}`)
 
