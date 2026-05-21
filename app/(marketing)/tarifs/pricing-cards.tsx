@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+import type { UserTier } from '@/lib/auth/tier'
+
+type PaidPlan = 'local' | 'itinerant'
+type Interval = 'monthly' | 'annual'
 
 const plans = {
   decouverte: {
@@ -60,8 +64,90 @@ function formatPrice(price: number) {
   return price.toFixed(2).replace('.', ',')
 }
 
-export function PricingCards() {
+// Chip rappelant les conditions de l'essai, sous chaque CTA payant.
+function TrialBadge() {
+  return (
+    <p className="mt-3 inline-flex items-center justify-center w-full text-center text-[11px] font-medium text-teal-300">
+      Essai 7j · CB requise · Annulation 1 clic
+    </p>
+  )
+}
+
+// CTA d'un plan payant. Rendu selon l'état serveur (tier + éligibilité géo).
+function PlanCta({
+  plan,
+  interval,
+  tier,
+  eligible,
+  buttonClass,
+}: {
+  plan: PaidPlan
+  interval: Interval
+  tier: UserTier
+  eligible: boolean
+  buttonClass: string
+}) {
+  // Déjà abonné (peu importe le plan) → gérer l'abonnement
+  if (tier === 'local' || tier === 'itinerant') {
+    return (
+      <Link href="/compte/abonnement" className={buttonClass}>
+        Gérer mon abonnement
+      </Link>
+    )
+  }
+
+  // Non connecté → inscription, on garde plan + interval pour reprendre après login
+  if (tier === 'anonymous') {
+    return (
+      <>
+        <Link
+          href={`/auth/register?next=/tarifs&plan=${plan}&interval=${interval}`}
+          className={buttonClass}
+        >
+          Essayer 7 jours
+        </Link>
+        <TrialBadge />
+      </>
+    )
+  }
+
+  // Connecté mais hors zone (DOM-TOM) → encart, pas d'accès Checkout
+  if (!eligible) {
+    return (
+      <div className="bg-sand-100 text-ink-700 text-sm rounded-[12px] p-3 text-center">
+        Outre-mer pas encore couvert.{' '}
+        <Link href="/contact" className="underline font-medium">
+          Préviens-nous
+        </Link>
+        .
+      </div>
+    )
+  }
+
+  // Connecté, éligible, pas encore abonné → POST classique vers Checkout (303 → Stripe)
+  return (
+    <>
+      <form action="/api/stripe/checkout" method="POST">
+        <input type="hidden" name="plan" value={plan} />
+        <input type="hidden" name="interval" value={interval} />
+        <button type="submit" className={`${buttonClass} w-full`}>
+          Essayer 7 jours
+        </button>
+      </form>
+      <TrialBadge />
+    </>
+  )
+}
+
+export function PricingCards({
+  tier = 'anonymous',
+  eligible = true,
+}: {
+  tier?: UserTier
+  eligible?: boolean
+}) {
   const [annual, setAnnual] = useState(false)
+  const interval: Interval = annual ? 'annual' : 'monthly'
 
   return (
     <>
@@ -162,15 +248,13 @@ export function PricingCards() {
             </ul>
           </div>
           <div className="mt-auto">
-            <Link
-              href="/auth/register?plan=local"
-              className="block w-full text-center px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
-            >
-              Essayer 7 jours
-            </Link>
-            <p className="text-center text-xs text-white/40 mt-3">
-              CB requise · annulation 1 clic
-            </p>
+            <PlanCta
+              plan="local"
+              interval={interval}
+              tier={tier}
+              eligible={eligible}
+              buttonClass="block w-full text-center px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+            />
           </div>
         </div>
 
@@ -207,15 +291,13 @@ export function PricingCards() {
             </ul>
           </div>
           <div className="mt-auto">
-            <Link
-              href="/auth/register?plan=itinerant"
-              className="block w-full text-center px-6 py-3 rounded-[12px] bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-sm transition-colors duration-200"
-            >
-              Essayer 7 jours
-            </Link>
-            <p className="text-center text-xs text-white/40 mt-3">
-              CB requise · annulation 1 clic
-            </p>
+            <PlanCta
+              plan="itinerant"
+              interval={interval}
+              tier={tier}
+              eligible={eligible}
+              buttonClass="block w-full text-center px-6 py-3 rounded-[12px] bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-sm transition-colors duration-200"
+            />
           </div>
         </div>
       </div>

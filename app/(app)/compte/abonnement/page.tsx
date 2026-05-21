@@ -1,0 +1,239 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/client";
+import {
+  PLAN_LABELS,
+  PLAN_PRICING,
+  priceIdToInterval,
+  type PaidPlan,
+  type PlanInterval,
+} from "@/lib/stripe/pricing";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Ton abonnement — Carnet de Pêche",
+};
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+}
+
+function daysUntil(iso: string | null): number {
+  if (!iso) return 0;
+  const diff = new Date(iso).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+// Bouton de redirection vers le Customer Portal (POST classique → 303 vers Stripe).
+function PortalForm({ label, variant }: { label: string; variant: "primary" | "ghost" }) {
+  const cls =
+    variant === "primary"
+      ? "bg-teal-500 hover:bg-teal-400 text-white"
+      : "bg-white border border-ink-200 text-navy-900 hover:bg-sand-50";
+  return (
+    <form action="/api/stripe/portal" method="POST">
+      <button
+        type="submit"
+        className={`w-full sm:w-auto px-6 py-3 rounded-[12px] font-semibold text-sm transition-colors duration-200 ${cls}`}
+      >
+        {label}
+      </button>
+    </form>
+  );
+}
+
+// Barre de progression de l'essai (rendu serveur, pas d'interactivité).
+function TrialCountdown({ trialEnd }: { trialEnd: string | null }) {
+  const remaining = daysUntil(trialEnd);
+  const pct = Math.min(100, Math.max(0, ((7 - remaining) / 7) * 100));
+  return (
+    <div className="mt-4">
+      <p className="text-sm text-ink-700 mb-2">
+        Il reste <span className="font-semibold text-navy-900">{remaining} jour{remaining > 1 ? "s" : ""}</span> d&rsquo;essai
+      </p>
+      <div className="h-2 rounded-full bg-ink-100 overflow-hidden">
+        <div className="h-full bg-teal-500" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+export default async function AbonnementPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: sub } = await supabase
+    .from("subscriptions")
+    .select(
+      "plan, status, stripe_customer_id, stripe_price_id, current_period_end, cancel_at_period_end, trial_end"
+    )
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const plan = (sub?.plan === "local" || sub?.plan === "itinerant" ? sub.plan : null) as PaidPlan | null;
+  const interval: PlanInterval | null = sub?.stripe_price_id
+    ? priceIdToInterval(sub.stripe_price_id)
+    : null;
+  const priceLabel =
+    plan && interval ? PLAN_PRICING[plan][interval] : null;
+
+  // 5 dernières factures (best-effort : on n'échoue pas la page si Stripe est indispo)
+  let invoices: { id: string; date: string; amount: string; url: string | null }[] = [];
+  if (sub?.stripe_customer_id) {
+    try {
+      const list = await stripe.invoices.list({ customer: sub.stripe_customer_id, limit: 5 });
+      invoices = list.data.map((inv) => ({
+        id: inv.id ?? "",
+        date: inv.created ? new Date(inv.created * 1000).toISOString() : "",
+        amount: new Intl.NumberFormat("fr-FR", {
+          style: "currency",
+          currency: (inv.currency ?? "eur").toUpperCase(),
+        }).format((inv.total ?? 0) / 100),
+        url: inv.hosted_invoice_url ?? inv.invoice_pdf ?? null,
+      }));
+    } catch (err) {
+      console.error("[abonnement] échec récupération factures", err);
+    }
+  }
+
+  const status = sub?.status ?? null;
+  const isPaid = plan !== null;
+  const isTrial = status === "trialing";
+  const isActive = status === "active" && !sub?.cancel_at_period_end;
+  const isCancelScheduled = status === "active" && sub?.cancel_at_period_end === true;
+  const isPastDue = status === "past_due";
+  const isCanceled = status === "canceled";
+  const isEmpty = !sub || (!isPaid && !isCanceled);
+
+  return (
+    <main className="max-w-2xl mx-auto px-6 py-10">
+      <h1 className="font-display text-2xl font-bold text-navy-900 mb-8">Ton abonnement</h1>
+
+      {isEmpty ? (
+        <div className="bg-sand-100 border border-ink-200 rounded-[18px] p-8 text-center">
+          <p className="text-ink-700 mb-5">Tu n&rsquo;as pas encore d&rsquo;abonnement.</p>
+          <Link
+            href="/tarifs"
+            className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+          >
+            Voir les formules
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-white border border-ink-200 rounded-[18px] p-8 shadow-sm">
+          {/* Plan + prix */}
+          <div className="flex items-baseline justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">
+                {plan ? PLAN_LABELS[plan] : "Abonnement"}{" "}
+                {interval === "annual" ? "annuel" : interval === "monthly" ? "mensuel" : ""}
+              </p>
+              {priceLabel && (
+                <p className="text-2xl font-display font-bold text-navy-900 mt-1">
+                  {priceLabel.amount}
+                  <span className="text-ink-500 text-base font-normal"> {priceLabel.period}</span>
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Statut */}
+          <div className="mt-5 border-t border-ink-100 pt-5">
+            {isTrial && (
+              <>
+                <p className="text-sm text-ink-700">
+                  <span className="font-semibold text-navy-900">Essai en cours</span> · finit le{" "}
+                  {formatDate(sub?.trial_end ?? null)}
+                </p>
+                <TrialCountdown trialEnd={sub?.trial_end ?? null} />
+              </>
+            )}
+            {isActive && (
+              <p className="text-sm text-ink-700">
+                <span className="font-semibold text-navy-900">Actif</span> · prochain prélèvement le{" "}
+                {formatDate(sub?.current_period_end ?? null)}
+                {priceLabel ? ` (${priceLabel.amount})` : ""}
+              </p>
+            )}
+            {isCancelScheduled && (
+              <p className="text-sm text-ink-700">
+                <span className="font-semibold text-amber-600">Annulation programmée</span> · accès
+                jusqu&rsquo;au {formatDate(sub?.current_period_end ?? null)}
+              </p>
+            )}
+            {isPastDue && (
+              <p className="text-sm text-ink-700">
+                <span className="font-semibold text-red-600">Paiement en échec</span> · mets à jour
+                ta carte pour conserver ton accès.
+              </p>
+            )}
+            {isCanceled && (
+              <p className="text-sm text-ink-700">
+                <span className="font-semibold text-ink-500">Annulé</span> · ton abonnement a pris
+                fin.
+              </p>
+            )}
+          </div>
+
+          {/* CTAs */}
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            {sub?.stripe_customer_id ? (
+              <>
+                <PortalForm label="Gérer mon abonnement" variant="primary" />
+                {(isTrial || isActive || isCancelScheduled) && (
+                  <PortalForm label="Changer de plan" variant="ghost" />
+                )}
+              </>
+            ) : (
+              <Link
+                href="/tarifs"
+                className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+              >
+                Voir les formules
+              </Link>
+            )}
+          </div>
+
+          {/* Historique factures */}
+          {invoices.length > 0 && (
+            <div className="mt-8 border-t border-ink-100 pt-5">
+              <p className="text-sm font-semibold text-navy-900 mb-3">Dernières factures</p>
+              <ul className="flex flex-col gap-2">
+                {invoices.map((inv) => (
+                  <li key={inv.id} className="flex items-center justify-between text-sm">
+                    <span className="text-ink-700">{formatDate(inv.date)}</span>
+                    <span className="text-ink-700">{inv.amount}</span>
+                    {inv.url ? (
+                      <a
+                        href={inv.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-teal-700 underline"
+                      >
+                        Voir
+                      </a>
+                    ) : (
+                      <span className="text-ink-300">—</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </main>
+  );
+}

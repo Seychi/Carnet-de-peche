@@ -36,3 +36,30 @@ export function priceIdToPlan(priceId: string): PaidPlan | null {
 export function planToPriceId(plan: PaidPlan, interval: PlanInterval): string {
   return STRIPE_PRICES[plan][interval];
 }
+
+/** Déduit l'intervalle (mensuel/annuel) d'un price_id, ou null si inconnu. */
+export function priceIdToInterval(priceId: string): PlanInterval | null {
+  const plan = priceIdToPlan(priceId);
+  if (!plan) return null;
+  if (STRIPE_PRICES[plan].monthly === priceId) return "monthly";
+  if (STRIPE_PRICES[plan].annual === priceId) return "annual";
+  return null;
+}
+
+// Libellés d'affichage (montants TTC, cf décisions bloc 0). Utilisés par la page
+// /compte/abonnement — ce ne sont pas les sources de vérité de facturation (Stripe l'est).
+export const PLAN_LABELS: Record<PaidPlan, string> = {
+  local: "Local",
+  itinerant: "Itinérant",
+};
+
+export const PLAN_PRICING: Record<PaidPlan, Record<PlanInterval, { amount: string; period: string }>> = {
+  local: {
+    monthly: { amount: "4,90 €", period: "/ mois" },
+    annual: { amount: "49 €", period: "/ an" },
+  },
+  itinerant: {
+    monthly: { amount: "9,90 €", period: "/ mois" },
+    annual: { amount: "99 €", period: "/ an" },
+  },
+};

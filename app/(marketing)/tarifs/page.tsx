@@ -1,6 +1,11 @@
 import type { Metadata } from 'next'
 import { PricingCards } from './pricing-cards'
+import { getUserTier } from '@/lib/auth/tier'
+import { getIsEligibleForPaidTier } from '@/lib/auth/eligibility'
 import { Shield, Lock, Clock, MessageCircle } from 'lucide-react'
+
+// CTAs dépendants de l'état utilisateur (tier + éligibilité géo) → rendu dynamique.
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Tarifs — Carnet de Pêche',
@@ -57,7 +62,9 @@ const faqItems = [
   },
 ]
 
-export default function TarifsPage() {
+export default async function TarifsPage() {
+  const [tier, eligible] = await Promise.all([getUserTier(), getIsEligibleForPaidTier()])
+
   return (
     <main>
       {/* Hero */}
@@ -76,7 +83,7 @@ export default function TarifsPage() {
 
         {/* Cards + toggle (client) */}
         <div className="max-w-[1280px] mx-auto px-6 pb-20">
-          <PricingCards />
+          <PricingCards tier={tier} eligible={eligible} />
         </div>
       </section>
 
