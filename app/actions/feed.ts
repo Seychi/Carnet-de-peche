@@ -298,3 +298,76 @@ export async function reportPost(
 
   return ok(undefined)
 }
+
+// ---------------------------------------------------------------------------
+// getComments — lecture paginée des commentaires d'un post (avec auteur).
+// Deux étapes : feed_comments référence auth.users, pas profiles → pas d'embed.
+// ---------------------------------------------------------------------------
+export type FeedComment = {
+  id: string
+  text: string
+  created_at: string
+  author_id: string
+  author_username: string | null
+  author_display_name: string | null
+  author_avatar_url: string | null
+}
+
+export async function getComments(
+  postId: string,
+  offset = 0,
+  limit = 10,
+): Promise<ActionResult<FeedComment[]>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+  if (!z.string().uuid().safeParse(postId).success) return fail('Post invalide.')
+
+  const { data: rows, error } = await supabase
+    .from('feed_comments')
+    .select('id, text, created_at, author_id')
+    .eq('post_id', postId)
+    .order('created_at', { ascending: true })
+    .range(offset, offset + limit - 1)
+
+  if (error) {
+    console.error('[getComments]', error.message)
+    return fail('Impossible de charger les commentaires.')
+  }
+
+  const comments = (rows ?? []) as {
+    id: string
+    text: string
+    created_at: string
+    author_id: string
+  }[]
+  if (comments.length === 0) return ok([])
+
+  const authorIds = [...new Set(comments.map((c) => c.author_id))]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, username, display_name, avatar_url')
+    .in('id', authorIds)
+
+  const byId = new Map(
+    (profiles ?? []).map((p: { id: string } & Record<string, unknown>) => [p.id, p]),
+  )
+
+  const result: FeedComment[] = comments.map((c) => {
+    const a = byId.get(c.author_id) as
+      | { username: string | null; display_name: string | null; avatar_url: string | null }
+      | undefined
+    return {
+      id: c.id,
+      text: c.text,
+      created_at: c.created_at,
+      author_id: c.author_id,
+      author_username: a?.username ?? null,
+      author_display_name: a?.display_name ?? null,
+      author_avatar_url: a?.avatar_url ?? null,
+    }
+  })
+  return ok(result)
+}

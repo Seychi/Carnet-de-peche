@@ -5,7 +5,15 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 
 import { createClient } from '@/lib/supabase/server'
-import { createPost, toggleLike, addComment, deletePost, deleteComment, reportPost } from '../feed'
+import {
+  createPost,
+  toggleLike,
+  addComment,
+  deletePost,
+  deleteComment,
+  reportPost,
+  getComments,
+} from '../feed'
 
 const USER = { id: 'aaaaaaaa-0000-4000-8000-000000000001' }
 const POST = 'bbbbbbbb-0000-4000-8000-000000000001'
@@ -229,5 +237,35 @@ describe('reportPost', () => {
     expect(r.ok).toBe(true)
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+})
+
+describe('getComments', () => {
+  it('refuse un anonyme', async () => {
+    mock({ user: null })
+    expect((await getComments(POST)).ok).toBe(false)
+  })
+
+  it('renvoie [] si aucun commentaire', async () => {
+    mock({ user: USER, tables: { feed_comments: { data: [] } } })
+    expect(await getComments(POST)).toEqual({ ok: true, data: [] })
+  })
+
+  it('joint l’auteur à chaque commentaire', async () => {
+    mock({
+      user: USER,
+      tables: {
+        feed_comments: {
+          data: [{ id: 'cm1', text: 'Top', created_at: '2026-05-21T10:00:00Z', author_id: 'u9' }],
+        },
+        profiles: { data: [{ id: 'u9', username: 'bob', display_name: 'Bob', avatar_url: null }] },
+      },
+    })
+    const r = await getComments(POST)
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.data[0]?.author_username).toBe('bob')
+      expect(r.data[0]?.text).toBe('Top')
+    }
   })
 })
