@@ -23,7 +23,10 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 const BATCH_SIZE = 10
-const VALIDITY_MS = 3_600_000 // 1h
+// Le cron tourne 1×/jour (plan Hobby Vercel) : la validité doit couvrir tout
+// l'intervalle entre deux runs + une marge, sinon les markers carte redeviennent
+// gris quelques heures après le calcul. 26h = 24h + marge.
+const VALIDITY_MS = 93_600_000 // 26h
 
 // ─── Job principal ──────────────────────────────────────────────────────────
 // Pré-calcule le score de qualité de chaque spot public et l'upsert dans
