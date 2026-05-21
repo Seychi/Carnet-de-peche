@@ -2,8 +2,6 @@
 
 import { CalendarX } from 'lucide-react'
 import type { DailyForecast, FishingWindow, QualityLevel } from '@/lib/solunar/types'
-import type { PersonalInsight } from '@/lib/scoring/types'
-import { findRelevantInsight } from '@/lib/scoring/insights-matcher'
 import { BestMomentCard } from './BestMomentCard'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -64,10 +62,9 @@ function extractMoonTimes(daily: DailyForecast): { rise?: string; set?: string }
 type DayBestMomentsProps = {
   daily: DailyForecast
   showMoonInfo?: boolean
-  insights?: PersonalInsight[]
 }
 
-export function DayBestMoments({ daily, showMoonInfo = true, insights }: DayBestMomentsProps) {
+export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsProps) {
   const dayLabel = formatDayHeader(daily.date)
   const moonEmoji = PHASE_EMOJI[daily.moonPhaseLabel] ?? '🌙'
   const moonTimes = showMoonInfo ? extractMoonTimes(daily) : {}
@@ -121,7 +118,6 @@ export function DayBestMoments({ daily, showMoonInfo = true, insights }: DayBest
               <BestMomentCard
                 window={w}
                 isCurrent={isWindowCurrent(w)}
-                relevantInsight={insights ? (findRelevantInsight(w, insights) ?? undefined) : undefined}
               />
             </li>
           ))}

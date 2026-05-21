@@ -112,14 +112,11 @@ export default async function ScoringPreviewPage() {
   const LNG = -4.73
   const conditions = Array.from({ length: 7 }, () => MOCK_CONDITIONS)
 
-  // Deux forecasts : avec multiplicateur perso (⚡ + chips) et sans (baseline sprint 6)
-  const [weeklyPerso, weeklyBase] = await Promise.all([
-    computeWeeklyForecast(today, LAT, LNG, conditions, RICH_MULTIPLIER),
-    computeWeeklyForecast(today, LAT, LNG, conditions),
-  ])
+  // Scoring perso neutralisé (B1 sprint 7.5) : un seul forecast générique.
+  const weekly = await computeWeeklyForecast(today, LAT, LNG, conditions)
 
   const weatherCodes: Record<string, number> = {}
-  weeklyPerso.forEach((d, i) => {
+  weekly.forEach((d, i) => {
     weatherCodes[d.date] = WMO_BY_DAY[i] ?? 1
   })
 
@@ -136,7 +133,7 @@ export default async function ScoringPreviewPage() {
             Scoring personnalisé — Preview
           </h1>
           <p className="text-[13px] text-ink-500 mt-1">
-            Tous les états de PersonalScoreSection + le rendu ⚡/InsightChip sur fiche spot.
+            Tous les états de PersonalScoreSection (mode descriptif) + le rendu fiche spot.
             Réduis la fenêtre (&lt; 768px) pour vérifier le rendu mobile.
           </p>
         </header>
@@ -156,20 +153,10 @@ export default async function ScoringPreviewPage() {
           <PersonalScoreSection profile={profileRich} />
         </PreviewBlock>
 
-        {/* ── État 4 : fiche spot personnalisée (⚡ + chips) ───────────── */}
-        <PreviewBlock title="SpotBestMomentsSection — multiplicateur actif (⚡ + InsightChip)">
+        {/* ── Fiche spot : scoring générique (perso neutralisé en B1) ──── */}
+        <PreviewBlock title="SpotBestMomentsSection — fiche spot (scoring générique)">
           <SpotBestMomentsSection
-            weekly={weeklyPerso}
-            spotName="Pointe du Raz"
-            weatherCodes={weatherCodes}
-            insights={profileRich.insights}
-          />
-        </PreviewBlock>
-
-        {/* ── État 5 : baseline sprint 6 (non perso) ──────────────────── */}
-        <PreviewBlock title="SpotBestMomentsSection — baseline (non connecté / 0 prise)">
-          <SpotBestMomentsSection
-            weekly={weeklyBase}
+            weekly={weekly}
             spotName="Pointe du Raz"
             weatherCodes={weatherCodes}
           />

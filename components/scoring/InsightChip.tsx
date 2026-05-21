@@ -1,3 +1,6 @@
+// @deprecated Neutralisé en B1 (sprint 7.5). Plus rendu nulle part : le scoring perso
+// des fiches spots reposait sur un multiplicateur non démontrable (cf RECAP sprint 7).
+// Conservé pour le futur scoring « vraie performance » basé sur les sorties loguées.
 import { Wind, Waves, Clock, Leaf } from 'lucide-react'
 import type { PersonalInsight } from '@/lib/scoring/types'
 

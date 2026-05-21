@@ -1,3 +1,6 @@
+// @deprecated Neutralisé en B1 (sprint 7.5). Plus appelé : servait à rapprocher un insight
+// perso d'une fenêtre solunar pour l'InsightChip, désormais retiré des fiches spots.
+// Conservé pour le futur scoring « vraie performance » basé sur les sorties loguées.
 import type { FishingWindow } from '@/lib/solunar/types'
 import type { PersonalInsight } from './types'
 
