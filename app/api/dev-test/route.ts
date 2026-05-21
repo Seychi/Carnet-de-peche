@@ -6,6 +6,11 @@ import { catchFiltersSchema } from '@/lib/catches/schema'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  // Endpoint de debug — inaccessible hors dev
+  if (process.env.NODE_ENV !== 'development') {
+    return new NextResponse(null, { status: 404 })
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
