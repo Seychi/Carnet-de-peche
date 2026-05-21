@@ -241,7 +241,7 @@ export default function HomePage() {
                   <ArrowRight size={16} />
                 </Link>
                 <Link
-                  href="#"
+                  href="/carte"
                   className="flex items-center justify-center gap-2 rounded-full font-semibold text-[15px] text-navy-900 border-[1.5px] border-ink-200 w-full sm:w-auto px-6 min-h-[52px]"
                 >
                   <Play size={15} />
@@ -339,7 +339,7 @@ export default function HomePage() {
                 ].map((item) => <CheckItem key={item.title} {...item} />)}
               </ul>
               <Link
-                href="#"
+                href="/auth/register"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold text-[15px] text-white bg-navy-900 min-h-[48px]"
               >
                 Voir un carnet exemple →
@@ -381,7 +381,7 @@ export default function HomePage() {
                 </div>
               </div>
               <Link
-                href="#"
+                href="/carte"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold text-[15px] text-white bg-navy-900 min-h-[48px]"
               >
                 Tester la carte →
@@ -491,7 +491,7 @@ export default function HomePage() {
                 Démarrer gratuitement
               </Link>
               <Link
-                href="#"
+                href="/carte"
                 className="flex items-center justify-center gap-2 rounded-full font-semibold text-[15px] sm:text-[16px] text-white min-h-[52px] px-7 border-[1.5px]"
                 style={{ background: "rgba(255,255,255,.1)", borderColor: "rgba(255,255,255,.2)" }}
               >

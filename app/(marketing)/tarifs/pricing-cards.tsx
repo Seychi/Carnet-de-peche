@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { toast } from 'sonner'
 import { Check } from 'lucide-react'
 
 const plans = {
@@ -63,12 +62,6 @@ function formatPrice(price: number) {
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(false)
-
-  function handleTrialClick() {
-    toast.info("Disponible bientôt — rejoins la liste d'attente !", {
-      description: 'Les paiements Stripe arrivent lors du sprint 4.',
-    })
-  }
 
   return (
     <>
@@ -169,12 +162,12 @@ export function PricingCards() {
             </ul>
           </div>
           <div className="mt-auto">
-            <button
-              onClick={handleTrialClick}
+            <Link
+              href="/auth/register?plan=local"
               className="block w-full text-center px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
             >
               Essayer 7 jours
-            </button>
+            </Link>
             <p className="text-center text-xs text-white/40 mt-3">
               CB requise · annulation 1 clic
             </p>
@@ -214,12 +207,12 @@ export function PricingCards() {
             </ul>
           </div>
           <div className="mt-auto">
-            <button
-              onClick={handleTrialClick}
+            <Link
+              href="/auth/register?plan=itinerant"
               className="block w-full text-center px-6 py-3 rounded-[12px] bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-sm transition-colors duration-200"
             >
               Essayer 7 jours
-            </button>
+            </Link>
             <p className="text-center text-xs text-white/40 mt-3">
               CB requise · annulation 1 clic
             </p>
