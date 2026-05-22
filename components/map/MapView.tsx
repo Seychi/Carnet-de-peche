@@ -111,21 +111,10 @@ function addSpotsToMap(
   markerElemsOut?: Map<string, HTMLElement>,
 ): Marker[] {
   const markers: Marker[] = []
-  const preciseSpots = spots.filter((s) => s.isPrecise)
   const fuzzySpots = spots.filter((s) => !s.isPrecise)
 
-  // Marqueurs HTML custom pour les spots à coordonnées précises (abonnés)
-  for (const spot of preciseSpots) {
-    const el = createPinElement(spot)
-    markerElemsOut?.set(spot.id, el)
-    const marker = new maplibre.Marker({ element: el, anchor: 'bottom' })
-      .setLngLat([spot.lng, spot.lat])
-      .addTo(map)
-    el.addEventListener('click', () => onMarkerClick?.(spot))
-    markers.push(marker)
-  }
-
-  // Disques floutés (1 km) pour les spots sans abonnement
+  // Disques floutés (1 km) rendus SOUS les pins pour les spots sans abonnement —
+  // ils matérialisent la zone approximative (coordonnées non précises en Discovery).
   if (fuzzySpots.length > 0) {
     const features = fuzzySpots.map((s) => createFuzzyCircle(s, 1))
     map.addSource(FUZZY_SOURCE, {
@@ -151,6 +140,20 @@ function addSpotsToMap(
       const spot = fuzzySpots.find((s) => s.id === spotId)
       if (spot) onMarkerClick?.(spot)
     })
+  }
+
+  // Pins HTML pour TOUS les spots (précis ET floutés). En Discovery les spots
+  // n'étaient rendus que comme disques pâles (opacity 0.2) → quasi invisibles au
+  // zoom France. Le pin est posé sur le centre du disque (geom_public) : il rend le
+  // spot visible et cliquable sans rien révéler de plus que le disque lui-même.
+  for (const spot of spots) {
+    const el = createPinElement(spot)
+    markerElemsOut?.set(spot.id, el)
+    const marker = new maplibre.Marker({ element: el, anchor: 'bottom' })
+      .setLngLat([spot.lng, spot.lat])
+      .addTo(map)
+    el.addEventListener('click', () => onMarkerClick?.(spot))
+    markers.push(marker)
   }
 
   return markers
@@ -347,6 +350,10 @@ export default function MapView({
 
       map.on('load', () => {
         if (!mounted) return
+        // Le conteneur flex peut mesurer 0 px à l'instant de `new Map()` (init async,
+        // layout pas encore résolu) → canvas uniforme tant qu'on n'interagit pas. Un
+        // resize explicite au 'load' force MapLibre à relire les dimensions réelles.
+        map.resize()
         setLoaded(true)
         onMapReady?.(map)
 
