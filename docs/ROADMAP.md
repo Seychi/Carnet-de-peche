@@ -1,7 +1,7 @@
 # 🗺️ Roadmap Carnet de Pêche
 
 > **Document vivant.** À tenir à jour à chaque fin de sprint.
-> **Dernière mise à jour** : 2026-05-20 (post-sprint 7 mergé + audit complet — sprint 7.5 converti en obligatoire).
+> **Dernière mise à jour** : 2026-05-22 (sprint 9.5 cleanup code-complet — pré-merge `sprint-9.5-cleanup` → `main`).
 > **Auteur** : Claude (web) + Claude Code, validé par John.
 
 ---
@@ -305,6 +305,24 @@ app/(app)/compte/abonnement/cancel/page.tsx
 |---|---|---|
 | `stripe` | latest stable | SDK Node officiel |
 | `@stripe/stripe-js` | latest stable | Client redirectToCheckout |
+
+---
+
+## ✅ Sprint 9.5 — Cleanup pré-merge (1 jour, 2026-05-22)
+
+> Nettoyage des bloquants UX/SEO relevés par l'audit `docs/sprint 9.5/AUDIT-2026-05-21-post-sprint-9.md`, avant `sprint-9.5-cleanup` → `main`. **Build OK, 215 tests verts.** Détail : `docs/sprint 9.5/RECAP.md`.
+> ℹ️ État git réel : le code des sprints 8 et 9 est déjà sur `main` → pas de merge `sprint-9` à faire, seulement `sprint-9.5-cleanup`.
+
+**Fait** (tous les P0 + les 5 P1 retenus) :
+- **T0.1** metas SEO : « in body » = fausse alerte (extension navigateur, SSR brut propre) ; ajout d'un og:image de marque par défaut (`app/opengraph-image.tsx`).
+- **T0.2** stub publique `/fil` (teaser + CTA, redirige les connectés) → fin du soft-404 sitemap ; `/fil/[dept]` reste protégé.
+- **T0.3** markers carte visibles en Discovery (pin coloré sur tous les spots, floutés inclus, + disque 1 km).
+- **T0.4** `map.resize()` au `load` → carte plus noire au mount.
+- **T1.2 / T1.3** titres `<title>` spécialisés `/auth/*` + 404 ; 404 avec Header/Footer.
+- **T1.4** marées sur **tous** les spots via `sea_level_height_msl` (Open-Meteo Marine) — cf backlog mis à jour.
+- **T1.5** mockups home marqués « Exemple ». **T1.6** tab `/auth/login` synchronisé avec l'URL.
+
+**Retirés (décision John 2026-05-21)** : T0.5 médiateur conso (risque L612-1 assumé, promesse retirée de la CGU) ; T1.1 durée guide bar (→ naturellement au sprint 10).
 
 ---
 
@@ -893,8 +911,8 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | **Domiciliation commerciale (pages légales)** | Sprint 7.5 (E1) | Post-sprint 8 | Remplacer l'adresse perso (627 Chemin des Impiniers, Vallauris) par une domiciliation (SeDomicilier/Kandbaz ~15 €/mois) dans les 3 pages légales |
 | Désigner un médiateur de la consommation (CGU art. 14) | Sprint 7.5 (E1) | Avant sprint 9 (Stripe) | Liste sur economie.gouv.fr, ~75 €/an (CMAP, AME Conso…) |
 | Markers carte colorisés par qualité | Sprint 6 | Sprint 7.5 ou post-beta | Edge Function cron + table `spot_scores` |
-| Marée précise WorldTides / SHOM | Sprint 6 | Sprint 7.5 ou post-beta | Open-Meteo Marine ne fournit pas la marée astronomique |
-| Coef de marée | Sprint 6 | Sprint 7.5 ou post-beta | Lié à WorldTides |
+| Marée précise WorldTides / SHOM | Sprint 6 | Optionnel (précision) | ✅ Marée gratuite branchée en **sprint 9.5** via Open-Meteo `sea_level_height_msl` (relatif MSL, horaire). WorldTides/SHOM ne sert plus qu'à gagner en précision (datum SHOM, résolution infra-horaire) — n'est plus bloquant. |
+| Coef de marée | Sprint 6 | Post-beta | Non exposé par Open-Meteo ; à dériver (amplitude PM−BM) ou via WorldTides |
 | Sync TideChart ↔ WeeklyCalendar | Sprint 6 | Backlog | Faible valeur en v1 |
 | Affinement pondération solunar 40/35/25 | Sprint 6 | Post-beta | Calibrer sur vraies prises |
 | Tests E2E Playwright | Sprint 4 | Sprint 11 | Setup en sprint 11 |

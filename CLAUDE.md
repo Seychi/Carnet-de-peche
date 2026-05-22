@@ -28,7 +28,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-05-21, sprint 9 code-complet — branche `sprint-9`)
+## 2. État actuel du projet (à jour 2026-05-22, sprint 9.5 cleanup code-complet — branche `sprint-9.5-cleanup`)
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -62,6 +62,21 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 Stripe Checkout + Customer Portal + webhooks idempotents + essai 7j avec CB + Stripe Tax FR + gating réel des tiers via RPC `current_tier` (remplace les inserts manuels / seed dev). Migration 021 appliquée en prod. **215 tests verts, build OK.** Flow Checkout validé en mode test le 2026-05-21.
 - **Reste avant merge** (manuel John) : QA `docs/sprint-9/qa-checklist.md` + captures écran, vars **LIVE** dans Vercel + endpoint webhook prod, arbitrer 2 comptes seed payés sans Stripe (cf `supabase/README.md` § anti-traîne). Voir `docs/sprint-9/RECAP.md`.
 - **Finding API** : SDK Stripe 22.x / API `2026-04-22.dahlia` → `current_period_*` sur les SubscriptionItem, `Invoice` → `parent.subscription_details.subscription`.
+
+✅ **Sprint 9.5 — Cleanup pré-merge — CODE-COMPLET (branche `sprint-9.5-cleanup`, pas encore mergé/déployé)**
+> ℹ️ État git réel (vérifié) : le code des sprints 8 **et 9** est déjà sur `main` (commits `feat(sprint-9)` … `c79057d`). `sprint-9.5-cleanup` part de `main` → il n'y a PAS de merge `sprint-9` → `main` à faire, seulement `sprint-9.5-cleanup` → `main`.
+
+Nettoyage des bloquants UX/SEO de l'audit `docs/sprint 9.5/AUDIT-2026-05-21-post-sprint-9.md`. **Build OK + 215 tests verts.**
+- **T0.1** — « metas in body » = **fausse alerte** (extension navigateur ; SSR brut propre, vérifié). Ajout d'un **og:image de marque** par défaut (`app/opengraph-image.tsx`) car la home/pages marketing n'en avaient aucun → previews sociales muettes.
+- **T0.2** — `/fil` : **stub publique** (`app/(marketing)/fil/page.tsx`, teaser + CTA ; redirige les connectés vers leur fil dépt). Sort du soft-404 sitemap. `/fil/[dept]` reste protégé dans `(app)`.
+- **T0.3** — markers carte visibles en **Discovery** : un pin coloré (cliquable) est posé sur **tous** les spots, y compris floutés (centre `geom_public`), en plus du disque 1 km.
+- **T0.4** — carte plus noire au mount : `map.resize()` ajouté au handler `load` de `MapView`.
+- **T1.2 / T1.3** — titres `<title>` spécialisés (`/auth/*` via layout server car pages client, 404) + 404 avec Header/Footer.
+- **T1.4** — **marées disponibles sur TOUS les spots** : Open-Meteo Marine expose bien `sea_level_height_msl` (commentaire « absent » obsolète). Courbe + PM/BM approximés à l'heure. Réduit le besoin WorldTides.
+- **T1.5** — mockups home (carnet, année, communauté) marqués « Exemple ».
+- **T1.6** — tab `/auth/login` synchronisé avec l'URL (`history.replaceState`).
+- **Retirés (décision John 2026-05-21)** : T0.5 médiateur conso (promesse retirée de la CGU, risque L612-1 assumé) + T1.1 durée guide bar.
+- **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint 9.5/RECAP.md`.
 
 🔜 **SUITE — Sprint 10 : Guides éditoriaux** (MDX + 20 guides + SEO programmatique).
 
