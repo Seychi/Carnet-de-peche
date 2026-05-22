@@ -21,7 +21,7 @@ const toc = [
   { id: 'force-majeure', label: 'Article 11 — Force majeure' },
   { id: 'modification', label: 'Article 12 — Modification' },
   { id: 'resiliation', label: 'Article 13 — Résiliation' },
-  { id: 'mediation', label: 'Article 14 — Médiation' },
+  { id: 'mediation', label: 'Article 14 — Règlement des litiges' },
   { id: 'droit', label: 'Article 15 — Droit applicable' },
   { id: 'acceptation', label: 'Article 16 — Acceptation' },
 ]
@@ -295,15 +295,16 @@ export default function CGUPage() {
         faute, les sommes versées ne sont pas remboursées.
       </p>
 
-      <h2 id="mediation">Article 14 — Médiation et droit de la consommation</h2>
+      <h2 id="mediation">Article 14 — Règlement des litiges</h2>
       <p>
-        Conformément à l’article L612-1 du Code de la consommation, en cas de litige et après une
-        réclamation préalable infructueuse auprès de l’éditeur (contact@carnet-de-peche.com), tu peux
-        saisir gratuitement un médiateur de la consommation. Le médiateur compétent sera désigné par
-        l’éditeur au plus tard lors de l’activation des abonnements payants, et mentionné ici.
+        En cas de litige, contacte d’abord l’éditeur par email à{' '}
+        <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>. On répond sous 48 h
+        ouvrées et on cherche une solution amiable au cas par cas.
       </p>
       <p>
-        Tu peux également utiliser la plateforme européenne de Règlement en Ligne des Litiges (RLL) :{' '}
+        En tant que consommateur résidant dans l’Union européenne, tu peux également utiliser la
+        plateforme européenne de Règlement en Ligne des Litiges (RLL) mise à disposition par la
+        Commission :{' '}
         <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
       </p>
 
