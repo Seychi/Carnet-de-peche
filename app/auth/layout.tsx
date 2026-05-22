@@ -1,4 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+// /auth/login et /auth/reset-password sont des client components → leur <title>
+// doit être défini ici (server). `default` couvre /auth/login (pas de title propre).
+export const metadata: Metadata = {
+  title: {
+    template: "%s · Carnet de Pêche",
+    default: "Connexion · Carnet de Pêche",
+  },
+};
 
 function BrandMark({ size = 34 }: { size?: number }) {
   return (
