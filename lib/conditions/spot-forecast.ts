@@ -118,7 +118,9 @@ async function writeCache(key: string, payload: SpotConditions): Promise<void> {
 type MarineResponse = {
   hourly: {
     time: string[]
-    // sea_level_height_msl absent de l'API Open-Meteo Marine (données de marée non disponibles)
+    // sea_level_height_msl = hauteur du niveau de la mer relative au MSL → composante
+    // marée (résolution horaire, modèle global gratuit). Suffit pour la courbe + PM/BM.
+    sea_level_height_msl: (number | null)[]
     wave_height: (number | null)[]
     wave_direction: (number | null)[]
     wave_period: (number | null)[]
@@ -155,7 +157,7 @@ async function fetchMarineData(lat: number, lng: number, dateStr: string): Promi
   const url =
     `https://marine-api.open-meteo.com/v1/marine` +
     `?latitude=${lat}&longitude=${lng}` +
-    `&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
+    `&hourly=sea_level_height_msl,wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
     `&timezone=Europe%2FParis&start_date=${dateStr}&end_date=${dateStr}`
   try {
     const res = await fetch(url, { next: { revalidate: 0 } })
@@ -203,12 +205,18 @@ export async function fetchSpotConditions(
   ])
 
   // ── Marées ──────────────────────────────────────────────────────────────────
-  // Open-Meteo Marine n'expose pas de données de marée astronomique.
-  // La section TideChart affichera "Données non disponibles".
-  // Sera remplacé en Sprint 6 par WorldTides ou calcul solunar.
+  // sea_level_height_msl (Open-Meteo Marine) = niveau de la mer relatif au MSL,
+  // indexé par heure locale (0–23). On en tire la courbe + les PM/BM (extrema).
   const tidePoints: TidePoint[] = []
-  const tideExtrema: TideExtremum[] = []
-  const currentTide: number | null = null
+  const tideLevels = marine?.sea_level_height_msl
+  if (tideLevels) {
+    for (let h = 0; h < tideLevels.length && h < 24; h++) {
+      const v = tideLevels[h]
+      if (typeof v === 'number') tidePoints.push({ hour: h, height_m: v })
+    }
+  }
+  const tideExtrema = computeExtrema(tidePoints)
+  const currentTide = tidePoints.find((p) => p.hour === currentHourIdx)?.height_m ?? null
 
   // ── Vagues / houle ──────────────────────────────────────────────────────────
   const waveIdx = currentHourIdx
@@ -267,7 +275,7 @@ async function fetchMarineDataWeek(
   const url =
     `https://marine-api.open-meteo.com/v1/marine` +
     `?latitude=${lat}&longitude=${lng}` +
-    `&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
+    `&hourly=sea_level_height_msl,wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
     `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`
   try {
     const res = await fetch(url, { next: { revalidate: 0 } })
@@ -367,11 +375,22 @@ function buildDayConditions(
     sunset:                    forecast.daily.sunset?.[dayIdx] ?? null,
   }
 
+  // Marées du jour depuis sea_level_height_msl, aux heures de cette date.
+  const tidePoints: TidePoint[] = []
+  if (marine?.sea_level_height_msl) {
+    hourIndices.forEach((globalIdx, localHour) => {
+      const v = marine.sea_level_height_msl[globalIdx]
+      if (typeof v === 'number') tidePoints.push({ hour: localHour, height_m: v })
+    })
+  }
+  const tideCurrent = isToday
+    ? tidePoints.find((p) => p.hour === currentHourIdx)?.height_m ?? null
+    : null
+
   return {
     fetched_at: new Date().toISOString(),
     date: dateStr,
-    // Marées : non disponibles via Open-Meteo Marine (vides jusqu'à intégration WorldTides)
-    tide: { points: [], extrema: [], current_height_m: null },
+    tide: { points: tidePoints, extrema: computeExtrema(tidePoints), current_height_m: tideCurrent },
     weather,
     waves,
     swell,
