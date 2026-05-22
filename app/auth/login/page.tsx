@@ -287,6 +287,15 @@ export default function LoginPage() {
     if (params.get("error") === "oauth") setOauthError(true);
   }, []);
 
+  // Sélectionne un tab ET garde l'URL en phase (sans recharger la page) : on évite
+  // que /auth/login?tab=register reste affiché alors que le tab "Connexion" est actif.
+  function selectTab(t: Tab) {
+    setTab(t);
+    setShowReset(false);
+    const url = t === "signup" ? "/auth/login?tab=register" : "/auth/login";
+    window.history.replaceState(null, "", url);
+  }
+
   if (sent) {
     return (
       <SentScreen
@@ -320,10 +329,7 @@ export default function LoginPage() {
             <button
               key={t}
               type="button"
-              onClick={() => {
-                setTab(t);
-                setShowReset(false);
-              }}
+              onClick={() => selectTab(t)}
               className={`flex-1 py-2 rounded-[9px] text-[14px] font-semibold transition-colors ${
                 tab === t
                   ? "bg-white text-navy-900 shadow-sm"
@@ -637,7 +643,7 @@ export default function LoginPage() {
           <>
             Pas encore de compte ?{" "}
             <button
-              onClick={() => setTab("signup")}
+              onClick={() => selectTab("signup")}
               className="text-teal-600 font-semibold hover:underline"
             >
               Crée le tien
@@ -647,7 +653,7 @@ export default function LoginPage() {
           <>
             Déjà un compte ?{" "}
             <button
-              onClick={() => setTab("signin")}
+              onClick={() => selectTab("signin")}
               className="text-teal-600 font-semibold hover:underline"
             >
               Connecte-toi

@@ -38,6 +38,13 @@ function AppMock() {
         boxShadow: "0 40px 80px rgba(6,21,33,.3), 0 0 0 1px rgba(255,255,255,.06) inset",
       }}
     >
+      {/* Repère honnêteté : ces chiffres sont une démo, pas un carnet réel */}
+      <span
+        className="absolute -top-2 -right-2 z-20 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-ink-700"
+        style={{ boxShadow: "0 2px 8px rgba(6,21,33,.25)" }}
+      >
+        Exemple
+      </span>
       <div
         className="w-full h-full overflow-hidden relative"
         style={{ borderRadius: 28, background: "linear-gradient(180deg, #1a2935 0%, #0d1820 100%)" }}
@@ -103,6 +110,10 @@ function VisualCarnet() {
       background: "radial-gradient(at 30% 70%, rgba(245,158,11,.3), transparent 50%), linear-gradient(135deg, #0a3a4d, #061d28)",
       boxShadow: "0 24px 60px rgba(10,47,61,.14)",
     }}>
+      <span className="absolute top-3 right-3 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+        style={{ background: "rgba(255,255,255,.14)", color: "rgba(255,255,255,.75)", border: "1px solid rgba(255,255,255,.2)" }}>
+        Exemple
+      </span>
       <svg viewBox="0 0 400 300" style={{ position: "absolute", inset: 0, padding: 28, width: "100%", height: "100%" }}>
         <g opacity="0.15" stroke="white" strokeWidth="0.5">
           <line x1="0" y1="60" x2="400" y2="60"/><line x1="0" y1="120" x2="400" y2="120"/>
@@ -163,6 +174,10 @@ function VisualCommunaute() {
       background: "radial-gradient(at 30% 70%, rgba(245,158,11,.3), transparent 50%), linear-gradient(135deg, #0a3a4d, #061d28)",
       boxShadow: "0 24px 60px rgba(10,47,61,.14)",
     }}>
+      <span className="absolute top-3 right-3 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+        style={{ background: "rgba(255,255,255,.14)", color: "rgba(255,255,255,.75)", border: "1px solid rgba(255,255,255,.2)" }}>
+        Exemple
+      </span>
       <svg viewBox="0 0 400 300" style={{ position: "absolute", inset: 0, padding: 28, width: "100%", height: "100%" }}>
         {[
           { y: 10, color: "#14B8A6", init: "YL", name: "Yann Le Bras", line1: "Bar · 67 cm · Pointe du Raz · 06 mai", line2: "★★★★★  Coef. 88 · Shad kaki", starColor: "#2DD4BF" },
