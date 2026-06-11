@@ -3,11 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
 
-// ── Charte ─────────────────────────────────────────────────────────────────────
-const NAVY  = '#0A2F3D'
-const NAVY2 = '#103E50'
-const TEAL  = '#14B8A6'
-const TEALX = '#2DD4BF'
+// ── Charte DA v2 « Instrument de précision marine » ────────────────────────────
+const NAVY950 = '#04141C'
+const NAVY700 = '#155A73'
+const TEAL = '#14B8A6'
+const TEAL300 = '#5EEAD4'
 const WHITE = '#FFFFFF'
 
 // ── Données ────────────────────────────────────────────────────────────────────
@@ -24,37 +24,18 @@ async function fetchSpotCount(): Promise<number> {
   return count ?? 0
 }
 
-// ── Nœuds décoratifs (points côtiers stylisés) ─────────────────────────────────
+// ── Isobathes décoratives (paths repris de docs/maquette-v2/index.html) ────────
 
-type Dot = { x: number; y: number; r: number; opacity: number }
-const DOTS: Dot[] = [
-  // Littoral atlantique (gauche)
-  { x: 180, y: 90,  r: 5,   opacity: 0.55 },
-  { x: 145, y: 145, r: 8,   opacity: 0.65 },
-  { x: 130, y: 220, r: 6,   opacity: 0.50 },
-  { x: 115, y: 295, r: 10,  opacity: 0.70 },
-  { x: 125, y: 375, r: 7,   opacity: 0.60 },
-  { x: 140, y: 450, r: 5,   opacity: 0.45 },
-  { x: 170, y: 510, r: 9,   opacity: 0.65 },
-  // Littoral Manche (haut)
-  { x: 310, y: 70,  r: 7,   opacity: 0.55 },
-  { x: 430, y: 55,  r: 5,   opacity: 0.45 },
-  { x: 560, y: 65,  r: 8,   opacity: 0.60 },
-  { x: 680, y: 80,  r: 6,   opacity: 0.50 },
-  { x: 790, y: 70,  r: 9,   opacity: 0.65 },
-  { x: 900, y: 90,  r: 5,   opacity: 0.40 },
-  // Littoral Méditerranée (bas-droite)
-  { x: 750, y: 490, r: 7,   opacity: 0.55 },
-  { x: 850, y: 510, r: 10,  opacity: 0.70 },
-  { x: 950, y: 490, r: 6,   opacity: 0.50 },
-  { x: 1040, y: 460, r: 8,  opacity: 0.65 },
-  { x: 1090, y: 410, r: 5,  opacity: 0.45 },
-  // Points intérieurs (trame légère)
-  { x: 400, y: 200, r: 4,   opacity: 0.20 },
-  { x: 580, y: 280, r: 4,   opacity: 0.18 },
-  { x: 700, y: 200, r: 3,   opacity: 0.15 },
-  { x: 500, y: 380, r: 4,   opacity: 0.20 },
-  { x: 650, y: 400, r: 3,   opacity: 0.15 },
+const ISOBATHS = [
+  { d: 'M-50 580 C 250 480, 480 640, 760 540 S 1240 460, 1460 560', opacity: 0.5 },
+  { d: 'M-50 500 C 230 400, 500 560, 780 460 S 1230 380, 1460 470', opacity: 0.4 },
+  { d: 'M-50 420 C 220 330, 520 480, 800 390 S 1230 300, 1460 390', opacity: 0.3 },
+]
+
+const DEPTHS = [
+  { label: '— 5 m', left: '1008px', top: '448px', opacity: 0.85 },
+  { label: '— 10 m', left: '1026px', top: '382px', opacity: 0.65 },
+  { label: '— 20 m', left: '1044px', top: '316px', opacity: 0.5 },
 ]
 
 // ── Route ──────────────────────────────────────────────────────────────────────
@@ -71,48 +52,57 @@ export async function GET() {
           flexDirection: 'column',
           width: '1200px',
           height: '630px',
-          background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY2} 100%)`,
+          background: NAVY950,
           padding: '64px 72px',
           fontFamily: 'sans-serif',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {/* Points décoratifs côtiers */}
-        <div style={{ display: 'flex', position: 'absolute', inset: 0 }}>
-          {DOTS.map((d, i) => (
-            <div
+        {/* Isobathes en fond (1400×700 → recadrées à 1260×630, centrées) */}
+        <svg
+          width="1260"
+          height="630"
+          viewBox="0 0 1400 700"
+          style={{ position: 'absolute', top: '0px', left: '-30px' }}
+        >
+          {ISOBATHS.map((p, i) => (
+            <path
               key={i}
-              style={{
-                position: 'absolute',
-                left: `${d.x}px`,
-                top: `${d.y}px`,
-                width: `${d.r * 2}px`,
-                height: `${d.r * 2}px`,
-                borderRadius: '50%',
-                background: TEAL,
-                opacity: d.opacity,
-              }}
+              d={p.d}
+              fill="none"
+              stroke={NAVY700}
+              strokeWidth={2}
+              opacity={p.opacity}
             />
           ))}
-        </div>
-
-        {/* Label catégorie */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-          <div
+        </svg>
+        {DEPTHS.map((d) => (
+          <span
+            key={d.label}
             style={{
-              width: '6px',
-              height: '44px',
-              background: TEAL,
-              borderRadius: '3px',
+              position: 'absolute',
+              left: d.left,
+              top: d.top,
+              fontSize: '13px',
+              letterSpacing: '0.08em',
+              color: NAVY700,
+              opacity: d.opacity,
             }}
-          />
+          >
+            {d.label}
+          </span>
+        ))}
+
+        {/* Kicker (tiret teal + étiquette espacée) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px' }}>
+          <div style={{ width: '40px', height: '2px', background: TEAL }} />
           <span
             style={{
               fontSize: '16px',
-              fontWeight: 700,
-              color: TEAL,
-              letterSpacing: '0.1em',
+              fontWeight: 600,
+              color: TEAL300,
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
             }}
           >
@@ -137,7 +127,7 @@ export async function GET() {
             style={{
               fontSize: '42px',
               fontWeight: 700,
-              color: TEALX,
+              color: TEAL300,
               lineHeight: 1.1,
               maxWidth: '420px',
             }}
@@ -184,14 +174,14 @@ export async function GET() {
                 background: TEAL,
               }}
             >
-              <span style={{ fontSize: '16px', fontWeight: 900, color: NAVY }}>CP</span>
+              <span style={{ fontSize: '16px', fontWeight: 900, color: NAVY950 }}>CP</span>
             </div>
             <span style={{ fontSize: '24px', fontWeight: 700, color: WHITE }}>
               Carnet de Pêche
             </span>
           </div>
 
-          <span style={{ fontSize: '16px', color: 'rgba(255,255,255,0.3)' }}>
+          <span style={{ fontSize: '16px', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.35)' }}>
             carnet-de-peche.com/spots
           </span>
         </div>

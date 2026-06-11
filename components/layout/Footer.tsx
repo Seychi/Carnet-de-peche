@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { TagData } from '@/components/ui-v2/tag-data'
 
 const InstagramIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -43,12 +45,13 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-ink-900 text-white/75">
-      <div className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+    <footer className="relative overflow-hidden bg-navy-950 text-white/60">
+      <Bathy density={1} opacity={0.3} />
+      <div className="relative max-w-[1280px] mx-auto px-6 pt-16 pb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
           {/* Colonne 1 — Logo + tagline */}
-          <div className="flex flex-col gap-4">
+          <div className="col-span-2 lg:col-span-1 flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
               <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true">
                 <rect width="30" height="30" rx="8" fill="var(--teal-500)" />
@@ -70,11 +73,14 @@ export function Footer() {
             <p className="text-sm leading-relaxed text-white/50 mt-2">
               Le réseau social des pêcheurs à la canne du bord en France.
             </p>
+            <TagData className="mt-2 text-white/35">
+              FR · Atlantique · Manche · Méditerranée
+            </TagData>
           </div>
 
           {/* Colonne 2 — Produit */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">
+            <h3 className="font-mono text-xs font-medium uppercase tracking-[0.1em] text-white/90">
               Produit
             </h3>
             <ul className="flex flex-col gap-3">
@@ -82,7 +88,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -93,7 +99,7 @@ export function Footer() {
 
           {/* Colonne 3 — Communauté */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">
+            <h3 className="font-mono text-xs font-medium uppercase tracking-[0.1em] text-white/90">
               Communauté
             </h3>
             <ul className="flex flex-col gap-3">
@@ -101,7 +107,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -112,7 +118,7 @@ export function Footer() {
 
           {/* Colonne 4 — Légal */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">
+            <h3 className="font-mono text-xs font-medium uppercase tracking-[0.1em] text-white/90">
               Légal
             </h3>
             <ul className="flex flex-col gap-3">
@@ -120,7 +126,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm transition-colors duration-150 hover:text-white"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -131,8 +137,8 @@ export function Footer() {
         </div>
 
         {/* Bandeau bas */}
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/50">
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[13px] text-white/50">
             © 2026 Carnet de Pêche · Tous droits réservés
           </p>
           <div className="flex items-center gap-5">
@@ -141,7 +147,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur Instagram"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
             >
               <InstagramIcon />
             </a>
@@ -150,7 +156,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur TikTok"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
             >
               <TikTokIcon />
             </a>
@@ -159,10 +165,13 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur YouTube"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-white"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
             >
               <YoutubeIcon />
             </a>
+            <TagData className="text-white/30" aria-hidden="true">
+              47.8709°N · 4.3741°O
+            </TagData>
           </div>
         </div>
       </div>
