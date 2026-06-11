@@ -32,6 +32,7 @@ L'état constaté le 2026-06-11 : branche `sprint-10` avec des dizaines de fichi
 |---|---|
 | Direction artistique (principes, tokens, composants) | `docs/maquette-v2/DA.md` |
 | **Référence produit (mobile-first)** | `docs/maquette-v2/mobile.html` — 5 écrans |
+| Onboarding (mobile-first) | `docs/maquette-v2/onboarding.html` — 6 étapes + écran final, validé 2026-06-11 |
 | Maquettes desktop | `docs/maquette-v2/*.html` (index, tarifs, espece, carnet, carte, spot, fil, profil) |
 | CSS de référence (à transposer, pas copier tel quel) | `docs/maquette-v2/assets/style.css` |
 
@@ -83,7 +84,7 @@ Le cœur mobile-first (référence : `mobile.html`) :
 
 **Critère** : navigation app au pouce complète en 390 px, FAB fonctionnel, aucune route cassée. Commit.
 
-## Phase 4 — Écrans app — ~1,5 j
+## Phase 4 — Écrans app — ~2 j
 
 Dans cet ordre (re-skin, données et actions inchangées) :
 
@@ -93,6 +94,7 @@ Dans cet ordre (re-skin, données et actions inchangées) :
 4. **Fil** (`/fil/[dept]`) : cards posts épurées, badge CARNET sur les posts-catch, bandeau données mono sur la photo, posts alerte à liseré coral, sidebar stats du dépt. Réf : `fil.html` + `mobile.html` 04.
 5. **Formulaire prise** (`/carnet/nouvelle`) : flow « 3 taps » — photo d'abord (GPS+conditions auto mis en avant), chips espèces, card live « conditions captées », chips visibilité. Réf : `mobile.html` 05. **Sans toucher à la logique de soumission existante.**
 6. **Profil** (`/profil`, `/u/[username]`) : hero navy, barre d'année, badges, stats mono. Réf : `profil.html`.
+7. **Onboarding** (`/onboarding/[step]`) : re-skin des 6 étapes — segments de progression (au lieu de la barre `Progress`), labels mono (`ÉTAPE 02/06`, codes dépt + façade, `LVL`, `HEBDO`), cards radio et chips conformes, stepper mono pour les années, aperçu profil live (étape 1) et encart saison (étape 4, statique OK). Réf : `onboarding.html`. **+ écran final « Ton carnet est prêt »** (frame 07) : c'est la SEULE addition de flow autorisée du sprint — après `completeOnboarding`, rediriger vers `/onboarding/fini` (navy-950 + isobathes, récap chips mono, tide sparkline du dépt, CTA « Ouvrir mon carnet » + lien « Loguer ma première prise »). Aucune Server Action ni migration nouvelle : on réutilise `completeOnboarding` et les données profil/marées existantes.
 
 **Critère** : chaque écran validé par John sur capture mobile + desktop avant de passer au suivant (poster les captures dans le récap de phase). Un commit par écran.
 
@@ -125,7 +127,7 @@ Dans cet ordre (re-skin, données et actions inchangées) :
 
 ## Critères de sortie du sprint
 
-- Les 6 écrans app + home + tarifs + guides/espèces conformes aux maquettes, validés par John écran par écran
+- Les 6 écrans app + onboarding (6 étapes + écran final) + home + tarifs + guides/espèces conformes aux maquettes, validés par John écran par écran
 - Tab bar + FAB + bandeau instruments en prod sur mobile
 - Plus un seul emoji-icône, plus un chiffre métier hors mono
 - Tests verts, build OK, Lighthouse sans régression (tableau de preuve dans le RECAP)
