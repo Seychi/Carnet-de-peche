@@ -236,7 +236,7 @@ Carnet-de-peche/
 
 ### Style UI
 
-> ⚠️ **Refonte UI décidée le 2026-06-11** (DA v2 « Instrument de précision marine ») : nouvelle direction artistique + maquettes dans `docs/maquette-v2/` (DA.md + 8 écrans HTML). Implémentation prévue **sprint 10.5** après validation John. Les tokens ci-dessous restent la base (navy/teal/sand conservés) ; la v2 ajoute navy-950 `#04141C`, gold `#D9A53C`, coral `#E5604F` et **JetBrains Mono pour toute donnée chiffrée métier** (coords, coefs, horaires PM/BM).
+> ✅ **DA v2 « Instrument de précision marine » = charte courante** (implémentée au sprint 10.5, 2026-06-11, branche `sprint-10.5-ui` — RECAP : `docs/sprint-10.5/RECAP.md`). Référence : `docs/maquette-v2/DA.md` + maquettes HTML. Tokens dans `app/globals.css` (@theme) : navy-950 `#04141C`, gold-500 `#D9A53C`, coral-500 `#E5604F`, teal-300, sémantique score (high teal / mid gold / low ink). **Règle d'or : tout chiffre métier passe en JetBrains Mono** (`font-mono`) — coords, coefs, horaires PM/BM, tailles, stats. Composants signature dans `components/ui-v2/` (TagData, ScoreRing, TideSparkline, InstrumentsBar, Bathy, Chip) — vitrine sur `/dev/ui-v2`. App shell : tab bar mobile + FAB < 960px (`--breakpoint-desk`), sidebar desktop, bandeau instruments.
 
 Charte v1 définie dans la maquette HTML (`docs/maquette/assets/style.css`) :
 
@@ -385,7 +385,7 @@ Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurre
 | **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
 | **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
 | **10** | S10 | **Guides + SEO + riposte Fishing Grid** : Bloc 0 social 100% gratuit (migration 022), MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques) + 6 fiches espèces profondes + vérif marées étalon SHOM. Brief : `docs/sprint-10/BRIEF.md`. |
-| **10.5** | — | **Refonte UI** (1 semaine) : DA v2 « Instrument de précision marine », maquettes `docs/maquette-v2/`. Après merge sprint 10, jamais en parallèle. |
+| **10.5** | — | **Refonte UI** ✅ code-complet 2026-06-11 (branche `sprint-10.5-ui`, à valider/merger — `docs/sprint-10.5/RECAP.md`) : DA v2 sur les 7 écrans app + onboarding (+ écran final « carnet prêt ») + home/tarifs/OG/footer. Lancée avant les Blocs 1-3/5 du sprint 10 (décision John) : les guides naîtront directement en v2. |
 | **11** | S11 | **Polish + PWA + Beta privée** : PWA installable (manifest + service worker, pont vers Expo), emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. WorldTides si le rapport marées du sprint 10 est mauvais. |
 | **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |
 | **20-23** | S20-S23 | **Lancement public** : App Store + Play Store + campagne acquisition (organique + partenariats fédérations + presse pêche). |

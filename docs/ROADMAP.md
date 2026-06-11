@@ -446,7 +446,9 @@ app/(app)/compte/abonnement/cancel/page.tsx
 
 ---
 
-## 🟢 Sprint 10.5 — Refonte UI « Instrument de précision marine » (1 semaine)
+## ✅ Sprint 10.5 — Refonte UI « Instrument de précision marine » — CODE-COMPLET (2026-06-11)
+
+> **Statut** : 16 commits sur la branche `sprint-10.5-ui`, **à valider écran par écran puis merger** (pas pushée). Tests 217/217 verts, build OK, Lighthouse SEO 100 sur `/`, `/tarifs`, `/spots/[slug]`. Détail complet, captures avant/après et écarts assumés : `docs/sprint-10.5/RECAP.md` + `docs/sprint-10.5/QUESTIONS.md`. Exécuté AVANT les Blocs 1-3/5 du sprint 10 (décision John) : les guides/fiches espèces naîtront directement en DA v2.
 
 **Décision John 2026-06-11** : refonte visuelle complète (marketing + app), le site actuel ne tient pas la comparaison face à la v2.0 de Fishing Grid.
 
@@ -1073,7 +1075,7 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | 9.5 | 2026-05-22 | Cleanup pré-merge (branche à merger) | ✅ |
 | — | 2026-06-12 → 2026-06-15 | Merge 9.5 + QA Stripe LIVE (manuel John) | 🔜 |
 | 10 | 2026-06-16 → 2026-06-30 | Guides + SEO + riposte FG (bloc 0 social gratuit, fiches espèces, vérif marées) | 🔜 |
-| 10.5 | 2026-07-01 → 2026-07-07 | Refonte UI (maquettes `docs/maquette-v2/`, à valider avant) | 🔜 |
+| 10.5 | ✅ 2026-06-11 (anticipé) | Refonte UI DA v2 — code-complet, branche `sprint-10.5-ui` à merger | ✅ |
 | 11 | 2026-07-08 → 2026-07-22 | Polish + PWA + Beta | 🔜 |
 | ⛳ Gate 1 | ~2026-07-23 | Décision mobile | ❓ |
 | 12-13 | 2026-07-24 → 2026-09-09 (été + buffer réduit) | Setup mobile | 🔜 |
