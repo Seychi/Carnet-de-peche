@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le bar (loup) — Fiche espèce · Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .hero-sp{background:var(--navy-950);color:#fff;position:relative;overflow:hidden;padding:72px 0 64px}
+  .reg{border:1.5px solid var(--gold-500);background:rgba(217,165,60,.06);border-radius:var(--r-md);padding:22px 24px}
+  .toc a{display:block;padding:7px 0;font-size:14.5px;color:var(--ink-600);border-left:2px solid var(--sand-200);padding-left:14px}
+  .toc a.on{border-color:var(--teal-500);color:var(--navy-900);font-weight:600}
+  .layout{display:grid;grid-template-columns:200px 1fr 280px;gap:48px;align-items:start}
+  @media(max-width:1080px){.layout{grid-template-columns:1fr}}
+  .prose h2{font-size:26px;margin:40px 0 14px}
+  .prose p{margin-bottom:14px;color:var(--ink-600)}
+  .fish{height:180px;border-radius:var(--r-md);background:linear-gradient(120deg,var(--navy-800),var(--navy-950));position:relative;overflow:hidden}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-links"><a href="carte.html">Carte</a><a href="spot.html">Spots</a><a class="active" href="espece.html">Espèces</a><a href="fil.html">Fil</a><a href="tarifs.html">Tarifs</a></div>
+    <div class="nav-cta"><a class="btn ghost sm" href="#">Connexion</a><a class="btn primary sm" href="#">Créer mon carnet</a></div>
+  </div>
+</nav>
+
+<!-- HERO ESPÈCE -->
+<header class="hero-sp">
+  <div class="bathy"><svg viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".4">
+    <path d="M-50 320 C 300 240, 700 380, 1000 300 S 1350 220, 1460 300"/>
+    <path d="M-50 230 C 300 160, 720 290, 1020 210 S 1350 140, 1460 210" opacity=".6"/></g></svg></div>
+  <div class="wrap" style="position:relative">
+    <span class="tag-data on-dark">ESPÈCES / BAR</span>
+    <div class="grid2" style="margin-top:18px;gap:56px">
+      <div>
+        <h1 class="h-section">Le bar <span class="muted" style="font-weight:400;font-size:.6em;font-style:italic">Dicentrarchus labrax</span></h1>
+        <p class="lead" style="color:rgba(255,255,255,.65);margin-top:14px">Le roi de la canne du bord. Combatif, lunatique, présent sur les trois façades — et le poisson le plus logué de la communauté.</p>
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">↔ MAX 100 CM</span>
+          <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">⚖ MAX 12 KG</span>
+          <span class="chip teal mono">● 312 PRISES LOGUÉES / 30 J</span>
+        </div>
+      </div>
+      <div class="fish">
+        <svg viewBox="0 0 400 180" style="position:absolute;inset:0;width:100%;height:100%">
+          <path d="M60 90 C 110 48, 200 44, 268 72 L 318 50 L 306 90 L 318 130 L 268 108 C 200 136, 110 132, 60 90 Z" fill="none" stroke="#5EEAD4" stroke-width="1.6" opacity=".85"/>
+          <circle cx="98" cy="82" r="4" fill="#5EEAD4"/>
+          <path d="M150 58 L 175 38 L 196 56 M 210 122 L 228 140" stroke="#5EEAD4" stroke-width="1.4" fill="none" opacity=".6"/>
+          <text x="330" y="96" font-family="JetBrains Mono" font-size="10" fill="#5EEAD4" opacity=".7">FIG. 01</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CONTENU -->
+<section class="section tight">
+  <div class="wrap layout">
+
+    <!-- TOC -->
+    <aside class="toc" style="position:sticky;top:96px">
+      <span class="tag-data" style="display:block;margin-bottom:10px">SOMMAIRE</span>
+      <a class="on" href="#">Réglementation 2026</a>
+      <a href="#">Saisons par façade</a>
+      <a href="#">Techniques du bord</a>
+      <a href="#">Conditions idéales</a>
+      <a href="#">Où le trouver</a>
+      <a href="#">Guides liés</a>
+    </aside>
+
+    <!-- PROSE -->
+    <article class="prose">
+
+      <!-- Encart réglementation : LE différenciateur vs Fishing Grid -->
+      <div class="reg">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <strong style="font-family:var(--font-display);font-size:17px">Réglementation pêche de loisir — 2026</strong>
+          <span class="chip gold mono">VÉRIFIÉ LE 11/06/2026</span>
+        </div>
+        <table class="data" style="margin-top:14px">
+          <tr><th>Façade</th><th>Maille</th><th>Quota</th><th>Période</th></tr>
+          <tr><td>Atlantique (sud 48°N)</td><td class="num"><b>42 cm</b></td><td class="num">2 / jour</td><td class="num">toute l'année</td></tr>
+          <tr><td>Manche – Mer du Nord</td><td class="num"><b>42 cm</b></td><td class="num">2 / jour</td><td class="num">mars → déc.</td></tr>
+          <tr><td>Méditerranée</td><td class="num"><b>30 cm</b></td><td class="num">—</td><td class="num">toute l'année</td></tr>
+        </table>
+        <p class="small faint" style="margin-top:12px">Source : arrêtés en vigueur au 11/06/2026 — réglementation indicative (maquette), à re-vérifier avant publication. Marquage caudale obligatoire.</p>
+      </div>
+
+      <h2>Saisons par façade</h2>
+      <p>Le bar suit l'eau : il remonte vers le bord quand elle passe 12-13 °C. En Atlantique, la saison du bord démarre franchement en avril et culmine de mai à juin, puis reprend en septembre-octobre sur les chasses. En Manche, décale d'un mois. En Méditerranée (le « loup »), c'est l'hiver qui paie, sur les coups de mer.</p>
+
+      <h2>Conditions idéales — d'après 4 218 prises loguées</h2>
+      <p>Ce que disent les carnets de la communauté, pas les généralités :</p>
+      <div class="grid3" style="margin:18px 0">
+        <div class="card flat"><span class="tag-data teal">MARÉE</span><div class="num" style="font-size:22px;margin-top:6px">Descendante</div><div class="small faint">PM +1 h → BM, coef 70-100</div></div>
+        <div class="card flat"><span class="tag-data teal">CRÉNEAU</span><div class="num" style="font-size:22px;margin-top:6px">Aube · crépuscule</div><div class="small faint">62 % des prises loguées</div></div>
+        <div class="card flat"><span class="tag-data teal">MER</span><div class="num" style="font-size:22px;margin-top:6px">Houle 0,5-1,5 m</div><div class="small faint">eau teintée après coup de vent</div></div>
+      </div>
+
+      <h2>Techniques du bord, saison par saison</h2>
+      <p><strong>Printemps</strong> — leurres souples (shads 10-12 cm) gratté lent sur les plateaux rocheux. <strong>Été</strong> — surface à l'aube (stickbaits), puis surfcasting de nuit. <strong>Automne</strong> — chasses : lancer-ramener véloce, slugs et jigs. <strong>Hiver</strong> — Atlantique au repos (frai), Méditerranée au vif et au leurre sur les coups de mer.</p>
+
+      <h2>Guides liés</h2>
+      <div class="grid2" style="gap:16px;margin-top:6px">
+        <a class="card flat" href="#" style="display:block"><span class="tag-data">GUIDE · 12 MIN</span><h3 style="margin-top:8px">Les meilleurs coefficients pour le bar</h3></a>
+        <a class="card flat" href="#" style="display:block"><span class="tag-data">GUIDE · 9 MIN</span><h3 style="margin-top:8px">Pêche du bar aux leurres pour débutants</h3></a>
+      </div>
+    </article>
+
+    <!-- SIDEBAR LIVE -->
+    <aside style="position:sticky;top:96px;display:grid;gap:14px">
+      <div class="card live" style="padding:20px">
+        <span class="tag-data teal">● EN CE MOMENT</span>
+        <div style="margin-top:10px"><b class="num" style="font-size:26px">312</b> <span class="small muted">prises loguées / 30 j</span></div>
+        <hr class="hr-dot">
+        <div class="small muted">Top départements : <b>29 · 56 · 44</b></div>
+        <div class="small muted">Taille médiane : <b class="num">46 cm</b></div>
+      </div>
+      <div class="card" style="padding:20px">
+        <span class="tag-data">SPOTS POPULAIRES BAR</span>
+        <div style="margin-top:10px;display:grid;gap:8px" class="small">
+          <a href="spot.html" style="display:flex;justify-content:space-between"><span>Pointe du Raz</span><b class="num" style="color:var(--teal-600)">87</b></a>
+          <a href="spot.html" style="display:flex;justify-content:space-between"><span>Anse de Térénez</span><b class="num" style="color:var(--teal-600)">81</b></a>
+          <a href="spot.html" style="display:flex;justify-content:space-between"><span>Jetée de Lechiagat</span><b class="num" style="color:var(--gold-500)">64</b></a>
+        </div>
+      </div>
+      <div class="card" style="padding:20px;background:var(--navy-950);border:none;color:#fff">
+        <strong>Logue ton premier bar</strong>
+        <p class="small" style="color:rgba(255,255,255,.55);margin:8px 0 14px">Et découvre TES conditions idéales, pas celles de la moyenne.</p>
+        <a class="btn accent sm" href="#" style="width:100%">Créer mon carnet</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap base" style="border:none;margin:0;padding:0"><span>© 2026 Carnet de Pêche</span><span class="tag-data" style="color:rgba(255,255,255,.3)">BAR · DORADE ROYALE · LIEU JAUNE · MAQUEREAU · SAR · ORPHIE</span></div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon carnet — Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0 30px}
+  @media(max-width:960px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .catch-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+</style>
+</head>
+<body>
+
+<nav class="nav app">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-cta">
+      <a class="btn accent sm" href="#">+ Loguer une prise</a>
+      <div class="avatar">JD</div>
+    </div>
+  </div>
+</nav>
+
+<!-- Bandeau instruments : l'app sait toujours où en est la mer -->
+<div class="instruments">
+  <div class="wrap">
+    <span>FINISTÈRE · 29</span><span class="sep">|</span>
+    <span>PM <b>06:42</b> · BM <b>12:58</b></span><span class="sep">|</span>
+    <span>COEF <b>88</b> <span class="up">▲ vives-eaux</span></span><span class="sep">|</span>
+    <span>VENT <b>NO 12</b></span><span class="sep">|</span>
+    <span>HOULE <b>0,8 m · 9 s</b></span><span class="sep">|</span>
+    <span class="up">TON CRÉNEAU : <b>18:30 → 21:30</b></span>
+  </div>
+</div>
+
+<div class="app-main">
+  <aside class="side">
+    <a href="#"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a>
+    <a class="active" href="carnet.html"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 4v16"/></svg>Mon carnet</a>
+    <a href="carte.html"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</a>
+    <a href="fil.html"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-4-7"/><path d="M8 11h6M8 15h4"/></svg>Fil 29</a>
+    <a href="profil.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5 8-5s6.5 1 8 5"/></svg>Profil</a>
+  </aside>
+
+  <main class="content">
+    <div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:12px">
+      <div>
+        <span class="tag-data">MON CARNET · SAISON 2026</span>
+        <h1 style="font-size:32px;margin-top:6px">23 prises, et la carte commence à te connaître.</h1>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span class="chip">Toutes</span><span class="chip teal">Bar · 14</span><span class="chip">Lieu · 5</span><span class="chip">Maquereau · 4</span>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="card flat stat"><div class="v">23</div><div class="l">prises · 14 sessions</div></div>
+      <div class="card flat stat"><div class="v">71 <small style="font-size:15px">cm</small></div><div class="l">record — bar, 12 avril</div></div>
+      <div class="card flat stat"><div class="v">82</div><div class="l">ton coef. moyen de prise</div></div>
+      <div class="card flat stat live"><div class="v" style="color:var(--teal-600)">descendante</div><div class="l">ta marée — 71 % des prises</div></div>
+    </div>
+
+    <!-- Insight perso -->
+    <div class="card live" style="display:flex;gap:18px;align-items:center;margin-bottom:26px">
+      <div class="score-ring">
+        <svg width="56" height="56"><circle cx="28" cy="28" r="23" stroke="var(--sand-200)" stroke-width="5" fill="none"/>
+        <circle cx="28" cy="28" r="23" stroke="#14B8A6" stroke-width="5" fill="none" stroke-dasharray="145" stroke-dashoffset="32" stroke-linecap="round"/></svg>
+        <span class="v" style="font-size:15px;color:var(--teal-600)">78</span>
+      </div>
+      <div style="flex:1">
+        <strong>Demain soir coche toutes tes cases.</strong>
+        <div class="small muted">Descendante 18:40 → 22:10 · coef 90 · vent NO 10 km/h. Conditions = tes 5 dernières belles prises.</div>
+      </div>
+      <a class="btn primary sm" href="carte.html">Voir où</a>
+    </div>
+
+    <!-- Liste prises -->
+    <span class="tag-data" style="display:block;margin-bottom:12px">MAI 2026</span>
+
+    <div class="row">
+      <div class="thumb"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between"><strong>Bar · 67 cm · 2,9 kg</strong><span class="tag-data teal">SCORE CONDITIONS 91</span></div>
+        <div class="catch-meta">
+          <span class="tag-data">06 MAI · 19:42</span><span class="tag-data">POINTE DU RAZ</span><span class="tag-data">COEF 88 · PM+2H ▼</span><span class="tag-data">SHAD KAKI 12 CM</span>
+        </div>
+      </div>
+      <span class="chip mono">PUBLIQUE</span>
+    </div>
+
+    <div class="row">
+      <div class="thumb" style="background:linear-gradient(135deg,#155A73,#04141C)"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between"><strong>Lieu jaune · 54 cm</strong><span class="tag-data gold">SCORE CONDITIONS 67</span></div>
+        <div class="catch-meta">
+          <span class="tag-data">04 MAI · 07:15</span><span class="tag-data">CAP SIZUN</span><span class="tag-data">COEF 74 · BM+1H ▲</span><span class="tag-data">MADAÏ ROSE</span>
+        </div>
+      </div>
+      <span class="chip mono">AMIS</span>
+    </div>
+
+    <div class="row">
+      <div class="thumb" style="background:linear-gradient(135deg,#0E3D4F,#0A2F3D)"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between"><strong>Bar · 52 cm</strong><span class="tag-data teal">SCORE CONDITIONS 84</span></div>
+        <div class="catch-meta">
+          <span class="tag-data">01 MAI · 21:05</span><span class="tag-data">ANSE DE TÉRÉNEZ</span><span class="tag-data">COEF 95 · PM+1H ▼</span><span class="tag-data">STICKBAIT</span>
+        </div>
+      </div>
+      <span class="chip mono">PRIVÉE</span>
+    </div>
+
+    <span class="tag-data" style="display:block;margin:26px 0 12px">AVRIL 2026</span>
+
+    <div class="row">
+      <div class="thumb" style="background:linear-gradient(135deg,#0A2F3D,#155A73)"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between"><strong>Bar · 71 cm · 3,4 kg <span class="chip gold mono" style="margin-left:6px">RECORD</span></strong><span class="tag-data teal">SCORE CONDITIONS 96</span></div>
+        <div class="catch-meta">
+          <span class="tag-data">12 AVR · 20:18</span><span class="tag-data">POINTE DU RAZ</span><span class="tag-data">COEF 102 · PM+2H ▼</span><span class="tag-data">SLUG BLANC</span>
+        </div>
+      </div>
+      <span class="chip mono">PUBLIQUE</span>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

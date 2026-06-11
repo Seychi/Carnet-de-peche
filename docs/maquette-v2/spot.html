@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pointe du Raz — Fiche spot · Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .spot-hero{background:var(--navy-950);color:#fff;position:relative;overflow:hidden;padding:56px 0 48px}
+  .cols{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
+  @media(max-width:1080px){.cols{grid-template-columns:1fr}}
+  .slot{display:flex;align-items:center;gap:14px;padding:14px 16px;border:var(--border);border-radius:var(--r-md);background:#fff}
+  .slot+.slot{margin-top:10px}
+  .meteo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:720px){.meteo{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<nav class="nav app">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-cta"><a class="btn accent sm" href="#">+ Loguer une prise</a><div class="avatar">JD</div></div>
+  </div>
+</nav>
+
+<!-- HERO SPOT -->
+<header class="spot-hero">
+  <div class="bathy"><svg viewBox="0 0 1400 300" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".4">
+    <path d="M-50 230 C 300 160, 700 290, 1000 210 S 1350 140, 1460 210"/>
+    <path d="M-50 150 C 300 90, 720 210, 1020 140 S 1350 70, 1460 140" opacity=".55"/></g></svg></div>
+  <div class="wrap" style="position:relative">
+    <span class="tag-data on-dark">CARTE / FINISTÈRE / <b style="color:#fff">POINTE DU RAZ</b></span>
+    <div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;margin-top:14px">
+      <div>
+        <h1 class="h-section">Pointe du Raz</h1>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">48.0395°N · 4.7372°O</span>
+          <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">ROCHE · COURANT FORT</span>
+          <span class="chip teal mono">● 3 PRISES AUJOURD'HUI</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:22px">
+        <div style="text-align:center">
+          <div class="score-ring">
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none"/><circle cx="42" cy="42" r="36" stroke="#14B8A6" stroke-width="6" fill="none" stroke-dasharray="226" stroke-dashoffset="29" stroke-linecap="round"/></svg>
+            <span class="v" style="color:#5EEAD4;font-size:24px">87</span>
+          </div>
+          <div class="tag-data on-dark" style="margin-top:6px">TON SCORE</div>
+        </div>
+        <div style="text-align:center">
+          <div class="score-ring">
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none"/><circle cx="42" cy="42" r="36" stroke="#D9A53C" stroke-width="6" fill="none" stroke-dasharray="226" stroke-dashoffset="68" stroke-linecap="round"/></svg>
+            <span class="v" style="color:#D9A53C;font-size:24px">70</span>
+          </div>
+          <div class="tag-data on-dark" style="margin-top:6px">SCORE GLOBAL</div>
+        </div>
+        <a class="btn ghost on-dark sm" href="#">Itinéraire ↗</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section tight" style="padding-top:36px">
+  <div class="wrap cols">
+    <div>
+      <!-- MARÉE -->
+      <div class="tide-box">
+        <div class="tide-head">
+          <strong>Marée · jeudi 11 juin</strong>
+          <span class="chip teal mono">COEF 88 ▲</span>
+        </div>
+        <svg viewBox="0 0 640 130" style="width:100%">
+          <defs><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14B8A6" stop-opacity=".25"/><stop offset="1" stop-color="#14B8A6" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0 100 C 70 100, 95 26, 160 26 S 265 100, 330 100 S 430 26, 495 26 S 605 100, 640 100 L640 130 L0 130 Z" fill="url(#tg2)"/>
+          <path d="M0 100 C 70 100, 95 26, 160 26 S 265 100, 330 100 S 430 26, 495 26 S 605 100, 640 100" fill="none" stroke="#14B8A6" stroke-width="2"/>
+          <line x1="245" y1="10" x2="245" y2="120" stroke="#E5604F" stroke-width="1.4" stroke-dasharray="3 3"/>
+          <circle cx="245" cy="70" r="5" fill="#E5604F"/>
+          <text x="245" y="128" font-family="JetBrains Mono" font-size="10" fill="#E5604F" text-anchor="middle">MAINTENANT</text>
+          <text x="160" y="18" font-family="JetBrains Mono" font-size="11" fill="#0E9488" text-anchor="middle">PM 06:42 · 7,35 m</text>
+          <text x="330" y="116" font-family="JetBrains Mono" font-size="11" fill="#7E8C95" text-anchor="middle">BM 12:58 · 1,10 m</text>
+          <text x="495" y="18" font-family="JetBrains Mono" font-size="11" fill="#0E9488" text-anchor="middle">PM 19:07 · 7,52 m</text>
+        </svg>
+      </div>
+
+      <!-- MÉTÉO -->
+      <div class="meteo" style="margin-top:14px">
+        <div class="card flat" style="padding:16px"><span class="tag-data">VENT</span><div class="num" style="font-size:20px;margin-top:4px">NO 12 <small>km/h</small></div><div class="small faint">rafales 22</div></div>
+        <div class="card flat" style="padding:16px"><span class="tag-data">HOULE</span><div class="num" style="font-size:20px;margin-top:4px">0,8 m · 9 s</div><div class="small faint">direction O</div></div>
+        <div class="card flat" style="padding:16px"><span class="tag-data">EAU / AIR</span><div class="num" style="font-size:20px;margin-top:4px">14,2° / 17°</div><div class="small faint">pression 1018 hPa</div></div>
+        <div class="card flat" style="padding:16px"><span class="tag-data">SOLEIL / LUNE</span><div class="num" style="font-size:20px;margin-top:4px">06:11 · 22:24</div><div class="small faint">lune montante 78 %</div></div>
+      </div>
+
+      <!-- MEILLEURS MOMENTS -->
+      <h2 style="font-size:22px;margin:30px 0 12px">Meilleurs moments — 7 jours</h2>
+      <div class="slot" style="border-left:3px solid var(--teal-500)">
+        <span class="chip teal mono">AUJ.</span>
+        <div style="flex:1"><b class="num">18:30 → 21:30</b><div class="small muted">Descendante + crépuscule + lune montante. Tes conditions à 91 %.</div></div>
+        <span class="chip gold mono">EXCEPTIONNELLE</span>
+      </div>
+      <div class="slot">
+        <span class="chip mono">VEN</span>
+        <div style="flex:1"><b class="num">19:10 → 22:00</b><div class="small muted">Coef 90, vent faible. Créneau solunaire majeur.</div></div>
+        <span class="chip teal mono">TRÈS BONNE</span>
+      </div>
+      <div class="slot">
+        <span class="chip mono">SAM</span>
+        <div style="flex:1"><b class="num">06:05 → 08:30</b><div class="small muted">PM de l'aube, coef 86. Vent qui forcit l'après-midi.</div></div>
+        <span class="chip mono">BONNE</span>
+      </div>
+
+      <!-- ACTIVITÉ -->
+      <h2 style="font-size:22px;margin:30px 0 12px">Activité récente</h2>
+      <div class="card live" style="padding:18px">
+        <span class="tag-data teal">● 3 PÊCHEURS ONT LOGUÉ 5 PRISES ICI — 7 DERNIERS JOURS</span>
+        <div class="row" style="border:none;padding:12px 0 0;box-shadow:none">
+          <div class="avatar">YL</div>
+          <div style="flex:1" class="small"><b>Yann L.</b> · bar 67 cm · il y a 2 h <div class="tag-data">COEF 88 · PM+2 ▼ · SHAD KAKI</div></div>
+        </div>
+        <div class="row" style="border:none;padding:10px 0 0;box-shadow:none">
+          <div class="avatar">RD</div>
+          <div style="flex:1" class="small"><b>Romain D.</b> · lieu jaune 51 cm · hier <div class="tag-data">BM+1 ▲ · MADAÏ</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside style="display:grid;gap:14px">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="height:160px;background:linear-gradient(160deg,#C9E2DE,#B3CFD4);position:relative">
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 340 160" preserveAspectRatio="none">
+            <path d="M0 30 C 60 60, 80 10, 140 40 L 140 0 L 0 0 Z" fill="#EFE8D8" stroke="#DFD4BC"/>
+            <g fill="none" stroke="#7FA8AC" opacity=".6"><path d="M160 0 C 150 60, 200 100, 180 160"/><path d="M230 0 C 220 60, 270 100, 250 160" opacity=".6"/></g>
+          </svg>
+          <div style="position:absolute;top:46%;left:38%;width:30px;height:30px;border-radius:50%;background:var(--teal-500);border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:600">87</div>
+        </div>
+        <div style="padding:16px">
+          <span class="tag-data">ACCÈS</span>
+          <p class="small muted" style="margin-top:6px">Parking de la pointe, 15 min de marche. Sentier escarpé — prudence par houle &gt; 1,5 m.</p>
+          <a class="btn ghost sm" href="#" style="width:100%;margin-top:10px">Google Maps · Plans · Waze</a>
+        </div>
+      </div>
+      <div class="card" style="padding:18px">
+        <span class="tag-data">ESPÈCES SUR CE SPOT</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <a class="chip teal" href="espece.html">Bar</a><a class="chip" href="#">Lieu jaune</a><a class="chip" href="#">Vieille</a>
+        </div>
+        <hr class="hr-dot">
+        <span class="tag-data">GUIDES LIÉS</span>
+        <a href="#" class="small" style="display:block;margin-top:8px;font-weight:600">Les meilleurs coefficients pour le bar →</a>
+        <a href="#" class="small" style="display:block;margin-top:6px;font-weight:600">Pêche en zone rocheuse : sécurité →</a>
+      </div>
+      <div class="card" style="padding:18px;background:var(--navy-950);border:none;color:#fff">
+        <span class="tag-data on-dark">TON HISTORIQUE ICI</span>
+        <div style="margin-top:8px"><b class="num" style="font-size:24px;color:#5EEAD4">5</b> <span class="small" style="color:rgba(255,255,255,.55)">prises · record 71 cm</span></div>
+        <div class="small" style="color:rgba(255,255,255,.55);margin-top:6px">Toutes en descendante, coef ≥ 88.</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+</body>
+</html>

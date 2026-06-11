@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquettes mobiles — DA v2 · Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  body{background:var(--navy-950);padding:48px 24px}
+  .board{display:flex;gap:36px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .frame{width:300px}
+  .frame>.tag-data{display:block;text-align:center;margin-bottom:12px;color:rgba(255,255,255,.5)}
+  .ph{background:#000;border-radius:42px;padding:9px;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+  .scr{background:var(--sand-50);border-radius:34px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative;font-size:13px}
+  .notch{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:var(--navy-950);color:#fff;font-family:var(--font-mono);font-size:9.5px;flex:none}
+  /* bandeau instruments condensé */
+  .instr-m{background:var(--navy-950);color:#fff;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.04em;display:flex;gap:10px;padding:7px 12px;white-space:nowrap;overflow:hidden;flex:none}
+  .instr-m b{color:var(--teal-300);font-weight:500}
+  .body-m{flex:1;overflow:hidden;padding:14px 14px 0}
+  /* tab bar */
+  .tabs{flex:none;background:#fff;border-top:var(--border);display:flex;align-items:flex-end;justify-content:space-around;padding:6px 8px 14px;position:relative}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;color:var(--ink-400);width:52px}
+  .tab.on{color:var(--navy-900)}
+  .tab .icon{width:21px;height:21px}
+  .fab{width:52px;height:52px;border-radius:50%;background:var(--teal-500);display:flex;align-items:center;justify-content:center;color:var(--navy-950);font-size:26px;font-weight:600;margin-top:-26px;border:4px solid var(--sand-50);box-shadow:0 4px 14px rgba(20,184,166,.4)}
+  /* éléments compacts */
+  .card-m{background:#fff;border:var(--border);border-radius:12px;padding:12px}
+  .card-m+.card-m{margin-top:8px}
+  .row-m{display:flex;gap:10px;align-items:center;background:#fff;border:var(--border);border-radius:12px;padding:10px}
+  .row-m+.row-m{margin-top:8px}
+  .row-m .thumb{width:44px;height:44px;border-radius:8px;flex:none;background:linear-gradient(135deg,var(--navy-800),var(--navy-950))}
+  .tag-data{font-size:9px}
+  .chip{font-size:10.5px;padding:3px 9px}
+  .chip.mono{font-size:9px}
+  h2.m{font-family:var(--font-display);font-size:18px;letter-spacing:-.01em}
+  .avatar{width:30px;height:30px;font-size:10px}
+  .bottom-sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(4,20,28,.18);padding:10px 16px 16px}
+  .grab{width:36px;height:4px;border-radius:99px;background:var(--sand-200);margin:0 auto 10px}
+</style>
+</head>
+<body>
+
+<div style="text-align:center;margin-bottom:36px">
+  <span class="kicker" style="justify-content:center;color:var(--teal-300)">DA v2 · Mobile-first</span>
+  <h1 style="color:#fff;font-size:30px">L'app dans la poche, les instruments toujours visibles.</h1>
+  <p style="color:rgba(255,255,255,.55);max-width:640px;margin:10px auto 0;font-size:15px">Tab bar 5 entrées, bouton « loguer » central impossible à rater, bandeau marée permanent. Une main, plein soleil, gants mouillés.</p>
+</div>
+
+<div class="board">
+
+  <!-- ============ CARNET ============ -->
+  <div class="frame">
+    <span class="tag-data">01 · MON CARNET</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="instr-m"><span>29</span><span>PM <b>06:42</b></span><span>COEF <b>88</b>▲</span><span>NO <b>12</b></span><span style="color:var(--teal-300)">▶ 18:30</span></div>
+      <div class="body-m">
+        <span class="tag-data">SAISON 2026</span>
+        <h2 class="m" style="margin:2px 0 10px">23 prises · 14 sessions</h2>
+        <div style="display:flex;gap:6px;margin-bottom:10px"><span class="chip teal">Bar 14</span><span class="chip">Lieu 5</span><span class="chip">Maq. 4</span></div>
+        <div class="card-m live" style="display:flex;gap:10px;align-items:center;border-left:3px solid var(--teal-500)">
+          <div class="score-ring"><svg width="40" height="40"><circle cx="20" cy="20" r="16" stroke="var(--sand-200)" stroke-width="4" fill="none"/><circle cx="20" cy="20" r="16" stroke="#14B8A6" stroke-width="4" fill="none" stroke-dasharray="100" stroke-dashoffset="22" stroke-linecap="round"/></svg><span class="v" style="font-size:11px;color:var(--teal-600)">78</span></div>
+          <div style="flex:1"><b style="font-size:12.5px">Demain soir coche tes cases</b><div class="tag-data">DESCENDANTE · COEF 90 · 18:40</div></div>
+        </div>
+        <div style="margin-top:12px" class="tag-data">MAI</div>
+        <div class="row-m" style="margin-top:6px">
+          <div class="thumb"></div>
+          <div style="flex:1"><b style="font-size:12.5px">Bar · 67 cm</b><div class="tag-data">06 MAI · COEF 88 ▼ · SHAD KAKI</div></div>
+          <span class="tag-data teal">91</span>
+        </div>
+        <div class="row-m">
+          <div class="thumb" style="background:linear-gradient(135deg,#155A73,#04141C)"></div>
+          <div style="flex:1"><b style="font-size:12.5px">Lieu jaune · 54 cm</b><div class="tag-data">04 MAI · BM+1 ▲ · MADAÏ</div></div>
+          <span class="tag-data gold">67</span>
+        </div>
+        <div class="row-m">
+          <div class="thumb" style="background:linear-gradient(135deg,#0E3D4F,#0A2F3D)"></div>
+          <div style="flex:1"><b style="font-size:12.5px">Bar · 52 cm</b><div class="tag-data">01 MAI · COEF 95 ▼</div></div>
+          <span class="tag-data teal">84</span>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab on"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 4v16"/></svg>Carnet</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/></svg>Carte</div>
+        <div class="fab">+</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-4-7"/><path d="M8 11h6M8 15h4"/></svg>Fil</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5 8-5s6.5 1 8 5"/></svg>Profil</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ CARTE ============ -->
+  <div class="frame">
+    <span class="tag-data">02 · CARTE + BOTTOM SHEET</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="instr-m"><span>29</span><span>PM <b>06:42</b></span><span>COEF <b>88</b>▲</span><span>HOULE <b>0,8</b></span></div>
+      <div style="flex:1;position:relative;background:linear-gradient(160deg,#C9E2DE,#B3CFD4);overflow:hidden">
+        <div style="position:absolute;top:-10%;left:-12%;width:70%;height:55%;background:#EFE8D8;border:1px solid #DFD4BC;border-radius:0 0 60% 35%"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 300 420" preserveAspectRatio="none">
+          <g fill="none" stroke="#7FA8AC" opacity=".55"><path d="M170 0 C 160 120, 210 220, 180 420"/><path d="M230 0 C 220 130, 270 240, 240 420" opacity=".6"/></g>
+        </svg>
+        <div style="position:absolute;top:12px;left:12px;display:flex;gap:5px"><span class="chip" style="background:#fff">Bar</span><span class="chip teal">Score &gt; 60</span></div>
+        <div style="position:absolute;top:30%;left:46%;width:30px;height:30px;border-radius:50%;background:var(--teal-500);border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10.5px;font-weight:600;box-shadow:0 2px 8px rgba(4,20,28,.3)">87</div>
+        <div style="position:absolute;top:48%;left:64%;width:30px;height:30px;border-radius:50%;background:var(--teal-600);border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10.5px;font-weight:600">81</div>
+        <div style="position:absolute;top:20%;left:72%;width:30px;height:30px;border-radius:50%;background:var(--gold-500);border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10.5px;font-weight:600">64</div>
+        <!-- bottom sheet spot -->
+        <div class="bottom-sheet">
+          <div class="grab"></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div class="score-ring"><svg width="44" height="44"><circle cx="22" cy="22" r="18" stroke="var(--sand-200)" stroke-width="4" fill="none"/><circle cx="22" cy="22" r="18" stroke="#14B8A6" stroke-width="4" fill="none" stroke-dasharray="113" stroke-dashoffset="15" stroke-linecap="round"/></svg><span class="v" style="font-size:12px;color:var(--teal-600)">87</span></div>
+            <div style="flex:1"><b style="font-size:14px">Pointe du Raz</b><div class="tag-data">ROCHE · BAR, LIEU · ● 3 PRISES AUJ.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <a class="btn primary sm" style="flex:1;font-size:12px;padding:8px">Voir le spot</a>
+            <a class="btn ghost sm" style="font-size:12px;padding:8px">Itinéraire ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 4v16"/></svg>Carnet</div>
+        <div class="tab on"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/></svg>Carte</div>
+        <div class="fab">+</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-4-7"/><path d="M8 11h6M8 15h4"/></svg>Fil</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5 8-5s6.5 1 8 5"/></svg>Profil</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ SPOT ============ -->
+  <div class="frame">
+    <span class="tag-data">03 · FICHE SPOT</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div style="background:var(--navy-950);color:#fff;padding:12px 14px;flex:none">
+        <span class="tag-data" style="color:var(--teal-300)">← CARTE / FINISTÈRE</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+          <div><b style="font-family:var(--font-display);font-size:17px">Pointe du Raz</b><div class="tag-data" style="color:rgba(255,255,255,.45)">48.0395°N · 4.7372°O</div></div>
+          <div class="score-ring"><svg width="42" height="42"><circle cx="21" cy="21" r="17" stroke="rgba(255,255,255,.15)" stroke-width="4" fill="none"/><circle cx="21" cy="21" r="17" stroke="#14B8A6" stroke-width="4" fill="none" stroke-dasharray="107" stroke-dashoffset="14" stroke-linecap="round"/></svg><span class="v" style="font-size:12px;color:#5EEAD4">87</span></div>
+        </div>
+      </div>
+      <div class="body-m">
+        <div class="card-m">
+          <div style="display:flex;justify-content:space-between"><b style="font-size:12px">Marée</b><span class="chip teal mono">COEF 88 ▲</span></div>
+          <svg viewBox="0 0 260 64" style="width:100%;margin-top:4px">
+            <path d="M0 50 C 30 50, 40 12, 66 12 S 108 50, 134 50 S 176 12, 202 12 S 244 50, 260 50" fill="none" stroke="#14B8A6" stroke-width="1.8"/>
+            <line x1="100" y1="6" x2="100" y2="58" stroke="#E5604F" stroke-width="1.2" stroke-dasharray="3 3"/><circle cx="100" cy="36" r="3.5" fill="#E5604F"/>
+            <text x="66" y="9" font-family="JetBrains Mono" font-size="8" fill="#0E9488" text-anchor="middle">PM 06:42</text>
+            <text x="134" y="62" font-family="JetBrains Mono" font-size="8" fill="#7E8C95" text-anchor="middle">BM 12:58</text>
+            <text x="202" y="9" font-family="JetBrains Mono" font-size="8" fill="#0E9488" text-anchor="middle">PM 19:07</text>
+          </svg>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <div class="card-m" style="flex:1;padding:9px"><span class="tag-data">VENT</span><div class="num" style="font-size:13px">NO 12</div></div>
+          <div class="card-m" style="flex:1;padding:9px"><span class="tag-data">HOULE</span><div class="num" style="font-size:13px">0,8 m·9 s</div></div>
+          <div class="card-m" style="flex:1;padding:9px"><span class="tag-data">EAU</span><div class="num" style="font-size:13px">14,2°</div></div>
+        </div>
+        <div class="card-m live" style="margin-top:8px;border-left:3px solid var(--teal-500)">
+          <div style="display:flex;justify-content:space-between"><b style="font-size:12.5px">Ton créneau · 18:30 → 21:30</b><span class="chip gold mono">EXCEPT.</span></div>
+          <div class="tag-data" style="margin-top:2px">DESCENDANTE + CRÉPUSCULE = TES CONDITIONS À 91 %</div>
+        </div>
+        <div class="card-m" style="margin-top:8px">
+          <span class="tag-data teal">● ACTIVITÉ — 7 JOURS</span>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div class="avatar">YL</div><div style="font-size:11.5px;flex:1"><b>Yann L.</b> · bar 67 cm · 2 h</div></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div class="avatar">RD</div><div style="font-size:11.5px;flex:1"><b>Romain D.</b> · lieu 51 cm · hier</div></div>
+        </div>
+      </div>
+      <div style="flex:none;padding:10px 14px 18px;background:var(--sand-50)">
+        <a class="btn accent" style="width:100%;font-size:14px;padding:11px">+ Loguer une prise ici</a>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ FIL ============ -->
+  <div class="frame">
+    <span class="tag-data">04 · FIL 29</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="instr-m"><span>29</span><span>PM <b>06:42</b></span><span>COEF <b>88</b>▲</span><span style="color:var(--teal-300)">▶ 18:30</span></div>
+      <div class="body-m">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 class="m">Fil Finistère</h2>
+          <div style="display:flex;gap:5px"><span class="chip teal">29</span><span class="chip">Follows</span></div>
+        </div>
+        <div class="card-m" style="margin-top:10px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="avatar">YL</div>
+            <div style="flex:1;font-size:11.5px"><b>Yann L.</b> <span class="chip mono">CARNET</span><div class="tag-data">2 H · POINTE DU RAZ (1 KM)</div></div>
+          </div>
+          <p style="font-size:12px;margin:8px 0">Le créneau de l'app était le bon. 67 au ras des roches 🎣</p>
+          <div style="height:110px;border-radius:9px;background:linear-gradient(125deg,var(--navy-800),var(--navy-950));position:relative">
+            <span class="tag-data" style="position:absolute;bottom:8px;left:10px;color:#5EEAD4">BAR · 67 CM · COEF 88 ▼</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:8px;font-size:11.5px;font-weight:600;color:var(--ink-600)"><span>♥ 14</span><span>💬 5</span></div>
+        </div>
+        <div class="card-m" style="border-left:3px solid var(--coral-500)">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="avatar">LB</div>
+            <div style="flex:1;font-size:11.5px"><b>Loïc B.</b><div class="tag-data coral">HIER · ALERTE</div></div>
+          </div>
+          <p style="font-size:12px;margin-top:6px">Algues vertes à Térénez, pêchez 300 m plus au nord. Parking en travaux.</p>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 4v16"/></svg>Carnet</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/></svg>Carte</div>
+        <div class="fab">+</div>
+        <div class="tab on"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-4-7"/><path d="M8 11h6M8 15h4"/></svg>Fil</div>
+        <div class="tab"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5 8-5s6.5 1 8 5"/></svg>Profil</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ LOGUER ============ -->
+  <div class="frame">
+    <span class="tag-data">05 · LOGUER — 3 TAPS</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div style="background:var(--navy-950);color:#fff;padding:12px 14px;flex:none;display:flex;justify-content:space-between;align-items:center">
+        <b style="font-family:var(--font-display);font-size:16px">Nouvelle prise</b><span class="tag-data" style="color:rgba(255,255,255,.45)">✕</span>
+      </div>
+      <div class="body-m">
+        <div style="height:130px;border-radius:12px;border:1.5px dashed var(--sand-200);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+          <svg class="icon" viewBox="0 0 24 24" style="width:26px;height:26px;color:var(--teal-600)"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <b style="font-size:12.5px">Photo de la prise</b>
+          <span class="tag-data">GPS + CONDITIONS AUTO-CAPTÉS</span>
+        </div>
+        <div style="margin-top:10px" class="tag-data">ESPÈCE</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">
+          <span class="chip navy">Bar</span><span class="chip">Dorade</span><span class="chip">Lieu</span><span class="chip">Maquereau</span><span class="chip">Sar</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <div class="card-m" style="flex:1;padding:10px"><span class="tag-data">TAILLE</span><div class="num" style="font-size:16px">67 <small>cm</small></div></div>
+          <div class="card-m" style="flex:1;padding:10px"><span class="tag-data">POIDS</span><div class="num" style="font-size:16px">2,9 <small>kg</small></div></div>
+        </div>
+        <div class="card-m live" style="margin-top:10px;border-left:3px solid var(--teal-500)">
+          <span class="tag-data teal">CONDITIONS CAPTÉES · 19:42</span>
+          <div class="tag-data" style="margin-top:4px;color:var(--ink-600)">COEF 88 · PM+2H ▼ · VENT NO 12 · LUNE 78 %</div>
+        </div>
+        <div style="margin-top:10px" class="tag-data">VISIBILITÉ</div>
+        <div style="display:flex;gap:6px;margin-top:5px"><span class="chip navy">Privée</span><span class="chip">Amis</span><span class="chip">Publique (floutée 1 km)</span></div>
+      </div>
+      <div style="flex:none;padding:10px 14px 18px">
+        <a class="btn accent" style="width:100%;font-size:14px;padding:11px">Enregistrer la prise</a>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:40px;color:rgba(255,255,255,.4);font-size:13px">
+  DA v2 · volet mobile — ces écrans préfigurent l'app Expo (sprints 12-19) et cadrent la PWA (sprint 11).<br>
+  Desktop : <a href="index.html" style="color:var(--teal-300)">index.html</a> · <a href="carnet.html" style="color:var(--teal-300)">carnet.html</a> · <a href="carte.html" style="color:var(--teal-300)">carte.html</a>
+</p>
+
+</body>
+</html>

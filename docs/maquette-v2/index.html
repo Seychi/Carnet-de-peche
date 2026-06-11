@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnet de Pêche — Le réseau des pêcheurs à la canne du bord</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .hero{background:var(--navy-950);color:#fff;position:relative;overflow:hidden;padding:120px 0 132px}
+  .hero .grid2{align-items:center}
+  .hero-card{background:rgba(255,255,255,.045);border:var(--border-dark);border-radius:var(--r-lg);padding:26px;backdrop-filter:blur(6px)}
+  .hero-card+.hero-card{margin-top:14px}
+  .pilier{counter-increment:p}
+  .marquee{display:flex;gap:48px;justify-content:space-between;flex-wrap:wrap}
+  .proof{display:flex;gap:14px;align-items:center;padding:14px 0;border-top:var(--border-dark)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-links">
+      <a href="carte.html">Carte</a><a href="spot.html">Spots</a><a href="espece.html">Espèces</a><a href="fil.html">Fil</a><a href="tarifs.html">Tarifs</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn ghost sm" href="#">Connexion</a>
+      <a class="btn primary sm" href="#">Créer mon carnet</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="bathy"><svg viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice">
+    <g fill="none" stroke="#155A73" stroke-width="1" opacity=".5">
+      <path d="M-50 580 C 250 480, 480 640, 760 540 S 1240 460, 1460 560"/>
+      <path d="M-50 500 C 230 400, 500 560, 780 460 S 1230 380, 1460 470" opacity=".75"/>
+      <path d="M-50 420 C 220 330, 520 480, 800 390 S 1230 300, 1460 390" opacity=".55"/>
+      <path d="M-50 340 C 210 260, 540 400, 820 320 S 1230 230, 1460 310" opacity=".4"/>
+      <path d="M-50 260 C 200 190, 560 320, 840 250 S 1230 160, 1460 230" opacity=".25"/>
+    </g>
+    <text x="1090" y="448" font-family="JetBrains Mono" font-size="11" fill="#155A73" opacity=".9">— 5 m</text>
+    <text x="1110" y="368" font-family="JetBrains Mono" font-size="11" fill="#155A73" opacity=".7">— 10 m</text>
+    <text x="1130" y="288" font-family="JetBrains Mono" font-size="11" fill="#155A73" opacity=".5">— 20 m</text>
+  </svg></div>
+
+  <div class="wrap" style="position:relative">
+    <div class="grid2" style="gap:80px">
+      <div>
+        <span class="kicker" style="color:var(--teal-300)">Canne du bord · mer · France</span>
+        <h1 class="h-hero">Ton carnet sait quand <span class="mark">ça va mordre</span>.</h1>
+        <p class="lead" style="color:rgba(255,255,255,.66);margin:26px 0 36px;max-width:520px">
+          Logue tes prises. Le carnet apprend tes patterns — marée, coef, vent, heure — et te dit quand
+          et où sortir. Pas des moyennes génériques : <strong style="color:#fff">tes</strong> conditions.
+        </p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <a class="btn accent" href="#">Créer mon carnet — gratuit</a>
+          <a class="btn ghost on-dark" href="carte.html">Explorer la carte</a>
+        </div>
+        <div style="margin-top:44px;display:flex;gap:36px;flex-wrap:wrap">
+          <div class="stat"><div class="v">6</div><div class="l" style="color:rgba(255,255,255,.45)">espèces de chez nous</div></div>
+          <div class="stat"><div class="v">100+</div><div class="l" style="color:rgba(255,255,255,.45)">spots curés au lancement</div></div>
+          <div class="stat"><div class="v">100%</div><div class="l" style="color:rgba(255,255,255,.45)">fil communautaire gratuit</div></div>
+        </div>
+      </div>
+
+      <!-- Mockup data : fiche du jour -->
+      <div>
+        <div class="hero-card">
+          <div class="tide-head">
+            <span class="tag-data on-dark">Pointe du Raz · 47.8709°N · 4.7372°O</span>
+            <span class="chip teal mono">COEF 88</span>
+          </div>
+          <svg viewBox="0 0 460 110" style="width:100%">
+            <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#14B8A6" stop-opacity=".34"/><stop offset="1" stop-color="#14B8A6" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0 88 C 50 88, 70 22, 120 22 S 190 88, 240 88 S 310 22, 360 22 S 430 88, 460 88 L460 110 L0 110 Z" fill="url(#tg)"/>
+            <path d="M0 88 C 50 88, 70 22, 120 22 S 190 88, 240 88 S 310 22, 360 22 S 430 88, 460 88" fill="none" stroke="#14B8A6" stroke-width="2"/>
+            <line x1="186" y1="8" x2="186" y2="102" stroke="#E5604F" stroke-width="1.4" stroke-dasharray="3 3"/>
+            <circle cx="186" cy="62" r="4.5" fill="#E5604F"/>
+            <text x="120" y="14" font-family="JetBrains Mono" font-size="10.5" fill="#5EEAD4" text-anchor="middle">PM 06:42</text>
+            <text x="240" y="104" font-family="JetBrains Mono" font-size="10.5" fill="rgba(255,255,255,.5)" text-anchor="middle">BM 12:58</text>
+            <text x="360" y="14" font-family="JetBrains Mono" font-size="10.5" fill="#5EEAD4" text-anchor="middle">PM 19:07</text>
+          </svg>
+          <div style="display:flex;justify-content:space-between;margin-top:10px">
+            <span class="tag-data" style="color:#E5604F">▼ Descendante · −1,2 m</span>
+            <span class="tag-data on-dark">Vent NO 12 km/h</span>
+          </div>
+        </div>
+
+        <div class="hero-card" style="display:flex;align-items:center;gap:18px">
+          <div class="score-ring">
+            <svg width="64" height="64"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,.12)" stroke-width="5" fill="none"/>
+            <circle cx="32" cy="32" r="27" stroke="#14B8A6" stroke-width="5" fill="none" stroke-dasharray="170" stroke-dashoffset="22" stroke-linecap="round"/></svg>
+            <span class="v" style="color:#5EEAD4;font-size:17px">87</span>
+          </div>
+          <div>
+            <div style="font-weight:600;color:#fff">Ton créneau : 18:30 → 21:30</div>
+            <div class="small" style="color:rgba(255,255,255,.55)">Tes 9 derniers bars : marée descendante, coef &gt; 80, le soir.</div>
+          </div>
+          <span class="chip gold mono" style="margin-left:auto">⚡ PERSO</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PILIERS -->
+<section class="section">
+  <div class="wrap">
+    <span class="kicker">Trois piliers, zéro bullshit</span>
+    <h2 class="h-section" style="max-width:700px">Pas une énième app de marées.</h2>
+    <p class="lead" style="max-width:620px;margin-top:16px">Les autres donnent les mêmes infos à tout le monde. Nous, on superpose <em>tes</em> prises par-dessus la donnée brute.</p>
+
+    <div class="grid3" style="margin-top:56px">
+      <div class="card">
+        <div class="sec-num">01 —</div>
+        <h3 style="margin-top:10px">Le carnet</h3>
+        <p class="muted small">Logue chaque prise en 3 taps : photo, espèce, taille. Marée, vent, lune, pression captés automatiquement à la seconde de la prise. Privé par défaut.</p>
+        <hr class="hr-dot">
+        <span class="tag-data">Bar · 67 cm · Coef 88 · 19:42</span>
+      </div>
+      <div class="card">
+        <div class="sec-num">02 —</div>
+        <h3 style="margin-top:10px">La carte qui apprend</h3>
+        <p class="muted small">Spots curés, score 0-100 recalculé chaque jour, heatmap d'activité réelle. Plus la communauté logue, plus la carte est juste.</p>
+        <hr class="hr-dot">
+        <span class="tag-data">117 spots · Score moyen 64 · MàJ 06:00</span>
+      </div>
+      <div class="card live">
+        <div class="sec-num">03 —</div>
+        <h3 style="margin-top:10px">La communauté — gratuite</h3>
+        <p class="muted small">Fil par département, profils, follows. Poste, commente, like : <strong>tout est gratuit, pour tout le monde</strong>. Tes coins restent flous à 1 km.</p>
+        <hr class="hr-dot">
+        <span class="tag-data teal">● 3 prises loguées ici aujourd'hui</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFÉRENCIATEUR : SCORING PERSO -->
+<section class="section dark">
+  <div class="bathy"><svg viewBox="0 0 1400 600" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".35">
+    <path d="M-50 480 C 300 380, 600 540, 900 440 S 1300 360, 1460 460"/>
+    <path d="M-50 380 C 300 280, 620 440, 920 340 S 1300 260, 1460 360" opacity=".6"/>
+  </g></svg></div>
+  <div class="wrap" style="position:relative">
+    <div class="grid2">
+      <div>
+        <span class="kicker">Le différenciateur</span>
+        <h2 class="h-section">« Tu pêches mieux en descendante, coef &gt; 80, après 3 jours sans pluie. »</h2>
+        <p class="lead" style="color:rgba(255,255,255,.65);margin-top:20px">
+          Ça, aucune app générique ne peut te le dire. Le solunar standard est identique pour tous les
+          pêcheurs de France. Ton scoring, lui, est calculé sur <strong style="color:#fff">ton historique</strong> —
+          et il s'affine à chaque prise loguée.
+        </p>
+        <div style="margin-top:30px"><a class="btn accent" href="#">Commencer à loguer</a></div>
+      </div>
+      <div class="card" style="padding:26px">
+        <span class="tag-data on-dark">Tes patterns · 23 prises analysées</span>
+        <table class="data" style="margin-top:14px;--c:rgba(255,255,255,.7)">
+          <tr><td style="color:rgba(255,255,255,.75)">Marée</td><td class="num" style="color:#5EEAD4;text-align:right">descendante · 71%</td></tr>
+          <tr><td style="color:rgba(255,255,255,.75)">Coefficient</td><td class="num" style="color:#5EEAD4;text-align:right">80 – 102</td></tr>
+          <tr><td style="color:rgba(255,255,255,.75)">Créneau</td><td class="num" style="color:#5EEAD4;text-align:right">18:00 – 22:00</td></tr>
+          <tr><td style="color:rgba(255,255,255,.75)">Vent</td><td class="num" style="color:#5EEAD4;text-align:right">NO &lt; 20 km/h</td></tr>
+          <tr><td style="color:rgba(255,255,255,.75)">Leurre</td><td class="num" style="color:#5EEAD4;text-align:right">shad kaki · 9/23</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRÉCISION MER -->
+<section class="section alt">
+  <div class="wrap">
+    <div class="grid2">
+      <div class="tide-box">
+        <div class="tide-head">
+          <strong>Brest · aujourd'hui</strong><span class="tag-data">VIVES-EAUX</span>
+        </div>
+        <table class="data">
+          <tr><th>Marée</th><th>Heure</th><th>Hauteur</th><th>Coef</th></tr>
+          <tr><td>PM</td><td class="num">06:42</td><td class="num">7,35 m</td><td class="num" style="color:var(--teal-600)">88</td></tr>
+          <tr><td>BM</td><td class="num">12:58</td><td class="num">1,10 m</td><td class="num">—</td></tr>
+          <tr><td>PM</td><td class="num">19:07</td><td class="num">7,52 m</td><td class="num" style="color:var(--teal-600)">90</td></tr>
+        </table>
+        <hr class="hr-dot">
+        <div style="display:flex;justify-content:space-between"><span class="tag-data">Houle 0,8 m · 9 s</span><span class="tag-data">Eau 14,2 °C</span><span class="tag-data">1018 hPa</span></div>
+      </div>
+      <div>
+        <span class="kicker">Profondeur mer</span>
+        <h2 class="h-section">La mer, à la minute. Pas à la louche.</h2>
+        <p class="lead" style="margin-top:18px">PM/BM port par port, coefficients, houle, période, vent, température de l'eau. Les apps généralistes traitent la mer comme un lac. Pas nous : c'est notre seul terrain.</p>
+        <ul style="margin-top:22px;display:grid;gap:12px">
+          <li style="display:flex;gap:10px"><span style="color:var(--teal-600)">✓</span> Courbe de marée 24 h avec curseur « maintenant »</li>
+          <li style="display:flex;gap:10px"><span style="color:var(--teal-600)">✓</span> Vagues, houle et période — pas juste « du vent »</li>
+          <li style="display:flex;gap:10px"><span style="color:var(--teal-600)">✓</span> Créneaux solunaires justifiés, astronomie à l'appui</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNAUTÉ -->
+<section class="section">
+  <div class="wrap">
+    <div class="grid2">
+      <div>
+        <span class="kicker">Anti spot-burning</span>
+        <h2 class="h-section">Le savoir se partage. Les coins restent secrets.</h2>
+        <p class="lead" style="margin-top:18px">Toute prise publique est floutée à 1 km, systématiquement. Tu partages la technique, les conditions, la fierté — jamais le GPS exact. Et le fil est <strong>100% gratuit</strong>, dans tous les départements côtiers.</p>
+        <div style="margin-top:24px"><span class="pill-note">● Fil, likes, commentaires, follows : gratuits pour toujours</span></div>
+      </div>
+      <div>
+        <div class="row">
+          <div class="avatar">YL</div>
+          <div style="flex:1"><strong>Yann L.</strong> <span class="faint small">· Finistère · il y a 2 h</span>
+            <div class="small muted">Bar 67 cm à la pointe — descendante, shad kaki. Quel combat 💪</div>
+            <span class="tag-data">BAR · 67 CM · COEF 88 · ZONE FLOUTÉE 1 KM</span></div>
+        </div>
+        <div class="row">
+          <div class="avatar">SM</div>
+          <div style="flex:1"><strong>Sophie M.</strong> <span class="faint small">· Morbihan · il y a 5 h</span>
+            <div class="small muted">Premier lieu jaune de l'année au madaï. L'app avait annoncé le créneau 👌</div>
+            <span class="tag-data">LIEU JAUNE · 54 CM · PM +1H</span></div>
+        </div>
+        <div class="row">
+          <div class="avatar">LB</div>
+          <div style="flex:1"><strong>Loïc B.</strong> <span class="faint small">· Côtes-d'Armor · hier</span>
+            <div class="small muted">Session maquereaux express avec le gamin, 12 prises en 1 h. Que du bonheur.</div>
+            <span class="tag-data">MAQUEREAU · ×12 · MITRAILLETTE</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING TEASER -->
+<section class="section alt tight">
+  <div class="wrap" style="text-align:center">
+    <h2 class="h-section">Gratuit pour loguer et échanger.<br>Payant pour la précision.</h2>
+    <p class="lead" style="max-width:560px;margin:16px auto 32px">Carnet illimité, fil complet et guides : gratuits pour toujours. La carte précise, le score et le hors-ligne : à partir de 4,90 €/mois.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a class="btn primary" href="tarifs.html">Voir les tarifs</a>
+      <a class="btn ghost" href="#">Essai 7 jours sur Local</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="bathy"><svg viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".3">
+    <path d="M-50 300 C 300 220, 700 360, 1000 280 S 1350 200, 1460 280"/></g></svg></div>
+  <div class="wrap cols">
+    <div>
+      <a class="logo" style="color:#fff" href="index.html">
+        <svg width="28" height="28" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#14B8A6"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#04141C" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        Carnet de Pêche
+      </a>
+      <p class="small" style="margin-top:14px;max-width:280px">Logue. Partage. Progresse.<br>Le réseau des pêcheurs à la canne du bord en France.</p>
+      <span class="tag-data" style="display:block;margin-top:18px;color:rgba(255,255,255,.35)">FR · ATLANTIQUE · MANCHE · MÉDITERRANÉE</span>
+    </div>
+    <div><h4>Produit</h4><a href="carte.html">Carte</a><a href="spot.html">Spots</a><a href="espece.html">Espèces</a><a href="tarifs.html">Tarifs</a></div>
+    <div><h4>Communauté</h4><a href="fil.html">Fil régional</a><a href="profil.html">Profils</a><a href="#">Guides</a></div>
+    <div><h4>Légal</h4><a href="#">Mentions légales</a><a href="#">Confidentialité</a><a href="#">CGU</a><a href="#">Contact</a></div>
+  </div>
+  <div class="wrap base"><span>© 2026 Carnet de Pêche</span><span class="tag-data" style="color:rgba(255,255,255,.3)">FAIT EN FRANCE · DONNÉES HÉBERGÉES EN UE</span></div>
+</footer>
+
+</body>
+</html>

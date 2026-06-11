@@ -1,0 +1,175 @@
+/* ============================================================
+   Carnet de Pêche — DA v2 « Instrument de précision marine »
+   Maquettes HTML. Voir docs/maquette-v2/DA.md
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  /* Encres & fonds */
+  --navy-950:#04141C; --navy-900:#0A2F3D; --navy-800:#0E3D4F; --navy-700:#155A73;
+  --ink-900:#0E1A22; --ink-600:#44545E; --ink-400:#7E8C95;
+  --sand-50:#FBF8F2; --sand-100:#F4EEE0; --sand-200:#E8DFCB; --white:#fff;
+  /* Accents */
+  --teal-600:#0E9488; --teal-500:#14B8A6; --teal-300:#5EEAD4;
+  --gold-500:#D9A53C; --coral-500:#E5604F;
+  --score-low:#7E8C95; --score-mid:#D9A53C; --score-high:#14B8A6;
+  /* Typo */
+  --font-display:'Space Grotesk',sans-serif;
+  --font-ui:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  /* Géométrie */
+  --r-sm:8px; --r-md:14px; --r-lg:22px; --r-xl:32px;
+  --shadow-sm:0 1px 2px rgba(14,26,34,.05),0 2px 8px rgba(14,26,34,.04);
+  --shadow-lg:0 8px 32px rgba(4,20,28,.16);
+  --border:1px solid var(--sand-200);
+  --border-dark:1px solid rgba(255,255,255,.1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-ui);color:var(--ink-900);background:var(--sand-50);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+
+/* ---------- Typo ---------- */
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.08;letter-spacing:-.02em;font-weight:600}
+.h-hero{font-size:clamp(40px,6vw,68px)}
+.h-section{font-size:clamp(30px,4vw,44px)}
+h3{font-size:21px}
+.lead{font-size:19px;color:var(--ink-600);line-height:1.65}
+.muted{color:var(--ink-600)} .faint{color:var(--ink-400)}
+.small{font-size:14px}
+
+/* La signature : données en mono */
+.tag-data{font-family:var(--font-mono);font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-400)}
+.tag-data.teal{color:var(--teal-600)} .tag-data.gold{color:var(--gold-500)} .tag-data.coral{color:var(--coral-500)}
+.tag-data.on-dark{color:var(--teal-300)}
+.num{font-family:var(--font-mono);font-weight:500}
+
+/* Kicker au-dessus des titres */
+.kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-600);margin-bottom:18px}
+.kicker::before{content:'';width:28px;height:1.5px;background:var(--teal-500)}
+.on-dark .kicker{color:var(--teal-300)}
+
+/* Numéro de section éditorial */
+.sec-num{font-family:var(--font-mono);font-size:13px;color:var(--ink-400);letter-spacing:.1em}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.section{padding:104px 0}
+.section.tight{padding:72px 0}
+.section.alt{background:var(--sand-100)}
+.section.dark{background:var(--navy-950);color:#fff;position:relative;overflow:hidden}
+.section.dark .muted{color:rgba(255,255,255,.62)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:960px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.section{padding:64px 0}}
+
+/* ---------- Isobathes (motif identitaire) ---------- */
+.bathy{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.bathy svg{width:100%;height:100%}
+
+/* ---------- Navbar ---------- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(251,248,242,.88);backdrop-filter:blur(12px);border-bottom:var(--border)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--navy-900)}
+.logo svg{flex:none}
+.nav-links{display:flex;gap:32px;font-size:15px;font-weight:500;color:var(--ink-600)}
+.nav-links a:hover{color:var(--navy-900)}
+.nav-links a.active{color:var(--navy-900);position:relative}
+.nav-links a.active::after{content:'';position:absolute;left:0;right:0;bottom:-24px;height:2px;background:var(--teal-500)}
+.nav-cta{display:flex;gap:12px;align-items:center}
+.nav.app{background:#fff}
+
+/* Bandeau instruments (app) */
+.instruments{background:var(--navy-950);color:#fff;font-family:var(--font-mono);font-size:12px;letter-spacing:.05em}
+.instruments .wrap{display:flex;gap:28px;align-items:center;height:38px;overflow-x:auto;white-space:nowrap}
+.instruments b{color:var(--teal-300);font-weight:500}
+.instruments .sep{opacity:.25}
+.instruments .up{color:var(--teal-300)} .instruments .down{color:var(--coral-500)}
+
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-ui);font-weight:600;font-size:15.5px;padding:13px 26px;border-radius:var(--r-sm);border:1.5px solid transparent;cursor:pointer;transition:.18s}
+.btn.primary{background:var(--navy-900);color:#fff}
+.btn.primary:hover{background:var(--navy-800)}
+.btn.accent{background:var(--teal-500);color:var(--navy-950)}
+.btn.accent:hover{background:var(--teal-300)}
+.btn.ghost{border-color:var(--sand-200);color:var(--ink-900);background:transparent}
+.btn.ghost:hover{border-color:var(--ink-400)}
+.btn.ghost.on-dark{border-color:rgba(255,255,255,.25);color:#fff}
+.btn.sm{padding:9px 18px;font-size:14px}
+
+/* ---------- Cards ---------- */
+.card{background:#fff;border:var(--border);border-radius:var(--r-md);padding:28px;box-shadow:var(--shadow-sm)}
+.card.live{border-left:3px solid var(--teal-500)}
+.card.flat{box-shadow:none}
+.card h3{margin-bottom:10px}
+.card .ic{width:42px;height:42px;border-radius:10px;background:var(--sand-100);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--navy-900)}
+.dark .card{background:rgba(255,255,255,.04);border:var(--border-dark);box-shadow:none;color:#fff}
+
+/* ---------- Chips & badges ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 12px;border-radius:99px;background:var(--sand-100);border:var(--border);color:var(--ink-600)}
+.chip.teal{background:rgba(20,184,166,.1);border-color:rgba(20,184,166,.25);color:var(--teal-600)}
+.chip.gold{background:rgba(217,165,60,.1);border-color:rgba(217,165,60,.3);color:#A87C20}
+.chip.navy{background:var(--navy-900);border-color:var(--navy-900);color:#fff}
+.chip.mono{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.04em}
+
+/* ---------- Score ring ---------- */
+.score-ring{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .v{position:absolute;font-family:var(--font-mono);font-weight:600}
+
+/* ---------- Courbe de marée ---------- */
+.tide-box{background:#fff;border:var(--border);border-radius:var(--r-md);padding:20px 22px}
+.tide-box.on-dark{background:rgba(255,255,255,.04);border:var(--border-dark)}
+.tide-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+
+/* ---------- Device frame ---------- */
+.phone{width:300px;background:var(--navy-950);border-radius:38px;padding:10px;box-shadow:var(--shadow-lg)}
+.phone .screen{background:var(--sand-50);border-radius:30px;overflow:hidden}
+
+/* ---------- Listes data (carnet, fil) ---------- */
+.row{display:flex;align-items:center;gap:16px;padding:16px 18px;background:#fff;border:var(--border);border-radius:var(--r-md)}
+.row+.row{margin-top:10px}
+.row .thumb{width:56px;height:56px;border-radius:10px;flex:none;background:linear-gradient(135deg,var(--navy-800),var(--navy-950));position:relative;overflow:hidden}
+.row .thumb::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(94,234,212,.25),transparent 60%)}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--navy-800);color:var(--teal-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;flex:none}
+.avatar.lg{width:72px;height:72px;font-size:22px}
+
+/* ---------- Stats ---------- */
+.stat .v{font-family:var(--font-mono);font-size:clamp(26px,3vw,36px);font-weight:600;color:var(--navy-900)}
+.dark .stat .v{color:var(--teal-300)}
+.stat .l{font-size:13.5px;color:var(--ink-400);margin-top:2px}
+
+/* ---------- Tableaux ---------- */
+table.data{width:100%;border-collapse:collapse;font-size:14.5px}
+table.data th{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-400);font-weight:500;text-align:left;padding:10px 14px;border-bottom:var(--border)}
+table.data td{padding:12px 14px;border-bottom:var(--border)}
+table.data tr:last-child td{border-bottom:none}
+
+/* ---------- Footer ---------- */
+.footer{background:var(--navy-950);color:rgba(255,255,255,.6);padding:72px 0 36px;position:relative;overflow:hidden}
+.footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;position:relative}
+.footer h4{color:#fff;font-size:14px;margin-bottom:16px}
+.footer a{display:block;font-size:14.5px;padding:5px 0;color:rgba(255,255,255,.55)}
+.footer a:hover{color:var(--teal-300)}
+.footer .base{margin-top:56px;padding-top:24px;border-top:var(--border-dark);display:flex;justify-content:space-between;font-size:13px;position:relative}
+@media(max-width:960px){.footer .cols{grid-template-columns:1fr 1fr}}
+
+/* ---------- App shell ---------- */
+.app-main{display:grid;grid-template-columns:232px 1fr;gap:0;min-height:calc(100vh - 106px)}
+.side{background:#fff;border-right:var(--border);padding:24px 14px}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;font-size:15px;font-weight:500;color:var(--ink-600);margin-bottom:2px}
+.side a.active{background:var(--navy-900);color:#fff}
+.side a:hover:not(.active){background:var(--sand-100)}
+.content{padding:36px 40px;max-width:1040px}
+@media(max-width:960px){.app-main{grid-template-columns:1fr}.side{display:none}.content{padding:24px 20px}}
+
+/* ---------- Divers ---------- */
+.pill-note{display:inline-flex;gap:8px;align-items:center;background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.25);color:var(--teal-600);border-radius:99px;padding:7px 16px;font-size:13.5px;font-weight:600}
+.hr-dot{border:none;border-top:1px dashed var(--sand-200);margin:20px 0}
+.icon{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mark{background:linear-gradient(transparent 62%,rgba(20,184,166,.28) 62%)}

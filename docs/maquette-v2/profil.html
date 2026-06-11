@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yann L. — Profil · Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .p-hero{background:var(--navy-950);color:#fff;position:relative;overflow:hidden;padding:52px 0 44px}
+  .p-grid{display:grid;grid-template-columns:1fr 320px;gap:36px;align-items:start}
+  @media(max-width:1080px){.p-grid{grid-template-columns:1fr}}
+  .badge{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:var(--border);border-radius:var(--r-md);background:#fff;text-align:center}
+  .badge .ic{width:40px;height:40px;border-radius:50%;background:var(--sand-100);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .badge.gold .ic{background:rgba(217,165,60,.15)}
+  .year{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-top:12px}
+  .year div{height:34px;border-radius:6px;background:var(--sand-100);position:relative}
+</style>
+</head>
+<body>
+
+<nav class="nav app">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-cta"><a class="btn accent sm" href="#">+ Loguer une prise</a><div class="avatar">JD</div></div>
+  </div>
+</nav>
+
+<!-- HERO PROFIL -->
+<header class="p-hero">
+  <div class="bathy"><svg viewBox="0 0 1400 260" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".4">
+    <path d="M-50 200 C 300 140, 700 250, 1000 180 S 1350 120, 1460 180"/></g></svg></div>
+  <div class="wrap" style="position:relative;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+    <div class="avatar lg" style="background:var(--teal-500);color:var(--navy-950)">YL</div>
+    <div style="flex:1">
+      <h1 style="font-size:30px">Yann L. <span class="chip teal mono" style="margin-left:6px;vertical-align:middle">@yannlebar29</span></h1>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">DOUARNENEZ · 29</span>
+        <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">LEURRES · SURFCASTING</span>
+        <span class="chip mono" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff">BAR · LIEU JAUNE</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:28px;align-items:center">
+      <div class="stat" style="text-align:center"><div class="v" style="color:#5EEAD4">87</div><div class="l" style="color:rgba(255,255,255,.45)">prises</div></div>
+      <div class="stat" style="text-align:center"><div class="v" style="color:#5EEAD4">142</div><div class="l" style="color:rgba(255,255,255,.45)">abonnés</div></div>
+      <button class="btn accent">Suivre</button>
+    </div>
+  </div>
+</header>
+
+<section class="section tight" style="padding-top:32px">
+  <div class="wrap p-grid">
+    <div>
+      <!-- Année -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <h3>Son année 2026</h3><span class="tag-data">23 PRISES · 14 SESSIONS</span>
+        </div>
+        <div class="year">
+          <div title="Jan"></div><div title="Fév"></div>
+          <div style="background:rgba(20,184,166,.25)"></div>
+          <div style="background:rgba(20,184,166,.55)"></div>
+          <div style="background:var(--teal-500)"></div>
+          <div style="background:var(--teal-600)"></div>
+          <div style="background:rgba(20,184,166,.35)"></div>
+          <div></div><div></div><div></div><div></div><div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px" class="tag-data"><span>JAN</span><span>JUIN</span><span>DÉC</span></div>
+        <hr class="hr-dot">
+        <div style="display:flex;gap:32px;flex-wrap:wrap">
+          <div class="stat"><div class="v" style="font-size:22px">71 cm</div><div class="l">record — bar</div></div>
+          <div class="stat"><div class="v" style="font-size:22px">4</div><div class="l">espèces</div></div>
+          <div class="stat"><div class="v" style="font-size:22px">62 %</div><div class="l">de ses prises au crépuscule</div></div>
+        </div>
+      </div>
+
+      <!-- Prises publiques -->
+      <h3 style="margin:26px 0 12px">Prises partagées</h3>
+      <div class="row">
+        <div class="thumb"></div>
+        <div style="flex:1"><strong>Bar · 67 cm</strong>
+          <div class="tag-data" style="margin-top:2px">06 MAI · POINTE DU RAZ (1 KM) · COEF 88 ▼ · SHAD KAKI</div></div>
+        <span class="small muted">♥ 14</span>
+      </div>
+      <div class="row">
+        <div class="thumb" style="background:linear-gradient(135deg,#155A73,#04141C)"></div>
+        <div style="flex:1"><strong>Bar · 71 cm <span class="chip gold mono" style="margin-left:4px">RECORD</span></strong>
+          <div class="tag-data" style="margin-top:2px">12 AVR · FINISTÈRE SUD (1 KM) · COEF 102 ▼ · SLUG BLANC</div></div>
+        <span class="small muted">♥ 31</span>
+      </div>
+      <div class="row">
+        <div class="thumb" style="background:linear-gradient(135deg,#0E3D4F,#0A2F3D)"></div>
+        <div style="flex:1"><strong>Lieu jaune · 49 cm</strong>
+          <div class="tag-data" style="margin-top:2px">28 AVR · CAP SIZUN (1 KM) · BM+1 ▲ · MADAÏ</div></div>
+        <span class="small muted">♥ 8</span>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside style="display:grid;gap:14px">
+      <div class="card" style="padding:18px">
+        <span class="tag-data">BADGES</span>
+        <div class="grid3" style="gap:10px;margin-top:12px;grid-template-columns:repeat(3,1fr)">
+          <div class="badge gold"><div class="ic">🏆</div><span class="small" style="font-weight:600">Métré</span><span class="tag-data">71 CM</span></div>
+          <div class="badge"><div class="ic">🌊</div><span class="small" style="font-weight:600">Vives-eaux</span><span class="tag-data">COEF 100+</span></div>
+          <div class="badge"><div class="ic">🌙</div><span class="small" style="font-weight:600">Nocturne</span><span class="tag-data">10 PRISES</span></div>
+        </div>
+      </div>
+      <div class="card flat" style="padding:18px;background:var(--sand-100)">
+        <span class="tag-data">CONFIDENTIALITÉ</span>
+        <p class="small muted" style="margin-top:6px">Les positions de Yann sont floutées à 1 km. Ses spots précis ne sont visibles que de ses amis, s'il l'autorise.</p>
+      </div>
+      <div class="card" style="padding:18px;background:var(--navy-950);border:none;color:#fff">
+        <strong>Compare tes patterns</strong>
+        <p class="small" style="color:rgba(255,255,255,.55);margin:8px 0 12px">Crée ton carnet et découvre tes propres conditions gagnantes.</p>
+        <a class="btn accent sm" href="#" style="width:100%">Créer mon carnet</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+</body>
+</html>

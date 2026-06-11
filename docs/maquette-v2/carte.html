@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carte — Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .map-wrap{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 106px)}
+  @media(max-width:1080px){.map-wrap{grid-template-columns:1fr}}
+  .map{position:relative;background:linear-gradient(160deg,#C9E2DE 0%,#BFD9DA 45%,#B3CFD4 100%);overflow:hidden}
+  .land{position:absolute;background:#EFE8D8;border:1px solid #DFD4BC}
+  .marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer}
+  .marker .dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:600;color:#fff;border:2.5px solid #fff;box-shadow:0 2px 10px rgba(4,20,28,.25)}
+  .marker .lbl{margin-top:4px;background:#fff;border:var(--border);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;box-shadow:var(--shadow-sm)}
+  .blur-zone{position:absolute;border-radius:50%;border:1.5px dashed rgba(10,47,61,.35);background:rgba(10,47,61,.07);transform:translate(-50%,-50%)}
+  .panel{background:#fff;border-left:var(--border);overflow-y:auto;padding:22px}
+  .map-ui{position:absolute;display:flex;gap:8px}
+  .spot-mini{display:flex;align-items:center;gap:12px;padding:13px 12px;border:var(--border);border-radius:var(--r-md);margin-top:10px;cursor:pointer}
+  .spot-mini:hover{border-color:var(--teal-500)}
+</style>
+</head>
+<body>
+
+<nav class="nav app">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-cta"><a class="btn accent sm" href="#">+ Loguer une prise</a><div class="avatar">JD</div></div>
+  </div>
+</nav>
+
+<div class="instruments">
+  <div class="wrap">
+    <span>FINISTÈRE · 29</span><span class="sep">|</span>
+    <span>PM <b>06:42</b> · BM <b>12:58</b></span><span class="sep">|</span>
+    <span>COEF <b>88</b> <span class="up">▲</span></span><span class="sep">|</span>
+    <span>HOULE <b>0,8 m</b></span><span class="sep">|</span>
+    <span class="up">CRÉNEAU <b>18:30 → 21:30</b></span>
+  </div>
+</div>
+
+<div class="map-wrap">
+  <!-- CARTE -->
+  <div class="map">
+    <!-- côte stylisée -->
+    <div class="land" style="top:-12%;left:-8%;width:64%;height:70%;border-radius:0 0 58% 32%/0 0 70% 45%"></div>
+    <div class="land" style="bottom:-18%;left:-6%;width:38%;height:46%;border-radius:0 62% 0 0/0 80% 0 0"></div>
+
+    <!-- isobathes -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 1000 700" preserveAspectRatio="none">
+      <g fill="none" stroke="#7FA8AC" stroke-width="1" opacity=".55">
+        <path d="M560 0 C 540 160, 620 300, 560 460 S 470 620, 520 700"/>
+        <path d="M660 0 C 640 170, 720 310, 660 470 S 570 630, 620 700" opacity=".7"/>
+        <path d="M780 0 C 760 180, 830 320, 770 480 S 690 640, 740 700" opacity=".5"/>
+      </g>
+      <text x="575" y="240" font-family="JetBrains Mono" font-size="11" fill="#5E8489">— 5 m</text>
+      <text x="676" y="300" font-family="JetBrains Mono" font-size="11" fill="#5E8489" opacity=".8">— 10 m</text>
+      <text x="788" y="360" font-family="JetBrains Mono" font-size="11" fill="#5E8489" opacity=".6">— 20 m</text>
+    </svg>
+
+    <!-- zone floutée (spot gratuit) -->
+    <div class="blur-zone" style="top:64%;left:30%;width:120px;height:120px"></div>
+    <span class="tag-data" style="position:absolute;top:74%;left:30%;transform:translateX(-50%)">ZONE 1 KM · 🔒 LOCAL</span>
+
+    <!-- markers score -->
+    <div class="marker" style="top:34%;left:48%"><div class="dot" style="background:var(--teal-500)">87</div><div class="lbl">Pointe du Raz</div></div>
+    <div class="marker" style="top:52%;left:62%"><div class="dot" style="background:var(--teal-600)">81</div><div class="lbl">Anse de Térénez</div></div>
+    <div class="marker" style="top:25%;left:70%"><div class="dot" style="background:var(--gold-500)">64</div><div class="lbl">Jetée Lechiagat</div></div>
+    <div class="marker" style="top:70%;left:55%"><div class="dot" style="background:var(--ink-400)">38</div><div class="lbl">Plage de Kervel</div></div>
+
+    <!-- UI carte -->
+    <div class="map-ui" style="top:16px;left:16px">
+      <span class="chip" style="background:#fff">Bar</span><span class="chip" style="background:#fff">Leurres</span><span class="chip teal">Score &gt; 60</span>
+    </div>
+    <div class="map-ui" style="bottom:16px;left:16px"><span class="chip mono" style="background:#fff">48.0395°N · 4.7372°O · ZOOM 11</span></div>
+    <div class="map-ui" style="top:16px;right:16px;flex-direction:column">
+      <button class="btn ghost sm" style="background:#fff">+</button><button class="btn ghost sm" style="background:#fff">−</button>
+    </div>
+  </div>
+
+  <!-- PANNEAU -->
+  <aside class="panel">
+    <span class="tag-data">FINISTÈRE SUD · 12 SPOTS VISIBLES</span>
+    <h2 style="font-size:22px;margin:8px 0 4px">Triés par ton score</h2>
+    <p class="small muted">Score global ⨯ tes patterns. Recalculé ce matin, 06:00.</p>
+
+    <a class="spot-mini" href="spot.html" style="border-color:var(--teal-500);background:rgba(20,184,166,.04)">
+      <div class="score-ring"><svg width="44" height="44"><circle cx="22" cy="22" r="18" stroke="var(--sand-200)" stroke-width="4" fill="none"/><circle cx="22" cy="22" r="18" stroke="#14B8A6" stroke-width="4" fill="none" stroke-dasharray="113" stroke-dashoffset="15" stroke-linecap="round"/></svg><span class="v" style="font-size:13px;color:var(--teal-600)">87</span></div>
+      <div style="flex:1"><strong>Pointe du Raz</strong><div class="tag-data">ROCHE · COURANT FORT · BAR, LIEU</div></div>
+      <span class="tag-data teal">● 3 PRISES AUJ.</span>
+    </a>
+
+    <a class="spot-mini" href="spot.html">
+      <div class="score-ring"><svg width="44" height="44"><circle cx="22" cy="22" r="18" stroke="var(--sand-200)" stroke-width="4" fill="none"/><circle cx="22" cy="22" r="18" stroke="#0E9488" stroke-width="4" fill="none" stroke-dasharray="113" stroke-dashoffset="22" stroke-linecap="round"/></svg><span class="v" style="font-size:13px;color:var(--teal-600)">81</span></div>
+      <div style="flex:1"><strong>Anse de Térénez</strong><div class="tag-data">SABLE+ROCHE · ABRITÉ NO · BAR, SAR</div></div>
+    </a>
+
+    <a class="spot-mini" href="spot.html">
+      <div class="score-ring"><svg width="44" height="44"><circle cx="22" cy="22" r="18" stroke="var(--sand-200)" stroke-width="4" fill="none"/><circle cx="22" cy="22" r="18" stroke="#D9A53C" stroke-width="4" fill="none" stroke-dasharray="113" stroke-dashoffset="41" stroke-linecap="round"/></svg><span class="v" style="font-size:13px;color:var(--gold-500)">64</span></div>
+      <div style="flex:1"><strong>Jetée de Lechiagat</strong><div class="tag-data">DIGUE · FAMILIAL · MAQUEREAU, ORPHIE</div></div>
+    </a>
+
+    <div class="card flat" style="margin-top:18px;padding:18px;background:var(--sand-100)">
+      <span class="tag-data">🔒 9 AUTRES SPOTS DANS LE 29</span>
+      <p class="small muted" style="margin:8px 0 12px">GPS précis, score et filtres avec Local — 4,90 €/mois.</p>
+      <a class="btn primary sm" href="tarifs.html" style="width:100%">Débloquer le département</a>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>

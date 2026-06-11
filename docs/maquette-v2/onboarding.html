@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding — DA v2 · Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  body{background:var(--navy-950);padding:48px 24px}
+  .board{display:flex;gap:36px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .frame{width:300px}
+  .frame>.tag-data{display:block;text-align:center;margin-bottom:12px;color:rgba(255,255,255,.5)}
+  .ph{background:#000;border-radius:42px;padding:9px;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+  .scr{background:var(--sand-50);border-radius:34px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative;font-size:13px}
+  .notch{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:var(--navy-950);color:#fff;font-family:var(--font-mono);font-size:9.5px;flex:none}
+  .tag-data{font-size:9px}
+  .chip{font-size:10.5px;padding:3px 9px}
+  h2.m{font-family:var(--font-display);font-size:19px;letter-spacing:-.01em;line-height:1.15}
+
+  /* ---- header onboarding : étape + segments ---- */
+  .ob-head{flex:none;padding:12px 16px 0}
+  .ob-head .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ob-head .back{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--ink-400)}
+  .segs{display:flex;gap:4px}
+  .segs i{flex:1;height:3px;border-radius:99px;background:var(--sand-200)}
+  .segs i.on{background:var(--teal-500)}
+  .segs i.now{background:var(--navy-900)}
+
+  /* ---- corps + CTA fixe ---- */
+  .ob-body{flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column}
+  .ob-body .sub{color:var(--ink-600);font-size:11.5px;line-height:1.5;margin:4px 0 14px}
+  .ob-cta{flex:none;padding:12px 16px 18px;background:linear-gradient(transparent,var(--sand-50) 35%)}
+  .btn-ob{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;border-radius:var(--r-sm);background:var(--navy-900);color:#fff;font-weight:600;font-size:13px;font-family:var(--font-ui)}
+  .btn-ob.off{background:var(--sand-200);color:var(--ink-400)}
+  .btn-ob.accent{background:var(--teal-500);color:var(--navy-950)}
+  .skip{display:block;text-align:center;margin-top:8px;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--ink-400);text-transform:uppercase}
+
+  /* ---- inputs ---- */
+  .field label{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-400);margin-bottom:5px}
+  .input{display:flex;align-items:center;gap:8px;background:#fff;border:var(--border);border-radius:10px;padding:11px 12px;font-size:13px}
+  .input.focus{border-color:var(--teal-500);box-shadow:0 0 0 3px rgba(20,184,166,.12)}
+  .input .pre{font-family:var(--font-mono);color:var(--ink-400)}
+  .input b{font-family:var(--font-mono);font-weight:500}
+  .hint{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.06em;color:var(--ink-400);margin-top:5px;text-transform:uppercase}
+  .hint.ok{color:var(--teal-600)}
+
+  /* ---- chips de sélection (techniques, espèces) ---- */
+  .pick{display:flex;flex-wrap:wrap;gap:7px}
+  .pick .p{display:inline-flex;align-items:center;gap:6px;padding:10px 13px;border-radius:99px;border:1.5px solid var(--sand-200);background:#fff;font-size:12px;font-weight:600;color:var(--ink-600)}
+  .pick .p.on{background:var(--navy-900);border-color:var(--navy-900);color:#fff}
+  .pick .p.on .k{color:var(--teal-300)}
+  .pick .p .k{font-family:var(--font-mono);font-size:8.5px;color:var(--ink-400);font-weight:500}
+
+  /* ---- cards radio (niveau, fréquence) ---- */
+  .opt{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid var(--sand-200);border-radius:12px;padding:12px}
+  .opt+.opt{margin-top:8px}
+  .opt.on{border-color:var(--navy-900);box-shadow:0 0 0 3px rgba(10,47,61,.06)}
+  .opt .dot{width:17px;height:17px;border-radius:50%;border:2px solid var(--sand-200);flex:none;display:flex;align-items:center;justify-content:center}
+  .opt.on .dot{border-color:var(--navy-900);background:var(--navy-900)}
+  .opt.on .dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+  .opt b{font-size:12.5px;display:block}
+  .opt .d{font-size:10.5px;color:var(--ink-600)}
+  .opt .k{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.06em;color:var(--ink-400);text-transform:uppercase;margin-left:auto;flex:none}
+  .opt.on .k{color:var(--teal-600)}
+
+  /* ---- liste départements ---- */
+  .dept{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--sand-200);border-radius:10px;padding:9px 12px;font-size:12px;font-weight:600}
+  .dept+.dept{margin-top:6px}
+  .dept.on{border-color:var(--teal-500);background:rgba(20,184,166,.06)}
+  .dept .code{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--navy-900);width:24px;flex:none}
+  .dept .coast{font-family:var(--font-mono);font-size:8px;letter-spacing:.06em;color:var(--ink-400);margin-left:auto;text-transform:uppercase}
+  .dept.on .coast{color:var(--teal-600)}
+
+  /* ---- stepper années ---- */
+  .step-num{display:flex;align-items:center;gap:0;border:var(--border);border-radius:10px;background:#fff;overflow:hidden;width:fit-content}
+  .step-num span{width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink-400)}
+  .step-num b{font-family:var(--font-mono);font-size:15px;min-width:46px;text-align:center;border-left:var(--border);border-right:var(--border);height:38px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<div style="text-align:center;margin-bottom:36px">
+  <span class="kicker" style="justify-content:center;color:var(--teal-300)">DA v2 · Onboarding</span>
+  <h1 style="color:#fff;font-size:30px">Six questions, et l'instrument est calibré.</h1>
+  <p style="color:rgba(255,255,255,.55);max-width:640px;margin:10px auto 0;font-size:15px">Une question par écran, segments de progression, données en mono. Le pêcheur règle son instrument comme on règle un moulinet — vite, et une seule fois.</p>
+</div>
+
+<div class="board">
+
+  <!-- ============ 01 · PSEUDO ============ -->
+  <div class="frame">
+    <span class="tag-data">01 · PSEUDO</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy-900)" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10" stroke="var(--teal-500)"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="tag-data">ÉTAPE 01/06</span>
+        </div>
+        <div class="segs"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">IDENTIFICATION</span>
+        <h2 class="m" style="margin-top:3px">Choisis ton pseudo</h2>
+        <p class="sub">C'est le nom que la communauté verra sur le fil et tes prises publiques. Tu pourras le changer plus tard.</p>
+        <div class="field">
+          <label>Ton pseudo</label>
+          <div class="input focus"><span class="pre">@</span><b>barpecheur29</b><span style="margin-left:auto;color:var(--teal-500)">✓</span></div>
+          <div class="hint ok">✓ DISPONIBLE · 3-30 CARACTÈRES · A-Z 0-9 - _</div>
+        </div>
+        <div style="margin-top:auto;padding-bottom:10px">
+          <div class="card-m" style="background:#fff;border:var(--border);border-radius:12px;padding:10px;display:flex;gap:9px;align-items:center">
+            <div class="avatar" style="width:30px;height:30px;font-size:10px">BA</div>
+            <div style="flex:1"><b style="font-size:11.5px">barpecheur29</b><div class="tag-data">APERÇU DE TON PROFIL</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob">Continuer →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 02 · PORT D'ATTACHE ============ -->
+  <div class="frame">
+    <span class="tag-data">02 · PORT D'ATTACHE</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top"><span class="back">← RETOUR</span><span class="tag-data">ÉTAPE 02/06</span></div>
+        <div class="segs"><i class="on"></i><i class="now"></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">LOCALISATION</span>
+        <h2 class="m" style="margin-top:3px">Ton port d'attache</h2>
+        <p class="sub">Ton département calibre les spots, les marées et le fil que tu verras en premier.</p>
+        <div class="field" style="margin-bottom:12px">
+          <label>Ta ville</label>
+          <div class="input"><b style="font-family:var(--font-ui)">Brest</b></div>
+        </div>
+        <div class="field">
+          <label>Département principal</label>
+          <div class="input" style="margin-bottom:8px;color:var(--ink-400)">Rechercher… <span style="margin-left:auto">⌄</span></div>
+          <div class="dept"><span class="code">22</span>Côtes-d'Armor<span class="coast">MANCHE</span></div>
+          <div class="dept on"><span class="code">29</span>Finistère<span class="coast">ATLANTIQUE ✓</span></div>
+          <div class="dept"><span class="code">56</span>Morbihan<span class="coast">ATLANTIQUE</span></div>
+          <div class="dept"><span class="code">44</span>Loire-Atlantique<span class="coast">ATLANTIQUE</span></div>
+        </div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob">Continuer →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 03 · TECHNIQUES ============ -->
+  <div class="frame">
+    <span class="tag-data">03 · TECHNIQUES</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top"><span class="back">← RETOUR</span><span class="tag-data">ÉTAPE 03/06</span></div>
+        <div class="segs"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">PRATIQUE · MULTI-CHOIX</span>
+        <h2 class="m" style="margin-top:3px">Comment tu pêches&nbsp;?</h2>
+        <p class="sub">Plusieurs choix possibles. On s'en sert pour filtrer les spots et les guides.</p>
+        <div class="opt on"><span class="dot"></span><div><b>Leurres</b><span class="d">Souples, durs, casting du bord</span></div><span class="k">✓</span></div>
+        <div class="opt on"><span class="dot"></span><div><b>Surfcasting</b><span class="d">Plage, longue distance, appâts</span></div><span class="k">✓</span></div>
+        <div class="opt"><span class="dot"></span><div><b>Flottante</b><span class="d">Bouchon, digues et ports</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Vif</b><span class="d">Poisson vivant, postes à carnassiers</span></div></div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob">Continuer · <span style="font-family:var(--font-mono);font-weight:500">2 CHOISIES</span> →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 04 · ESPÈCES ============ -->
+  <div class="frame">
+    <span class="tag-data">04 · ESPÈCES CIBLES</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top"><span class="back">← RETOUR</span><span class="tag-data">ÉTAPE 04/06</span></div>
+        <div class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">CIBLES · MULTI-CHOIX</span>
+        <h2 class="m" style="margin-top:3px">Tes espèces favorites</h2>
+        <p class="sub">Celles que tu chasses en priorité — ton carnet apprendra leurs patterns en premier.</p>
+        <div class="pick">
+          <span class="p on">✓ Bar <span class="k">DICENTRARCHUS</span></span>
+          <span class="p">Dorade royale</span>
+          <span class="p on">✓ Lieu jaune <span class="k">POLLACHIUS</span></span>
+          <span class="p">Maquereau</span>
+          <span class="p">Sar</span>
+          <span class="p">Orphie</span>
+        </div>
+        <div style="margin-top:auto;padding-bottom:10px">
+          <div style="background:rgba(20,184,166,.07);border:1px solid rgba(20,184,166,.22);border-radius:10px;padding:9px 11px;font-size:10.5px;color:var(--teal-600)"><b style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.06em">SAISON BAR · 29</b><br>Le bar mord d'avril à novembre sur ta côte. Bon timing.</div>
+        </div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob">Continuer · <span style="font-family:var(--font-mono);font-weight:500">2 CHOISIES</span> →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 05 · NIVEAU ============ -->
+  <div class="frame">
+    <span class="tag-data">05 · NIVEAU</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top"><span class="back">← RETOUR</span><span class="tag-data">ÉTAPE 05/06</span></div>
+        <div class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i><i></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">CALIBRAGE</span>
+        <h2 class="m" style="margin-top:3px">Ton niveau, honnêtement</h2>
+        <p class="sub">Pas de jugement — ça calibre les suggestions de spots et la profondeur des guides.</p>
+        <div class="opt"><span class="dot"></span><div><b>Débutant</b><span class="d">Je découvre la pêche du bord</span></div><span class="k">LVL 1</span></div>
+        <div class="opt on"><span class="dot"></span><div><b>Intermédiaire</b><span class="d">Je connais les bases, je progresse</span></div><span class="k">LVL 2</span></div>
+        <div class="opt"><span class="dot"></span><div><b>Expert</b><span class="d">Je maîtrise plusieurs techniques</span></div><span class="k">LVL 3</span></div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob">Continuer →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 06 · FRÉQUENCE ============ -->
+  <div class="frame">
+    <span class="tag-data">06 · FRÉQUENCE</span>
+    <div class="ph"><div class="scr">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div class="ob-head">
+        <div class="top"><span class="back">← RETOUR</span><span class="tag-data">ÉTAPE 06/06</span></div>
+        <div class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i></div>
+      </div>
+      <div class="ob-body">
+        <span class="tag-data teal">RYTHME · DERNIÈRE QUESTION</span>
+        <h2 class="m" style="margin-top:3px">À quel rythme&nbsp;?</h2>
+        <p class="sub">Dernière question, promis.</p>
+        <div class="opt"><span class="dot"></span><div><b>Quelques fois par an</b></div><span class="k">RARE</span></div>
+        <div class="opt"><span class="dot"></span><div><b>Saisonnièrement</b></div><span class="k">SAISON</span></div>
+        <div class="opt on"><span class="dot"></span><div><b>Toutes les semaines</b></div><span class="k">HEBDO</span></div>
+        <div class="opt"><span class="dot"></span><div><b>Plusieurs fois par semaine</b></div><span class="k">INTENSIF</span></div>
+        <div class="field" style="margin-top:12px">
+          <label>Années de pratique</label>
+          <div class="step-num"><span>−</span><b>8</b><span>+</span></div>
+        </div>
+      </div>
+      <div class="ob-cta"><a class="btn-ob accent">Créer mon carnet →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ============ 07 · CARNET PRÊT ============ -->
+  <div class="frame">
+    <span class="tag-data">07 · CARNET PRÊT (FIN)</span>
+    <div class="ph"><div class="scr" style="background:var(--navy-950);color:#fff">
+      <div class="notch"><span>09:41</span><span>●●●</span></div>
+      <div style="flex:1;position:relative;display:flex;flex-direction:column;padding:22px 18px 0">
+        <svg class="bathy" viewBox="0 0 300 560" preserveAspectRatio="none" style="opacity:.35">
+          <g fill="none" stroke="#5EEAD4" stroke-width="1" opacity=".4">
+            <path d="M-20 120 C 60 90, 140 150, 320 110"/>
+            <path d="M-20 180 C 70 145, 150 210, 320 165" opacity=".7"/>
+            <path d="M-20 250 C 80 210, 160 280, 320 230" opacity=".5"/>
+            <path d="M-20 330 C 90 285, 170 360, 320 305" opacity=".35"/>
+            <path d="M-20 420 C 100 370, 180 450, 320 390" opacity=".25"/>
+          </g>
+        </svg>
+        <div style="position:relative">
+          <span class="tag-data" style="color:var(--teal-300)">CALIBRAGE TERMINÉ</span>
+          <h2 class="m" style="font-size:24px;margin:6px 0 8px;color:#fff">Ton carnet est prêt.</h2>
+          <p style="font-size:11.5px;color:rgba(255,255,255,.6);line-height:1.55">Chaque prise que tu logueras affinera tes patterns. Plus tu logues, plus il devient le tien.</p>
+          <div style="margin-top:18px;background:rgba(255,255,255,.05);border:var(--border-dark);border-radius:14px;padding:14px">
+            <div style="display:flex;gap:9px;align-items:center;margin-bottom:10px">
+              <div class="avatar" style="width:34px;height:34px;font-size:11px">BA</div>
+              <div><b style="font-size:12.5px">barpecheur29</b><div class="tag-data" style="color:rgba(255,255,255,.45)">BREST · FINISTÈRE</div></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              <span class="chip mono" style="background:rgba(94,234,212,.12);border-color:rgba(94,234,212,.3);color:var(--teal-300)">DÉPT 29</span>
+              <span class="chip mono" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75)">LEURRES</span>
+              <span class="chip mono" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75)">SURFCASTING</span>
+              <span class="chip mono" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75)">BAR · LIEU</span>
+              <span class="chip mono" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75)">HEBDO · 8 ANS</span>
+            </div>
+          </div>
+          <div class="tide-box on-dark" style="margin-top:12px;padding:12px 14px">
+            <div class="tide-head" style="margin-bottom:2px"><span class="tag-data" style="color:rgba(255,255,255,.5)">PROCHAINE MARÉE · 29</span><span class="chip mono teal" style="background:rgba(94,234,212,.12);border-color:rgba(94,234,212,.3);color:var(--teal-300)">COEF 88 ▲</span></div>
+            <svg viewBox="0 0 260 56" style="width:100%">
+              <path d="M0 44 C 30 44, 40 10, 66 10 S 108 44, 134 44 S 176 10, 202 10 S 244 44, 260 44" fill="none" stroke="#5EEAD4" stroke-width="1.6"/>
+              <line x1="86" y1="4" x2="86" y2="52" stroke="#E5604F" stroke-width="1" stroke-dasharray="3 3"/><circle cx="86" cy="22" r="3" fill="#E5604F"/>
+              <text x="66" y="8" font-family="JetBrains Mono" font-size="7.5" fill="#5EEAD4" text-anchor="middle">PM 06:42</text>
+              <text x="134" y="54" font-family="JetBrains Mono" font-size="7.5" fill="rgba(255,255,255,.45)" text-anchor="middle">BM 12:58</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="ob-cta" style="background:linear-gradient(transparent,var(--navy-950) 35%)">
+        <a class="btn-ob accent">Ouvrir mon carnet →</a>
+        <a class="skip" style="color:rgba(255,255,255,.4)">LOGUER MA PREMIÈRE PRISE</a>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:40px;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.35)">CARNET DE PÊCHE · MAQUETTE ONBOARDING DA v2 · 2026-06-11 · NON CONTRACTUEL</p>
+
+</body>
+</html>

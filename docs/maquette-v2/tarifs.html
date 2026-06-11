@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarifs — Carnet de Pêche</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
+  @media(max-width:960px){.plans{grid-template-columns:1fr}}
+  .plan{display:flex;flex-direction:column;padding:32px}
+  .plan .price{font-family:var(--font-mono);font-size:40px;font-weight:600;color:var(--navy-900)}
+  .plan .price small{font-size:15px;color:var(--ink-400);font-weight:400}
+  .plan ul{margin:22px 0;display:grid;gap:11px;font-size:14.5px;flex:1}
+  .plan li{display:flex;gap:10px}
+  .plan li b{font-weight:600}
+  .ok{color:var(--teal-600);flex:none}
+  .plan.featured{background:var(--navy-950);color:#fff;border:none;position:relative;overflow:hidden}
+  .plan.featured .price{color:#fff}
+  .plan.featured .muted{color:rgba(255,255,255,.6)}
+  .toggle{display:inline-flex;border:var(--border);border-radius:99px;background:#fff;padding:4px;gap:2px}
+  .toggle b{padding:8px 20px;border-radius:99px;font-size:14px;cursor:pointer}
+  .toggle b.on{background:var(--navy-900);color:#fff}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="8" fill="#0A2F3D"/><path d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13" stroke="#14B8A6" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="16" r="2" fill="#5EEAD4"/></svg>
+      Carnet de Pêche
+    </a>
+    <div class="nav-links"><a href="carte.html">Carte</a><a href="spot.html">Spots</a><a href="espece.html">Espèces</a><a href="fil.html">Fil</a><a class="active" href="tarifs.html">Tarifs</a></div>
+    <div class="nav-cta"><a class="btn ghost sm" href="#">Connexion</a><a class="btn primary sm" href="#">Créer mon carnet</a></div>
+  </div>
+</nav>
+
+<section class="section" style="padding-bottom:72px">
+  <div class="wrap" style="text-align:center">
+    <span class="kicker" style="justify-content:center">Tarifs</span>
+    <h1 class="h-section">Le carnet et la communauté sont gratuits.<br>La précision se paie.</h1>
+    <p class="lead" style="max-width:640px;margin:18px auto 28px">Logue sans limite, poste sans limite. Tu paies uniquement pour ce qui se voit au mètre près : la carte complète, le score, le hors-ligne.</p>
+    <div class="toggle"><b>Mensuel</b><b class="on">Annuel · −17%</b></div>
+  </div>
+</section>
+
+<section style="padding-bottom:104px">
+  <div class="wrap plans">
+
+    <!-- DÉCOUVERTE -->
+    <div class="card plan">
+      <span class="tag-data">DÉCOUVERTE</span>
+      <div class="price" style="margin-top:10px">0 €<small> / pour toujours</small></div>
+      <p class="muted small" style="margin-top:6px">Tout ce qu'il faut pour loguer et progresser.</p>
+      <ul>
+        <li><span class="ok">✓</span><span><b>Carnet illimité</b> — prises, photos, conditions auto</span></li>
+        <li><span class="ok">✓</span><span><b>Fil communautaire complet</b> — poste, commente, like, suis. Tous les départements côtiers</span></li>
+        <li><span class="ok">✓</span><span>Marées + météo (1 ville)</span></li>
+        <li><span class="ok">✓</span><span>Guides et fiches espèces complets</span></li>
+        <li><span class="ok">✓</span><span>Carte basique — 3 spots/dépt, position floutée 1 km</span></li>
+      </ul>
+      <a class="btn ghost" href="#">Créer mon carnet</a>
+    </div>
+
+    <!-- LOCAL -->
+    <div class="card plan featured">
+      <div class="bathy"><svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#155A73" stroke-width="1" opacity=".4"><path d="M-20 480 C 100 420, 200 520, 300 440 S 420 380, 440 420"/><path d="M-20 380 C 100 320, 220 420, 320 340 S 420 280, 440 320" opacity=".6"/></g></svg></div>
+      <div style="position:relative;display:flex;flex-direction:column;height:100%">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag-data on-dark">LOCAL</span><span class="chip gold mono">LE PLUS CHOISI</span></div>
+        <div class="price" style="margin-top:10px">49 €<small style="color:rgba(255,255,255,.5)"> / an · soit 4,08 €/mois</small></div>
+        <p class="muted small" style="margin-top:6px">Ton département, au mètre et à la minute près.</p>
+        <ul>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span><b>Tout Découverte</b>, plus :</span></li>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span><b>Carte complète du département</b> — tous les spots, GPS précis, score 0-100, filtres</span></li>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span><b>Ton scoring personnalisé</b> — tes patterns, tes créneaux</span></li>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span>Hors ligne — carte + marées 7 jours</span></li>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span>Notifications créneaux + grandes marées</span></li>
+          <li><span class="ok" style="color:var(--teal-300)">✓</span><span>Couches avancées, stats avancées, photos HD</span></li>
+        </ul>
+        <a class="btn accent" href="#">Essayer 7 jours</a>
+        <div class="tag-data" style="text-align:center;margin-top:12px;color:rgba(255,255,255,.4)">ESSAI 7 J AVEC CB · SATISFAIT OU REMBOURSÉ</div>
+      </div>
+    </div>
+
+    <!-- ITINÉRANT -->
+    <div class="card plan">
+      <span class="tag-data">ITINÉRANT</span>
+      <div class="price" style="margin-top:10px">99 €<small> / an · soit 8,25 €/mois</small></div>
+      <p class="muted small" style="margin-top:6px">Toute la côte, pour ceux qui bougent.</p>
+      <ul>
+        <li><span class="ok">✓</span><span><b>Tout Local</b>, plus :</span></li>
+        <li><span class="ok">✓</span><span><b>Tous les départements côtiers</b> de France</span></li>
+        <li><span class="ok">✓</span><span>Bathymétrie premium</span></li>
+        <li><span class="ok">✓</span><span>Itinéraires GPS multi-spots</span></li>
+        <li><span class="ok">✓</span><span>Accès anticipé aux nouveautés</span></li>
+        <li><span class="ok">✓</span><span>Support prioritaire</span></li>
+      </ul>
+      <a class="btn primary" href="#">Essayer 7 jours</a>
+    </div>
+  </div>
+</section>
+
+<section class="section alt tight">
+  <div class="wrap">
+    <div class="grid3">
+      <div><h3>Pourquoi pas 100% gratuit ?</h3><p class="muted small" style="margin-top:8px">Les apps « gratuites pour toujours » finissent par vendre tes données ou mourir. Nos abonnés financent des données marines précises et un produit qui dure. Pas de pub, jamais.</p></div>
+      <div><h3>Je peux annuler quand ?</h3><p class="muted small" style="margin-top:8px">Quand tu veux, en 2 clics, depuis ton compte. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.</p></div>
+      <div><h3>Et mes données ?</h3><p class="muted small" style="margin-top:8px">Tes prises t'appartiennent. Hébergement en France (UE), spots privés par défaut, floutage GPS systématique en public. Export prévu cette année.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap base" style="border:none;margin:0;padding:0"><span>© 2026 Carnet de Pêche</span><span class="tag-data" style="color:rgba(255,255,255,.3)">PRIX TTC · STRIPE · PAIEMENT SÉCURISÉ</span></div>
+</footer>
+
+</body>
+</html>
