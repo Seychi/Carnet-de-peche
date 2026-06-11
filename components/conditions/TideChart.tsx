@@ -117,14 +117,14 @@ export default function TideChart({ points, extrema, currentHourIdx }: Props) {
             {currentHourIdx >= 0 && currentHourIdx <= 23 && (
               <ReferenceLine
                 x={currentHourIdx}
-                stroke="#F59E0B"
+                stroke="#E5604F"
                 strokeDasharray="4 3"
                 strokeWidth={2}
                 label={{
                   value: 'Maintenant',
                   position: 'insideTopRight',
                   fontSize: 9,
-                  fill: '#F59E0B',
+                  fill: '#E5604F',
                   fontWeight: 600,
                 }}
               />

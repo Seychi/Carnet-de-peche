@@ -1,4 +1,4 @@
-import { ExternalLink, Waves } from 'lucide-react'
+import { ExternalLink, Waves, Sunrise, Sunset } from 'lucide-react'
 import TideChart from '@/components/conditions/TideChart'
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
@@ -57,7 +57,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
   const hasTide = conditions.tide.points.length > 0
 
   return (
-    <section className="bg-white rounded-[18px] border border-ink-100 p-5 md:p-7">
+    <section className="bg-white rounded-[18px] border border-sand-200 p-5 md:p-7">
       {/* En-tête */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
@@ -106,10 +106,10 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
         <div className="flex items-center gap-6 px-4 py-3 bg-amber-50 rounded-[10px] mb-4">
           {conditions.weather.sunrise && (
             <div className="flex items-center gap-2">
-              <span className="text-base" aria-hidden>🌅</span>
+              <Sunrise size={18} className="text-gold-500" aria-hidden="true" />
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Lever</p>
-                <p className="text-sm font-bold text-amber-900">
+                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-amber-700">Lever</p>
+                <p className="font-mono text-sm font-semibold text-amber-900">
                   {conditions.weather.sunrise.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
                 </p>
               </div>
@@ -117,10 +117,10 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
           )}
           {conditions.weather.sunset && (
             <div className="flex items-center gap-2">
-              <span className="text-base" aria-hidden>🌇</span>
+              <Sunset size={18} className="text-gold-500" aria-hidden="true" />
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Coucher</p>
-                <p className="text-sm font-bold text-amber-900">
+                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-amber-700">Coucher</p>
+                <p className="font-mono text-sm font-semibold text-amber-900">
                   {conditions.weather.sunset.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
                 </p>
               </div>

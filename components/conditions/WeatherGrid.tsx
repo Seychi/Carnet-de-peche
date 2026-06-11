@@ -33,10 +33,10 @@ function Card({
   detail?: string | null
 }) {
   return (
-    <div className="bg-white border border-ink-100 rounded-[14px] p-4">
+    <div className="bg-white border border-sand-200 rounded-[14px] p-4">
       <div className="text-teal-500 mb-2">{icon}</div>
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-ink-400 mb-1">{title}</p>
-      <p className="text-lg font-bold text-navy-900 leading-tight">{value}</p>
+      <p className="mb-1 font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">{title}</p>
+      <p className="font-mono text-lg font-semibold text-navy-900 leading-tight">{value}</p>
       {detail && <p className="text-xs text-ink-500 mt-0.5 leading-snug">{detail}</p>}
     </div>
   )

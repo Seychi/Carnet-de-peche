@@ -8,6 +8,8 @@ import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { TagData } from '@/components/ui-v2/tag-data'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
@@ -159,15 +161,15 @@ function CatchCard({ c }: { c: PublicCatch }) {
   }
 
   return (
-    <div className="shrink-0 w-44 md:w-auto snap-start bg-white border border-ink-100 rounded-[14px] p-4">
+    <div className="shrink-0 w-44 md:w-auto snap-start bg-white border border-sand-200 rounded-[14px] p-4">
       <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-700 mb-3">
         {SPECIES_LABELS[c.species] ?? c.species}
       </span>
-      <p className="text-2xl font-bold text-navy-900 leading-none">
+      <p className="font-mono text-2xl font-semibold text-navy-900 leading-none">
         {c.size_cm ? `${c.size_cm} cm` : '—'}
       </p>
       {c.weight_g && c.weight_g > 0 && (
-        <p className="text-sm text-ink-500 mt-1">{(c.weight_g / 1000).toFixed(1)} kg</p>
+        <p className="mt-1 font-mono text-sm text-ink-500">{(c.weight_g / 1000).toFixed(1)} kg</p>
       )}
       <p className="text-xs text-ink-500 mt-3 truncate">{author}</p>
       <p className="text-xs text-ink-300">{dateStr}</p>
@@ -183,7 +185,7 @@ function RecentCatchesSection({
   ctaHref: string
 }) {
   return (
-    <section className="bg-white rounded-[18px] border border-ink-100 p-5 md:p-7">
+    <section className="bg-white rounded-[18px] border border-sand-200 p-5 md:p-7">
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-display text-navy-900 text-xl">Prises récentes</h2>
         {totalCount > 0 && (
@@ -296,48 +298,55 @@ export default async function SpotPage({
         />
       )}
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="bg-navy-900 pt-10 pb-16">
-        <div className="max-w-[1280px] mx-auto px-4 md:px-6">
-          <nav className="flex items-center gap-2 text-sm text-white/50 mb-6 flex-wrap" aria-label="Fil d'ariane">
-            <Link href="/spots" className="hover:text-white transition-colors flex items-center gap-1">
-              <ArrowLeft size={14} />Spots
+      {/* ── Hero navy-950 + isobathes (DA v2, réf spot.html) ─────────────── */}
+      <section className="relative overflow-hidden bg-navy-950 pt-8 pb-14 md:pt-10 md:pb-16">
+        <Bathy opacity={0.35} />
+        <div className="relative max-w-[1280px] mx-auto px-4 md:px-6">
+          <nav className="mb-6 flex flex-wrap items-center gap-2" aria-label="Fil d'ariane">
+            <Link
+              href="/spots"
+              className="flex items-center gap-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-300 transition-colors hover:text-white"
+            >
+              <ArrowLeft size={12} />
+              Spots
             </Link>
-            <ChevronRight size={14} />
-            <span className="capitalize">{spot.region}</span>
-            <ChevronRight size={14} />
-            <span>Dép. {deptKey}</span>
-            <ChevronRight size={14} />
-            <span className="text-white/80 truncate max-w-[160px]">{spot.name}</span>
+            <ChevronRight size={12} className="text-white/30" />
+            <TagData className="capitalize text-white/45">{spot.region}</TagData>
+            <ChevronRight size={12} className="text-white/30" />
+            <TagData className="text-white/45">
+              {DEPARTMENT_LABELS[deptKey]?.toUpperCase() ?? 'DÉP.'} · {deptKey}
+            </TagData>
           </nav>
 
-          <div className="flex items-start gap-3 flex-wrap mb-3">
+          <div className="mb-3 flex flex-wrap items-start gap-2">
             {spot.verified && (
-              <span className="text-xs bg-teal-500/20 text-teal-400 border border-teal-500/30 px-3 py-1 rounded-full font-medium">
-                ✓ Spot vérifié
+              <span className="rounded-full border border-teal-500/30 bg-teal-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
+                ✓ Vérifié
               </span>
             )}
             {spot.visibility === 'subscriber' && (
-              <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full font-medium">
+              <span className="rounded-full border border-gold-500/35 bg-gold-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-500">
                 Premium
               </span>
             )}
           </div>
 
-          <h1 className="text-white font-display mb-4">{spot.name}</h1>
+          <h1 className="mb-2 font-display text-white">{spot.name}</h1>
+          <TagData className="mb-5 block text-white/45">
+            {spot.is_precise
+              ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
+              : `ZONE FLOUTÉE 1 KM · ${structureLabel.toUpperCase() || 'SPOT'}`}
+          </TagData>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
-              Dép. {deptKey}
-            </span>
             {structureLabel && (
-              <span className="text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
+              <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/60">
                 {structureLabel}
               </span>
             )}
             <DifficultyStars difficulty={spot.difficulty} />
             {spot.species.slice(0, 3).map((s) => (
-              <span key={s} className="text-sm text-teal-400 bg-teal-500/10 px-3 py-1.5 rounded-full">
+              <span key={s} className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300">
                 {SPECIES_LABELS[s] ?? s}
               </span>
             ))}
@@ -354,7 +363,7 @@ export default async function SpotPage({
 
             {/* Carte mini + GPS */}
             <div>
-              <div className="rounded-[18px] overflow-hidden border border-ink-100" style={{ height: 280 }}>
+              <div className="rounded-[18px] overflow-hidden border border-sand-200" style={{ height: 280 }}>
                 <SpotMiniMap
                   id={spot.id}
                   slug={spot.slug}
@@ -434,7 +443,7 @@ export default async function SpotPage({
 
             {/* Description */}
             {spot.description && (
-              <section className="bg-white rounded-[18px] border border-ink-100 p-6 md:p-7">
+              <section className="bg-white rounded-[18px] border border-sand-200 p-6 md:p-7">
                 <h2 className="font-display text-navy-900 text-xl mb-4">Description</h2>
                 <p className="text-ink-700 leading-relaxed">{spot.description}</p>
               </section>
@@ -442,7 +451,7 @@ export default async function SpotPage({
 
             {/* Accès */}
             {spot.access_notes && (
-              <section className="bg-white rounded-[18px] border border-ink-100 p-6 md:p-7">
+              <section className="bg-white rounded-[18px] border border-sand-200 p-6 md:p-7">
                 <h2 className="font-display text-navy-900 text-xl mb-4">Accès</h2>
                 <p className="text-ink-700 leading-relaxed">{spot.access_notes}</p>
               </section>
@@ -453,8 +462,8 @@ export default async function SpotPage({
           <aside className="flex flex-col gap-5">
 
             {/* Infos pratiques */}
-            <div className="bg-white rounded-[18px] border border-ink-100 p-6">
-              <h3 className="font-semibold text-navy-900 text-sm mb-4 uppercase tracking-wide">
+            <div className="bg-white rounded-[18px] border border-sand-200 p-6">
+              <h3 className="mb-4 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
                 Infos pratiques
               </h3>
               <dl className="flex flex-col gap-3.5">
@@ -546,21 +555,21 @@ export default async function SpotPage({
             {/* CTA desktop */}
             <Link
               href={ctaHref}
-              className="hidden md:block w-full py-3 bg-teal-500 hover:bg-teal-400 text-white font-semibold text-center rounded-xl transition-colors text-sm"
+              className="hidden md:block w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold text-center rounded-xl transition-colors text-sm"
             >
-              Logger une prise ici
+              + Loguer une prise ici
             </Link>
           </aside>
         </div>
       </div>
 
       {/* ── CTA collant mobile ──────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-ink-100 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-sand-200 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
         <Link
           href={ctaHref}
-          className="flex items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-400 text-white font-semibold rounded-xl transition-colors text-sm"
+          className="flex items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold rounded-xl transition-colors text-sm"
         >
-          Logger une prise ici
+          + Loguer une prise ici
         </Link>
       </div>
     </main>
