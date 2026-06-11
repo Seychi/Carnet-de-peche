@@ -425,7 +425,7 @@ export function CatchForm(props: CatchFormProps) {
                   className={`flex items-center gap-2.5 px-4 py-3 rounded-[10px] border text-[14px] font-medium transition-colors text-left ${
                     field.value === s.value
                       ? 'border-teal-500 bg-teal-50 text-teal-700'
-                      : 'border-slate-200 bg-slate-50 text-ink-700 active:bg-slate-100'
+                      : 'border-sand-200 bg-slate-50 text-ink-700 active:bg-slate-100'
                   }`}
                 >
                   <Fish size={15} className="shrink-0" />
@@ -461,7 +461,7 @@ export function CatchForm(props: CatchFormProps) {
                   )
                 }
                 {...trackFocus('size_cm')}
-                className="w-20 text-right text-[15px] font-semibold text-navy-900 border border-slate-200 rounded-[8px] px-2 py-1.5 outline-none focus:border-teal-500"
+                className="w-20 text-right text-[15px] font-semibold text-navy-900 border border-sand-200 rounded-[8px] px-2 py-1.5 outline-none focus:border-teal-500"
               />
               {isUndersize && (
                 <span className="text-[11px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-full whitespace-nowrap">
@@ -512,9 +512,9 @@ export function CatchForm(props: CatchFormProps) {
           name="released"
           control={control}
           render={({ field }) => (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-sand-200">
               <span className="text-[13px] text-ink-600">Sort de l'eau</span>
-              <div className="flex rounded-[8px] border border-slate-200 overflow-hidden">
+              <div className="flex rounded-[8px] border border-sand-200 overflow-hidden">
                 {[
                   { val: false, label: 'Conservé' },
                   { val: true, label: 'Relâché' },
@@ -554,7 +554,7 @@ export function CatchForm(props: CatchFormProps) {
                   className={`py-3 rounded-[10px] border text-[14px] font-medium transition-colors ${
                     field.value === t.value
                       ? 'border-teal-500 bg-teal-50 text-teal-700'
-                      : 'border-slate-200 bg-slate-50 text-ink-700'
+                      : 'border-sand-200 bg-slate-50 text-ink-700'
                   }`}
                 >
                   {t.label}
@@ -625,7 +625,7 @@ export function CatchForm(props: CatchFormProps) {
           <div className="mt-3 space-y-3">
             {/* Bannière position existante (mode édition, coords non rechargées) */}
             {existingLocationLabel && (
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[10px] px-3 py-2.5">
+              <div className="flex items-center gap-3 bg-slate-50 border border-sand-200 rounded-[10px] px-3 py-2.5">
                 <MapPin size={16} className="text-ink-400 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium text-ink-700">{existingLocationLabel}</p>
@@ -656,7 +656,7 @@ export function CatchForm(props: CatchFormProps) {
                 type="button"
                 onClick={handleGPS}
                 disabled={geoLoading}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-[10px] border-2 border-dashed border-slate-300 text-[14px] font-medium text-ink-600 hover:border-teal-400 hover:text-teal-600 transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-[10px] border-2 border-dashed border-sand-200 text-[14px] font-medium text-ink-600 hover:border-teal-400 hover:text-teal-600 transition-colors disabled:opacity-50"
               >
                 {geoLoading ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -792,7 +792,7 @@ export function CatchForm(props: CatchFormProps) {
             placeholder="Vent, technique de récupération, ambiance du spot…"
             rows={3}
             maxLength={1000}
-            className="w-full border border-slate-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 resize-none placeholder:text-slate-400"
+            className="w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 resize-none placeholder:text-slate-400"
           />
         </div>
 
@@ -802,7 +802,7 @@ export function CatchForm(props: CatchFormProps) {
             name="privacy"
             control={control}
             render={({ field }) => (
-              <div className="mt-2 flex rounded-[10px] border border-slate-200 overflow-hidden">
+              <div className="mt-2 flex rounded-[10px] border border-sand-200 overflow-hidden">
                 {[
                   { val: 'private', label: 'Privée' },
                   { val: 'friends', label: 'Amis' },
@@ -813,7 +813,7 @@ export function CatchForm(props: CatchFormProps) {
                     type="button"
                     onClick={() => { field.onChange(opt.val); field.onBlur() }}
                     className={`flex-1 py-2.5 text-[13px] font-medium transition-colors ${
-                      i > 0 ? 'border-l border-slate-200' : ''
+                      i > 0 ? 'border-l border-sand-200' : ''
                     } ${
                       field.value === opt.val
                         ? 'bg-teal-500 text-white border-teal-500'
@@ -835,7 +835,7 @@ export function CatchForm(props: CatchFormProps) {
           </p>
         </div>
 
-        <div className="mt-4 space-y-3 pt-3 border-t border-slate-100">
+        <div className="mt-4 space-y-3 pt-3 border-t border-sand-200">
           <Controller
             name="precise_for_friends"
             control={control}
@@ -887,7 +887,7 @@ export function CatchForm(props: CatchFormProps) {
         <button
           type="submit"
           disabled={submitPhase !== 'idle'}
-          className="w-full py-4 rounded-[14px] bg-teal-500 text-white font-bold text-[16px] transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-[14px] bg-teal-500 text-navy-950 font-bold text-[16px] transition-colors hover:bg-teal-300 disabled:opacity-60 flex items-center justify-center gap-2"
         >
           {submitPhase !== 'idle' && <Loader2 size={18} className="animate-spin" />}
           {isEdit ? SUBMIT_LABELS_EDIT[submitPhase] : SUBMIT_LABELS[submitPhase]}
@@ -900,11 +900,11 @@ export function CatchForm(props: CatchFormProps) {
 // ─── Composants helpers ───────────────────────────────────────────────────────
 
 const inputCls =
-  'w-full border border-slate-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 placeholder:text-slate-400 bg-white'
+  'w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 placeholder:text-slate-400 bg-white'
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-[14px] border border-slate-100 p-5 shadow-sm">
+    <div className="bg-white rounded-[14px] border border-sand-200 p-5">
       {children}
     </div>
   )
@@ -918,9 +918,9 @@ function SectionTitle({
   required?: boolean
 }) {
   return (
-    <p className="text-[11px] font-bold uppercase tracking-widest text-ink-500">
+    <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
       {children}
-      {required && <span className="text-red-500 ml-0.5">*</span>}
+      {required && <span className="text-coral-500 ml-0.5">*</span>}
     </p>
   )
 }
