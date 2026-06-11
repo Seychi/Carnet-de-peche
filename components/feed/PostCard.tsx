@@ -102,19 +102,26 @@ export function PostCard({
   }
 
   return (
-    <article className="flex flex-col gap-2.5 rounded-[14px] border border-slate-100 bg-white p-4 shadow-sm">
+    <article className="flex flex-col gap-2.5 rounded-[14px] border border-sand-200 bg-white p-4">
       {/* En-tête */}
       <header className="flex items-center gap-2.5">
         <Avatar className="size-9 shrink-0">
           {post.author_avatar_url && <AvatarImage src={post.author_avatar_url} alt="" />}
-          <AvatarFallback className="text-[12px]">
+          <AvatarFallback className="bg-navy-800 font-mono text-[12px] font-semibold text-teal-300">
             {initials(post.author_display_name, post.author_username)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-[14px] font-semibold text-navy-900">{authorName}</p>
-          <p className="text-[11px] text-ink-400">
-            {post.region ? `${post.region} · ` : ''}
+          <p className="flex items-center gap-1.5 truncate text-[14px] font-semibold text-navy-900">
+            {authorName}
+            {post.catch_id && (
+              <span className="rounded-full border border-sand-200 bg-sand-100 px-2 py-0.5 font-mono text-[9.5px] font-medium tracking-[0.06em] text-ink-600">
+                CARNET
+              </span>
+            )}
+          </p>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            {post.region ? `${post.region.trim()} · ` : ''}
             {post.created_at &&
               formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: fr })}
           </p>
@@ -215,31 +222,51 @@ export function PostCard({
 
 function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | null }) {
   const species = SPECIES_LABELS[post.catch_species ?? ''] ?? post.catch_species ?? 'Prise'
-  const bits = [
-    post.catch_size_cm ? `${post.catch_size_cm} cm` : null,
-    post.catch_weight_g ? `${(post.catch_weight_g / 1000).toFixed(2)} kg` : null,
-    post.catch_technique ? TECHNIQUE_LABELS[post.catch_technique] ?? post.catch_technique : null,
-  ].filter(Boolean)
+  const dataLine = [
+    species.toUpperCase(),
+    post.catch_size_cm ? `${post.catch_size_cm} CM` : null,
+    post.catch_weight_g ? `${(post.catch_weight_g / 1000).toFixed(1)} KG` : null,
+    post.catch_technique
+      ? (TECHNIQUE_LABELS[post.catch_technique] ?? post.catch_technique).toUpperCase()
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 
-  const inner = (
-    <div className="flex items-center gap-3 rounded-[12px] bg-teal-50 p-2.5">
-      <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-teal-100/60">
-        {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photoUrl} alt={species} className="size-full object-cover" />
-        ) : (
-          <Fish size={22} className="text-teal-500" />
-        )}
-      </div>
-      <div className="min-w-0">
-        <p className="truncate text-[14px] font-semibold text-navy-900">{species}</p>
-        {bits.length > 0 && <p className="text-[12px] text-ink-500">{bits.join(' · ')}</p>}
+  // Photo en grand + bandeau données mono par-dessus (réf mobile.html 04) ;
+  // sans photo : encart compact dégradé navy.
+  const inner = photoUrl ? (
+    <div className="relative overflow-hidden rounded-[12px]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={photoUrl} alt={species} className="max-h-72 w-full object-cover" />
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/85 to-transparent px-3 pt-8 pb-2.5">
+        <p className="font-mono text-[10.5px] font-medium tracking-[0.08em] text-teal-300">
+          {dataLine}
+        </p>
         {post.catch_spot_name && (
-          <p className="flex items-center gap-1 truncate text-[11px] text-ink-400">
-            <MapPin size={11} className="shrink-0" aria-hidden="true" />
+          <p className="mt-0.5 flex items-center gap-1 truncate font-mono text-[9.5px] tracking-[0.06em] text-white/55 uppercase">
+            <MapPin size={10} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{post.catch_spot_name}</span>
           </p>
         )}
+      </div>
+    </div>
+  ) : (
+    <div className="relative overflow-hidden rounded-[12px] bg-gradient-to-br from-navy-800 to-navy-950 p-3">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(94,234,212,.2),transparent_60%)]" />
+      <div className="relative flex items-center gap-2.5">
+        <Fish size={20} className="shrink-0 text-teal-300" strokeWidth={1.7} />
+        <div className="min-w-0">
+          <p className="truncate font-mono text-[10.5px] font-medium tracking-[0.08em] text-teal-300">
+            {dataLine}
+          </p>
+          {post.catch_spot_name && (
+            <p className="mt-0.5 flex items-center gap-1 truncate font-mono text-[9.5px] tracking-[0.06em] text-white/55 uppercase">
+              <MapPin size={10} className="shrink-0" aria-hidden="true" />
+              <span className="truncate">{post.catch_spot_name}</span>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

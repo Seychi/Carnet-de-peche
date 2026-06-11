@@ -68,8 +68,11 @@ export default async function DepartmentFeedPage({
     <main className="bg-sand-50 min-h-screen">
       <div className="mx-auto flex max-w-[680px] flex-col gap-4 px-4 py-6">
         <header>
-          <h1 className="font-display text-2xl text-navy-900">Fil du {deptName}</h1>
-          <p className="text-[13px] text-ink-400">
+          <p className="mb-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            LE FIL · {department}
+          </p>
+          <h1 className="font-display text-2xl text-navy-900">Fil {deptName}</h1>
+          <p className="text-[13px] text-ink-600">
             Ce qui se passe sur le bord dans le {department}.
           </p>
         </header>

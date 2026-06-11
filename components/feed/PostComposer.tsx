@@ -54,7 +54,7 @@ export function PostComposer({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-[14px] border border-slate-200 bg-white p-3">
+    <div className="flex flex-col gap-2 rounded-[14px] border border-sand-200 bg-white p-3">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -126,7 +126,7 @@ export function PostComposer({
           type="button"
           onClick={handleSubmit}
           disabled={submitting || (!text.trim() && !attached)}
-          className="inline-flex items-center gap-2 min-h-11 px-5 rounded-full bg-teal-500 text-white text-[14px] font-semibold disabled:opacity-40 hover:bg-teal-600 transition-colors"
+          className="inline-flex items-center gap-2 min-h-11 px-5 rounded-full bg-teal-500 text-navy-950 text-[14px] font-semibold disabled:opacity-40 hover:bg-teal-300 transition-colors"
         >
           {submitting && <Loader2 size={15} className="animate-spin" />}
           Publier
