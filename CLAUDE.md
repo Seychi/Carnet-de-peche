@@ -24,6 +24,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 - **Géographie** : France métropolitaine (Atlantique, Manche, Méditerranée).
 - **Concurrent direct #1** : [spot-de-peche.com](https://spot-de-peche.com) — **sérieux, à ne pas sous-estimer**. Carte interactive avec heatmap de qualité, fiche spot complète (courbe de marée 24h avec curseur "maintenant", météo détaillée : vent + direction, temp air + eau, vagues + houle + période, précipitations + probabilité, pression, nébulosité), section "Meilleurs moments" avec scoring solunar (lever/coucher de lune, lever/coucher de soleil, justifications astronomiques par créneau), explorer en cascade (dépt → technique → espèce → spot), bouton itinéraire GPS. Forces = exhaustivité des données environnementales + UX maps soignée + couverture multi-techniques (pêche à pied + canne + leurre). Faiblesses = pas de carnet personnel, pas de fil social, scoring 100% générique (modèles océanographiques + solunar standard, identique pour tous), pas d'app mobile native, pas de personnalisation. **Notre angle vs eux** = carnet personnel + scoring qui apprend de TES catches + signal communautaire ("3 prises ici aujourd'hui") + app mobile native iOS/Android. Implication concrète : on ne peut PAS sortir une carte squelettique face à eux — les données environnementales (marées + météo + vagues) sont des table stakes, pas un différenciateur. C'est fusionné dans le sprint 4.
 - **Concurrent direct #2** : [FishFriender](https://www.fishfriender.com/) — 4,7/5 sur 3 200 avis, lancé 2016, généraliste toutes pêches, 12 langues. Force = boîte de pêche numérique (130k produits scannables). Faiblesses = carte 100% paywall, pas spécialisé FR, pas de fil régional. Notre angle = hyper-spécialisation canne du bord en mer FR + carte basique gratuite + fil régional par département.
+- **Concurrent direct #3** : [Fishing Grid](https://fishing-grid.fr/) — identifié juin 2026, **le plus proche de nous en esprit** (carnet + carte + communauté, made in France, 2 frères à Pornic, lancé public avril 2026, ~5K downloads Android, 4.7-4.8/5 sur ~120 avis). Forces = **apps natives iOS/Android déjà en prod**, **100% gratuit sans pub** (monétisation marketplace matériel), IA reconnaissance d'espèces on-device + Pokedex, défis/classements/quiz, 266 fiches espèces indexées (SEO), 209 groupes locaux + chat temps réel, vélocité élevée (~10 releases en 10 mois). Faiblesses = généraliste eau douce+mer sans profondeur métier mer, **marées imprécises** (avis publics : ~30 min d'écart à Pornichet), scoring solunaire 100% générique, pas de spots curés (carte = contenu communautaire uniquement), pas de revenus récurrents, positionnement incohérent (site « anti-dopamine, pas de leaderboard » vs app gamifiée). Notre angle = profondeur mer (marées/vagues/houle précises) + scoring personnalisé + spots curés + modèle éco viable. Implications : sprint 10 SEO durci (être plus profond qu'eux sur nos 6 espèces), option PWA à sonder en beta sprint 11, arbitrage pricing social ouvert. **Analyse complète + plan d'action : `docs/concurrents/fishing-grid.md`.**
 - **Différenciateur principal défendable** : le **carnet personnel comme moat**. Les concurrents donnent les MÊMES infos environnementales à tout le monde (météo générique, marées astronomiques, solunar standard). Nous, on overlay TES patterns historiques par-dessus ces données : "Tu pêches mieux en marée descendante coef > 80, le matin, après 3 jours sans pluie". Cette personnalisation est impossible sans carnet utilisateur. Long terme, plus l'utilisateur log de prises, plus le produit devient irremplaçable pour LUI spécifiquement — c'est notre vrai lock-in.
 
 ---
@@ -78,7 +79,7 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-spr
 - **Retirés (décision John 2026-05-21)** : T0.5 médiateur conso (promesse retirée de la CGU, risque L612-1 assumé) + T1.1 durée guide bar.
 - **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint-9.5-RECAP.md`.
 
-🔜 **SUITE — Sprint 10 : Guides éditoriaux** (MDX + 20 guides + SEO programmatique).
+🔜 **SUITE — Sprint 10 : Guides + SEO + riposte Fishing Grid** (durci 2026-06-11, brief : `docs/sprint-10/BRIEF.md`) : Bloc 0 pivot social 100% gratuit (migration 022), MDX + 20 guides, ~600 pages programmatiques, 6 fiches espèces profondes, vérif précision marées vs SHOM. Puis sprint 11 : polish + **PWA installable** + beta.
 
 🔜 **Suite (sprints 10 → 23 + phase 2)**
 Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
@@ -320,20 +321,20 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 
 **3 formules claires** (vs. 5 confuses chez Spot de Pêche, 6 paliers chez FishFriender) :
 
+> ⚠️ **Màj 2026-06-11 (décision John, riposte Fishing Grid)** : le **social est passé 100% gratuit** (fil en lecture ET écriture, likes, commentaires, follows — tous tiers, tous départements côtiers). Implémentation = Bloc 0 du sprint 10 (migration 022 + retrait checks tier dans `feed.ts`/`follow.ts` + rate-limit anti-spam + copy tarifs/home). Cf `docs/concurrents/fishing-grid.md` §6C.
+
 **Découverte — gratuit, illimité**
 - Carnet de pêche illimité
-- Carte BASIQUE : 3 spots populaires/département uniquement, coords floutées 1 km, pas de score, pas de filtre
+- Carte BASIQUE : 3 spots populaires/département uniquement, coords floutées 1 km, pas de score, pas de filtre (carte limitée à 1 département)
 - Marées + météo (1 ville)
 - Guides éditoriaux complets (SEO)
-- Fil régional EN LECTURE SEULE
-- 1 département uniquement
+- **Fil régional complet : lecture + écriture + likes/commentaires/follows, tous dépts côtiers**
 
 **Local — 4,90 €/mois ou 49 €/an (-17 %)**
 - Carte COMPLÈTE du département : tous les spots, coords précises, score 0-100, filtres espèces/techniques
 - Mode hors ligne (carte + marées 7 jours)
 - Notifications push (créneaux optimaux, grandes marées)
 - Couches avancées (bathymétrie, vent, courants)
-- Fil régional en ÉCRITURE + interactions sociales (likes, commentaires, follows)
 - Stats avancées du carnet
 - Photos HD illimitées
 
@@ -350,7 +351,7 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 
 **Règle d'or implémentation** :
 - Ce qui se TOUCHE / se VOIT précisément (coords GPS exactes, score, filtres) → **payant**
-- Ce qui est ÉDUCATIF / SOCIAL / produit PAR l'utilisateur (carnet perso, guides, lecture fil) → **gratuit**
+- Ce qui est ÉDUCATIF / SOCIAL / produit PAR l'utilisateur (carnet perso, guides, **tout le fil**) → **gratuit**
 
 ### Revenus secondaires (post-MVP, à partir de 5 000 abonnés)
 
@@ -381,8 +382,8 @@ Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurre
 | **7** | S7 | **Scoring personnalisé** (notre vrai différenciateur) : overlay sur les conditions = "Tu pêches mieux quand…" basé sur l'historique des catches du user. Algorithme côté Edge Function. Affiché sur fiche spot + sur la carte sous forme de "ton score" en plus du "score global". |
 | **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
 | **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
-| **10** | S10 | **Guides éditoriaux** : MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques). |
-| **11** | S11 | **Polish + Beta privée** : emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. |
+| **10** | S10 | **Guides + SEO + riposte Fishing Grid** : Bloc 0 social 100% gratuit (migration 022), MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques) + 6 fiches espèces profondes + vérif marées étalon SHOM. Brief : `docs/sprint-10/BRIEF.md`. |
+| **11** | S11 | **Polish + PWA + Beta privée** : PWA installable (manifest + service worker, pont vers Expo), emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. WorldTides si le rapport marées du sprint 10 est mauvais. |
 | **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |
 | **20-23** | S20-S23 | **Lancement public** : App Store + Play Store + campagne acquisition (organique + partenariats fédérations + presse pêche). |
 

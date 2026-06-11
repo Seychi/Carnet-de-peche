@@ -1,7 +1,7 @@
 # 🗺️ Roadmap Carnet de Pêche
 
 > **Document vivant.** À tenir à jour à chaque fin de sprint.
-> **Dernière mise à jour** : 2026-05-22 (sprint 9.5 cleanup code-complet — pré-merge `sprint-9.5-cleanup` → `main`).
+> **Dernière mise à jour** : 2026-06-11 (révision post-analyse **Fishing Grid** — concurrent #3, cf `docs/concurrents/fishing-grid.md`. Décisions John : **social 100% gratuit** + **PWA au sprint 11** + vérif marées SHOM au sprint 10. Sprint 10 durci.)
 > **Auteur** : Claude (web) + Claude Code, validé par John.
 
 ---
@@ -326,21 +326,30 @@ app/(app)/compte/abonnement/cancel/page.tsx
 
 ---
 
-## 🟢 Sprint 10 — Guides éditoriaux + SEO programmatique (2 semaines)
+## 🟢 Sprint 10 — Guides + SEO programmatique + riposte Fishing Grid (2 semaines)
 
-**Objectif** : capter du trafic organique gratuit via guides longs + SEO programmatique massif sur la combinatoire espèce × département × technique.
+**Objectif** : capter du trafic organique gratuit via guides longs + SEO programmatique massif sur la combinatoire espèce × département × technique. **Durci le 2026-06-11** suite à l'analyse Fishing Grid (`docs/concurrents/fishing-grid.md`) : ils ont 266 fiches espèces indexées et une surface web SEO (espèces, marées, réglementations, techniques) qui attaque exactement notre terrain. On ne gagne pas en largeur contre eux, on gagne en **profondeur sur nos 6 espèces**.
 
-**Pourquoi maintenant** : on a la carte indexable depuis sprint 4, les fiches spots, le sitemap. Il manque le contenu éditorial qui crée la matière à ranker.
+**Pourquoi maintenant** : on a la carte indexable depuis sprint 4, les fiches spots, le sitemap. Il manque le contenu éditorial qui crée la matière à ranker — et chaque semaine d'attente, Fishing Grid engrange du ranking.
 
-### Décisions à prendre AVANT
+**Brief d'exécution détaillé** : `docs/sprint-10/BRIEF.md`.
 
-1. **MDX vs CMS** : on stocke les guides en MDX dans le repo (versionnés, contrôlés) ou dans une table DB pour que César édite via une interface ?
-   - Recommandation : **MDX dans `content/guides/*.mdx`**. César édite en Markdown via GitHub directement (formation 30 min). Pas de CMS = pas de coût, pas de surface de bug.
-2. **Combien de guides au lancement** : 20 phares + N pages programmatiques ?
-   - 20 guides éditoriaux longs (1500-3000 mots, écrits par César ou Claude web)
-   - ~600 pages programmatiques (6 espèces × 25 dépts × 4 techniques = 600, dont ~100 combinaisons absurdes à filtrer)
+### Décisions PRISES (John, 2026-06-11)
 
-### Tâches techniques
+1. **Social 100% gratuit** : fil, likes, commentaires, follows gratuits pour tous, sur tous les dépts côtiers. Le payant porte désormais exclusivement sur : carte précise/complète, scoring, filtres, offline, push, couches avancées, stats avancées, photos HD. → Bloc 0 ci-dessous. CLAUDE.md §8 mis à jour.
+2. **Vérif marées étalon SHOM** intégrée à ce sprint (Bloc 4) — leurs marées sont fausses (~30 min, avis publics), on en fait un champ de bataille. *Màj 2026-06-11 soir (crawl complet, cf `fishing-grid.md` §8) : la critique marées est affichée sur leur propre home → **Bloc 4 passe en priorité 1, jour 1, en parallèle du Bloc 0**.*
+3. **MDX vs CMS** : **MDX dans `content/guides/*.mdx`**. César édite en Markdown via GitHub (formation 30 min). Pas de CMS = pas de coût, pas de surface de bug.
+4. **Volume au lancement** : 20 guides phares + ~600 pages programmatiques (6 espèces × 25 dépts × 4 techniques, combinaisons absurdes filtrées) + **6 fiches espèces profondes** (nouveau, riposte directe).
+
+### Bloc 0 — Pivot « social 100% gratuit » (~1-2 jours, en premier)
+
+- Migration 022 : assouplir `can_post_in_department` → tout user authentifié, tous tiers, tous dépts côtiers. RLS `feed_*` alignées (écriture = authentifié, plus de check tier).
+- `app/actions/feed.ts` + `follow.ts` : retirer les checks tier en écriture. Garder toutes les validations zod + ajouter un rate-limit simple (ex : max 10 posts/jour/user) — la barrière payante anti-spam saute, il faut un garde-fou.
+- Front : retirer les CTA upgrade du composer/fil, stub `/fil` mis à jour, page `/tarifs` (Local perd la ligne « fil en écriture », Découverte gagne « fil complet »), copy home alignée.
+- Tests : adapter les tests tier feed. Cible : suite verte complète.
+- ⚠️ Risque spam sans barrière payante → bouton signaler existant + alerte email John sur chaque report ; si > 5 reports/jour, avancer la modération Claude API.
+
+### Tâches techniques (Blocs 1-2 — cœur SEO)
 
 **Setup MDX**
 - Install `@next/mdx` + `next-mdx-remote`
@@ -355,8 +364,24 @@ app/(app)/compte/abonnement/cancel/page.tsx
 - Génération statique via `generateStaticParams()` qui lit la combinatoire filtrée (whitelist `lib/seo/programmatic.ts`)
 - Contenu : intro générée à partir de templates + 3-5 spots populaires du dépt (RPC) + stats live (nb prises 30j) + lien vers guide éditorial pertinent + CTA "Logue ta prise"
 
-**SEO renforcé**
-- `app/sitemap.ts` : ajouter les ~600 routes programmatiques + 20 guides
+### Bloc 3 — Fiches espèces profondes (riposte directe Fishing Grid)
+
+6 fiches `/especes/[slug]` (bar, dorade-royale, lieu-jaune, maquereau, sar, orphie) qui doivent être **objectivement meilleures** que les fiches généralistes de Fishing Grid sur ces espèces :
+- Maille légale 2026 + quotas (source : arrêtés en vigueur, ex. maille bar 42 cm Atlantique), périodes par façade (Atlantique / Manche / Méditerranée)
+- Techniques du bord par saison, postes types selon vent/houle/coefficient, marées favorables
+- Données live : nb de prises loguées 30j (anonymisées), spots populaires du moment (RPC), lien guides + pages programmatiques
+- JSON-LD + OG dédiées. Le stub `/especes` (sprint 7.5) devient la vraie page index.
+- **Référence à battre pour le bar** (crawl 2026-06-11 soir) : leur tuto vedette « Pêche du bar du bord au printemps » (10 min, 1,6k vues) — réellement profond, mais réglementation sans source ni date, zéro donnée live, zéro maillage produit. Notre fiche bar + guide #7 doivent le dépasser sur ces trois points. Cf `docs/sprint-10/BRIEF.md` Bloc 3.
+
+### Bloc 4 — Vérification précision marées (étalon SHOM, ~0,5 jour — **priorité 1, jour 1, en parallèle du Bloc 0**)
+
+- Script `scripts/verify-tides.ts` : comparer nos PM/BM (Open-Meteo `sea_level_height_msl`) aux horaires SHOM officiels sur 5 ports — Brest, Saint-Malo, **Pornichet** (là où Fishing Grid se fait épingler dans les avis), Les Sables-d'Olonne, Arcachon — sur 7 jours.
+- Rapport → `docs/sprint-10/tides-accuracy.md`.
+- **Si écart médian < 15 min** : argument copy « horaires de marée vérifiés » sur home + fiches spots (différenciateur démontrable vs Fishing Grid).
+- **Si écart ≥ 15 min** : on ne communique pas, et WorldTides passe d'« optionnel » à **prioritaire sprint 11**.
+
+### SEO renforcé
+- `app/sitemap.ts` : ajouter les ~600 routes programmatiques + 20 guides + 6 fiches espèces
 - `app/robots.txt` : OK déjà
 - `<JsonLd>` Article schema sur chaque guide
 - `<JsonLd>` HowTo schema sur les guides "comment pêcher X"
@@ -404,22 +429,36 @@ app/(app)/compte/abonnement/cancel/page.tsx
 | Pages programmatiques jugées "thin content" par Google | Pénalité SEO | Min 400 mots de contenu unique par page + données live (spots, stats) qui changent |
 | MDX trop rigide pour César | Friction éditoriale | Doc dédiée `docs/guides/COMMENT-ECRIRE.md` + template `_TEMPLATE.mdx` |
 | 600 pages programmatiques = build long | DX dégradée | `generateStaticParams` paresseux (ISR avec `revalidate: 86400`) au lieu de full SSG |
+| Spam sur le fil (barrière payante supprimée, Bloc 0) | Image marque, modération | Rate-limit posts, alertes reports, modération Claude API avancée si > 5 reports/jour |
+| Erreurs réglementaires dans les fiches espèces (mailles, quotas) | Légal + crédibilité | Sourcer chaque maille/quota sur l'arrêté en vigueur, dater la vérification, encart « vérifié le JJ/MM » |
 
 ### Critères d'acceptation
 
+- Bloc 0 : un user `discovery` poste/commente/like sur n'importe quel dépt côtier ; page tarifs alignée ; suite de tests verte
 - 5 guides longs en ligne avec metadata, OG image, JSON-LD
+- 6 fiches espèces en ligne, chacune plus complète que la fiche Fishing Grid équivalente (checklist comparative dans le brief)
 - ~600 routes programmatiques générées et accessibles
+- Rapport précision marées livré + décision WorldTides actée
 - Sitemap.xml soumis à Google Search Console (1 ping)
 - Lighthouse SEO ≥ 95 sur 3 guides + 3 pages programmatiques tirées au sort
 - Build time `next build` < 4 minutes
 
 ---
 
-## 🟢 Sprint 11 — Polish + Beta privée (2 semaines)
+## 🟢 Sprint 11 — Polish + PWA + Beta privée (2 semaines)
 
-**Objectif** : passer de "ça marche" à "c'est solide". Lancer 50 testeurs réels en beta privée.
+**Objectif** : passer de "ça marche" à "c'est solide". Lancer 50 testeurs réels en beta privée. **+ PWA installable** (décision John 2026-06-11) pour réduire le gap perçu face aux apps natives de Fishing Grid en attendant Expo (sprints 12-19).
 
 ### Tâches techniques
+
+**PWA installable (~2-3 jours)**
+- `manifest.webmanifest` : icônes (192/512 + maskable), `theme_color` `#0A2F3D`, `display: standalone`
+- Service worker (`next-pwa` ou Workbox) : cache app shell + dernières marées/spots consultés, page offline de repli « Tu es hors ligne — voici tes dernières marées »
+- Install prompt discret (bannière après la 2e session, dismissable, jamais en modal bloquante)
+- iOS : `apple-touch-icon`, vérif mode standalone Safari
+- Ne remplace pas Expo : c'est un pont. Le service worker doit rester simple (pas de sync offline complexe, ça c'est le sprint 16 mobile)
+- Critère : Lighthouse « installable » ✓ + icône posée sur l'écran d'accueil des testeurs beta
+- Si l'écart marées (rapport sprint 10) était ≥ 15 min : **intégration WorldTides ici** en priorité
 
 **Emails transactionnels (Resend)**
 - Setup `RESEND_API_KEY` env var
@@ -462,6 +501,7 @@ app/(app)/compte/abonnement/cancel/page.tsx
 - Code promo "BETA2026" → 6 mois Itinérant gratuit (via Stripe coupon)
 - Canal Discord ou Slack privé "Beta Carnet de Pêche" pour feedback
 - Formulaire feedback intégré au footer (modal Sentry-based)
+- Questionnaire testeurs : inclure « L'absence d'app native (App Store / Play Store) est-elle un frein ? » + « As-tu installé la PWA ? » → alimente Gate 1
 
 ### Risques
 
@@ -911,7 +951,7 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | **Domiciliation commerciale (pages légales)** | Sprint 7.5 (E1) | Post-sprint 8 | Remplacer l'adresse perso (627 Chemin des Impiniers, Vallauris) par une domiciliation (SeDomicilier/Kandbaz ~15 €/mois) dans les 3 pages légales |
 | Désigner un médiateur de la consommation (CGU art. 14) | Sprint 7.5 (E1) | Avant sprint 9 (Stripe) | Liste sur economie.gouv.fr, ~75 €/an (CMAP, AME Conso…) |
 | Markers carte colorisés par qualité | Sprint 6 | Sprint 7.5 ou post-beta | Edge Function cron + table `spot_scores` |
-| Marée précise WorldTides / SHOM | Sprint 6 | Optionnel (précision) | ✅ Marée gratuite branchée en **sprint 9.5** via Open-Meteo `sea_level_height_msl` (relatif MSL, horaire). WorldTides/SHOM ne sert plus qu'à gagner en précision (datum SHOM, résolution infra-horaire) — n'est plus bloquant. |
+| Marée précise WorldTides / SHOM | Sprint 6 | **Conditionnel sprint 11** | ✅ Marée gratuite branchée en **sprint 9.5** via Open-Meteo `sea_level_height_msl`. Sprint 10 Bloc 4 = vérif précision vs SHOM (5 ports). Si écart médian ≥ 15 min → WorldTides prioritaire au sprint 11 ; sinon reste optionnel et on communique « marées vérifiées ». |
 | Coef de marée | Sprint 6 | Post-beta | Non exposé par Open-Meteo ; à dériver (amplitude PM−BM) ou via WorldTides |
 | Sync TideChart ↔ WeeklyCalendar | Sprint 6 | Backlog | Faible valeur en v1 |
 | Affinement pondération solunar 40/35/25 | Sprint 6 | Post-beta | Calibrer sur vraies prises |
@@ -949,6 +989,8 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 |---|---|---|---|
 | **Spot-de-peche.com répond avec un fil social** | Moyenne | Très fort | Vitesse d'exécution + lock-in carnet personnel + qualité communauté FR > exhaustivité |
 | **FishFriender lance enfin une vraie offre FR ciblée** | Faible | Fort | Hyper-spécialisation "canne du bord mer FR" reste plus pointue |
+| **Fishing Grid rattrape ses faiblesses** (marées précises, spots curés mer, scoring perso) avant notre lancement mobile | Moyenne | Fort | Veille trimestrielle (`docs/concurrents/fishing-grid.md` §6D), profondeur mer + scoring perso démontrés AVANT déc. 2026, PWA sprint 11 pour combler le gap mobile perçu |
+| **Le « 100% gratuit » de Fishing Grid tue la conversion payante** | Moyenne | Fort | Social passé gratuit (2026-06-11) ; le payant ne porte que sur ce qu'eux n'ont pas (précision, scoring perso, offline, spots curés) ; surveiller le taux essai→payé en beta |
 | **Open-Meteo coupe ou paywall son API** | Faible | Très fort | Plan B SHOM (gratuit) en architecture déjà étudiée |
 | **Supabase down ou changement pricing** | Faible | Très fort | Architecture transportable (Postgres standard) → fallback Neon ou self-hosted |
 | **Stripe ferme le compte (CGU)** | Très faible | Fort | Backup compte Adyen ou Lemonsqueezy |
@@ -979,6 +1021,7 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 
 - Stack : Next.js 15 + Supabase + Expo + MapLibre
 - Pricing : 3 plans (gratuit / 4,90 / 9,90)
+- **Social 100% gratuit** (fil, likes, commentaires, follows — tous tiers, tous dépts côtiers) — décision John 2026-06-11 post-analyse Fishing Grid. Le payant = carte précise/complète, scoring, filtres, offline, push, couches avancées, stats avancées, photos HD
 - Région DB : eu-west-3 (Paris)
 - Source vérité abonnement : Stripe webhooks
 - Open-Meteo Marine : v1 sans clé API, migration possible
@@ -1000,13 +1043,17 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 
 > ⚠️ Hypothèse : cadence 2 semaines par sprint, sans interruption majeure. À recalibrer à chaque sprint.
 
+> Révisé 2026-06-11 : les sprints 8/9/9.5 sont code-complets en avance sur le plan initial. Reste un préalable manuel John : relire + merger `sprint-9.5-cleanup` → `main` + QA Stripe LIVE.
+
 | Sprint | Période estimée | Phase | Statut |
 |---|---|---|---|
-| **7.5** | **2026-05-21 → 2026-05-27** (3-5j) | **Hygiène + dette** | 🔴 **Obligatoire** |
-| 8 | 2026-05-28 → 2026-06-10 | Fil | 🔜 |
-| 9 | 2026-06-11 → 2026-06-24 | Stripe | 🔜 |
-| 10 | 2026-06-25 → 2026-07-08 | Guides + SEO | 🔜 |
-| 11 | 2026-07-09 → 2026-07-22 | Polish + Beta | 🔜 |
+| 7.5 | 2026-05-21 → 2026-05-27 | Hygiène + dette | ✅ |
+| 8 | → 2026-05-21 | Fil (code-complet, mergé) | ✅ |
+| 9 | → 2026-05-21 | Stripe (code-complet, QA LIVE restante) | ✅ |
+| 9.5 | 2026-05-22 | Cleanup pré-merge (branche à merger) | ✅ |
+| — | 2026-06-12 → 2026-06-15 | Merge 9.5 + QA Stripe LIVE (manuel John) | 🔜 |
+| 10 | 2026-06-16 → 2026-06-30 | Guides + SEO + riposte FG (bloc 0 social gratuit, fiches espèces, vérif marées) | 🔜 |
+| 11 | 2026-07-01 → 2026-07-15 | Polish + PWA + Beta | 🔜 |
 | ⛳ Gate 1 | ~2026-07-16 | Décision mobile | ❓ |
 | 12-13 | 2026-07-17 → 2026-09-09 (été + buffer) | Setup mobile | 🔜 |
 | 14-15 | 2026-09-10 → 2026-10-07 | Carnet + carte mobile | 🔜 |
