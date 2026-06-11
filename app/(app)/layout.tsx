@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { priceIdToInterval, PLAN_PRICING, type PaidPlan } from "@/lib/stripe/pricing";
+import { AppShell } from "@/components/layout/AppShell";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppInstruments } from "@/components/layout/AppInstruments";
 import { TrialBanner } from "./trial-banner";
 
 function daysUntil(iso: string): number {
@@ -52,9 +55,8 @@ export default async function AppLayout({
   }
 
   return (
-    <>
-      {banner}
+    <AppShell header={<AppHeader />} instruments={<AppInstruments />} banner={banner}>
       {children}
-    </>
+    </AppShell>
   );
 }
