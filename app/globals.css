@@ -7,25 +7,34 @@
    Génère bg-navy-900, text-teal-500, font-display, etc.
    ============================================================ */
 @theme {
-  --color-navy-950: #061521;
+  /* DA v2 « Instrument de précision marine » (docs/maquette-v2/DA.md) :
+     navy-950/800/700, teal-600, sand-100/200 réalignés sur la charte ;
+     teal-300, gold-500, coral-500, ink-600/400 ajoutés. */
+  --color-navy-950: #04141C;
   --color-navy-900: #0A2F3D;
-  --color-navy-800: #103E50;
-  --color-navy-700: #1A5168;
+  --color-navy-800: #0E3D4F;
+  --color-navy-700: #155A73;
   --color-navy-600: #2A6E89;
   --color-navy-500: #3B8AA8;
 
   --color-teal-700: #0F766E;
-  --color-teal-600: #0D9488;
+  --color-teal-600: #0E9488;
   --color-teal-500: #14B8A6;
   --color-teal-400: #2DD4BF;
+  --color-teal-300: #5EEAD4;
+
+  --color-gold-500: #D9A53C;
+  --color-coral-500: #E5604F;
 
   --color-sand-50:  #FBF8F2;
-  --color-sand-100: #F5F0E8;
-  --color-sand-200: #ECE3D2;
+  --color-sand-100: #F4EEE0;
+  --color-sand-200: #E8DFCB;
 
   --color-ink-900: #0E1A22;
   --color-ink-700: #2D3F4A;
+  --color-ink-600: #44545E;
   --color-ink-500: #5C6F7A;
+  --color-ink-400: #7E8C95;
   --color-ink-300: #B7C2C9;
   --color-ink-200: #D7DEE3;
   --color-ink-100: #EDF1F4;
@@ -33,8 +42,19 @@
   --color-amber-500: #F59E0B;
   --color-green-500: #22C55E;
 
+  /* Sémantique score (carte, créneaux) : ≥75 high, 50-74 mid, <50 low */
+  --color-score-low:  #7E8C95;
+  --color-score-mid:  #D9A53C;
+  --color-score-high: #14B8A6;
+
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: var(--font-space-grotesk), var(--font-inter), -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Ombres DA v2 : 2 niveaux seulement. Les bordures 1px sand-200
+     remplacent les ombres par défaut des cards. */
+  --shadow-sm: 0 1px 2px rgba(14, 26, 34, 0.05), 0 2px 8px rgba(14, 26, 34, 0.04);
+  --shadow-lg: 0 8px 32px rgba(4, 20, 28, 0.16);
 }
 
 /* ============================================================
@@ -76,6 +96,10 @@
   --teal-600: var(--color-teal-600);
   --teal-500: var(--color-teal-500);
   --teal-400: var(--color-teal-400);
+  --teal-300: var(--color-teal-300);
+
+  --gold-500: var(--color-gold-500);
+  --coral-500: var(--color-coral-500);
 
   --sand-50:  var(--color-sand-50);
   --sand-100: var(--color-sand-100);
@@ -83,12 +107,18 @@
 
   --ink-900: var(--color-ink-900);
   --ink-700: var(--color-ink-700);
+  --ink-600: var(--color-ink-600);
   --ink-500: var(--color-ink-500);
+  --ink-400: var(--color-ink-400);
   --ink-300: var(--color-ink-300);
   --ink-200: var(--color-ink-200);
   --ink-100: var(--color-ink-100);
 
   --amber-500: var(--color-amber-500);
+
+  --score-low:  var(--color-score-low);
+  --score-mid:  var(--color-score-mid);
+  --score-high: var(--color-score-high);
 }
 
 /* ============================================================
