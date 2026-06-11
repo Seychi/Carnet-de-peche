@@ -1,8 +1,6 @@
-import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
-import { computeWeeklyForecast } from '@/lib/solunar'
-import { getNextBestWindow } from '@/lib/solunar/next-window'
+import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
+import { getDeptNextWindow } from '@/lib/conditions/dept-window'
 import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { InstrumentsBar, type InstrumentsData } from '@/components/ui-v2/instruments-bar'
@@ -39,26 +37,11 @@ function parisHour(): number {
   ) % 24
 }
 
-// Prochain créneau solunar du point de référence du département.
-// Même pipeline que getSpotNextWindow (app/actions/solunar.ts), caché 1h.
-async function nextWindowSlot(dept: string, lat: number, lng: number): Promise<string | null> {
-  const hourKey = Math.floor(Date.now() / 3_600_000).toString()
-  try {
-    const window = await unstable_cache(
-      async () => {
-        const week = await fetchSpotForecastWeek(lat, lng)
-        if (!week.length) return null
-        const weekly = await computeWeeklyForecast(new Date(), lat, lng, week)
-        return getNextBestWindow(weekly)
-      },
-      ['dept-next-window', dept, hourKey],
-      { revalidate: 3600 },
-    )()
-    if (!window) return null
-    return `${fmtTimeISO(window.startTimeISO)} → ${fmtTimeISO(window.endTimeISO)}`
-  } catch {
-    return null
-  }
+// Prochain créneau solunar du département, formaté « 18:30 → 21:30 ».
+async function nextWindowSlot(dept: string): Promise<string | null> {
+  const window = await getDeptNextWindow(dept)
+  if (!window) return null
+  return `${fmtTimeISO(window.startTimeISO)} → ${fmtTimeISO(window.endTimeISO)}`
 }
 
 /**
@@ -89,7 +72,7 @@ export async function AppInstruments() {
   try {
     const [conditions, slot] = await Promise.all([
       fetchSpotConditions(coords.lat, coords.lng),
-      nextWindowSlot(dept, coords.lat, coords.lng),
+      nextWindowSlot(dept),
     ])
 
     const hour = parisHour()

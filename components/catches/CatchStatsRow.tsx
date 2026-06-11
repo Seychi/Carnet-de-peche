@@ -22,14 +22,15 @@ export function CatchStatsRow({
 
   return (
     <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 ${className ?? ''}`}>
-      <StatCard label="Total prises" value={String(stats.totalCount)} />
-      <StatCard label="Ce mois" value={String(stats.thisMonthCount)} />
-      <StatCard label="Plus gros" value={biggest} compact />
-      <StatCard label="Taux relâche" value={`${stats.releasedRate} %`} />
+      <StatCard label="prises au total" value={String(stats.totalCount)} />
+      <StatCard label="ce mois-ci" value={String(stats.thisMonthCount)} />
+      <StatCard label="record" value={biggest} compact />
+      <StatCard label="taux de relâche" value={`${stats.releasedRate} %`} />
     </div>
   )
 }
 
+// Card stat DA v2 : valeur mono d'abord, légende dessous (réf carnet.html .stat).
 function StatCard({
   label,
   value,
@@ -40,15 +41,15 @@ function StatCard({
   compact?: boolean
 }) {
   return (
-    <div className="bg-white rounded-[14px] border border-slate-100 p-4 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">{label}</p>
+    <div className="rounded-[14px] border border-sand-200 bg-white p-4">
       <p
-        className={`font-bold text-navy-900 mt-1 leading-tight ${
-          compact ? 'text-[12px]' : 'text-[22px]'
+        className={`font-mono font-semibold leading-tight text-navy-900 ${
+          compact ? 'text-[14px] sm:text-[16px]' : 'text-[24px] sm:text-[28px]'
         }`}
       >
         {value}
       </p>
+      <p className="mt-0.5 text-[12.5px] text-ink-400 sm:text-[13.5px]">{label}</p>
     </div>
   )
 }

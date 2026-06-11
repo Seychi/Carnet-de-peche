@@ -1,6 +1,4 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown } from '@/lib/catches/queries'
 import { catchFiltersSchema } from '@/lib/catches/schema'
@@ -8,7 +6,8 @@ import { CatchStatsRow } from '@/components/catches/CatchStatsRow'
 import { CatchStatsDetailed } from '@/components/catches/CatchStatsDetailed'
 import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
-import { BackButton } from '@/components/layout/BackButton'
+import { NextWindowInsight } from '@/components/catches/NextWindowInsight'
+import { TagData } from '@/components/ui-v2/tag-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,12 +53,13 @@ export default async function CarnetPage({ searchParams }: Props) {
     ? filtersResult.data
     : { limit: PAGE_SIZE, offset: 0 }
 
-  // ── Fetch parallèle : prises + stats ─────────────────────────────────────
+  // ── Fetch parallèle : prises + stats + dépt du profil (insight) ──────────
 
-  const [{ catches, totalCount }, stats, breakdown] = await Promise.all([
+  const [{ catches, totalCount }, stats, breakdown, { data: profile }] = await Promise.all([
     getMyCatches(filters),
     getMyCatchStats().catch(() => null),
     getMyCatchesBreakdown().catch(() => null),
+    supabase.from('profiles').select('home_department').eq('id', user.id).maybeSingle(),
   ])
 
   // ── Signed URLs pour les photos (batch) ───────────────────────────────────
@@ -89,31 +89,31 @@ export default async function CarnetPage({ searchParams }: Props) {
   const initialTechniques = technique ?? []
   const initialDateFrom = String(params.dateFrom ?? '')
 
+  const season = new Date().getFullYear()
+  const dept = profile?.home_department?.trim() ?? null
+
   return (
     <div className="min-h-screen bg-sand-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
 
-        {/* Flèche retour mobile (cachée sur desktop) */}
-        <BackButton fallbackHref="/home" className="mb-3" />
-
-        {/* En-tête */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-navy-900">Mon carnet</h1>
-          {/* CTA visible sur desktop, masqué mobile (FAB prend le relais) */}
-          <Link
-            href="/carnet/nouvelle"
-            className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-teal-500 text-white rounded-[10px] text-[14px] font-semibold hover:bg-teal-600 transition-colors"
-          >
-            <Plus size={16} />
-            Loguer
-          </Link>
-        </div>
+        {/* En-tête (la nav, le « + Loguer » et le FAB vivent dans le shell) */}
+        <header className="mb-5">
+          <TagData>MON CARNET · SAISON {season}</TagData>
+          <h1 className="mt-1 font-display text-[26px] leading-tight text-navy-900 sm:text-[32px]">
+            {totalCount > 0
+              ? `${totalCount} prise${totalCount > 1 ? 's' : ''}, et la carte commence à te connaître.`
+              : 'Mon carnet'}
+          </h1>
+        </header>
 
         {/* Stats synthétiques */}
         {stats && <CatchStatsRow stats={stats} className="mb-3" />}
 
         {/* Stats détaillées repliables */}
         {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-5" />}
+
+        {/* Insight : prochain bon créneau du département (card live) */}
+        {dept && <NextWindowInsight dept={dept} />}
 
         {/* Filtres */}
         <CatchFiltersBar
@@ -123,7 +123,7 @@ export default async function CarnetPage({ searchParams }: Props) {
           className="mb-5"
         />
 
-        {/* Grille */}
+        {/* Liste des prises */}
         <CatchGrid
           catches={catches}
           photoUrls={photoUrls}
@@ -134,15 +134,6 @@ export default async function CarnetPage({ searchParams }: Props) {
           searchParams={params}
         />
       </div>
-
-      {/* FAB mobile */}
-      <Link
-        href="/carnet/nouvelle"
-        aria-label="Loguer une prise"
-        className="sm:hidden fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full bg-teal-500 shadow-lg flex items-center justify-center hover:bg-teal-600 transition-colors"
-      >
-        <Plus size={24} className="text-white" />
-      </Link>
     </div>
   )
 }

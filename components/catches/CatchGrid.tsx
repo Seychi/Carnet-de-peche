@@ -1,7 +1,28 @@
 import Link from 'next/link'
 import { Fish } from 'lucide-react'
 import type { CatchRow } from '@/lib/catches/queries'
-import { CatchCard } from './CatchCard'
+import { TagData } from '@/components/ui-v2/tag-data'
+import { CatchRowItem } from './CatchRowItem'
+
+// Groupe les prises par mois (la liste arrive déjà triée caught_at desc).
+function groupByMonth(catches: CatchRow[]): { label: string; items: CatchRow[] }[] {
+  const groups: { label: string; items: CatchRow[] }[] = []
+  for (const c of catches) {
+    const label = c.caught_at
+      ? new Intl.DateTimeFormat('fr-FR', {
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'Europe/Paris',
+        })
+          .format(new Date(c.caught_at))
+          .toUpperCase()
+      : 'SANS DATE'
+    const last = groups[groups.length - 1]
+    if (last && last.label === label) last.items.push(c)
+    else groups.push({ label, items: [c] })
+  }
+  return groups
+}
 
 // Reconstruit l'URL de pagination en préservant tous les autres filtres
 function buildPageUrl(
@@ -79,55 +100,62 @@ export function CatchGrid({
     )
   }
 
-  // ── Grille normale ────────────────────────────────────────────────────────
+  // ── Liste groupée par mois (DA v2, réf carnet.html) ───────────────────────
+  const groups = groupByMonth(catches)
+
   return (
     <div>
-      {/* Compteur */}
-      <p className="text-[12px] text-ink-400 mb-3">
-        {totalCount} prise{totalCount > 1 ? 's' : ''}
-        {hasFilters ? (totalCount > 1 ? ' trouvées' : ' trouvée') : ''}
-      </p>
+      <TagData className="mb-3 block">
+        {totalCount} PRISE{totalCount > 1 ? 'S' : ''}
+        {hasFilters ? (totalCount > 1 ? ' TROUVÉES' : ' TROUVÉE') : ''}
+      </TagData>
 
-      {/* Grille responsive */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {catches.map((c) => (
-          <CatchCard
-            key={c.id}
-            catch={c}
-            photoUrl={c.photo_path ? photoUrls[c.photo_path] : undefined}
-          />
+      <div className="flex flex-col gap-5">
+        {groups.map((g) => (
+          <section key={g.label}>
+            <TagData className="mb-2.5 block">{g.label}</TagData>
+            <div className="flex flex-col gap-2.5">
+              {g.items.map((c) => (
+                <CatchRowItem
+                  key={c.id}
+                  catch={c}
+                  photoUrl={c.photo_path ? photoUrls[c.photo_path] : undefined}
+                />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
 
       {/* Pagination prev / next */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-100">
+        <div className="flex items-center justify-between mt-6 pt-5 border-t border-sand-200">
           {page > 1 ? (
             <Link
               href={buildPageUrl(searchParams, page - 1)}
-              className="px-4 py-2 rounded-[10px] text-[13px] font-medium border border-slate-200 text-ink-600 hover:border-teal-400 transition-colors"
+              className="px-4 py-2 rounded-[10px] text-[13px] font-medium border border-sand-200 text-ink-600 hover:border-ink-400 transition-colors"
             >
               ← Précédent
             </Link>
           ) : (
-            <span className="px-4 py-2 text-[13px] text-slate-300 border border-slate-100 rounded-[10px]">
+            <span className="px-4 py-2 text-[13px] text-ink-300 border border-sand-200 rounded-[10px]">
               ← Précédent
             </span>
           )}
 
-          <span className="text-[12px] text-ink-400">
+          <span className="font-mono text-[12px] text-ink-400">
             {page} / {totalPages}
           </span>
 
           {page < totalPages ? (
             <Link
               href={buildPageUrl(searchParams, page + 1)}
-              className="px-4 py-2 rounded-[10px] text-[13px] font-medium border border-slate-200 text-ink-600 hover:border-teal-400 transition-colors"
+              className="px-4 py-2 rounded-[10px] text-[13px] font-medium border border-sand-200 text-ink-600 hover:border-ink-400 transition-colors"
             >
               Suivant →
             </Link>
           ) : (
-            <span className="px-4 py-2 text-[13px] text-slate-300 border border-slate-100 rounded-[10px]">
+            <span className="px-4 py-2 text-[13px] text-ink-300 border border-sand-200 rounded-[10px]">
               Suivant →
             </span>
           )}
