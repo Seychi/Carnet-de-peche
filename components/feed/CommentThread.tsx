@@ -18,11 +18,9 @@ function initials(name: string | null, username: string | null) {
 export function CommentThread({
   postId,
   currentUserId,
-  canInteract,
 }: {
   postId: string
   currentUserId: string | null
-  canInteract: boolean
 }) {
   const [comments, setComments] = useState<FeedComment[]>([])
   const [loading, setLoading] = useState(true)
@@ -138,7 +136,7 @@ export function CommentThread({
         </>
       )}
 
-      {canInteract ? (
+      {currentUserId ? (
         <div className="flex items-center gap-2 pt-1">
           <input
             value={text}
@@ -165,7 +163,7 @@ export function CommentThread({
         </div>
       ) : (
         <p className="text-[12px] text-ink-400 pt-1">
-          Passe en Local sur ton département pour commenter.
+          Connecte-toi pour commenter.
         </p>
       )}
     </div>

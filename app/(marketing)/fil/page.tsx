@@ -102,7 +102,7 @@ export default async function FilTeaserPage() {
             </Link>
           </div>
           <p className="text-[13px] text-ink-500 mt-4">
-            Gratuit. Lecture du fil de ton département dès l’inscription.
+            100&nbsp;% gratuit. Poste, commente, like et suis dès l’inscription.
           </p>
         </div>
       </section>

@@ -10,13 +10,12 @@ const TABS: { key: FeedTab; label: string }[] = [
   { key: 'all', label: 'Tous les départements côtiers' },
 ]
 
-export function FeedTabs({ current, canSeeAll }: { current: FeedTab; canSeeAll: boolean }) {
+export function FeedTabs({ current }: { current: FeedTab }) {
   const pathname = usePathname()
-  const tabs = TABS.filter((t) => t.key !== 'all' || canSeeAll)
 
   return (
     <nav className="flex gap-1 border-b border-slate-100 overflow-x-auto">
-      {tabs.map((t) => {
+      {TABS.map((t) => {
         const active = t.key === current
         const href = t.key === 'dept' ? pathname : `${pathname}?tab=${t.key}`
         return (

@@ -17,7 +17,6 @@ export function PostList({
   region,
   tab,
   currentUserId,
-  canInteract,
   emptyVariant,
 }: {
   initialPosts: FeedPostEnriched[]
@@ -25,7 +24,6 @@ export function PostList({
   region: string
   tab: FeedTab
   currentUserId: string | null
-  canInteract: boolean
   emptyVariant: EmptyVariant
 }) {
   const [posts, setPosts] = useState(initialPosts)
@@ -68,7 +66,6 @@ export function PostList({
           post={p}
           currentUserId={currentUserId}
           catchPhotoUrl={p.catchPhotoUrl}
-          canInteract={canInteract}
         />
       ))}
       {cursor && (

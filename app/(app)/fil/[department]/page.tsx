@@ -1,7 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { getUserTier } from '@/lib/auth/tier'
 import { isCoastalDepartment, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getFeedPage } from '@/app/actions/feed'
 import { FeedTabs } from '@/components/feed/FeedTabs'
@@ -11,10 +10,10 @@ import type { FeedTab } from '@/lib/feed/types'
 
 export const dynamic = 'force-dynamic'
 
-function resolveTab(raw: string | string[] | undefined, canSeeAll: boolean): FeedTab {
+function resolveTab(raw: string | string[] | undefined): FeedTab {
   const t = Array.isArray(raw) ? raw[0] : raw
   if (t === 'follows') return 'follows'
-  if (t === 'all') return canSeeAll ? 'all' : 'dept'
+  if (t === 'all') return 'all'
   return 'dept'
 }
 
@@ -48,26 +47,8 @@ export default async function DepartmentFeedPage({
   } = await supabase.auth.getUser()
   if (!user) redirect(`/auth/login?redirect=/fil/${department}`)
 
-  const tier = await getUserTier()
-  const canSeeAll = tier === 'itinerant'
   const { tab: rawTab } = await searchParams
-  const tab = resolveTab(rawTab, canSeeAll)
-
-  // Droit d'écriture/interaction sur CE département (ceinture+bretelles avec le RLS).
-  const { data: canPostRaw } = await supabase.rpc('can_post_in_department', { dept: department })
-  const canInteract = Boolean(canPostRaw)
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('home_department')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  const blockedReason: 'discovery' | 'cross-dept' | undefined = canInteract
-    ? undefined
-    : tier === 'local' && profile?.home_department !== department
-      ? 'cross-dept'
-      : 'discovery'
+  const tab = resolveTab(rawTab)
 
   const { data: recent } = await supabase
     .from('catches')
@@ -93,14 +74,9 @@ export default async function DepartmentFeedPage({
           </p>
         </header>
 
-        <FeedTabs current={tab} canSeeAll={canSeeAll} />
+        <FeedTabs current={tab} />
 
-        <PostComposer
-          region={department}
-          canPost={canInteract}
-          blockedReason={blockedReason}
-          recentCatches={(recent ?? []) as RecentCatch[]}
-        />
+        <PostComposer region={department} recentCatches={(recent ?? []) as RecentCatch[]} />
 
         <PostList
           initialPosts={posts}
@@ -108,7 +84,6 @@ export default async function DepartmentFeedPage({
           region={department}
           tab={tab}
           currentUserId={user.id}
-          canInteract={canInteract}
           emptyVariant={emptyVariant}
         />
       </div>

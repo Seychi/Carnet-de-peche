@@ -35,12 +35,10 @@ export function PostCard({
   post,
   currentUserId,
   catchPhotoUrl,
-  canInteract,
 }: {
   post: FeedPost
   currentUserId: string | null
   catchPhotoUrl?: string | null
-  canInteract: boolean
 }) {
   const postId = post.id
   const [liked, setLiked] = useState(Boolean(post.liked_by_me))
@@ -66,8 +64,8 @@ export function PostCard({
   const isLong = (post.text?.length ?? 0) > 300
 
   async function handleLike() {
-    if (!canInteract) {
-      toast('Passe en Local pour aimer et commenter.')
+    if (!currentUserId) {
+      toast('Connecte-toi pour aimer et commenter.')
       return
     }
     const next = !liked
@@ -207,7 +205,7 @@ export function PostCard({
       </footer>
 
       {showComments && (
-        <CommentThread postId={postId} currentUserId={currentUserId} canInteract={canInteract} />
+        <CommentThread postId={postId} currentUserId={currentUserId} />
       )}
 
       <ReportDialog postId={postId} open={reportOpen} onOpenChange={setReportOpen} />

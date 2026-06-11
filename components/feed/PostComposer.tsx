@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Fish, Loader2, Lock, X } from 'lucide-react'
+import { Fish, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Sheet,
@@ -24,13 +23,9 @@ export type RecentCatch = {
 
 export function PostComposer({
   region,
-  canPost,
-  blockedReason,
   recentCatches = [],
 }: {
   region: string
-  canPost: boolean
-  blockedReason?: 'discovery' | 'cross-dept'
   recentCatches?: RecentCatch[]
 }) {
   const router = useRouter()
@@ -38,25 +33,6 @@ export function PostComposer({
   const [attached, setAttached] = useState<RecentCatch | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-
-  if (!canPost) {
-    const msg =
-      blockedReason === 'cross-dept'
-        ? 'Tu es en Local sur un autre département. Passe Itinérant pour poster ici.'
-        : 'Passe en Local pour participer au fil de ton département.'
-    return (
-      <div className="flex items-center gap-3 rounded-[14px] border border-slate-200 bg-sand-50 p-4">
-        <Lock size={18} className="shrink-0 text-ink-400" />
-        <p className="flex-1 text-[13px] text-ink-600">{msg}</p>
-        <Link
-          href="/tarifs"
-          className="shrink-0 inline-flex items-center min-h-11 px-4 rounded-full bg-teal-500 text-white text-[13px] font-semibold hover:bg-teal-600 transition-colors"
-        >
-          Voir les offres
-        </Link>
-      </div>
-    )
-  }
 
   async function handleSubmit() {
     if (!text.trim() && !attached) return

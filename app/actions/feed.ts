@@ -15,9 +15,32 @@ export type ActionResult<T = undefined> =
 const ok = <T>(data: T): ActionResult<T> => ({ ok: true, data })
 const fail = (error: string): ActionResult<never> => ({ ok: false, error })
 
-const TIER_MSG =
-  'Tu ne peux pas écrire ici. Passe en Local pour participer au fil de ton département.'
 const AUTH_MSG = 'Connecte-toi pour participer au fil.'
+
+// Garde-fous anti-spam (social 100% gratuit depuis la migration 022) :
+// le même plafond est appliqué en backstop par les triggers DB
+// feed_posts_rate_limit / feed_comments_rate_limit.
+const MAX_POSTS_PER_24H = 10
+const MAX_COMMENTS_PER_24H = 50
+const POST_LIMIT_MSG =
+  'Doucement moussaillon : 10 posts en 24h, c’est le max. Reviens demain 🎣'
+const COMMENT_LIMIT_MSG =
+  'Doucement moussaillon : 50 commentaires en 24h, c’est le max. Reviens demain 🎣'
+
+// Compte les lignes écrites par l'utilisateur sur les dernières 24h.
+async function countLast24h(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: 'feed_posts' | 'feed_comments',
+  userId: string,
+): Promise<number> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  const { count } = await supabase
+    .from(table)
+    .select('id', { count: 'exact', head: true })
+    .eq('author_id', userId)
+    .gte('created_at', since)
+  return count ?? 0
+}
 
 function firstZodError(error: z.ZodError): string {
   return error.issues[0]?.message ?? 'Données invalides.'
@@ -58,9 +81,10 @@ export async function createPost(input: {
   const text = parsed.data.text?.trim() || undefined
   if (!text && !catchId) return fail('Écris un message ou partage une prise.')
 
-  // Ceinture + bretelles : check tier explicite (le RLS le bloque déjà côté DB).
-  const { data: canPost } = await supabase.rpc('can_post_in_department', { dept: region })
-  if (!canPost) return fail(TIER_MSG)
+  // Rate-limit anti-spam (le trigger DB feed_posts_rate_limit est le backstop).
+  if ((await countLast24h(supabase, 'feed_posts', user.id)) >= MAX_POSTS_PER_24H) {
+    return fail(POST_LIMIT_MSG)
+  }
 
   // Si on partage une prise, elle doit appartenir à l'auteur.
   if (catchId) {
@@ -80,6 +104,7 @@ export async function createPost(input: {
     .single()
 
   if (error || !post) {
+    if (error?.message.includes('rate_limit_posts')) return fail(POST_LIMIT_MSG)
     console.error('[createPost]', error?.message)
     return fail('Impossible de publier ton post. Réessaie.')
   }
@@ -106,9 +131,6 @@ export async function toggleLike(postId: string): Promise<ActionResult<{ liked: 
     .eq('id', postId)
     .maybeSingle()
   if (!post) return fail('Post introuvable.')
-
-  const { data: canPost } = await supabase.rpc('can_post_in_department', { dept: post.region })
-  if (!canPost) return fail(TIER_MSG)
 
   const { data: existing } = await supabase
     .from('feed_likes')
@@ -172,8 +194,10 @@ export async function addComment(
     .maybeSingle()
   if (!post) return fail('Post introuvable.')
 
-  const { data: canPost } = await supabase.rpc('can_post_in_department', { dept: post.region })
-  if (!canPost) return fail(TIER_MSG)
+  // Rate-limit anti-spam (le trigger DB feed_comments_rate_limit est le backstop).
+  if ((await countLast24h(supabase, 'feed_comments', user.id)) >= MAX_COMMENTS_PER_24H) {
+    return fail(COMMENT_LIMIT_MSG)
+  }
 
   const { data: comment, error } = await supabase
     .from('feed_comments')
@@ -182,6 +206,7 @@ export async function addComment(
     .single()
 
   if (error || !comment) {
+    if (error?.message.includes('rate_limit_comments')) return fail(COMMENT_LIMIT_MSG)
     console.error('[addComment]', error?.message)
     return fail('Impossible d’envoyer ton commentaire. Réessaie.')
   }

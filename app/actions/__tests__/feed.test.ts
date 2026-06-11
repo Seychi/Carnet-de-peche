@@ -34,7 +34,7 @@ describe('createPost', () => {
   })
 
   it('refuse un département non côtier', async () => {
-    mock({ user: USER, rpc: { can_post_in_department: { data: true } } })
+    mock({ user: USER })
     const r = await createPost({ text: 'Salut', region: '75' })
     expect(r).toEqual({ ok: false, error: expect.stringContaining('département') })
   })
@@ -45,17 +45,37 @@ describe('createPost', () => {
     expect(r.ok).toBe(false)
   })
 
-  it('refuse si le tier ne permet pas de poster', async () => {
-    mock({ user: USER, rpc: { can_post_in_department: { data: false } } })
+  it('accepte un user sans abonnement (social gratuit)', async () => {
+    // Aucun tier mocké : un compte discovery publie comme les autres.
+    mock({
+      user: USER,
+      tables: { feed_posts: [{ count: 0 }, { data: { id: 'p0' }, error: null }] },
+    })
     const r = await createPost({ text: 'Salut', region: '29' })
-    expect(r).toEqual({ ok: false, error: expect.stringContaining('Local') })
+    expect(r).toEqual({ ok: true, data: { id: 'p0' } })
+  })
+
+  it('refuse le 11e post en 24h (rate-limit)', async () => {
+    mock({ user: USER, tables: { feed_posts: { count: 10 } } })
+    const r = await createPost({ text: 'Salut', region: '29' })
+    expect(r).toEqual({ ok: false, error: expect.stringContaining('10 posts') })
+  })
+
+  it('traduit l’erreur du trigger DB rate_limit_posts (backstop)', async () => {
+    mock({
+      user: USER,
+      tables: {
+        feed_posts: [{ count: 0 }, { data: null, error: { message: 'rate_limit_posts' } }],
+      },
+    })
+    const r = await createPost({ text: 'Salut', region: '29' })
+    expect(r).toEqual({ ok: false, error: expect.stringContaining('10 posts') })
   })
 
   it('refuse de partager une prise qui ne nous appartient pas', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
-      tables: { catches: { data: null } },
+      tables: { feed_posts: { count: 0 }, catches: { data: null } },
     })
     const r = await createPost({ catchId: CATCH, region: '29' })
     expect(r.ok).toBe(false)
@@ -64,8 +84,7 @@ describe('createPost', () => {
   it('publie un post texte (happy path)', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
-      tables: { feed_posts: { data: { id: 'p1' }, error: null } },
+      tables: { feed_posts: [{ count: 0 }, { data: { id: 'p1' }, error: null }] },
     })
     const r = await createPost({ text: 'Belle session', region: '29' })
     expect(r).toEqual({ ok: true, data: { id: 'p1' } })
@@ -74,8 +93,10 @@ describe('createPost', () => {
   it('publie un post avec une prise possédée', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
-      tables: { catches: { data: { id: CATCH } }, feed_posts: { data: { id: 'p2' }, error: null } },
+      tables: {
+        catches: { data: { id: CATCH } },
+        feed_posts: [{ count: 0 }, { data: { id: 'p2' }, error: null }],
+      },
     })
     const r = await createPost({ catchId: CATCH, region: '29' })
     expect(r).toEqual({ ok: true, data: { id: 'p2' } })
@@ -84,8 +105,7 @@ describe('createPost', () => {
   it('remonte une erreur si l’insert échoue', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
-      tables: { feed_posts: { data: null, error: { message: 'boom' } } },
+      tables: { feed_posts: [{ count: 0 }, { data: null, error: { message: 'boom' } }] },
     })
     const r = await createPost({ text: 'Salut', region: '29' })
     expect(r.ok).toBe(false)
@@ -108,19 +128,9 @@ describe('toggleLike', () => {
     expect((await toggleLike(POST)).ok).toBe(false)
   })
 
-  it('refuse si le tier ne permet pas', async () => {
+  it('like un post non encore aimé (sans abonnement — social gratuit)', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: false } },
-      tables: { feed_posts: { data: { region: '29' } } },
-    })
-    expect((await toggleLike(POST)).ok).toBe(false)
-  })
-
-  it('like un post non encore aimé', async () => {
-    mock({
-      user: USER,
-      rpc: { can_post_in_department: { data: true } },
       tables: { feed_posts: { data: { region: '29' } }, feed_likes: [{ data: null }, { error: null }] },
     })
     expect(await toggleLike(POST)).toEqual({ ok: true, data: { liked: true } })
@@ -129,7 +139,6 @@ describe('toggleLike', () => {
   it('unlike un post déjà aimé', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
       tables: {
         feed_posts: { data: { region: '29' } },
         feed_likes: [{ data: { post_id: POST } }, { error: null }],
@@ -155,20 +164,34 @@ describe('addComment', () => {
     expect((await addComment(POST, 'Bien joué')).ok).toBe(false)
   })
 
-  it('refuse si le tier ne permet pas', async () => {
+  it('refuse le 51e commentaire en 24h (rate-limit)', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: false } },
-      tables: { feed_posts: { data: { region: '29' } } },
+      tables: { feed_posts: { data: { region: '29' } }, feed_comments: { count: 50 } },
     })
-    expect((await addComment(POST, 'Bien joué')).ok).toBe(false)
+    const r = await addComment(POST, 'Bien joué')
+    expect(r).toEqual({ ok: false, error: expect.stringContaining('50 commentaires') })
   })
 
-  it('ajoute un commentaire (happy path)', async () => {
+  it('traduit l’erreur du trigger DB rate_limit_comments (backstop)', async () => {
     mock({
       user: USER,
-      rpc: { can_post_in_department: { data: true } },
-      tables: { feed_posts: { data: { region: '29' } }, feed_comments: { data: { id: 'cm1' }, error: null } },
+      tables: {
+        feed_posts: { data: { region: '29' } },
+        feed_comments: [{ count: 0 }, { data: null, error: { message: 'rate_limit_comments' } }],
+      },
+    })
+    const r = await addComment(POST, 'Bien joué')
+    expect(r).toEqual({ ok: false, error: expect.stringContaining('50 commentaires') })
+  })
+
+  it('ajoute un commentaire (happy path, sans abonnement — social gratuit)', async () => {
+    mock({
+      user: USER,
+      tables: {
+        feed_posts: { data: { region: '29' } },
+        feed_comments: [{ count: 0 }, { data: { id: 'cm1' }, error: null }],
+      },
     })
     expect(await addComment(POST, 'Bien joué')).toEqual({ ok: true, data: { id: 'cm1' } })
   })

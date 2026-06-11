@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
-import { getUserTier } from '@/lib/auth/tier'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -80,9 +79,6 @@ export default async function PublicProfilePage({
     catchPhotoUrl: p.catch_photo_path ? (signed.get(p.catch_photo_path) ?? null) : null,
   }))
 
-  const tier = await getUserTier()
-  const canInteract = tier === 'local' || tier === 'itinerant'
-
   const name = profile.display_name || `@${profile.username}`
   const dept = profile.home_department
     ? (DEPARTMENT_LABELS[profile.home_department] ?? profile.home_department)
@@ -138,7 +134,6 @@ export default async function PublicProfilePage({
                 post={p}
                 currentUserId={user?.id ?? null}
                 catchPhotoUrl={p.catchPhotoUrl}
-                canInteract={canInteract}
               />
             ))
           )}

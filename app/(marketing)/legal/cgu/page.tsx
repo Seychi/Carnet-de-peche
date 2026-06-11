@@ -44,7 +44,7 @@ export default function CGUPage() {
         <li>Tenir un carnet de pêche personnel (prises, photos, conditions environnementales)</li>
         <li>Consulter une carte des spots de pêche à la canne du bord en France métropolitaine</li>
         <li>Accéder à des guides éditoriaux sur la pêche du bord</li>
-        <li>Participer à une communauté de pêcheurs via un fil régional (à venir)</li>
+        <li>Participer à une communauté de pêcheurs via un fil régional</li>
         <li>S’abonner à des formules payantes pour débloquer des fonctionnalités avancées</li>
       </ul>
       <p>L’utilisation du Service implique l’acceptation pleine et entière des présentes CGU.</p>
@@ -98,8 +98,8 @@ export default function CGUPage() {
           <tr><th>Plan</th><th>Tarif</th><th>Périmètre</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte basique (3 spots/dept floutés 1 km), guides, fil en lecture seule, 1 département</td></tr>
-          <tr><td><strong>Local</strong></td><td>4,90 € / mois ou 49 € / an</td><td>Carte complète du département, coords précises, scores, filtres, fil en écriture</td></tr>
+          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte basique (3 spots/dept floutés 1 km), guides, fil régional complet (lecture et écriture)</td></tr>
+          <tr><td><strong>Local</strong></td><td>4,90 € / mois ou 49 € / an</td><td>Carte complète du département, coords précises, scores, filtres</td></tr>
           <tr><td><strong>Itinérant</strong></td><td>9,90 € / mois ou 99 € / an</td><td>Tous les départements côtiers FR, fonctionnalités avancées</td></tr>
         </tbody>
       </table>

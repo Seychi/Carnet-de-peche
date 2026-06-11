@@ -32,7 +32,7 @@ export function makeSupabase(opts: { user?: unknown; rpc?: Record<string, MockRe
     const b: Record<string, unknown> = {}
     for (const m of [
       'select', 'insert', 'update', 'delete',
-      'eq', 'neq', 'in', 'not', 'is', 'match', 'order', 'limit', 'range',
+      'eq', 'neq', 'in', 'not', 'is', 'match', 'order', 'limit', 'range', 'gte', 'lt',
     ]) {
       b[m] = vi.fn(() => b)
     }
