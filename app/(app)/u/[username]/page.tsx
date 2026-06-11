@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Bathy } from '@/components/ui-v2/bathy'
 import { FollowButton } from '@/components/feed/FollowButton'
 import { PostCard } from '@/components/feed/PostCard'
 import type { FeedPostEnriched } from '@/app/actions/feed'
@@ -80,8 +81,9 @@ export default async function PublicProfilePage({
   }))
 
   const name = profile.display_name || `@${profile.username}`
+  // char(3) Postgres → '29 ' paddé : trim avant lookup (cf. backlog ROADMAP)
   const dept = profile.home_department
-    ? (DEPARTMENT_LABELS[profile.home_department] ?? profile.home_department)
+    ? (DEPARTMENT_LABELS[profile.home_department.trim()] ?? profile.home_department.trim())
     : null
   const since = profile.created_at
     ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: fr })
@@ -89,42 +91,64 @@ export default async function PublicProfilePage({
 
   return (
     <main className="bg-sand-50 min-h-screen">
-      <div className="mx-auto flex max-w-[680px] flex-col gap-6 px-4 py-6">
-        {/* En-tête profil */}
-        <header className="flex items-start gap-4">
+      {/* Hero navy (réf profil.html) */}
+      <header className="relative overflow-hidden bg-navy-950 text-white">
+        <Bathy opacity={0.3} />
+        <div className="relative mx-auto flex max-w-[680px] flex-wrap items-start gap-4 px-4 py-7">
           <Avatar className="size-20 shrink-0">
             {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
-            <AvatarFallback className="text-xl">
+            <AvatarFallback className="bg-navy-800 font-mono text-xl font-semibold text-teal-300">
               {name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-2xl text-navy-900 leading-tight">{name}</h1>
-            <p className="text-[13px] text-ink-400">
+            <h1 className="font-display text-2xl leading-tight text-white">{name}</h1>
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/45">
               @{profile.username}
-              {dept ? ` · ${dept}` : ''}
+              {since ? ` · DEPUIS ${since.toUpperCase()}` : ''}
             </p>
-            {profile.bio && <p className="mt-1.5 text-[14px] text-ink-700">{profile.bio}</p>}
+            {profile.bio && <p className="mt-1.5 text-[14px] text-white/75">{profile.bio}</p>}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {dept && <HeroChip>{`${dept.toUpperCase()}`}</HeroChip>}
+              {(profile.techniques ?? []).length > 0 && (
+                <HeroChip>
+                  {(profile.techniques ?? [])
+                    .map((t: string) => (TECHNIQUE_LABELS[t] ?? t).toUpperCase())
+                    .join(' · ')}
+                </HeroChip>
+              )}
+              {(profile.favorite_species ?? []).length > 0 && (
+                <HeroChip>
+                  {(profile.favorite_species ?? [])
+                    .map((s: string) => (SPECIES_LABELS[s] ?? s).toUpperCase())
+                    .join(' · ')}
+                </HeroChip>
+              )}
+            </div>
           </div>
-          {user && !isMe && (
-            <FollowButton targetUserId={profile.id} initialFollowing={initialFollowing} />
-          )}
-        </header>
-
-        {/* Stats + chips */}
-        <div className="flex flex-col gap-2 text-[13px] text-ink-600">
-          <p>
-            <strong className="text-navy-900">{publicCatches ?? 0}</strong> prise
-            {(publicCatches ?? 0) > 1 ? 's' : ''} publique{(publicCatches ?? 0) > 1 ? 's' : ''}
-            {since ? ` · pêcheur depuis ${since}` : ''}
-          </p>
-          <Chips items={profile.favorite_species} labels={SPECIES_LABELS} />
-          <Chips items={profile.techniques} labels={TECHNIQUE_LABELS} />
+          <div className="flex items-center gap-5">
+            <div className="text-center">
+              <p className="font-mono text-[24px] font-semibold leading-none text-teal-300">
+                {publicCatches ?? 0}
+              </p>
+              <p className="mt-1 text-[12px] text-white/45">
+                prise{(publicCatches ?? 0) > 1 ? 's' : ''}
+              </p>
+            </div>
+            {user && !isMe && (
+              <FollowButton targetUserId={profile.id} initialFollowing={initialFollowing} />
+            )}
+          </div>
         </div>
+      </header>
+
+      <div className="mx-auto flex max-w-[680px] flex-col gap-6 px-4 py-6">
 
         {/* Posts */}
         <section className="flex flex-col gap-3">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-400">Posts</h2>
+          <h2 className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            Posts
+          </h2>
           {enriched.length === 0 ? (
             <p className="text-[14px] text-ink-400">Aucun post pour l’instant.</p>
           ) : (
@@ -143,18 +167,11 @@ export default async function PublicProfilePage({
   )
 }
 
-function Chips({ items, labels }: { items: string[] | null; labels: Record<string, string> }) {
-  if (!items || items.length === 0) return null
+// Chip mono sur fond sombre (hero profil, réf profil.html)
+function HeroChip({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {items.map((it) => (
-        <span
-          key={it}
-          className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[12px] font-medium text-teal-700"
-        >
-          {labels[it] ?? it}
-        </span>
-      ))}
-    </div>
+    <span className="rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1 font-mono text-[10px] font-medium tracking-[0.06em] text-white">
+      {children}
+    </span>
   )
 }

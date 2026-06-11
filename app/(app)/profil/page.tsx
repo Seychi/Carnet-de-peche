@@ -38,8 +38,13 @@ export default async function ProfilPage() {
     <main className="bg-sand-50 min-h-screen py-12">
       <div className="max-w-[760px] mx-auto px-6">
         <div className="mb-8">
-          <h1 className="font-display text-navy-900 text-3xl">Mon profil</h1>
-          <p className="text-ink-500 mt-2 text-sm">
+          <p className="mb-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            MON PROFIL
+          </p>
+          <h1 className="font-display text-navy-900 text-3xl">
+            {profile.username ? `@${profile.username}` : 'Mon profil'}
+          </h1>
+          <p className="text-ink-600 mt-2 text-sm">
             Modifie tes informations de pêcheur. Ton email ne peut pas être changé ici.
           </p>
         </div>
