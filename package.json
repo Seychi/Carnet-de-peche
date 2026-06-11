@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "check-apis": "tsx scripts/check-apis.ts",
+    "verify-tides": "tsx scripts/verify-tides.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

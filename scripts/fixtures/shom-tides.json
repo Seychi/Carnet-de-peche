@@ -1,0 +1,52 @@
+{
+  "source": "maree.info (prédictions SHOM) — Brest=82, Saint-Malo=52, Pornichet=116, Les Sables-d'Olonne=125, Arcachon (Jetée d'Eyrac)=136",
+  "retrieved_at": "2026-06-11",
+  "notes": "Arcachon = port 'Arcachon (Jetée d'Eyrac)' (réf. officielle du bassin sur maree.info). Aucun jour manquant. Heures locales UTC+2. Certains jours n'ont que 3 événements (cycle ~12h25 qui décale un événement au jour suivant) : conforme à la source.",
+  "ports": {
+    "brest": {
+      "2026-06-12": [{"type":"high","time":"02:53","height_m":6.14},{"type":"low","time":"09:16","height_m":1.93},{"type":"high","time":"15:23","height_m":6.24},{"type":"low","time":"21:47","height_m":1.83}],
+      "2026-06-13": [{"type":"high","time":"03:52","height_m":6.42},{"type":"low","time":"10:13","height_m":1.65},{"type":"high","time":"16:19","height_m":6.58},{"type":"low","time":"22:43","height_m":1.49}],
+      "2026-06-14": [{"type":"high","time":"04:48","height_m":6.68},{"type":"low","time":"11:07","height_m":1.41},{"type":"high","time":"17:12","height_m":6.87},{"type":"low","time":"23:37","height_m":1.20}],
+      "2026-06-15": [{"type":"high","time":"05:42","height_m":6.86},{"type":"low","time":"11:59","height_m":1.25},{"type":"high","time":"18:03","height_m":7.07}],
+      "2026-06-16": [{"type":"low","time":"00:30","height_m":1.02},{"type":"high","time":"06:34","height_m":6.94},{"type":"low","time":"12:51","height_m":1.18},{"type":"high","time":"18:54","height_m":7.15}],
+      "2026-06-17": [{"type":"low","time":"01:21","height_m":0.96},{"type":"high","time":"07:25","height_m":6.90},{"type":"low","time":"13:41","height_m":1.23},{"type":"high","time":"19:45","height_m":7.10}],
+      "2026-06-18": [{"type":"low","time":"02:13","height_m":1.04},{"type":"high","time":"08:16","height_m":6.75},{"type":"low","time":"14:31","height_m":1.37},{"type":"high","time":"20:35","height_m":6.93}]
+    },
+    "saint-malo": {
+      "2026-06-12": [{"type":"high","time":"04:56","height_m":10.29},{"type":"low","time":"11:50","height_m":3.10},{"type":"high","time":"17:29","height_m":10.58}],
+      "2026-06-13": [{"type":"low","time":"00:23","height_m":2.92},{"type":"high","time":"05:58","height_m":10.81},{"type":"low","time":"12:53","height_m":2.60},{"type":"high","time":"18:27","height_m":11.18}],
+      "2026-06-14": [{"type":"low","time":"01:24","height_m":2.36},{"type":"high","time":"06:56","height_m":11.29},{"type":"low","time":"13:52","height_m":2.17},{"type":"high","time":"19:21","height_m":11.69}],
+      "2026-06-15": [{"type":"low","time":"02:23","height_m":1.90},{"type":"high","time":"07:52","height_m":11.65},{"type":"low","time":"14:48","height_m":1.87},{"type":"high","time":"20:14","height_m":12.05}],
+      "2026-06-16": [{"type":"low","time":"03:18","height_m":1.59},{"type":"high","time":"08:46","height_m":11.85},{"type":"low","time":"15:41","height_m":1.73},{"type":"high","time":"21:05","height_m":12.22}],
+      "2026-06-17": [{"type":"low","time":"04:11","height_m":1.46},{"type":"high","time":"09:38","height_m":11.87},{"type":"low","time":"16:31","height_m":1.77},{"type":"high","time":"21:54","height_m":12.18}],
+      "2026-06-18": [{"type":"low","time":"05:01","height_m":1.53},{"type":"high","time":"10:28","height_m":11.69},{"type":"low","time":"17:18","height_m":1.98},{"type":"high","time":"22:42","height_m":11.92}]
+    },
+    "pornichet": {
+      "2026-06-12": [{"type":"high","time":"02:50","height_m":4.93},{"type":"low","time":"08:50","height_m":1.49},{"type":"high","time":"15:18","height_m":5.00},{"type":"low","time":"21:19","height_m":1.42}],
+      "2026-06-13": [{"type":"high","time":"03:42","height_m":5.14},{"type":"low","time":"09:45","height_m":1.22},{"type":"high","time":"16:03","height_m":5.24},{"type":"low","time":"22:15","height_m":1.10}],
+      "2026-06-14": [{"type":"high","time":"04:31","height_m":5.33},{"type":"low","time":"10:39","height_m":0.98},{"type":"high","time":"16:47","height_m":5.44},{"type":"low","time":"23:10","height_m":0.83}],
+      "2026-06-15": [{"type":"high","time":"05:19","height_m":5.45},{"type":"low","time":"11:31","height_m":0.82},{"type":"high","time":"17:31","height_m":5.56}],
+      "2026-06-16": [{"type":"low","time":"00:04","height_m":0.66},{"type":"high","time":"06:07","height_m":5.47},{"type":"low","time":"12:23","height_m":0.78},{"type":"high","time":"18:18","height_m":5.60}],
+      "2026-06-17": [{"type":"low","time":"00:58","height_m":0.60},{"type":"high","time":"06:55","height_m":5.40},{"type":"low","time":"13:14","height_m":0.84},{"type":"high","time":"19:05","height_m":5.53}],
+      "2026-06-18": [{"type":"low","time":"01:50","height_m":0.67},{"type":"high","time":"07:44","height_m":5.22},{"type":"low","time":"14:05","height_m":1.00},{"type":"high","time":"19:54","height_m":5.37}]
+    },
+    "les-sables-dolonne": {
+      "2026-06-12": [{"type":"high","time":"02:49","height_m":4.76},{"type":"low","time":"08:40","height_m":1.52},{"type":"high","time":"15:18","height_m":4.82},{"type":"low","time":"21:09","height_m":1.43}],
+      "2026-06-13": [{"type":"high","time":"03:45","height_m":4.96},{"type":"low","time":"09:35","height_m":1.29},{"type":"high","time":"16:08","height_m":5.05},{"type":"low","time":"22:05","height_m":1.15}],
+      "2026-06-14": [{"type":"high","time":"04:39","height_m":5.13},{"type":"low","time":"10:27","height_m":1.08},{"type":"high","time":"16:58","height_m":5.25},{"type":"low","time":"22:59","height_m":0.91}],
+      "2026-06-15": [{"type":"high","time":"05:31","height_m":5.25},{"type":"low","time":"11:19","height_m":0.94},{"type":"high","time":"17:48","height_m":5.38},{"type":"low","time":"23:52","height_m":0.75}],
+      "2026-06-16": [{"type":"high","time":"06:22","height_m":5.28},{"type":"low","time":"12:10","height_m":0.89},{"type":"high","time":"18:39","height_m":5.43}],
+      "2026-06-17": [{"type":"low","time":"00:45","height_m":0.69},{"type":"high","time":"07:13","height_m":5.22},{"type":"low","time":"13:01","height_m":0.93},{"type":"high","time":"19:30","height_m":5.38}],
+      "2026-06-18": [{"type":"low","time":"01:37","height_m":0.74},{"type":"high","time":"08:04","height_m":5.06},{"type":"low","time":"13:52","height_m":1.05},{"type":"high","time":"20:22","height_m":5.24}]
+    },
+    "arcachon": {
+      "2026-06-12": [{"type":"high","time":"03:26","height_m":3.81},{"type":"low","time":"09:30","height_m":0.87},{"type":"high","time":"15:57","height_m":3.85},{"type":"low","time":"22:01","height_m":0.79}],
+      "2026-06-13": [{"type":"high","time":"04:25","height_m":3.98},{"type":"low","time":"10:31","height_m":0.73},{"type":"high","time":"16:52","height_m":4.06},{"type":"low","time":"23:02","height_m":0.61}],
+      "2026-06-14": [{"type":"high","time":"05:21","height_m":4.12},{"type":"low","time":"11:28","height_m":0.61},{"type":"high","time":"17:44","height_m":4.23},{"type":"low","time":"23:59","height_m":0.44}],
+      "2026-06-15": [{"type":"high","time":"06:14","height_m":4.22},{"type":"low","time":"12:21","height_m":0.53},{"type":"high","time":"18:36","height_m":4.36}],
+      "2026-06-16": [{"type":"low","time":"00:52","height_m":0.33},{"type":"high","time":"07:06","height_m":4.26},{"type":"low","time":"13:12","height_m":0.50},{"type":"high","time":"19:27","height_m":4.42}],
+      "2026-06-17": [{"type":"low","time":"01:43","height_m":0.29},{"type":"high","time":"07:57","height_m":4.22},{"type":"low","time":"13:59","height_m":0.52},{"type":"high","time":"20:18","height_m":4.39}],
+      "2026-06-18": [{"type":"low","time":"02:31","height_m":0.33},{"type":"high","time":"08:47","height_m":4.10},{"type":"low","time":"14:46","height_m":0.59},{"type":"high","time":"21:09","height_m":4.29}]
+    }
+  }
+}

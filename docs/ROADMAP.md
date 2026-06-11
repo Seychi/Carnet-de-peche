@@ -379,6 +379,7 @@ app/(app)/compte/abonnement/cancel/page.tsx
 - Rapport → `docs/sprint-10/tides-accuracy.md`.
 - **Si écart médian < 15 min** : argument copy « horaires de marée vérifiés » sur home + fiches spots (différenciateur démontrable vs Fishing Grid).
 - **Si écart ≥ 15 min** : on ne communique pas, et WorldTides passe d'« optionnel » à **prioritaire sprint 11**.
+- ✅ **FAIT (2026-06-11, jour 1)** — résultat : **NO-GO copy** (médiane 31-93 min selon le port). MAIS l'écart est un **biais constant par port** (Open-Meteo en avance de 31 à 93 min ; résidu 2-9 min après soustraction du biais, stable sur coef 60→98) → une **calibration d'offset par port** ramènerait sous les 15 min sans WorldTides. Détail + options sprint 11 : `docs/sprint-10/tides-accuracy.md`.
 
 ### SEO renforcé
 - `app/sitemap.ts` : ajouter les ~600 routes programmatiques + 20 guides + 6 fiches espèces
@@ -445,9 +446,28 @@ app/(app)/compte/abonnement/cancel/page.tsx
 
 ---
 
+## 🟢 Sprint 10.5 — Refonte UI « Instrument de précision marine » (1 semaine)
+
+**Décision John 2026-06-11** : refonte visuelle complète (marketing + app), le site actuel ne tient pas la comparaison face à la v2.0 de Fishing Grid.
+
+**Direction artistique + maquettes** : `docs/maquette-v2/` (DA.md + 9 maquettes HTML — home, tarifs, espèce, carnet, carte, spot, fil, profil + **`mobile.html` : 5 écrans mobiles, la référence produit**). **Mobile-first** : le produit final est une app mobile — tab bar + FAB loguer + bandeau instruments + bottom sheets définis dans la DA, communs à la PWA (sprint 11) et à Expo (sprints 12-19). ✅ **DA validée par John le 2026-06-11** — le sprint 10.5 peut démarrer dès le merge du sprint 10.
+
+**Implémentation (dès le merge du sprint 10, PAS en parallèle — conflits)** :
+1. `app/globals.css` : tokens v2 (navy-950, gold, coral, échelle étendue) + JetBrains Mono via `next/font`
+2. Composants signature : `tag-data` (données en mono), `score-ring`, courbe de marée sparkline, isobathes SVG, bandeau « instruments » de l'app, cards à liseré
+3. Pages marketing : home, tarifs, guides, fiches espèces (re-skin des pages SEO du sprint 10)
+4. App : carnet, carte, fil, fiche spot, profil — héritent des tokens + ajustements
+5. Remplacement des emojis-icônes par Lucide partout
+
+**Critères de sortie** : conformité maquettes validée écran par écran par John, Lighthouse Perf/SEO sans régression, aucune casse responsive mobile (tap targets ≥ 44 px maintenus).
+
+---
+
 ## 🟢 Sprint 11 — Polish + PWA + Beta privée (2 semaines)
 
 **Objectif** : passer de "ça marche" à "c'est solide". Lancer 50 testeurs réels en beta privée. **+ PWA installable** (décision John 2026-06-11) pour réduire le gap perçu face aux apps natives de Fishing Grid en attendant Expo (sprints 12-19).
+
+**Brief d'exécution détaillé** : `docs/sprint-11/BRIEF.md` (rédigé 2026-06-11, à re-valider 30 min en fin de sprint 10 — deux blocs dépendent de ses livrables).
 
 ### Tâches techniques
 
@@ -458,7 +478,7 @@ app/(app)/compte/abonnement/cancel/page.tsx
 - iOS : `apple-touch-icon`, vérif mode standalone Safari
 - Ne remplace pas Expo : c'est un pont. Le service worker doit rester simple (pas de sync offline complexe, ça c'est le sprint 16 mobile)
 - Critère : Lighthouse « installable » ✓ + icône posée sur l'écran d'accueil des testeurs beta
-- Si l'écart marées (rapport sprint 10) était ≥ 15 min : **intégration WorldTides ici** en priorité
+- Écart marées sprint 10 ≥ 15 min **confirmé** (`docs/sprint-10/tides-accuracy.md`) : **amélioration marées prioritaire ici** — option B calibration d'offset par port (recommandée : résidu mesuré 2-9 min, 0 € récurrent) à valider sur une 2e fenêtre de 7 jours, sinon option A WorldTides
 
 **Emails transactionnels (Resend)**
 - Setup `RESEND_API_KEY` env var
@@ -951,7 +971,7 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | **Domiciliation commerciale (pages légales)** | Sprint 7.5 (E1) | Post-sprint 8 | Remplacer l'adresse perso (627 Chemin des Impiniers, Vallauris) par une domiciliation (SeDomicilier/Kandbaz ~15 €/mois) dans les 3 pages légales |
 | Désigner un médiateur de la consommation (CGU art. 14) | Sprint 7.5 (E1) | Avant sprint 9 (Stripe) | Liste sur economie.gouv.fr, ~75 €/an (CMAP, AME Conso…) |
 | Markers carte colorisés par qualité | Sprint 6 | Sprint 7.5 ou post-beta | Edge Function cron + table `spot_scores` |
-| Marée précise WorldTides / SHOM | Sprint 6 | **Conditionnel sprint 11** | ✅ Marée gratuite branchée en **sprint 9.5** via Open-Meteo `sea_level_height_msl`. Sprint 10 Bloc 4 = vérif précision vs SHOM (5 ports). Si écart médian ≥ 15 min → WorldTides prioritaire au sprint 11 ; sinon reste optionnel et on communique « marées vérifiées ». |
+| Marée précise WorldTides / SHOM | Sprint 6 | **Prioritaire sprint 11** | ❌ Vérif sprint 10 Bloc 4 (2026-06-11) : médiane 31-93 min → NO-GO copy « marées vérifiées ». MAIS biais constant par port (résidu 2-9 min après soustraction) → sprint 11 : **option B calibration d'offset par port (recommandée, gratuite)** vs option A WorldTides. Détail : `docs/sprint-10/tides-accuracy.md`. |
 | Coef de marée | Sprint 6 | Post-beta | Non exposé par Open-Meteo ; à dériver (amplitude PM−BM) ou via WorldTides |
 | Sync TideChart ↔ WeeklyCalendar | Sprint 6 | Backlog | Faible valeur en v1 |
 | Affinement pondération solunar 40/35/25 | Sprint 6 | Post-beta | Calibrer sur vraies prises |
@@ -1053,9 +1073,10 @@ Flaggé depuis les sprints précédents, à intégrer quand pertinent :
 | 9.5 | 2026-05-22 | Cleanup pré-merge (branche à merger) | ✅ |
 | — | 2026-06-12 → 2026-06-15 | Merge 9.5 + QA Stripe LIVE (manuel John) | 🔜 |
 | 10 | 2026-06-16 → 2026-06-30 | Guides + SEO + riposte FG (bloc 0 social gratuit, fiches espèces, vérif marées) | 🔜 |
-| 11 | 2026-07-01 → 2026-07-15 | Polish + PWA + Beta | 🔜 |
-| ⛳ Gate 1 | ~2026-07-16 | Décision mobile | ❓ |
-| 12-13 | 2026-07-17 → 2026-09-09 (été + buffer) | Setup mobile | 🔜 |
+| 10.5 | 2026-07-01 → 2026-07-07 | Refonte UI (maquettes `docs/maquette-v2/`, à valider avant) | 🔜 |
+| 11 | 2026-07-08 → 2026-07-22 | Polish + PWA + Beta | 🔜 |
+| ⛳ Gate 1 | ~2026-07-23 | Décision mobile | ❓ |
+| 12-13 | 2026-07-24 → 2026-09-09 (été + buffer réduit) | Setup mobile | 🔜 |
 | 14-15 | 2026-09-10 → 2026-10-07 | Carnet + carte mobile | 🔜 |
 | 16 | 2026-10-08 → 2026-10-21 | Hors ligne | 🔜 |
 | 17 | 2026-10-22 → 2026-11-04 | Push | 🔜 |
