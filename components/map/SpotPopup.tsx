@@ -61,7 +61,7 @@ function NextWindowDisplay({ window: w }: { window: FishingWindow }) {
     <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Clock size={13} className="text-ink-500 shrink-0" />
-        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Prochain créneau</span>
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
       </div>
       <p className="text-sm font-semibold text-ink-900">
         {relativeDay(w.startTimeISO)} {w.startLocal} – {w.endLocal}
@@ -87,7 +87,7 @@ function NextWindowTeaser() {
     <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Clock size={13} className="text-ink-500 shrink-0" />
-        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Prochain créneau</span>
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
       </div>
       <div className="blur-sm select-none pointer-events-none" aria-hidden="true">
         <p className="text-sm font-semibold text-ink-900">Aujourd&apos;hui 18:30 – 20:30</p>
@@ -242,10 +242,14 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="font-semibold text-ink-900 text-base leading-tight truncate">
+          <h2 className="font-display font-semibold text-navy-900 text-base leading-tight truncate">
             {spot.name}
           </h2>
-          <p className="text-xs text-ink-500 mt-0.5">{spot.department}</p>
+          <p className="mt-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            {spot.isPrecise
+              ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
+              : spot.department}
+          </p>
         </div>
         <button
           onClick={onClose}
@@ -259,7 +263,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       {/* Espèces */}
       {spot.species.length > 0 && (
         <div className="space-y-1">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Espèces</p>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Espèces</p>
           <BadgeList items={spot.species} labels={SPECIES_LABELS} colorClass="bg-teal-500/10 text-teal-700" />
         </div>
       )}
@@ -267,7 +271,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       {/* Techniques */}
       {spot.techniques.length > 0 && (
         <div className="space-y-1">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Techniques</p>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Techniques</p>
           <BadgeList items={spot.techniques} labels={TECHNIQUE_LABELS} colorClass="bg-navy-900/10 text-navy-900" />
         </div>
       )}
@@ -279,13 +283,13 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
             <div className="flex items-center gap-3 flex-wrap">
               {!!spot.difficulty && (
                 <div className="space-y-0.5">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Difficulté</p>
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Difficulté</p>
                   <DifficultyStars difficulty={spot.difficulty} />
                 </div>
               )}
               {!!spot.structure && (
                 <div className="space-y-0.5">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Structure</p>
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Structure</p>
                   <span className="inline-flex items-center gap-1.5 text-sm text-ink-700">
                     {(() => {
                       const StructureIcon = STRUCTURE_ICONS[spot.structure]
@@ -299,7 +303,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           )}
 
           <div className="flex items-center gap-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Score</p>
+            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
             <div className="relative group">
               <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-400">
                 — / 100
@@ -344,7 +348,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       <div className="space-y-2 pt-1">
         <Link
           href={`/spots/${spot.slug}`}
-          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-teal-500 text-white text-sm font-semibold hover:bg-teal-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-teal-500 text-navy-950 text-sm font-semibold hover:bg-teal-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
         >
           <MapPin size={16} />
           Voir le spot complet
@@ -405,7 +409,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       role="dialog"
       aria-modal="true"
       aria-label={`Spot : ${spot.name}`}
-      className="absolute top-4 right-4 w-80 z-20 rounded-2xl bg-white shadow-xl max-h-[80vh] overflow-y-auto"
+      className="absolute top-4 right-4 w-80 z-20 rounded-2xl border border-sand-200 bg-white shadow-lg max-h-[80vh] overflow-y-auto"
     >
       <div className="p-4 space-y-3">
         {body}

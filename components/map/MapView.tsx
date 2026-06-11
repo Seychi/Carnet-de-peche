@@ -11,24 +11,25 @@ import { type SpotMarker, createFuzzyCircle, markerColorForQuality } from '@/lib
 const MAX_HTML_MARKERS = 200
 
 const TEAL_500 = '#14B8A6'
-const TEAL_600 = '#0D9488'
+const TEAL_600 = '#0E9488'
 const TEAL_700 = '#0F766E'
-const AMBER_500 = '#F59E0B'
-const GRAY_400 = '#9CA3AF'
-const LIME_500 = '#84CC16'
-const EMERALD_600 = '#059669'
+const GOLD_500 = '#D9A53C'
+const INK_400 = '#7E8C95'
+const INK_300 = '#B7C2C9'
 const FRANCE_CENTER: [number, number] = [-2.5, 47.0]
 
 // Couleur data-driven d'un feature GeoJSON selon sa propriété `quality`.
-// Défaut (faible / inconnu / score absent) → gris neutre.
+// Sémantique DA v2 (haut teal · milieu gold · bas ink) — alignée sur
+// QUALITY_MARKER_COLORS de lib/map/utils.
 const QUALITY_COLOR_EXPR: ExpressionSpecification = [
   'match',
   ['get', 'quality'],
-  'moyenne', AMBER_500,
-  'bonne', LIME_500,
-  'tres_bonne', TEAL_500,
-  'exceptionnelle', EMERALD_600,
-  GRAY_400,
+  'faible', INK_400,
+  'moyenne', GOLD_500,
+  'bonne', GOLD_500,
+  'tres_bonne', TEAL_600,
+  'exceptionnelle', TEAL_500,
+  INK_300,
 ]
 
 // Layers mode HTML (spots < MAX_HTML_MARKERS)
@@ -58,6 +59,16 @@ type MapViewProps = {
 type MapError = 'missing-key' | 'no-webgl' | 'init-error'
 type MaplibreModule = typeof import('maplibre-gl')
 
+// Lecture coords + zoom mono (DA v2, réf carte.html) — écrite directement dans
+// le DOM (pas de state React : ça bouge à chaque frame de pan).
+function writeReadout(map: MapLibreMap, el: HTMLSpanElement | null) {
+  if (!el) return
+  const c = map.getCenter()
+  const latTxt = `${Math.abs(c.lat).toFixed(4)}°${c.lat >= 0 ? 'N' : 'S'}`
+  const lngTxt = `${Math.abs(c.lng).toFixed(4)}°${c.lng >= 0 ? 'E' : 'O'}`
+  el.textContent = `${latTxt} · ${lngTxt} · Z${map.getZoom().toFixed(1)}`
+}
+
 // ── Mode HTML : marqueurs custom + disques floutés ────────────────────────────
 
 function createPinElement(spot: SpotMarker): HTMLElement {
@@ -70,7 +81,7 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   // placés qui glissent au zoom. Le marqueur reste un bloc conteneur pour ses
   // anneaux enfants (en position: absolute) même sans `position` explicite.
   wrapper.style.cssText =
-    'cursor: pointer; width: 28px; height: 28px; background: none; border: none; padding: 0;'
+    'cursor: pointer; width: 26px; height: 26px; background: none; border: none; padding: 0;'
   wrapper.title = spot.name
   wrapper.setAttribute('aria-label', `Spot : ${spot.name}`)
 
@@ -79,7 +90,7 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   const color = markerColorForQuality(spot.currentQuality)
   wrapper.dataset.qcolor = color
 
-  // Ring "exceptionnelle" : pulse permanent emerald (uniquement les meilleurs spots)
+  // Ring "exceptionnelle" : pulse permanent (uniquement les meilleurs spots)
   if (spot.currentQuality === 'exceptionnelle') {
     const exc = document.createElement('div')
     exc.className = 'marker-exceptional-ring'
@@ -91,15 +102,15 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   ring.className = 'marker-nearby-ring'
   wrapper.appendChild(ring)
 
-  const svgWrap = document.createElement('div')
-  svgWrap.innerHTML = `
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-            fill="${color}" stroke="white" stroke-width="1.5"/>
-      <circle cx="12" cy="9" r="2.5" fill="white"/>
-    </svg>
-  `
-  wrapper.appendChild(svgWrap)
+  // Pastille DA v2 (réf maquette carte) : cercle plein couleur score,
+  // bordure blanche. Le chiffre du score viendra quand get_spots_for_map
+  // l'exposera (cf docs/sprint-10.5/QUESTIONS.md).
+  const dot = document.createElement('div')
+  dot.className = 'marker-dot'
+  dot.style.cssText =
+    `position: absolute; inset: 0; border-radius: 50%; background: ${color}; ` +
+    'border: 2px solid #fff; box-shadow: 0 2px 8px rgba(4,20,28,.3);'
+  wrapper.appendChild(dot)
   return wrapper
 }
 
@@ -149,7 +160,8 @@ function addSpotsToMap(
   for (const spot of spots) {
     const el = createPinElement(spot)
     markerElemsOut?.set(spot.id, el)
-    const marker = new maplibre.Marker({ element: el, anchor: 'bottom' })
+    // anchor center : la pastille DA v2 est un cercle posé sur le point.
+    const marker = new maplibre.Marker({ element: el, anchor: 'center' })
       .setLngLat([spot.lng, spot.lat])
       .addTo(map)
     el.addEventListener('click', () => onMarkerClick?.(spot))
@@ -277,6 +289,7 @@ export default function MapView({
   interactive = true,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const readoutRef = useRef<HTMLSpanElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerElemsRef = useRef<Map<string, HTMLElement>>(new Map())
   const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY
@@ -288,6 +301,12 @@ export default function MapView({
   )
   // Skeleton tant que MapLibre + tuiles ne sont pas chargés (évite le flash blanc).
   const [loaded, setLoaded] = useState(false)
+
+  // Première écriture du readout coords/zoom une fois le span monté
+  // (le 'load' MapLibre part avant le re-render React → ref encore null).
+  useEffect(() => {
+    if (loaded && mapRef.current) writeReadout(mapRef.current, readoutRef.current)
+  }, [loaded])
 
   useEffect(() => {
     // Protection contre le double-rendering de React Strict Mode
@@ -348,6 +367,8 @@ export default function MapView({
         if (mounted && !map.isStyleLoaded()) setError('init-error')
       })
 
+      map.on('move', () => writeReadout(map, readoutRef.current))
+
       map.on('load', () => {
         if (!mounted) return
         // Le conteneur flex peut mesurer 0 px à l'instant de `new Map()` (init async,
@@ -405,8 +426,8 @@ export default function MapView({
         el.style.opacity = '1'
         const ring = el.querySelector<HTMLElement>('.marker-nearby-ring')
         if (ring) ring.style.display = 'none'
-        const path = el.querySelector('path')
-        if (path) path.setAttribute('fill', el.dataset.qcolor || TEAL_500)
+        const dot = el.querySelector<HTMLElement>('.marker-dot')
+        if (dot) dot.style.background = el.dataset.qcolor || TEAL_500
       })
       if (map.getLayer(FUZZY_FILL_LAYER)) {
         map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-color', QUALITY_COLOR_EXPR)
@@ -431,13 +452,13 @@ export default function MapView({
       const isNearby = nearbySpotIds.has(id)
       el.style.opacity = isNearby ? '1' : '0.3'
       const ring = el.querySelector<HTMLElement>('.marker-nearby-ring')
-      const path = el.querySelector('path')
+      const dot = el.querySelector<HTMLElement>('.marker-dot')
       if (isNearby) {
         if (ring) ring.style.display = 'block'
-        if (path) path.setAttribute('fill', AMBER_500)
+        if (dot) dot.style.background = GOLD_500
       } else {
         if (ring) ring.style.display = 'none'
-        if (path) path.setAttribute('fill', el.dataset.qcolor || TEAL_500)
+        if (dot) dot.style.background = el.dataset.qcolor || TEAL_500
       }
     })
 
@@ -446,7 +467,7 @@ export default function MapView({
       map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-color', [
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
-        AMBER_500,
+        GOLD_500,
         QUALITY_COLOR_EXPR,
       ])
       map.setPaintProperty(FUZZY_FILL_LAYER, 'fill-opacity', [
@@ -460,7 +481,7 @@ export default function MapView({
       map.setPaintProperty(FUZZY_LINE_LAYER, 'line-color', [
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
-        AMBER_500,
+        GOLD_500,
         QUALITY_COLOR_EXPR,
       ])
     }
@@ -470,7 +491,7 @@ export default function MapView({
       map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-color', [
         'case',
         ['in', ['get', 'spotId'], ['literal', idsArr]],
-        AMBER_500,
+        GOLD_500,
         QUALITY_COLOR_EXPR,
       ])
       map.setPaintProperty(UNCLUSTERED_LAYER, 'circle-opacity', [
@@ -513,6 +534,14 @@ export default function MapView({
   return (
     <div className={className} style={{ position: 'relative' }}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      {/* Lecture coords + zoom — la donnée est l'ornement (DA v2) */}
+      {loaded && interactive && (
+        <span
+          ref={readoutRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-2 left-2 z-10 hidden rounded-md bg-navy-950/80 px-2.5 py-1 font-mono text-[10.5px] tracking-[0.05em] text-teal-300 sm:block"
+        />
+      )}
       {!loaded && (
         <div
           aria-hidden

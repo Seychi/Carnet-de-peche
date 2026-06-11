@@ -29,15 +29,16 @@ export type SpotMarker = {
 }
 
 // Couleur de marker par qualité (markers carte + légende).
+// Sémantique DA v2 : haut = teal, milieu = gold, bas = ink (cf. DA.md §3).
 export const QUALITY_MARKER_COLORS: Record<QualityLevel, string> = {
-  faible:         '#9CA3AF', // gray-400
-  moyenne:        '#F59E0B', // amber-500
-  bonne:          '#84CC16', // lime-500
-  tres_bonne:     '#14B8A6', // teal-500
-  exceptionnelle: '#059669', // emerald-600
+  faible:         '#7E8C95', // ink-400 (score-low)
+  moyenne:        '#D9A53C', // gold-500 (score-mid)
+  bonne:          '#D9A53C', // gold-500 (score-mid)
+  tres_bonne:     '#0E9488', // teal-600 (score-high)
+  exceptionnelle: '#14B8A6', // teal-500 (score-high)
 }
 
-export const QUALITY_NEUTRAL_COLOR = '#9CA3AF' // gray-400 (undefined)
+export const QUALITY_NEUTRAL_COLOR = '#B7C2C9' // ink-300 (pas encore de score)
 
 export function markerColorForQuality(q?: QualityLevel | null): string {
   return q ? QUALITY_MARKER_COLORS[q] : QUALITY_NEUTRAL_COLOR
