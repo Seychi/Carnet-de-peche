@@ -66,7 +66,7 @@ Stripe Checkout + Customer Portal + webhooks idempotents + essai 7j avec CB + St
 ✅ **Sprint 9.5 — Cleanup pré-merge — CODE-COMPLET (branche `sprint-9.5-cleanup`, pas encore mergé/déployé)**
 > ℹ️ État git réel (vérifié) : le code des sprints 8 **et 9** est déjà sur `main` (commits `feat(sprint-9)` … `c79057d`). `sprint-9.5-cleanup` part de `main` → il n'y a PAS de merge `sprint-9` → `main` à faire, seulement `sprint-9.5-cleanup` → `main`.
 
-Nettoyage des bloquants UX/SEO de l'audit `docs/sprint 9.5/AUDIT-2026-05-21-post-sprint-9.md`. **Build OK + 215 tests verts.**
+Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-sprint-9.md`. **Build OK + 215 tests verts.**
 - **T0.1** — « metas in body » = **fausse alerte** (extension navigateur ; SSR brut propre, vérifié). Ajout d'un **og:image de marque** par défaut (`app/opengraph-image.tsx`) car la home/pages marketing n'en avaient aucun → previews sociales muettes.
 - **T0.2** — `/fil` : **stub publique** (`app/(marketing)/fil/page.tsx`, teaser + CTA ; redirige les connectés vers leur fil dépt). Sort du soft-404 sitemap. `/fil/[dept]` reste protégé dans `(app)`.
 - **T0.3** — markers carte visibles en **Discovery** : un pin coloré (cliquable) est posé sur **tous** les spots, y compris floutés (centre `geom_public`), en plus du disque 1 km.
@@ -76,7 +76,7 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/sprint 9.5/AUDIT-2026-05-21-post
 - **T1.5** — mockups home (carnet, année, communauté) marqués « Exemple ».
 - **T1.6** — tab `/auth/login` synchronisé avec l'URL (`history.replaceState`).
 - **Retirés (décision John 2026-05-21)** : T0.5 médiateur conso (promesse retirée de la CGU, risque L612-1 assumé) + T1.1 durée guide bar.
-- **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint 9.5/RECAP.md`.
+- **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint-9.5-RECAP.md`.
 
 🔜 **SUITE — Sprint 10 : Guides éditoriaux** (MDX + 20 guides + SEO programmatique).
 

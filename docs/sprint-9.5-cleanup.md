@@ -256,27 +256,27 @@ Recommandation : option A. Pas mensonger, montre la valeur, mais désamorce la c
 ## 5. Checklist avant merge sprint-9 → main
 
 ### Bloquants (tous obligatoires)
-- [ ] T0.1 Metas SEO en `<head>` (validé Facebook + Twitter)
-- [ ] T0.2 `/fil` n'est plus dans sitemap ou pointe une page publique
-- [ ] T0.3 Markers carte visibles pour Discovery (≥1 sur Bretagne)
-- [ ] T0.4 Carte chargement initial OK (canvas rendu dès le mount)
+- [x] T0.1 Metas SEO en `<head>` — fausse alerte (SSR brut OK) ; og:image de marque ajouté. ⏳ valider Facebook/Twitter **post-déploiement**.
+- [x] T0.2 `/fil` pointe une page publique (stub teaser, redirige les connectés)
+- [x] T0.3 Markers carte visibles pour Discovery (pin sur tous les spots, floutés inclus)
+- [x] T0.4 Carte chargement initial OK (`map.resize()` au `load`)
 - [x] ~~T0.5 Médiateur conso~~ — retiré, promesse supprimée de la CGU (commit séparé)
-- [ ] QA Stripe checklist `docs/sprint-9/qa-checklist.md` cochée
+- [ ] QA Stripe checklist `docs/sprint-9/qa-checklist.md` cochée — **reste à John**
 
-### Recommandés (≥3 sur 5)
+### Recommandés (≥3 sur 5) — les 5 faits
 - [x] ~~T1.1 Durée guide bar~~ — retiré, assumé
-- [ ] T1.2 Titres pages auth + 404
-- [ ] T1.3 404 avec navbar/footer
-- [ ] T1.4 Marées Pointe du Raz
-- [ ] T1.5 Mockups marqués "exemple"
-- [ ] T1.6 Tab `/auth/login` synchronisé
+- [x] T1.2 Titres pages auth + 404
+- [x] T1.3 404 avec navbar/footer
+- [x] T1.4 Marées — **tous** les spots (Open-Meteo `sea_level_height_msl`), pas juste Pointe du Raz
+- [x] T1.5 Mockups marqués "exemple"
+- [x] T1.6 Tab `/auth/login` synchronisé
 
 ### Doc à jour
-- [ ] `CLAUDE.md` section 2 — sprint 9 déployé, sprint 10 (Guides) suivant
-- [ ] `docs/ROADMAP.md` — sprint 9.5 ajouté en historique
-- [ ] `docs/audits/AUDIT-2026-05-XX-post-sprint-9.5.md` — post-mortem du nettoyage
+- [x] `CLAUDE.md` section 2 — sprint 9.5 ajouté (+ clarif état git réel)
+- [x] `docs/ROADMAP.md` — sprint 9.5 en historique + backlog marées mis à jour
+- [x] Post-mortem du nettoyage → `docs/sprint-9.5-RECAP.md`
 
-### Déploiement Stripe LIVE
+### Déploiement Stripe LIVE — **reste à John**
 - [ ] Vars `STRIPE_*` LIVE dans Vercel Production
 - [ ] Endpoint webhook Stripe LIVE créé + secret configuré
 - [ ] 2 comptes seed `redkps4+local` / `redkps4+itinerant` arbitrés (cf `supabase/README.md` § anti-traîne)

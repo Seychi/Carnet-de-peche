@@ -310,7 +310,7 @@ app/(app)/compte/abonnement/cancel/page.tsx
 
 ## ✅ Sprint 9.5 — Cleanup pré-merge (1 jour, 2026-05-22)
 
-> Nettoyage des bloquants UX/SEO relevés par l'audit `docs/sprint 9.5/AUDIT-2026-05-21-post-sprint-9.md`, avant `sprint-9.5-cleanup` → `main`. **Build OK, 215 tests verts.** Détail : `docs/sprint 9.5/RECAP.md`.
+> Nettoyage des bloquants UX/SEO relevés par l'audit `docs/audits/AUDIT-2026-05-21-post-sprint-9.md`, avant `sprint-9.5-cleanup` → `main`. **Build OK, 215 tests verts.** Détail : `docs/sprint-9.5-RECAP.md`.
 > ℹ️ État git réel : le code des sprints 8 et 9 est déjà sur `main` → pas de merge `sprint-9` à faire, seulement `sprint-9.5-cleanup`.
 
 **Fait** (tous les P0 + les 5 P1 retenus) :

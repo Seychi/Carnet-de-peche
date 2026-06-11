@@ -3,7 +3,7 @@
 > **Date** : 2026-05-22
 > **Branche** : `sprint-9.5-cleanup` (depuis `main`)
 > **Durée** : ~1 jour
-> **Sources** : `docs/sprint 9.5/sprint-9.5-cleanup.md` (plan) + `docs/sprint 9.5/AUDIT-2026-05-21-post-sprint-9.md` (audit)
+> **Sources** : `docs/sprint-9.5-cleanup.md` (plan) + `docs/audits/AUDIT-2026-05-21-post-sprint-9.md` (audit)
 > **Validation** : `pnpm build` OK (28 pages) · `pnpm test` 215/215 vert · `pnpm typecheck` OK · 4 vérifs live (SSR/curl)
 
 ---
