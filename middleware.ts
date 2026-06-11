@@ -56,7 +56,10 @@ export async function middleware(request: NextRequest) {
         .single();
 
       const isOnboarded = profile?.onboarded === true;
-      const isOnboardingRoute = pathname.startsWith("/onboarding");
+      // /onboarding/fini = écran « carnet prêt » affiché APRÈS completeOnboarding
+      // (sprint 10.5) : accessible aux onboardés, exclu du redirect ci-dessous.
+      const isOnboardingRoute =
+        pathname.startsWith("/onboarding") && pathname !== "/onboarding/fini";
 
       // Pas encore onboardé + tentative d'accès à l'app (hors onboarding)
       if (!isOnboarded && !isOnboardingRoute) {

@@ -78,8 +78,9 @@ export function TideSparkline({
     return a.height_m + (b.height_m - a.height_m) * t
   }
 
+  // Marge d'1h30 aux bords : un label centré sur 00:30 serait tronqué.
   const labels = showLabels
-    ? extrema.filter((e) => e.hour >= 0.8 && e.hour <= 23.2)
+    ? extrema.filter((e) => e.hour >= 1.5 && e.hour <= 22.5)
     : []
 
   return (

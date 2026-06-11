@@ -11,7 +11,6 @@ import { Loader2, Check, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveOnboardingStep, checkUsernameAvailable, completeOnboarding } from "../actions";
 
@@ -331,28 +330,39 @@ export function OnboardingStep({
     });
     setLoading(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
-    toast.success("Ton carnet est prêt. Bonne pêche. 🎣");
-    router.push("/home");
+    // Écran final « Ton carnet est prêt » (DA v2, frame 07) — remplace le toast.
+    router.push("/onboarding/fini");
   }
 
   /* ── Rendu ────────────────────────────────────────────────────────────── */
 
   return (
     <div className="min-h-screen bg-sand-50 flex flex-col">
-      {/* Header progress */}
+      {/* Header progress — segments DA v2 + label mono (réf onboarding.html) */}
       <header className="px-5 pt-6 pb-4 max-w-[520px] mx-auto w-full">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[13px] font-semibold text-ink-500">
-            {step}/{totalSteps}
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            ÉTAPE {String(step).padStart(2, "0")}/{String(totalSteps).padStart(2, "0")}
           </span>
-          <span className="text-[13px] text-ink-500">
+          <span className="font-mono text-[11.5px] font-medium tracking-[0.08em] text-teal-600">
             {Math.round((step / totalSteps) * 100)}%
           </span>
         </div>
-        <Progress
-          value={(step / totalSteps) * 100}
-          className="h-2 rounded-full bg-ink-100"
-        />
+        <div
+          className="flex gap-1.5"
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={totalSteps}
+          aria-valuenow={step}
+          aria-label={`Étape ${step} sur ${totalSteps}`}
+        >
+          {Array.from({ length: totalSteps }, (_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 flex-1 rounded-full ${i < step ? "bg-teal-500" : "bg-sand-200"}`}
+            />
+          ))}
+        </div>
       </header>
 
       {/* Contenu */}
