@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarX } from 'lucide-react'
+import { CalendarX, Moon, Sun } from 'lucide-react'
 import type { DailyForecast, FishingWindow, QualityLevel } from '@/lib/solunar/types'
 import { BestMomentCard } from './BestMomentCard'
 
@@ -20,17 +20,6 @@ const QUALITY_BADGE_CLS: Record<QualityLevel, string> = {
   bonne:          'bg-lime-100 text-lime-700',
   tres_bonne:     'bg-teal-100 text-teal-700',
   exceptionnelle: 'bg-emerald-100 text-emerald-700',
-}
-
-const PHASE_EMOJI: Record<string, string> = {
-  'Nouvelle lune':             '🌑',
-  'Premier croissant':         '🌒',
-  'Premier quartier':          '🌓',
-  'Lune gibbeuse croissante':  '🌔',
-  'Pleine lune':               '🌕',
-  'Lune gibbeuse décroissante':'🌖',
-  'Dernier quartier':          '🌗',
-  'Dernier croissant':         '🌘',
 }
 
 function formatDayHeader(dateStr: string): string {
@@ -66,7 +55,6 @@ type DayBestMomentsProps = {
 
 export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsProps) {
   const dayLabel = formatDayHeader(daily.date)
-  const moonEmoji = PHASE_EMOJI[daily.moonPhaseLabel] ?? '🌙'
   const moonTimes = showMoonInfo ? extractMoonTimes(daily) : {}
   const illuminationPct = Math.round(daily.moonIllumination * 100)
 
@@ -90,7 +78,10 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
       {/* Sub-header lunaire */}
       {showMoonInfo && (
         <p className="text-[12px] text-ink-500 -mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span>{moonEmoji} {daily.moonPhaseLabel}</span>
+          <span className="inline-flex items-center gap-1">
+            <Moon size={12} className="text-ink-400" aria-hidden="true" />
+            {daily.moonPhaseLabel}
+          </span>
           <span className="text-ink-300">·</span>
           <span>{illuminationPct}% illuminée</span>
           {moonTimes.rise && (
@@ -106,7 +97,10 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
             </>
           )}
           <span className="text-ink-300">·</span>
-          <span>☀ {daily.sunrise} – {daily.sunset}</span>
+          <span className="inline-flex items-center gap-1">
+            <Sun size={12} className="text-gold-500" aria-hidden="true" />
+            {daily.sunrise} – {daily.sunset}
+          </span>
         </p>
       )}
 

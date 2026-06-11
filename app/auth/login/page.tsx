@@ -10,7 +10,7 @@ import {
   type SetStateAction,
 } from "react";
 import { useFormStatus } from "react-dom";
-import { Eye, EyeOff, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Mail } from "lucide-react";
 import type { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -583,7 +583,8 @@ export default function LoginPage() {
               onClick={() => setShowMagicLink((v) => !v)}
               className="flex items-center justify-center gap-2 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full"
             >
-              ✉️ Reçois un lien magique
+              <Mail size={15} aria-hidden="true" />
+              Reçois un lien magique
               {showMagicLink ? (
                 <ChevronUp size={14} />
               ) : (
