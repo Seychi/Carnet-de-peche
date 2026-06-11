@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { X, AlertCircle, RotateCcw } from 'lucide-react'
+import { X, AlertCircle, RotateCcw, Fish } from 'lucide-react'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS } from '@/lib/labels'
@@ -188,7 +188,7 @@ export default function NearbyPanel({
 
         {!isLoading && !error && sorted.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-8 text-center px-4">
-            <span className="text-3xl">🎣</span>
+            <Fish size={28} className="text-teal-500" aria-hidden="true" />
             <p className="text-sm text-ink-600 leading-snug">
               Aucun spot dans un rayon de 50 km. Essaie d&apos;élargir tes filtres ou de zoomer
               ailleurs.

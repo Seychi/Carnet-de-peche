@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Fish, Lock, Users, Globe } from 'lucide-react'
+import { Fish, Lock, Users, Globe, MapPin } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { ElementType } from 'react'
@@ -89,8 +89,9 @@ export function CatchCard({
         {/* Lieu + date — en bas de la carte */}
         <div className="mt-auto pt-2 flex items-end justify-between gap-2">
           {location && (
-            <p className="text-[11px] text-ink-400 truncate min-w-0">
-              📍 {location}
+            <p className="flex items-center gap-1 text-[11px] text-ink-400 truncate min-w-0">
+              <MapPin size={11} className="shrink-0" aria-hidden="true" />
+              <span className="truncate">{location}</span>
             </p>
           )}
           {c.caught_at && (

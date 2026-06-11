@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Wind, Waves, Clock, Leaf, Info } from 'lucide-react'
+import { Wind, Waves, Clock, Leaf, Info, Fish } from 'lucide-react'
 import type { PersonalProfile, CatchPattern } from '@/lib/scoring/types'
 import { PERSONAL_SCORING_CONFIG as CFG } from '@/lib/scoring/personal-config'
 
@@ -93,7 +93,7 @@ function EmptyState({ count }: { count: number }) {
   const remaining = Math.max(1, CFG.MIN_CATCHES_FOR_INSIGHTS - count)
   return (
     <div className="flex flex-col items-center text-center gap-3 py-8 px-4 bg-sand-50 rounded-[14px]">
-      <span className="text-4xl" aria-hidden>🎣</span>
+      <Fish size={36} className="text-teal-500" aria-hidden="true" />
       <p className="font-semibold text-navy-900">Pas encore assez de données</p>
       <p className="text-sm text-ink-500 max-w-xs">
         Logue {remaining} prise{remaining > 1 ? 's' : ''} de plus pour voir tes tendances de

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { Fish } from 'lucide-react'
 
 export default function CarnetError({
   error,
@@ -17,7 +18,7 @@ export default function CarnetError({
 
   return (
     <div className="min-h-screen bg-sand-50 flex flex-col items-center justify-center px-6 text-center">
-      <div className="text-7xl mb-6" aria-hidden="true">🎣</div>
+      <Fish size={64} className="mb-6 text-teal-500" strokeWidth={1.7} aria-hidden="true" />
       <h1 className="font-display text-navy-900 text-4xl mb-3">
         Le fil a cassé
       </h1>

@@ -79,8 +79,8 @@
   --accent-foreground: 0 0% 100%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
+  --border: 41 39% 85%;
+  --input: 41 39% 85%;
   --ring: 174 72% 40%;
   --radius: 0.5rem;
 
@@ -144,8 +144,9 @@
   --color-accent-foreground:     #ffffff;
   --color-destructive:           #ef4444;
   --color-destructive-foreground:#f9fafb;
-  --color-border:                #d7dee3;
-  --color-input:                 #d7dee3;
+  /* DA v2 : bordures 1px sand-200 sur fond clair (remplacent 80% des ombres) */
+  --color-border:                #E8DFCB;
+  --color-input:                 #E8DFCB;
   --color-ring:                  #14B8A6;
 }
 

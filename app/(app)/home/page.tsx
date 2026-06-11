@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Fish } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getMyCatchStats } from "@/lib/catches/queries";
 import { SPECIES_LABELS } from "@/lib/labels";
@@ -64,7 +65,7 @@ export default async function HomePage() {
         {total === 0 ? (
           /* ── Empty state ── */
           <div className="bg-white rounded-[22px] border border-ink-100 p-8 text-center flex flex-col items-center gap-4">
-            <span className="text-5xl" aria-hidden>🎣</span>
+            <Fish size={44} className="text-teal-500" strokeWidth={1.7} aria-hidden="true" />
             <p className="text-ink-700 max-w-sm">
               Pour démarrer, logue ta première prise ou explore la carte des spots
               près de chez toi.

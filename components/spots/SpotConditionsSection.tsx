@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Waves } from 'lucide-react'
 import TideChart from '@/components/conditions/TideChart'
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
@@ -88,7 +88,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
         </div>
       ) : (
         <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-ink-50 rounded-[10px]">
-          <span className="text-lg" aria-hidden>🌊</span>
+          <Waves size={18} className="text-ink-400" aria-hidden="true" />
           <p className="text-sm text-ink-500">
             Données de marée non disponibles pour ce spot
           </p>

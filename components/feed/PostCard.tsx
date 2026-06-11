@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Linkify from 'linkify-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Heart, MessageCircle, Flag, Share2, MoreHorizontal, Trash2, Loader2, Fish } from 'lucide-react'
+import { Heart, MessageCircle, Flag, Share2, MoreHorizontal, Trash2, Loader2, Fish, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   DropdownMenu,
@@ -235,7 +235,10 @@ function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | nu
         <p className="truncate text-[14px] font-semibold text-navy-900">{species}</p>
         {bits.length > 0 && <p className="text-[12px] text-ink-500">{bits.join(' · ')}</p>}
         {post.catch_spot_name && (
-          <p className="truncate text-[11px] text-ink-400">📍 {post.catch_spot_name}</p>
+          <p className="flex items-center gap-1 truncate text-[11px] text-ink-400">
+            <MapPin size={11} className="shrink-0" aria-hidden="true" />
+            <span className="truncate">{post.catch_spot_name}</span>
+          </p>
         )}
       </div>
     </div>

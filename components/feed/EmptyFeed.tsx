@@ -5,23 +5,20 @@ type Variant = 'dept' | 'follows-none' | 'follows-empty'
 
 const CONTENT: Record<
   Variant,
-  { emoji: string; Icon: typeof Fish; title: (region?: string) => string; body: string; cta?: { href: string; label: string } }
+  { Icon: typeof Fish; title: (region?: string) => string; body: string; cta?: { href: string; label: string } }
 > = {
   dept: {
-    emoji: '🎣',
     Icon: Fish,
     title: (region) => `Sois le premier à poster dans le ${region ?? 'coin'}.`,
     body: 'Une question matos, une alerte spot, un retour de session… lance le fil de ton département.',
   },
   'follows-none': {
-    emoji: '👥',
     Icon: UserPlus,
     title: () => 'Tu ne suis personne pour l’instant.',
     body: 'Découvre des pêcheurs de ton coin pour remplir ton fil de follows.',
     cta: { href: '/follows', label: 'Trouver des pêcheurs' },
   },
   'follows-empty': {
-    emoji: '🌊',
     Icon: Wind,
     title: () => 'Calme plat.',
     body: 'Tes follows n’ont rien posté ces 7 derniers jours. Reviens plus tard.',
@@ -36,10 +33,7 @@ export function EmptyFeed({ variant, region }: { variant: Variant; region?: stri
       <div className="flex items-center justify-center w-14 h-14 rounded-full bg-teal-50 text-teal-500">
         <Icon size={26} />
       </div>
-      <p className="font-bold text-navy-900 text-[15px]">
-        <span className="mr-1">{c.emoji}</span>
-        {c.title(region)}
-      </p>
+      <p className="font-bold text-navy-900 text-[15px]">{c.title(region)}</p>
       <p className="text-[13px] text-ink-500 max-w-xs">{c.body}</p>
       {c.cta && (
         <Link

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { X, MapPin, Navigation, Lock, Fish, Clock } from 'lucide-react'
+import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, type LucideIcon } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
@@ -110,14 +110,15 @@ type SpotPopupProps = {
 
 const MAX_BADGES = 2
 
-const STRUCTURE_ICONS: Record<string, string> = {
-  pointe_rocheuse: '🪨',
-  plage: '🏖️',
-  digue: '🧱',
-  estuaire: '🌊',
-  cale: '⚓',
-  passe: '🌊',
-  cassure: '🪨',
+// DA v2 : pictos Lucide, plus d'emojis-icônes.
+const STRUCTURE_ICONS: Record<string, LucideIcon> = {
+  pointe_rocheuse: Mountain,
+  plage: Umbrella,
+  digue: BrickWall,
+  estuaire: Waves,
+  cale: Anchor,
+  passe: Waves,
+  cassure: Mountain,
 }
 
 function BadgeList({
@@ -285,8 +286,12 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
               {!!spot.structure && (
                 <div className="space-y-0.5">
                   <p className="text-[10px] font-medium uppercase tracking-wide text-ink-500">Structure</p>
-                  <span className="text-sm text-ink-700">
-                    {STRUCTURE_ICONS[spot.structure] ?? ''} {STRUCTURE_LABELS[spot.structure] ?? spot.structure}
+                  <span className="inline-flex items-center gap-1.5 text-sm text-ink-700">
+                    {(() => {
+                      const StructureIcon = STRUCTURE_ICONS[spot.structure]
+                      return StructureIcon ? <StructureIcon size={14} className="text-ink-500" /> : null
+                    })()}
+                    {STRUCTURE_LABELS[spot.structure] ?? spot.structure}
                   </span>
                 </div>
               )}

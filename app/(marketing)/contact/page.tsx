@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { MessageCircle, Lock, Bug } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Contact — Carnet de Pêche',
@@ -9,19 +10,19 @@ export const metadata: Metadata = {
 
 const channels = [
   {
-    emoji: '💬',
+    Icon: MessageCircle,
     title: 'Question produit',
     desc: 'Un doute sur une fonctionnalité, un abonnement, ou comment loguer une prise.',
     href: 'mailto:contact@carnet-de-peche.com?subject=Question%20produit',
   },
   {
-    emoji: '🔒',
+    Icon: Lock,
     title: 'Demande RGPD',
     desc: 'Accès, rectification ou suppression de tes données personnelles.',
     href: 'mailto:contact@carnet-de-peche.com?subject=Demande%20RGPD',
   },
   {
-    emoji: '🐛',
+    Icon: Bug,
     title: 'Bug ou suggestion',
     desc: 'Un truc cassé ou une idée pour améliorer le carnet ? On veut savoir.',
     href: 'mailto:contact@carnet-de-peche.com?subject=Bug%2Fsuggestion',
@@ -62,8 +63,11 @@ export default function ContactPage() {
               href={c.href}
               className="flex flex-col gap-2 rounded-[14px] border border-ink-900/10 bg-white p-5 transition-colors duration-150 hover:border-teal-500/40"
             >
-              <span className="text-2xl" aria-hidden="true">
-                {c.emoji}
+              <span
+                aria-hidden="true"
+                className="flex size-10 items-center justify-center rounded-[10px] bg-sand-100 text-navy-900"
+              >
+                <c.Icon size={20} strokeWidth={1.7} />
               </span>
               <span className="font-semibold text-navy-900 text-[15px]">
                 {c.title}
