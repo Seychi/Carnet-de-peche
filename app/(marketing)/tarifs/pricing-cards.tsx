@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { TagData } from '@/components/ui-v2/tag-data'
+import { Chip } from '@/components/ui-v2/chip'
 import type { UserTier } from '@/lib/auth/tier'
 
 type PaidPlan = 'local' | 'itinerant'
@@ -11,7 +14,7 @@ type Interval = 'monthly' | 'annual'
 const plans = {
   decouverte: {
     name: 'Découverte',
-    description: "Pour démarrer ton carnet et voir si l'app te parle.",
+    description: "Tout ce qu'il faut pour loguer et progresser.",
     monthly: 0,
     annual: 0,
     annualTotal: 0,
@@ -26,7 +29,7 @@ const plans = {
   },
   local: {
     name: 'Local',
-    description: 'Pour le pêcheur qui pratique surtout dans son département.',
+    description: 'Ton département, au mètre et à la minute près.',
     monthly: 4.9,
     annual: 4.08,
     annualTotal: 49,
@@ -43,7 +46,7 @@ const plans = {
   },
   itinerant: {
     name: 'Itinérant',
-    description: 'Pour le pêcheur qui voyage et veut couvrir toute la France.',
+    description: 'Toute la côte, pour ceux qui bougent.',
     monthly: 9.9,
     annual: 8.25,
     annualTotal: 99,
@@ -64,10 +67,14 @@ function formatPrice(price: number) {
 }
 
 // Chip rappelant les conditions de l'essai, sous chaque CTA payant.
-function TrialBadge() {
+function TrialBadge({ onDark = false }: { onDark?: boolean }) {
   return (
-    <p className="mt-3 inline-flex items-center justify-center w-full text-center text-[11px] font-medium text-teal-300">
-      Essai 7j · CB requise · Annulation 1 clic
+    <p
+      className={`mt-3 w-full text-center font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] ${
+        onDark ? 'text-white/40' : 'text-ink-400'
+      }`}
+    >
+      Essai 7 j avec CB · Satisfait ou remboursé
     </p>
   )
 }
@@ -79,12 +86,14 @@ function PlanCta({
   tier,
   eligible,
   buttonClass,
+  onDark = false,
 }: {
   plan: PaidPlan
   interval: Interval
   tier: UserTier
   eligible: boolean
   buttonClass: string
+  onDark?: boolean
 }) {
   // Déjà abonné (peu importe le plan) → gérer l'abonnement
   if (tier === 'local' || tier === 'itinerant') {
@@ -105,7 +114,7 @@ function PlanCta({
         >
           Essayer 7 jours
         </Link>
-        <TrialBadge />
+        <TrialBadge onDark={onDark} />
       </>
     )
   }
@@ -113,9 +122,9 @@ function PlanCta({
   // Connecté mais hors zone (DOM-TOM) → encart, pas d'accès Checkout
   if (!eligible) {
     return (
-      <div className="bg-sand-100 text-ink-700 text-sm rounded-[12px] p-3 text-center">
+      <div className="bg-sand-100 border border-sand-200 text-ink-600 text-sm rounded-[14px] p-3 text-center">
         Outre-mer pas encore couvert.{' '}
-        <Link href="/contact" className="underline font-medium">
+        <Link href="/contact" className="underline font-medium text-navy-900">
           Préviens-nous
         </Link>
         .
@@ -133,7 +142,7 @@ function PlanCta({
           Essayer 7 jours
         </button>
       </form>
-      <TrialBadge />
+      <TrialBadge onDark={onDark} />
     </>
   )
 }
@@ -152,150 +161,153 @@ export function PricingCards({
     <>
       {/* Toggle mensuel / annuel */}
       <div className="flex justify-center mt-8 mb-10">
-        <div className="inline-flex items-center bg-ink-100 rounded-full p-1 gap-1">
+        <div className="inline-flex items-center rounded-full border border-sand-200 bg-white p-1 gap-0.5">
           <button
             onClick={() => setAnnual(false)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              !annual
-                ? 'bg-white text-navy-900 shadow-sm'
-                : 'text-ink-500 hover:text-ink-700'
+            className={`min-h-[44px] px-5 rounded-full text-sm font-medium transition-colors duration-150 ${
+              !annual ? 'bg-navy-900 text-white' : 'text-ink-600 hover:text-navy-900'
             }`}
           >
             Mensuel
           </button>
           <button
             onClick={() => setAnnual(true)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-              annual
-                ? 'bg-white text-navy-900 shadow-sm'
-                : 'text-ink-500 hover:text-ink-700'
+            className={`min-h-[44px] px-5 rounded-full text-sm font-medium transition-colors duration-150 flex items-center gap-2 ${
+              annual ? 'bg-navy-900 text-white' : 'text-ink-600 hover:text-navy-900'
             }`}
           >
             Annuel
-            <span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-semibold">
-              -17%
+            <span
+              className={`font-mono text-[11px] font-medium tracking-[0.04em] ${
+                annual ? 'text-teal-300' : 'text-teal-600'
+              }`}
+            >
+              −17%
             </span>
           </button>
         </div>
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
 
         {/* Découverte */}
-        <div className="bg-sand-100 border border-ink-200 rounded-[22px] p-8 flex flex-col">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">
-              {plans.decouverte.name}
-            </p>
-            <div className="flex items-baseline gap-1 mb-3">
-              <span className="text-4xl font-display font-bold text-navy-900">0 €</span>
-              <span className="text-ink-500 text-sm">/ pour toujours</span>
-            </div>
-            <p className="text-sm text-ink-500 leading-relaxed mb-6">
-              {plans.decouverte.description}
-            </p>
-            <ul className="flex flex-col gap-3 mb-8">
-              {plans.decouverte.features.map((f) => (
-                <li key={f.text} className="flex items-start gap-3 text-sm text-ink-700">
-                  <Check size={16} className="text-teal-600 mt-0.5 shrink-0" />
-                  <span className={f.strong ? 'font-semibold text-navy-900' : ''}>{f.text}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="bg-white border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col">
+          <TagData>{plans.decouverte.name}</TagData>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">
+              0 €
+            </span>
+            <span className="text-sm text-ink-400">/ pour toujours</span>
           </div>
+          <p className="mt-3 text-sm text-ink-600 leading-relaxed">
+            {plans.decouverte.description}
+          </p>
+          <ul className="mt-6 mb-8 flex flex-col gap-3 flex-1">
+            {plans.decouverte.features.map((f) => (
+              <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                <Check size={16} strokeWidth={1.7} className="text-teal-600 mt-0.5 shrink-0" />
+                <span className={f.strong ? 'font-semibold text-navy-900' : 'text-ink-600'}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
           <div className="mt-auto">
             <Link
               href="/auth/login"
-              className="block w-full text-center px-6 py-3 rounded-[12px] border-2 border-navy-900 text-navy-900 font-semibold text-sm hover:bg-navy-900 hover:text-white transition-colors duration-200"
+              className="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full border border-sand-200 text-navy-900 font-semibold text-sm transition-colors duration-150 hover:border-navy-900"
             >
-              Démarrer gratuitement
+              Créer mon carnet
             </Link>
           </div>
         </div>
 
-        {/* Local — highlighted */}
-        <div className="bg-navy-900 rounded-[22px] p-8 flex flex-col relative shadow-xl">
-          <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
-            {plans.local.badge}
-          </span>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-teal-400 mb-3">
-              {plans.local.name}
-            </p>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-display font-bold text-white">
+        {/* Local — featured, navy-950 + isobathes */}
+        <div className="relative overflow-hidden bg-navy-950 rounded-[22px] p-7 sm:p-8 flex flex-col">
+          <Bathy opacity={0.3} />
+          <div className="relative flex flex-col flex-1">
+            <div className="flex items-center justify-between gap-3">
+              <TagData variant="on-dark">{plans.local.name}</TagData>
+              <Chip
+                variant="gold"
+                mono
+                className="uppercase border-gold-500/40 bg-gold-500/15 text-gold-500"
+              >
+                {plans.local.badge}
+              </Chip>
+            </div>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="font-mono text-[40px] font-semibold leading-none text-white">
                 {annual ? formatPrice(plans.local.annual) : formatPrice(plans.local.monthly)} €
               </span>
-              <span className="text-white/60 text-sm">/ mois</span>
+              <span className="text-sm text-white/50">/ mois</span>
             </div>
             {annual && (
-              <p className="text-teal-400 text-xs mb-2">
+              <p className="mt-2 font-mono text-xs text-teal-300">
                 Soit {plans.local.annualTotal} €/an · tu économises {formatPrice(plans.local.monthly * 12 - plans.local.annualTotal)} €
               </p>
             )}
-            <p className="text-sm text-white/60 leading-relaxed mb-6 mt-2">
+            <p className="mt-3 text-sm text-white/60 leading-relaxed">
               {plans.local.description}
             </p>
-            <ul className="flex flex-col gap-3 mb-8">
+            <ul className="mt-6 mb-8 flex flex-col gap-3 flex-1">
               {plans.local.features.map((f) => (
-                <li key={f.text} className="flex items-start gap-3 text-sm text-white/80">
-                  <Check size={16} className="text-teal-400 mt-0.5 shrink-0" />
-                  <span className={f.strong ? 'font-semibold text-white' : ''}>{f.text}</span>
+                <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                  <Check size={16} strokeWidth={1.7} className="text-teal-300 mt-0.5 shrink-0" />
+                  <span className={f.strong ? 'font-semibold text-white' : 'text-white/80'}>
+                    {f.text}
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="mt-auto">
-            <PlanCta
-              plan="local"
-              interval={interval}
-              tier={tier}
-              eligible={eligible}
-              buttonClass="block w-full text-center px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
-            />
+            <div className="mt-auto">
+              <PlanCta
+                plan="local"
+                interval={interval}
+                tier={tier}
+                eligible={eligible}
+                onDark
+                buttonClass="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full bg-teal-500 text-navy-950 font-semibold text-sm transition-colors duration-150 hover:bg-teal-300"
+              />
+            </div>
           </div>
         </div>
 
         {/* Itinérant */}
-        <div
-          className="rounded-[22px] p-8 flex flex-col"
-          style={{ background: 'linear-gradient(145deg, #103E50 0%, #0F766E 100%)' }}
-        >
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-teal-300 mb-3">
-              {plans.itinerant.name}
-            </p>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-display font-bold text-white">
-                {annual ? formatPrice(plans.itinerant.annual) : formatPrice(plans.itinerant.monthly)} €
-              </span>
-              <span className="text-white/60 text-sm">/ mois</span>
-            </div>
-            {annual && (
-              <p className="text-teal-300 text-xs mb-2">
-                Soit {plans.itinerant.annualTotal} €/an · tu économises {formatPrice(plans.itinerant.monthly * 12 - plans.itinerant.annualTotal)} €
-              </p>
-            )}
-            <p className="text-sm text-white/60 leading-relaxed mb-6 mt-2">
-              {plans.itinerant.description}
-            </p>
-            <ul className="flex flex-col gap-3 mb-8">
-              {plans.itinerant.features.map((f) => (
-                <li key={f.text} className="flex items-start gap-3 text-sm text-white/80">
-                  <Check size={16} className="text-teal-300 mt-0.5 shrink-0" />
-                  <span className={f.strong ? 'font-semibold text-white' : ''}>{f.text}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="bg-gradient-to-b from-white to-sand-100 border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col">
+          <TagData variant="teal">{plans.itinerant.name}</TagData>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">
+              {annual ? formatPrice(plans.itinerant.annual) : formatPrice(plans.itinerant.monthly)} €
+            </span>
+            <span className="text-sm text-ink-400">/ mois</span>
           </div>
+          {annual && (
+            <p className="mt-2 font-mono text-xs text-teal-600">
+              Soit {plans.itinerant.annualTotal} €/an · tu économises {formatPrice(plans.itinerant.monthly * 12 - plans.itinerant.annualTotal)} €
+            </p>
+          )}
+          <p className="mt-3 text-sm text-ink-600 leading-relaxed">
+            {plans.itinerant.description}
+          </p>
+          <ul className="mt-6 mb-8 flex flex-col gap-3 flex-1">
+            {plans.itinerant.features.map((f) => (
+              <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                <Check size={16} strokeWidth={1.7} className="text-teal-600 mt-0.5 shrink-0" />
+                <span className={f.strong ? 'font-semibold text-navy-900' : 'text-ink-600'}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
           <div className="mt-auto">
             <PlanCta
               plan="itinerant"
               interval={interval}
               tier={tier}
               eligible={eligible}
-              buttonClass="block w-full text-center px-6 py-3 rounded-[12px] bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-sm transition-colors duration-200"
+              buttonClass="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full bg-navy-900 text-white font-semibold text-sm transition-colors duration-150 hover:bg-navy-800"
             />
           </div>
         </div>

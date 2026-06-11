@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PricingCards } from './pricing-cards'
 import { getUserTier } from '@/lib/auth/tier'
 import { getIsEligibleForPaidTier } from '@/lib/auth/eligibility'
+import { Bathy } from '@/components/ui-v2/bathy'
 import { Shield, Lock, Clock, MessageCircle } from 'lucide-react'
 
 // CTAs dépendants de l'état utilisateur (tier + éligibilité géo) → rendu dynamique.
@@ -14,22 +15,22 @@ export const metadata: Metadata = {
 
 const trustItems = [
   {
-    icon: <Shield size={28} strokeWidth={1.75} className="text-teal-600" />,
+    icon: <Shield size={26} strokeWidth={1.7} className="text-teal-600" />,
     title: '7 jours satisfait ou remboursé',
     subtitle: 'Sans poser de questions.',
   },
   {
-    icon: <Lock size={28} strokeWidth={1.75} className="text-teal-600" />,
+    icon: <Lock size={26} strokeWidth={1.7} className="text-teal-600" />,
     title: 'Paiement 100% sécurisé',
     subtitle: 'Stripe · SSL 256 bits',
   },
   {
-    icon: <Clock size={28} strokeWidth={1.75} className="text-teal-600" />,
+    icon: <Clock size={26} strokeWidth={1.7} className="text-teal-600" />,
     title: 'Annulation en 1 clic',
     subtitle: 'Aucun engagement.',
   },
   {
-    icon: <MessageCircle size={28} strokeWidth={1.75} className="text-teal-600" />,
+    icon: <MessageCircle size={26} strokeWidth={1.7} className="text-teal-600" />,
     title: 'Support 7j/7',
     subtitle: 'Réponse en moins de 24h.',
   },
@@ -37,16 +38,16 @@ const trustItems = [
 
 const faqItems = [
   {
-    q: 'Pourquoi seulement 3 formules ?',
-    a: "Parce qu'on a passé du temps à comprendre les pêcheurs. La grande majorité pratique dans son département (Local), une partie voyage (Itinérant), et tout le monde veut tester avant (Découverte). Le reste, c'est du marketing inutile.",
+    q: 'Pourquoi pas 100% gratuit ?',
+    a: 'Les apps « gratuites pour toujours » finissent par vendre tes données ou mourir. Nos abonnés financent des données marines précises et un produit qui dure. Pas de pub, jamais.',
   },
   {
     q: "Comment fonctionne l'essai 7 jours ?",
     a: "Tu rentres ta CB, tu utilises tout pendant 7 jours. Si tu n'es pas satisfait, on rembourse intégralement, sans questions. Le plan Découverte reste gratuit et sans CB.",
   },
   {
-    q: 'Je peux changer de formule à tout moment ?',
-    a: "Oui, et c'est instantané. Tu passes Local → Itinérant en 1 clic, on calcule le prorata. Tu downgrades de la même façon.",
+    q: 'Je peux annuler quand ?',
+    a: "Quand tu veux, en 2 clics, depuis ton compte. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.",
   },
   {
     q: "L'app fonctionne-t-elle hors ligne ?",
@@ -57,8 +58,8 @@ const faqItems = [
     a: "27 départements côtiers couverts : Atlantique, Manche, Méditerranée. La Corse est prévue fin 2026. Vérifie ton département avant de t'abonner.",
   },
   {
-    q: 'Mon carnet de pêche est-il privé ?',
-    a: 'Oui, privé par défaut. Tu choisis ce que tu partages : chaque prise a ses propres paramètres de visibilité. Les coordonnées GPS sont floutées automatiquement avant tout partage public.',
+    q: 'Et mes données ?',
+    a: "Tes prises t'appartiennent. Hébergement en France (UE), spots privés par défaut, floutage GPS systématique avant tout partage public. Tu choisis ce que tu partages, prise par prise.",
   },
 ]
 
@@ -68,35 +69,39 @@ export default async function TarifsPage() {
   return (
     <main>
       {/* Hero */}
-      <section className="bg-sand-50 pt-20 pb-4">
-        <div className="max-w-[1280px] mx-auto px-6 text-center">
-          <span className="inline-block text-sm font-semibold text-teal-700 bg-teal-500/10 px-4 py-1.5 rounded-full mb-6">
-            3 formules. Pas plus.
+      <section className="bg-sand-50 pt-16 sm:pt-24 pb-4">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 text-center">
+          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-600">
+            <span aria-hidden="true" className="inline-block h-px w-7 bg-teal-500" />
+            Tarifs
           </span>
-          <h1 className="font-display text-navy-900 max-w-2xl mx-auto">
-            Une tarification simple, claire, sans piège.
+          <h1 className="mt-5 max-w-3xl mx-auto text-balance">
+            Le carnet et la communauté sont gratuits. La précision se paie.
           </h1>
-          <p className="mt-5 text-lg text-ink-500 max-w-xl mx-auto">
-            7 jours satisfait ou remboursé. Aucun engagement. Annulation en 1 clic.
+          <p className="mt-5 text-base sm:text-lg text-ink-600 leading-relaxed max-w-xl mx-auto">
+            Logue sans limite, poste sans limite. Tu paies uniquement pour ce qui se voit
+            au mètre près : la carte complète, le score, le hors-ligne.
           </p>
         </div>
 
         {/* Cards + toggle (client) */}
-        <div className="max-w-[1280px] mx-auto px-6 pb-20">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6 pb-20 sm:pb-24">
           <PricingCards tier={tier} eligible={eligible} />
         </div>
       </section>
 
       {/* Trust */}
-      <section className="bg-white py-14 border-t border-ink-100">
-        <div className="max-w-[1280px] mx-auto px-6">
+      <section className="bg-white py-12 sm:py-14 border-y border-sand-200">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {trustItems.map((item) => (
               <div key={item.title} className="flex flex-col items-center text-center gap-3">
-                <div>{item.icon}</div>
+                <div aria-hidden="true">{item.icon}</div>
                 <div>
                   <p className="font-semibold text-navy-900 text-sm">{item.title}</p>
-                  <p className="text-ink-500 text-xs mt-0.5">{item.subtitle}</p>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-400">
+                    {item.subtitle}
+                  </p>
                 </div>
               </div>
             ))}
@@ -105,46 +110,43 @@ export default async function TarifsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-sand-50 py-20">
-        <div className="max-w-[760px] mx-auto px-6">
-          <p className="text-sm font-semibold text-teal-700 uppercase tracking-wider mb-3">
+      <section className="bg-sand-100 py-24 sm:py-28">
+        <div className="max-w-[1100px] mx-auto px-5 sm:px-6">
+          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-600">
+            <span aria-hidden="true" className="inline-block h-px w-7 bg-teal-500" />
             Questions fréquentes
-          </p>
-          <h2 className="font-display text-navy-900 mb-10">Tes questions, nos réponses</h2>
-          <div className="flex flex-col gap-3">
+          </span>
+          <h2 className="mt-4 mb-12 max-w-xl">Tes questions, nos réponses</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-10">
             {faqItems.map((item) => (
-              <details
-                key={item.q}
-                className="group bg-white border border-ink-100 rounded-[14px] px-6 py-5 cursor-pointer"
-              >
-                <summary className="font-semibold text-navy-900 text-sm list-none flex items-center justify-between gap-4 select-none">
-                  {item.q}
-                  <span className="text-ink-300 group-open:rotate-180 transition-transform duration-200 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                  </span>
-                </summary>
-                <p className="mt-4 text-sm text-ink-700 leading-relaxed">{item.a}</p>
-              </details>
+              <div key={item.q}>
+                <h3 className="font-display text-lg text-navy-900">{item.q}</h3>
+                <p className="mt-2.5 text-sm text-ink-600 leading-relaxed">{item.a}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA final */}
-      <section className="bg-navy-900 py-16">
-        <div className="max-w-[760px] mx-auto px-6 text-center">
-          <p className="text-white/60 text-sm mb-4">
+      <section className="relative overflow-hidden bg-navy-950 py-20 sm:py-24">
+        <Bathy opacity={0.25} withLabels />
+        <div className="relative max-w-[760px] mx-auto px-5 sm:px-6 text-center">
+          <p className="text-white/50 text-sm">
             Pas convaincu ?
           </p>
-          <p className="text-white font-display text-2xl font-bold mb-6">
+          <p className="mt-3 font-display text-2xl sm:text-3xl font-bold tracking-[-0.02em] text-white text-balance">
             Loguer ta première prise est gratuit, sans CB.
           </p>
           <a
             href="/auth/login"
-            className="inline-block px-8 py-3.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold rounded-[12px] transition-colors duration-200"
+            className="mt-8 inline-flex min-h-[52px] items-center justify-center px-8 rounded-full bg-teal-500 text-navy-950 font-semibold text-[15px] transition-colors duration-150 hover:bg-teal-300"
           >
             Créer mon carnet gratuit
           </a>
+          <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/30">
+            Prix TTC · Stripe · Paiement sécurisé
+          </p>
         </div>
       </section>
     </main>
