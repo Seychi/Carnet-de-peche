@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   // Bug pre-existant eslint-config-next v16 + @eslint/eslintrc v3 (circular JSON)
   // À corriger quand eslint-config-next sera stable avec flat config
   eslint: { ignoreDuringBuilds: true },
+  // Les guides MDX sont lus du filesystem au runtime (ISR) : il faut les
+  // embarquer dans le bundle serverless Vercel (le tracing statique ne voit
+  // pas les fs.readdir dynamiques).
+  outputFileTracingIncludes: {
+    "/guides/[slug]": ["./content/guides/**"],
+    "/guides": ["./content/guides/**"],
+    "/sitemap.xml": ["./content/guides/**"],
+  },
   images: {
     remotePatterns: [
       {

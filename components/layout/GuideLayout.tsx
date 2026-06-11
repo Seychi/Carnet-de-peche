@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Clock, ArrowLeft } from 'lucide-react'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { TagData } from '@/components/ui-v2/tag-data'
 
 interface RelatedGuide {
   slug: string
@@ -16,6 +18,8 @@ interface GuideLayoutProps {
   species: string
   heroImage?: string
   heroImageAlt?: string
+  /** Date de vérification des infos réglementaires (affichée en gold). */
+  verifiedAt?: Date
   relatedGuides?: RelatedGuide[]
   children: React.ReactNode
 }
@@ -45,39 +49,43 @@ export function GuideLayout({
   species,
   heroImage,
   heroImageAlt,
+  verifiedAt,
   relatedGuides = [],
   children,
 }: GuideLayoutProps) {
   return (
     <main className="bg-sand-50 min-h-screen">
-      {/* Hero */}
-      <section className={`bg-navy-900 pt-10 ${heroImage ? 'pb-0' : 'pb-14'}`}>
-        <div className="max-w-[1280px] mx-auto px-6">
+      {/* Hero navy-950 + isobathes (DA v2) */}
+      <section className={`relative overflow-hidden bg-navy-950 pt-10 ${heroImage ? 'pb-0' : 'pb-14'}`}>
+        <Bathy opacity={0.3} />
+        <div className="relative max-w-[1280px] mx-auto px-6">
           <Link
             href="/guides"
-            className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors mb-8"
+            className="mb-8 inline-flex items-center gap-1.5 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-300 transition-colors hover:text-white"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={12} />
             Tous les guides
           </Link>
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-xs font-semibold bg-teal-500/20 text-teal-400 border border-teal-500/30 px-3 py-1 rounded-full">
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            <span className="rounded-full border border-teal-500/30 bg-teal-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
               {category}
             </span>
-            <span className="text-xs text-white/40 bg-white/10 px-3 py-1 rounded-full">
+            <span className="rounded-full bg-white/10 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/55">
               {species}
             </span>
+            {verifiedAt && (
+              <span className="rounded-full border border-gold-500/35 bg-gold-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-500">
+                Vérifié le{' '}
+                {new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris' }).format(verifiedAt)}
+              </span>
+            )}
           </div>
           <h1 className="text-white font-display max-w-3xl">{title}</h1>
           <p className="mt-4 text-white/60 max-w-2xl text-lg leading-relaxed">{excerpt}</p>
-          <div className="flex items-center gap-4 mt-6 text-sm text-white/40">
-            <span className="flex items-center gap-1.5">
-              <Clock size={14} />
-              {readTime} min de lecture
-            </span>
-            <span>·</span>
-            <span>{publishedAt}</span>
-          </div>
+          <TagData className="mt-6 flex items-center gap-2 text-white/40">
+            <Clock size={13} className="text-white/40" aria-hidden="true" />
+            {readTime} MIN DE LECTURE · {publishedAt.toUpperCase()}
+          </TagData>
         </div>
       </section>
 
@@ -113,7 +121,7 @@ export function GuideLayout({
               </p>
               <Link
                 href="/auth/login"
-                className="inline-block px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm rounded-[10px] transition-colors duration-200"
+                className="inline-block px-6 py-2.5 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors duration-200"
               >
                 Créer mon carnet gratuit →
               </Link>
@@ -145,17 +153,20 @@ export function GuideLayout({
               )}
 
               {/* CTA abonnement */}
-              <div className="bg-navy-900 rounded-[18px] p-6 text-center">
-                <p className="text-white font-semibold text-sm mb-2">Trouve les spots près de chez toi</p>
-                <p className="text-white/60 text-xs mb-4">
-                  Carte intelligente, score d'activité, filtres espèces.
-                </p>
-                <Link
-                  href="/tarifs"
-                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm rounded-[10px] transition-colors duration-200"
-                >
-                  Voir les formules
-                </Link>
+              <div className="relative overflow-hidden bg-navy-950 rounded-[18px] p-6 text-center">
+                <Bathy density={2} opacity={0.3} />
+                <div className="relative">
+                  <p className="text-white font-semibold text-sm mb-2">Trouve les spots près de chez toi</p>
+                  <p className="text-white/60 text-xs mb-4">
+                    Carte intelligente, score d&apos;activité, filtres espèces.
+                  </p>
+                  <Link
+                    href="/tarifs"
+                    className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors duration-200"
+                  >
+                    Voir les formules
+                  </Link>
+                </div>
               </div>
             </div>
           </aside>

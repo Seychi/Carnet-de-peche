@@ -1,0 +1,60 @@
+---
+# ⚠️ Le nom du fichier DOIT être identique au slug : mon-super-guide.mdx
+title: "Titre du guide (60-70 caractères max, avec le mot-clé principal)"
+slug: mon-super-guide
+excerpt: "Résumé en 1-2 phrases (40-300 caractères). C'est ce que Google et les cards affichent — donne envie de cliquer."
+category: Technique # Technique · Spots · Marées · Matériel · Réglementation
+species: Bar # Bar · Dorade royale · Lieu jaune · Maquereau · Sar · Orphie · Multi-espèces
+technique: leurres # optionnel : leurres · surfcasting · flottante · vif
+# department: "29" # optionnel : si le guide est localisé
+# cover_image: /images/mon-image.jpg # optionnel : sans image, carte navy + isobathes auto
+# cover_image_alt: "Description de l'image"
+author: Carnet de Pêche
+published_at: 2026-06-15
+# updated_at: 2026-07-01 # à renseigner à chaque mise à jour
+# verified_at: 2026-06-15 # OBLIGATOIRE si le guide contient mailles/quotas/réglementation
+# howto: true # true si le guide est un « comment faire » étape par étape (SEO HowTo)
+related: # 0 à 3 slugs de guides liés (sidebar « Lire aussi »)
+  - peche-au-bar-au-leurre
+draft: true # ⚠️ passe à false pour publier
+---
+
+L'intro : 2-3 phrases qui disent à qui s'adresse le guide et ce qu'on va y apprendre.
+Tutoiement, voix pêcheur, zéro jargon corporate.
+
+## Premier grand chapitre (les `##` structurent le guide ET le SEO)
+
+Du texte normal. **En gras** ce qui compte. Les listes :
+
+- Point un
+- Point deux
+
+### Sous-section si besoin
+
+Un [lien interne](/spots) vaut mieux qu'un lien externe.
+
+## Les composants spéciaux (c'est ce qui nous différencie)
+
+Un encart spot lié (le slug vient de l'URL de la fiche spot) :
+
+<SpotCard slug="pointe-du-raz" />
+
+Un badge technique au fil du texte : <TechniqueBadge type="leurres" /> — à utiliser
+avec parcimonie.
+
+Le schéma de marée pédagogique (pour les guides marées/coefficients) :
+
+<TideExplainer />
+
+L'encart réglementaire — TOUJOURS daté, TOUJOURS sourcé sur l'arrêté en vigueur
+(une erreur de maille = crédibilité morte) :
+
+<RegulationBox species="Bar" verifiedAt="15/06/2026">
+  - **Maille légale Atlantique/Manche** : 42 cm (arrêté du …)
+  - **Quota pêche récréative** : X poissons/jour/pêcheur
+  - **Période** : …
+</RegulationBox>
+
+## Conclusion courte
+
+Et c'est tout : pas de CTA à écrire, il est ajouté automatiquement en bas de page.

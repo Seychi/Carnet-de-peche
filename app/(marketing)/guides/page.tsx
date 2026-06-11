@@ -1,45 +1,19 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Clock, ArrowRight } from 'lucide-react'
+import { Clock, ArrowRight, Fish } from 'lucide-react'
+import { getAllGuides } from '@/lib/guides/loader'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { TagData } from '@/components/ui-v2/tag-data'
+
+export const revalidate = 86400
 
 export const metadata: Metadata = {
   title: 'Guides de pêche à la canne du bord — Carnet de Pêche',
-  description: 'Guides pratiques pour la pêche à la canne du bord en France. Bar au leurre, dorade au surfcasting, meilleurs spots Bretagne — rédigés par des pêcheurs passionnés.',
+  description:
+    'Guides pratiques pour la pêche à la canne du bord en France. Bar au leurre, dorade au surfcasting, marées, coefficients, spots — rédigés par des pêcheurs passionnés.',
+  alternates: { canonical: 'https://www.carnet-de-peche.com/guides' },
 }
-
-const guides = [
-  {
-    slug: 'peche-au-bar-au-leurre',
-    title: 'Pêche au bar au leurre depuis le bord',
-    excerpt: "Technique, matériel, saison, postes : tout ce qu'il faut savoir pour démarrer ou progresser sur le bar au leurre depuis la côte.",
-    readTime: 8,
-    category: 'Technique',
-    species: 'Bar',
-    image: '/images/bar.jpg',
-    imageAlt: 'Bar commun (Dicentrarchus labrax)',
-  },
-  {
-    slug: 'peche-a-la-dorade-royale-au-surfcasting',
-    title: 'Pêche à la dorade royale au surfcasting',
-    excerpt: 'La dorade royale est un poisson exigeant mais accessible. Découvre les bonnes périodes, les montages et les spots où elle fréquente nos côtes.',
-    readTime: 9,
-    category: 'Technique',
-    species: 'Dorade royale',
-    image: '/images/dorade.jpg',
-    imageAlt: 'Dorade royale (Sparus aurata)',
-  },
-  {
-    slug: 'les-meilleurs-spots-de-peche-en-bretagne',
-    title: 'Les meilleurs spots de pêche en Bretagne',
-    excerpt: 'De la Pointe du Raz à Belle-Île, un tour des spots phares de Bretagne pour la pêche à la canne du bord : bar, lieu jaune, maquereau et dorade.',
-    readTime: 10,
-    category: 'Spots',
-    species: 'Multi-espèces',
-    image: 'https://images.unsplash.com/photo-1757874905959-9fc34f5abdaa?w=800&h=450&auto=format&fit=crop&q=80',
-    imageAlt: 'Falaises et côtes sauvages de Bretagne',
-  },
-]
 
 function GuideCardImage({ src, alt }: { src: string; alt: string }) {
   return (
@@ -51,26 +25,49 @@ function GuideCardImage({ src, alt }: { src: string; alt: string }) {
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
         className="object-cover group-hover:scale-105 transition-transform duration-500"
       />
-      <div className="absolute inset-0 bg-navy-900/20 group-hover:bg-navy-900/10 transition-colors duration-300" />
+      <div className="absolute inset-0 bg-navy-950/20 group-hover:bg-navy-950/10 transition-colors duration-300" />
     </div>
   )
 }
 
-export default function GuidesPage() {
+// Carte sans cover : dégradé navy + isobathes (DA v2, pas de stock photo).
+function GuideCardPlaceholder() {
+  return (
+    <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-navy-800 to-navy-950">
+      <Bathy density={3} opacity={0.4} />
+      <Fish
+        size={36}
+        strokeWidth={1.7}
+        className="absolute inset-0 m-auto text-teal-300/60"
+        aria-hidden="true"
+      />
+    </div>
+  )
+}
+
+export default async function GuidesPage() {
+  const guides = await getAllGuides()
+
   return (
     <main>
-      {/* Hero */}
-      <section className="bg-navy-900 pt-16 pb-14">
-        <div className="max-w-[1280px] mx-auto px-6">
-          <span className="inline-block text-sm font-semibold text-teal-400 bg-teal-500/10 border border-teal-500/20 px-4 py-1.5 rounded-full mb-5">
+      {/* Hero navy-950 + isobathes (DA v2) */}
+      <section className="relative overflow-hidden bg-navy-950 pt-16 pb-14">
+        <Bathy opacity={0.35} withLabels />
+        <div className="relative max-w-[1280px] mx-auto px-6">
+          <span className="mb-5 inline-flex items-center gap-2.5 font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-teal-300">
+            <span className="inline-block h-px w-7 bg-teal-500" aria-hidden="true" />
             Rédigés par des pêcheurs
           </span>
           <h1 className="text-white font-display max-w-2xl">
             Guides pratiques pour la canne du bord
           </h1>
           <p className="mt-4 text-white/60 max-w-xl text-lg">
-            Technique, matériel, espèces, spots — des guides concrets écrits par des pêcheurs du bord, pour des pêcheurs du bord.
+            Technique, matériel, marées, espèces, spots — des guides concrets écrits par des
+            pêcheurs du bord, pour des pêcheurs du bord.
           </p>
+          <TagData variant="on-dark" className="mt-6 block">
+            {guides.length} GUIDE{guides.length > 1 ? 'S' : ''} EN LIGNE · MIS À JOUR EN CONTINU
+          </TagData>
         </div>
       </section>
 
@@ -82,31 +79,32 @@ export default function GuidesPage() {
               <Link
                 key={guide.slug}
                 href={`/guides/${guide.slug}`}
-                className="group bg-white border border-ink-100 rounded-[18px] overflow-hidden hover:shadow-md hover:border-teal-500/30 transition-all duration-200 flex flex-col"
+                className="group bg-white border border-sand-200 rounded-[18px] overflow-hidden hover:border-teal-500/40 transition-colors duration-200 flex flex-col"
               >
-                {/* Image de couverture */}
-                <GuideCardImage src={guide.image} alt={guide.imageAlt} />
+                {guide.cover_image ? (
+                  <GuideCardImage src={guide.cover_image} alt={guide.cover_image_alt ?? guide.title} />
+                ) : (
+                  <GuideCardPlaceholder />
+                )}
 
                 <div className="p-6 flex flex-col gap-3 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold bg-teal-500/10 text-teal-700 px-2.5 py-1 rounded-full">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-teal-500/10 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-teal-600">
                       {guide.category}
                     </span>
-                    <span className="text-xs text-ink-400 bg-ink-100 px-2.5 py-1 rounded-full">
+                    <span className="rounded-full bg-sand-100 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-ink-400">
                       {guide.species}
                     </span>
                   </div>
                   <h2 className="font-display text-navy-900 text-lg leading-snug group-hover:text-teal-700 transition-colors">
                     {guide.title}
                   </h2>
-                  <p className="text-sm text-ink-500 leading-relaxed flex-1">
-                    {guide.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between pt-3 border-t border-ink-100 mt-auto">
-                    <span className="flex items-center gap-1.5 text-xs text-ink-400">
-                      <Clock size={13} />
-                      {guide.readTime} min de lecture
-                    </span>
+                  <p className="text-sm text-ink-600 leading-relaxed flex-1">{guide.excerpt}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-sand-200 mt-auto">
+                    <TagData className="flex items-center gap-1.5">
+                      <Clock size={12} aria-hidden="true" />
+                      {guide.readTime} MIN
+                    </TagData>
                     <span className="flex items-center gap-1 text-xs font-semibold text-teal-600 group-hover:gap-2 transition-all">
                       Lire <ArrowRight size={13} />
                     </span>
@@ -119,13 +117,14 @@ export default function GuidesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-white py-14 border-t border-ink-100">
+      <section className="bg-white py-14 border-t border-sand-200">
         <div className="max-w-[760px] mx-auto px-6 text-center">
           <h2 className="font-display text-navy-900 text-2xl mb-3">
             Logue tes prises, améliore ta technique
           </h2>
-          <p className="text-ink-500 mb-6 text-sm">
-            Un carnet de pêche numérique pour suivre tes sessions, analyser tes progrès et partager avec la communauté.
+          <p className="text-ink-600 mb-6 text-sm">
+            Un carnet de pêche numérique pour suivre tes sessions, analyser tes progrès et partager
+            avec la communauté.
           </p>
           <Link
             href="/auth/login"

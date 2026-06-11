@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { getAllGuides } from '@/lib/guides/loader'
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
@@ -33,12 +34,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly',
   }))
 
-  // Guides MDX (à compléter quand le sprint guides sera fait)
-  const guidePages: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}/guides/peche-au-bar-au-leurre`,                         priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/guides/peche-a-la-dorade-royale-au-surfcasting`,         priority: 0.7, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/guides/les-meilleurs-spots-de-peche-en-bretagne`,        priority: 0.7, changeFrequency: 'monthly' },
-  ]
+  // Guides MDX — lus depuis content/guides/ (sprint 10 Bloc 1)
+  const guides = await getAllGuides()
+  const guidePages: MetadataRoute.Sitemap = guides.map((g) => ({
+    url: `${BASE_URL}/guides/${g.slug}`,
+    lastModified: g.updated_at ?? g.published_at,
+    priority: 0.7,
+    changeFrequency: 'monthly',
+  }))
 
   return [...staticPages, ...spotPages, ...guidePages]
 }
