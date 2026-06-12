@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getAllGuides } from '@/lib/guides/loader'
+import { getAllProgrammaticPages, programmaticUrl } from '@/lib/seo/programmatic'
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
@@ -43,5 +44,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly',
   }))
 
-  return [...staticPages, ...spotPages, ...guidePages]
+  // Pages programmatiques /peche/<espèce>/<technique>[/<dépt>] (sprint 10 Bloc 2)
+  const programmaticPages: MetadataRoute.Sitemap = getAllProgrammaticPages().map((p) => ({
+    url: `${BASE_URL}${programmaticUrl(p)}`,
+    priority: p.deptCode ? 0.6 : 0.7,
+    changeFrequency: 'weekly',
+  }))
+
+  return [...staticPages, ...spotPages, ...guidePages, ...programmaticPages]
 }
