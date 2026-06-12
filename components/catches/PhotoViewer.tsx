@@ -1,7 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import { X } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import dynamic from 'next/dynamic'
+
+/**
+ * Sprint 11 Bloc F — la lightbox plein écran ne sert qu'au clic sur la photo :
+ * elle est chargée en lazy (et préchargée au survol/focus du thumbnail pour
+ * une ouverture instantanée). La photo inline reste rendue telle quelle.
+ */
+const PhotoLightbox = dynamic(() => import('./PhotoLightbox'), { ssr: false })
+
+function preloadLightbox() {
+  void import('./PhotoLightbox')
+}
 
 export function PhotoViewer({
   src,
@@ -13,12 +24,15 @@ export function PhotoViewer({
   className?: string
 }) {
   const [open, setOpen] = useState(false)
+  const close = useCallback(() => setOpen(false), [])
 
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
+        onPointerEnter={preloadLightbox}
+        onFocus={preloadLightbox}
         className={`block w-full cursor-zoom-in ${className ?? ''}`}
         aria-label="Agrandir la photo"
       >
@@ -30,28 +44,7 @@ export function PhotoViewer({
         />
       </button>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
-          onClick={() => setOpen(false)}
-        >
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
-            aria-label="Fermer"
-          >
-            <X size={28} />
-          </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt={alt}
-            className="max-w-full max-h-[90dvh] object-contain rounded-[8px]"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
+      {open && <PhotoLightbox src={src} alt={alt} onClose={close} />}
     </>
   )
 }

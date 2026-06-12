@@ -16,7 +16,7 @@ export default function CheckoutCancelPage() {
       </p>
       <Link
         href="/tarifs"
-        className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+        className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
       >
         Revoir les formules
       </Link>

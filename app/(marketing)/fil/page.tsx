@@ -74,7 +74,7 @@ export default async function FilTeaserPage() {
       >
         <div className="relative mx-auto max-w-[760px] px-5 text-center">
           <span
-            className="inline-flex items-center gap-2 text-[12px] sm:text-[13px] font-semibold tracking-[.04em] uppercase text-teal-600 rounded-full px-3.5 py-1.5 border border-teal-500/25"
+            className="inline-flex items-center gap-2 text-[12px] sm:text-[13px] font-semibold tracking-[.04em] uppercase text-teal-700 rounded-full px-3.5 py-1.5 border border-teal-500/25"
             style={{ background: 'rgba(20,184,166,.1)' }}
           >
             <MapPin size={13} />

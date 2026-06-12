@@ -42,7 +42,7 @@ export default function UpsellBanner() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/tarifs"
-              className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+              className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
             >
               Voir les tarifs
             </Link>

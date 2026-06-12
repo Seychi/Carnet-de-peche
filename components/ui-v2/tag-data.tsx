@@ -2,8 +2,10 @@ import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const VARIANTS = {
-  default: 'text-ink-400',
-  teal: 'text-teal-600',
+  // a11y : ink-500 (4.94:1 sur sand-50) et teal-700 (5.16:1) — les anciens
+  // ink-400/teal-600 passaient sous les 4.5:1 WCAG AA en petit corps.
+  default: 'text-ink-500',
+  teal: 'text-teal-700',
   gold: 'text-gold-500',
   coral: 'text-coral-500',
   'on-dark': 'text-teal-300',

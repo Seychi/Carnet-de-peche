@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 /**
  * S'abonne aux nouveaux posts approuvés d'un département (INSERT sur feed_posts).
@@ -10,6 +9,10 @@ import { createClient } from '@/lib/supabase/client'
  * Le callback est stocké dans une ref : on ne re-souscrit que si `region`
  * change, pas à chaque render (sinon churn de souscription si le parent passe
  * une fonction inline).
+ *
+ * supabase-js (~62 kB gz) est importé dynamiquement DANS l'effet (sprint 11
+ * Bloc F) : il sort du first load de /fil/[department] — la souscription
+ * Realtime n'est de toute façon utile qu'après hydratation.
  */
 export function useFeedRealtime(region: string, onInsert: (postId: string) => void) {
   const onInsertRef = useRef(onInsert)
@@ -19,26 +22,39 @@ export function useFeedRealtime(region: string, onInsert: (postId: string) => vo
 
   useEffect(() => {
     if (!region) return
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`feed:${region}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'feed_posts',
-          filter: `region=eq.${region}`,
-        },
-        (payload) => {
-          const id = (payload.new as { id?: string }).id
-          if (id) onInsertRef.current(id)
-        },
-      )
-      .subscribe()
+    // L'import peut résoudre APRÈS le démontage : flag `cancelled` pour ne pas
+    // souscrire dans le vide, et `cleanup` posé seulement une fois souscrit.
+    let cancelled = false
+    let cleanup: (() => void) | undefined
+
+    void import('@/lib/supabase/client').then(({ createClient }) => {
+      if (cancelled) return
+      const supabase = createClient()
+      const channel = supabase
+        .channel(`feed:${region}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'feed_posts',
+            filter: `region=eq.${region}`,
+          },
+          (payload) => {
+            const id = (payload.new as { id?: string }).id
+            if (id) onInsertRef.current(id)
+          },
+        )
+        .subscribe()
+
+      cleanup = () => {
+        supabase.removeChannel(channel)
+      }
+    })
 
     return () => {
-      supabase.removeChannel(channel)
+      cancelled = true
+      cleanup?.()
     }
   }, [region])
 }

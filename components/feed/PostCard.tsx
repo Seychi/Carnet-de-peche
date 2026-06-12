@@ -2,7 +2,7 @@
 
 import { memo, useRef, useState } from 'react'
 import Link from 'next/link'
-import Linkify from 'linkify-react'
+import dynamic from 'next/dynamic'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Heart, MessageCircle, Flag, Share2, MoreHorizontal, Trash2, Loader2, Fish, MapPin } from 'lucide-react'
@@ -17,15 +17,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { toggleLike, deletePost, moderatorDeletePost } from '@/app/actions/feed'
 import { usePostInteractionsRealtime } from '@/lib/feed/usePostInteractionsRealtime'
+import { linkifyText } from '@/lib/feed/linkify'
 import type { FeedPost } from '@/lib/feed/types'
-import { CommentThread } from './CommentThread'
-import { ReportDialog } from './ReportDialog'
 
-const LINKIFY_OPTS = {
-  target: '_blank',
-  rel: 'noopener noreferrer',
-  className: 'text-teal-600 underline break-words',
-}
+// Commentaires + signalement ne s'affichent qu'au clic : lazy-load (sprint 11
+// Bloc F) pour sortir leurs deps (Server Actions, Radix Dialog…) du first load
+// du fil. Le fallback reprend le spinner que CommentThread affiche lui-même
+// pendant le chargement des commentaires → aucune rupture visuelle.
+const CommentThread = dynamic(
+  () => import('./CommentThread').then((m) => m.CommentThread),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex flex-col gap-3 pt-3">
+        <div className="flex justify-center py-4 text-ink-400">
+          <Loader2 size={18} className="animate-spin" />
+        </div>
+      </div>
+    ),
+  },
+)
+
+const ReportDialog = dynamic(
+  () => import('./ReportDialog').then((m) => m.ReportDialog),
+  { ssr: false },
+)
 
 function initials(name: string | null, username: string | null) {
   return (name || username || '?').trim().slice(0, 2).toUpperCase()
@@ -50,6 +66,9 @@ export const PostCard = memo(function PostCard({
   const [commentCount, setCommentCount] = useState(post.comments_count ?? 0)
   const [showComments, setShowComments] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
+  // Le dialog (lazy) n'est monté qu'au premier clic « Signaler », puis reste
+  // monté : animation de fermeture et brouillon de détails préservés.
+  const [reportMounted, setReportMounted] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -187,7 +206,7 @@ export const PostCard = memo(function PostCard({
         <div>
           <div className={expanded ? '' : 'line-clamp-6'}>
             <p className="whitespace-pre-wrap break-words text-[15px] text-ink-700">
-              <Linkify options={LINKIFY_OPTS}>{post.text}</Linkify>
+              {linkifyText(post.text)}
             </p>
           </div>
           {isLong && (
@@ -232,7 +251,10 @@ export const PostCard = memo(function PostCard({
 
         <button
           type="button"
-          onClick={() => setReportOpen(true)}
+          onClick={() => {
+            setReportMounted(true)
+            setReportOpen(true)
+          }}
           aria-label="Signaler"
           className="flex size-11 items-center justify-center rounded-full hover:bg-slate-50"
         >
@@ -253,7 +275,9 @@ export const PostCard = memo(function PostCard({
         <CommentThread postId={postId} currentUserId={currentUserId} />
       )}
 
-      <ReportDialog postId={postId} open={reportOpen} onOpenChange={setReportOpen} />
+      {reportMounted && (
+        <ReportDialog postId={postId} open={reportOpen} onOpenChange={setReportOpen} />
+      )}
     </article>
   )
 })

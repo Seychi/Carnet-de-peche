@@ -15,7 +15,7 @@ const QUALITY_LABEL: Record<QualityLevel, string> = {
 }
 
 const QUALITY_BADGE_CLS: Record<QualityLevel, string> = {
-  faible:         'bg-gray-100 text-gray-500',
+  faible:         'bg-gray-100 text-gray-600', // gray-500 sur gray-100 = 4.39:1 < 4.5
   moyenne:        'bg-amber-100 text-amber-700',
   bonne:          'bg-lime-100 text-lime-700',
   tres_bonne:     'bg-teal-100 text-teal-700',
@@ -82,21 +82,21 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
             <Moon size={12} className="text-ink-400" aria-hidden="true" />
             {daily.moonPhaseLabel}
           </span>
-          <span className="text-ink-300">·</span>
+          <span className="text-ink-500" aria-hidden="true">·</span>
           <span>{illuminationPct}% illuminée</span>
           {moonTimes.rise && (
             <>
-              <span className="text-ink-300">·</span>
+              <span className="text-ink-500" aria-hidden="true">·</span>
               <span>Lever {moonTimes.rise}</span>
             </>
           )}
           {moonTimes.set && (
             <>
-              <span className="text-ink-300">·</span>
+              <span className="text-ink-500" aria-hidden="true">·</span>
               <span>Coucher {moonTimes.set}</span>
             </>
           )}
-          <span className="text-ink-300">·</span>
+          <span className="text-ink-500" aria-hidden="true">·</span>
           <span className="inline-flex items-center gap-1">
             <Sun size={12} className="text-gold-500" aria-hidden="true" />
             {daily.sunrise} – {daily.sunset}
@@ -123,7 +123,7 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
           <p className="text-[14px] font-medium text-ink-700">
             Pas de créneau optimal aujourd&apos;hui
           </p>
-          <p className="text-[12px] text-ink-400">
+          <p className="text-[12px] text-ink-500">
             Reviens demain — les conditions s&apos;améliorent.
           </p>
         </div>

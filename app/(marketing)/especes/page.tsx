@@ -19,7 +19,7 @@ export default function EspecesIndexPage() {
   const especes = Object.keys(SPECIES) as SpeciesSlug[]
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       <section className="relative overflow-hidden bg-navy-950 pt-16 pb-14">
         <Bathy opacity={0.35} withLabels />
         <div className="relative mx-auto max-w-[1100px] px-5">
@@ -73,7 +73,7 @@ export default function EspecesIndexPage() {
                       <TagData>
                         VÉRIFIÉ LE {content.regulation.verifiedAt}
                       </TagData>
-                      <span className="flex items-center gap-1 text-xs font-semibold text-teal-600 transition-all group-hover:gap-2">
+                      <span className="flex items-center gap-1 text-xs font-semibold text-teal-700 transition-all group-hover:gap-2">
                         La fiche <ArrowRight size={13} />
                       </span>
                     </div>
@@ -84,6 +84,6 @@ export default function EspecesIndexPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

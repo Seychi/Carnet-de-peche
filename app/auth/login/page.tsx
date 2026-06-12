@@ -217,7 +217,7 @@ function SentScreen({
         Pas reçu ?{" "}
         <button
           onClick={onResend}
-          className="text-teal-600 font-medium hover:underline"
+          className="text-teal-700 font-medium hover:underline"
         >
           Renvoyer
         </button>
@@ -450,7 +450,7 @@ export default function LoginPage() {
                   if (typed) setResetPrefill(typed);
                   setShowReset(true);
                 }}
-                className="text-[13px] text-teal-600 font-medium hover:underline self-start transition-colors"
+                className="text-[13px] text-teal-700 font-medium hover:underline self-start transition-colors"
               >
                 Mot de passe oublié ?
               </button>
@@ -642,7 +642,7 @@ export default function LoginPage() {
               <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 663.8 0 541.8c0-207.8 134.4-317.7 266.5-317.7 93.4 0 171.4 62.5 231.4 62.5 56.9 0 144.2-66.1 249.8-66.1zm-239.5-167.9c28.2-34.2 50.2-81.8 50.2-129.2 0-6.7-.6-13.4-1.9-19.5-47.4 1.9-103.6 31.4-136.2 68.7-26.3 29.5-51.4 77.1-51.4 125.5 0 7.1 1.3 14.2 1.9 16.5 3.2.6 8.4 1.3 13.6 1.3 43 0 96.2-28.9 123.8-63.3z" />
             </svg>
             Continuer avec Apple
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-ink-400 bg-ink-100 rounded-full px-2 py-0.5">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-ink-500 bg-ink-100 rounded-full px-2 py-0.5">
               Bientôt
             </span>
           </button>
@@ -655,7 +655,7 @@ export default function LoginPage() {
             Pas encore de compte ?{" "}
             <button
               onClick={() => selectTab("signup")}
-              className="text-teal-600 font-semibold hover:underline"
+              className="text-teal-700 font-semibold hover:underline"
             >
               Crée le tien
             </button>
@@ -665,7 +665,7 @@ export default function LoginPage() {
             Déjà un compte ?{" "}
             <button
               onClick={() => selectTab("signin")}
-              className="text-teal-600 font-semibold hover:underline"
+              className="text-teal-700 font-semibold hover:underline"
             >
               Connecte-toi
             </button>

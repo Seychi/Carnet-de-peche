@@ -46,7 +46,7 @@ export default async function CheckoutSuccessPage({
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/carte"
-          className="px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+          className="px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
         >
           Explorer la carte complète
         </Link>

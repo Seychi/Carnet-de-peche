@@ -72,7 +72,7 @@ export function CatchGrid({
         </p>
         <Link
           href="/carnet/nouvelle"
-          className="inline-block px-6 py-3.5 bg-teal-500 text-white rounded-[14px] font-bold text-[15px] hover:bg-teal-600 transition-colors"
+          className="inline-block px-6 py-3.5 bg-teal-500 text-navy-950 rounded-[14px] font-bold text-[15px] hover:bg-teal-400 transition-colors"
         >
           Loguer ma première prise
         </Link>

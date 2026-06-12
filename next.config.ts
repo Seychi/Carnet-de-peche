@@ -44,6 +44,13 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: true,
   sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
-  disableLogger: true,
+  // Tree-shake les logs de debug internes du SDK (remplace disableLogger, déprécié).
+  webpack: { treeshake: { removeDebugLogging: true } },
+  // Session Replay non utilisé (aucun replayIntegration) : on retire son code du bundle.
+  // ⚠️ Ne PAS ajouter excludeTracing — le performance monitoring (tracesSampleRate) est actif.
+  bundleSizeOptimizations: {
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+  },
   widenClientFileUpload: true,
 });

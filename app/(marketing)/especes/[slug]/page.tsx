@@ -75,9 +75,9 @@ async function fetchLive(slug: SpeciesSlug) {
 }
 
 const ACTIVITY_DOTS: Record<1 | 2 | 3, { label: string; cls: string }> = {
-  1: { label: 'Calme', cls: 'text-ink-400' },
+  1: { label: 'Calme', cls: 'text-ink-500' },
   2: { label: 'Bonne', cls: 'text-gold-500' },
-  3: { label: 'Pleine saison', cls: 'text-teal-600' },
+  3: { label: 'Pleine saison', cls: 'text-teal-700' },
 }
 
 export default async function EspecePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -141,7 +141,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
   )
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       {jsonLd.map((x, i) => (
         <script
           key={i}
@@ -227,7 +227,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 border-t border-gold-500/20 pt-3 text-[12px] leading-snug text-ink-400">
+                <p className="mt-3 border-t border-gold-500/20 pt-3 text-[12px] leading-snug text-ink-500">
                   Source : {content.regulation.source}. La réglementation évolue — vérifie
                   l&apos;arrêté en vigueur de ta façade avant de prélever.
                 </p>
@@ -245,7 +245,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                       <tbody>
                         {content.saisons[f].map((s) => (
                           <tr key={s.saison} className="border-t border-sand-200 first:border-t-0">
-                            <td className="py-2 pr-3 align-top font-mono text-[11.5px] font-medium uppercase tracking-[0.06em] text-ink-400 whitespace-nowrap">
+                            <td className="py-2 pr-3 align-top font-mono text-[11.5px] font-medium uppercase tracking-[0.06em] text-ink-500 whitespace-nowrap">
                               {s.saison}
                             </td>
                             <td className="py-2 pr-3 align-top whitespace-nowrap">
@@ -398,6 +398,6 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
           </aside>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

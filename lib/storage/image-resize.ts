@@ -5,7 +5,7 @@ import imageCompression from 'browser-image-compression'
  *
  * Délègue à browser-image-compression qui gère :
  * - Préservation du ratio (largeur max maxWidth)
- * - Correction de l'orientation EXIF (via exifr en interne)
+ * - Correction de l'orientation EXIF (gérée nativement par browser-image-compression)
  * - Images très grandes (> 20 MP) sans crash
  * - Mobile Safari : fallback HTMLCanvasElement si OffscreenCanvas absent
  */

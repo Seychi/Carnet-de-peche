@@ -44,7 +44,7 @@ export function FollowButton({
       className={`inline-flex items-center justify-center rounded-full font-semibold transition-colors disabled:opacity-60 ${base} ${
         following
           ? 'border border-slate-200 text-ink-600 hover:bg-slate-50'
-          : 'bg-teal-500 text-white hover:bg-teal-600'
+          : 'bg-teal-500 text-navy-950 hover:bg-teal-400'
       }`}
     >
       {following ? 'Suivi(e)' : 'Suivre'}

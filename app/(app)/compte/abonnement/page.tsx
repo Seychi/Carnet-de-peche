@@ -37,7 +37,7 @@ function daysUntil(iso: string | null): number {
 function PortalForm({ label, variant }: { label: string; variant: "primary" | "ghost" }) {
   const cls =
     variant === "primary"
-      ? "bg-teal-500 hover:bg-teal-400 text-white"
+      ? "bg-teal-500 hover:bg-teal-400 text-navy-950"
       : "bg-white border border-ink-200 text-navy-900 hover:bg-sand-50";
   return (
     <form action="/api/stripe/portal" method="POST">
@@ -126,7 +126,7 @@ export default async function AbonnementPage() {
           <p className="text-ink-700 mb-5">Tu n&rsquo;as pas encore d&rsquo;abonnement.</p>
           <Link
             href="/tarifs"
-            className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+            className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
           >
             Voir les formules
           </Link>
@@ -199,7 +199,7 @@ export default async function AbonnementPage() {
             ) : (
               <Link
                 href="/tarifs"
-                className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors duration-200"
+                className="inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
               >
                 Voir les formules
               </Link>

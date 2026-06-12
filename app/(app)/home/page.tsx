@@ -73,7 +73,7 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
                 href="/carnet/nouvelle"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm min-h-[48px]"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm min-h-[48px]"
               >
                 Loguer une prise →
               </Link>
@@ -106,7 +106,7 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/carnet/nouvelle"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm min-h-[52px]"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm min-h-[52px]"
               >
                 Loguer une prise →
               </Link>

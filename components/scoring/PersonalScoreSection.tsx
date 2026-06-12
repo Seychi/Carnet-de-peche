@@ -101,7 +101,7 @@ function EmptyState({ count }: { count: number }) {
       </p>
       <Link
         href="/carnet/nouvelle"
-        className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors"
+        className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors"
       >
         Loguer une prise
         <span aria-hidden>→</span>

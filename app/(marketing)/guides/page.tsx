@@ -49,7 +49,7 @@ export default async function GuidesPage() {
   const guides = await getAllGuides()
 
   return (
-    <main>
+    <div>
       {/* Hero navy-950 + isobathes (DA v2) */}
       <section className="relative overflow-hidden bg-navy-950 pt-16 pb-14">
         <Bathy opacity={0.35} withLabels />
@@ -89,10 +89,10 @@ export default async function GuidesPage() {
 
                 <div className="p-6 flex flex-col gap-3 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-teal-500/10 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-teal-600">
+                    <span className="rounded-full bg-teal-500/10 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-teal-700">
                       {guide.category}
                     </span>
-                    <span className="rounded-full bg-sand-100 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-ink-400">
+                    <span className="rounded-full bg-sand-100 px-2.5 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-ink-500">
                       {guide.species}
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export default async function GuidesPage() {
                       <Clock size={12} aria-hidden="true" />
                       {guide.readTime} MIN
                     </TagData>
-                    <span className="flex items-center gap-1 text-xs font-semibold text-teal-600 group-hover:gap-2 transition-all">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-teal-700 group-hover:gap-2 transition-all">
                       Lire <ArrowRight size={13} />
                     </span>
                   </div>
@@ -134,6 +134,6 @@ export default async function GuidesPage() {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

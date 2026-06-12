@@ -5,7 +5,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <>
       <Header />
-      {children}
+      {/* Landmark principal unique (a11y) : les pages du groupe ne doivent
+          plus rendre leur propre <main> — un seul main par page. */}
+      <main>{children}</main>
       <Footer />
     </>
   )

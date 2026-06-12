@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function TechniquesPage() {
   return (
-    <main className="bg-sand-50 min-h-screen py-20">
+    <div className="bg-sand-50 min-h-screen py-20">
       <div className="max-w-[680px] mx-auto px-6 text-center">
-        <span className="inline-flex items-center gap-2 text-[13px] font-semibold tracking-[.08em] uppercase text-teal-600 rounded-full px-3.5 py-1.5 border border-teal-500/25 bg-teal-500/10 mb-6">
+        <span className="inline-flex items-center gap-2 text-[13px] font-semibold tracking-[.08em] uppercase text-teal-700 rounded-full px-3.5 py-1.5 border border-teal-500/25 bg-teal-500/10 mb-6">
           Bientôt disponible
         </span>
         <h1 className="font-display text-4xl text-navy-900 mb-4">Toutes les techniques</h1>
@@ -27,6 +27,6 @@ export default function TechniquesPage() {
           Crée ton carnet — sois prévenu
         </Link>
       </div>
-    </main>
+    </div>
   )
 }

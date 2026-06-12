@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, startTransition } from 'react'
 import { Menu, X, LogOut, User, BookOpen, CreditCard } from 'lucide-react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { signOut } from '@/app/actions/auth'
 
 const NAV_ITEMS = [
   { label: 'Carte', href: '/carte' },
@@ -20,19 +19,16 @@ interface MobileNavProps {
 
 export function MobileNav({ isAuthenticated = false, username = null }: MobileNavProps) {
   const [open, setOpen] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  async function handleSignOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+  function handleSignOut() {
     setOpen(false)
-    router.push('/')
-    router.refresh()
+    // Server Action : session révoquée côté serveur, puis redirect '/'
+    startTransition(() => signOut('/'))
   }
 
   return (

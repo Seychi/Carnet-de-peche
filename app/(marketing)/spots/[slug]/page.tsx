@@ -142,8 +142,9 @@ export async function generateMetadata(
 
 function DifficultyStars({ difficulty }: { difficulty: number | null }) {
   const d = difficulty ?? 0
+  // role="img" requis : un span sans rôle ne peut pas porter aria-label
   return (
-    <span className="flex items-center gap-0.5" aria-label={`Difficulté ${d} sur 5`}>
+    <span role="img" className="flex items-center gap-0.5" aria-label={`Difficulté ${d} sur 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <span key={n} className={n <= d ? 'text-amber-400' : 'text-white/20'} aria-hidden>★</span>
       ))}
@@ -173,7 +174,7 @@ function CatchCard({ c }: { c: PublicCatch }) {
         <p className="mt-1 font-mono text-sm text-ink-500">{(c.weight_g / 1000).toFixed(1)} kg</p>
       )}
       <p className="text-xs text-ink-500 mt-3 truncate">{author}</p>
-      <p className="text-xs text-ink-300">{dateStr}</p>
+      <p className="text-xs text-ink-500">{dateStr}</p>
     </div>
   )
 }
@@ -198,12 +199,12 @@ function RecentCatchesSection({
 
       {catches.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-ink-400 text-sm mb-4">
+          <p className="text-ink-500 text-sm mb-4">
             Sois le premier à loguer une prise ici
           </p>
           <Link
             href={ctaHref}
-            className="inline-block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors"
+            className="inline-block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors"
           >
             Loguer ma prise
           </Link>
@@ -214,7 +215,7 @@ function RecentCatchesSection({
             {catches.map((c) => <CatchCard key={c.id} c={c} />)}
           </div>
           {totalCount > 5 && (
-            <p className="text-xs text-ink-400 text-center mt-4">
+            <p className="text-xs text-ink-500 text-center mt-4">
               +{totalCount - 5} autre{totalCount - 5 > 1 ? 's' : ''} prise{totalCount - 5 > 1 ? 's' : ''}
             </p>
           )}
@@ -300,7 +301,7 @@ export default async function SpotPage({
   } : null
 
   return (
-    <main className="bg-sand-50 min-h-screen pb-20 md:pb-0">
+    <div className="bg-sand-50 min-h-screen pb-20 md:pb-0">
       {jsonLd && (
         <script
           type="application/ld+json"
@@ -416,7 +417,7 @@ export default async function SpotPage({
               </div>
 
               {!spot.is_precise && (
-                <p className="text-xs text-ink-400 text-center mt-2">
+                <p className="text-xs text-ink-500 text-center mt-2">
                   Coordonnées approchées — abonne-toi pour le GPS précis
                 </p>
               )}
@@ -496,7 +497,7 @@ export default async function SpotPage({
 
             {/* Infos pratiques */}
             <div className="bg-white rounded-[18px] border border-sand-200 p-6">
-              <h3 className="mb-4 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+              <h3 className="mb-4 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-500">
                 Infos pratiques
               </h3>
               <dl className="flex flex-col gap-3.5">
@@ -578,7 +579,7 @@ export default async function SpotPage({
                 </p>
                 <Link
                   href="/tarifs"
-                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm rounded-[10px] transition-colors"
+                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
                 >
                   Voir les formules
                 </Link>
@@ -605,6 +606,6 @@ export default async function SpotPage({
           + Loguer une prise ici
         </Link>
       </div>
-    </main>
+    </div>
   )
 }

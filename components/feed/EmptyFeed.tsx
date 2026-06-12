@@ -38,7 +38,7 @@ export function EmptyFeed({ variant, region }: { variant: Variant; region?: stri
       {c.cta && (
         <Link
           href={c.cta.href}
-          className="mt-2 inline-flex items-center justify-center min-h-11 px-5 rounded-full bg-teal-500 text-white text-[14px] font-semibold hover:bg-teal-600 transition-colors"
+          className="mt-2 inline-flex items-center justify-center min-h-11 px-5 rounded-full bg-teal-500 text-navy-950 text-[14px] font-semibold hover:bg-teal-400 transition-colors"
         >
           {c.cta.label}
         </Link>

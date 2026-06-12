@@ -34,7 +34,7 @@ export function TrialBanner({
   }
 
   return (
-    <div className="bg-teal-500 text-white text-sm">
+    <div className="bg-teal-500 text-navy-950 text-sm">
       <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         <p>
           Il te reste{" "}
@@ -53,7 +53,7 @@ export function TrialBanner({
           type="button"
           onClick={dismiss}
           aria-label="Masquer"
-          className="shrink-0 text-white/80 hover:text-white text-lg leading-none px-1"
+          className="shrink-0 text-navy-950/70 hover:text-navy-950 text-lg leading-none px-1"
         >
           ×
         </button>

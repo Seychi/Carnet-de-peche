@@ -1,46 +1,62 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, Pencil, Share2, Trash2, Loader2 } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { deleteCatch } from '@/lib/catches/actions'
+import { catchActionsTriggerClass } from './catch-actions-trigger'
+
+/**
+ * Sprint 11 Bloc F — UI d'interaction lazy sur /carnet/[id] : le menu Base UI
+ * et l'AlertDialog de suppression ne servent qu'au clic, ils sortent donc du
+ * first load. Avant le premier clic sur « ⋯ », seul un bouton placeholder
+ * (identique au pixel) est rendu ; le vrai menu se monte au clic et s'ouvre
+ * immédiatement après chargement de son chunk. Le dialog de suppression n'est
+ * monté qu'à la première demande de suppression (state showDelete).
+ */
+
+const CatchActionsDropdown = dynamic(() => import('./CatchActionsDropdown'), {
+  ssr: false,
+  // Pendant le chargement du chunk : même bouton, aucun flash visuel.
+  loading: () => (
+    <button
+      type="button"
+      aria-label="Plus d'options"
+      aria-haspopup="menu"
+      aria-expanded="false"
+      className={catchActionsTriggerClass}
+    >
+      <MoreHorizontal size={18} />
+    </button>
+  ),
+})
+
+const CatchDeleteDialog = dynamic(() => import('./CatchDeleteDialog'), {
+  ssr: false,
+})
+
+// Préchargements : webpack met en cache la promesse de module, donc le
+// dynamic() correspondant monte sans latence réseau au moment du clic.
+function preloadDropdown() {
+  void import('./CatchActionsDropdown')
+}
+
+function preloadDeleteDialog() {
+  void import('./CatchDeleteDialog')
+}
 
 export function CatchActionsMenu({ catchId }: { catchId: string }) {
   const router = useRouter()
+  // Menu monté au premier clic, puis laissé monté (fermeture/réouverture et
+  // retour focus 100 % natifs Base UI ensuite).
+  const [menuMounted, setMenuMounted] = useState(false)
+  // Dialog monté à la première demande de suppression, puis laissé monté
+  // (préserve l'animation de fermeture et le comportement de focus).
+  const [deleteMounted, setDeleteMounted] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
-
-  async function handleShare() {
-    const url = window.location.href
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Ma prise — Carnet de Pêche', url })
-      } else {
-        await navigator.clipboard.writeText(url)
-        toast.success('Lien copié !')
-      }
-    } catch {
-      // Annulé par l'utilisateur
-    }
-  }
 
   async function handleDelete() {
     setDeleting(true)
@@ -58,67 +74,45 @@ export function CatchActionsMenu({ catchId }: { catchId: string }) {
     router.push('/carnet')
   }
 
+  function openDeleteFlow() {
+    setDeleteMounted(true)
+    setShowDelete(true)
+  }
+
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
+      {menuMounted ? (
+        <CatchActionsDropdown
+          catchId={catchId}
+          onDeleteRequest={openDeleteFlow}
+        />
+      ) : (
+        <button
+          type="button"
           aria-label="Plus d'options"
-          className="flex items-center justify-center w-9 h-9 rounded-full text-ink-500 hover:bg-slate-100 transition-colors"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          className={catchActionsTriggerClass}
+          onPointerEnter={preloadDropdown}
+          onFocus={preloadDropdown}
+          onClick={() => {
+            // Étape suivante probable du flux : on précharge aussi le dialog.
+            preloadDeleteDialog()
+            setMenuMounted(true)
+          }}
         >
           <MoreHorizontal size={18} />
-        </DropdownMenuTrigger>
+        </button>
+      )}
 
-        <DropdownMenuContent align="end" className="w-44 bg-white shadow-lg">
-          <DropdownMenuItem
-            className="flex items-center gap-2.5 cursor-pointer"
-            onClick={() => router.push(`/carnet/${catchId}/modifier`)}
-          >
-            <Pencil size={14} className="text-ink-500" />
-            Modifier
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="flex items-center gap-2.5 cursor-pointer"
-            onClick={handleShare}
-          >
-            <Share2 size={14} className="text-ink-500" />
-            Partager
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem
-            variant="destructive"
-            className="flex items-center gap-2.5 cursor-pointer"
-            onClick={() => setShowDelete(true)}
-          >
-            <Trash2 size={14} />
-            Supprimer
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer cette prise ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. La prise et sa photo seront définitivement supprimées.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 focus-visible:ring-red-600 gap-2"
-            >
-              {deleting && <Loader2 size={14} className="animate-spin" />}
-              {deleting ? 'Suppression…' : 'Oui, supprimer'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {deleteMounted && (
+        <CatchDeleteDialog
+          open={showDelete}
+          onOpenChange={setShowDelete}
+          deleting={deleting}
+          onConfirm={handleDelete}
+        />
+      )}
     </>
   )
 }

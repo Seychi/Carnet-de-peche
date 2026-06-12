@@ -71,7 +71,7 @@ function TrialBadge({ onDark = false }: { onDark?: boolean }) {
   return (
     <p
       className={`mt-3 w-full text-center font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] ${
-        onDark ? 'text-white/40' : 'text-ink-400'
+        onDark ? 'text-white/60' : 'text-ink-500'
       }`}
     >
       Essai 7 j avec CB · Satisfait ou remboursé
@@ -179,7 +179,7 @@ export function PricingCards({
             Annuel
             <span
               className={`font-mono text-[11px] font-medium tracking-[0.04em] ${
-                annual ? 'text-teal-300' : 'text-teal-600'
+                annual ? 'text-teal-300' : 'text-teal-700'
               }`}
             >
               −17%
@@ -198,7 +198,7 @@ export function PricingCards({
             <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">
               0 €
             </span>
-            <span className="text-sm text-ink-400">/ pour toujours</span>
+            <span className="text-sm text-ink-500">/ pour toujours</span>
           </div>
           <p className="mt-3 text-sm text-ink-600 leading-relaxed">
             {plans.decouverte.description}
@@ -281,10 +281,10 @@ export function PricingCards({
             <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">
               {annual ? formatPrice(plans.itinerant.annual) : formatPrice(plans.itinerant.monthly)} €
             </span>
-            <span className="text-sm text-ink-400">/ mois</span>
+            <span className="text-sm text-ink-500">/ mois</span>
           </div>
           {annual && (
-            <p className="mt-2 font-mono text-xs text-teal-600">
+            <p className="mt-2 font-mono text-xs text-teal-700">
               Soit {plans.itinerant.annualTotal} €/an · tu économises {formatPrice(plans.itinerant.monthly * 12 - plans.itinerant.annualTotal)} €
             </p>
           )}

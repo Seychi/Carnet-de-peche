@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 export type PostInteractionHandlers = {
   /**
@@ -28,6 +27,9 @@ function actorFromPayload(payload: unknown, key: 'user_id' | 'author_id'): strin
  *
  * Les events DELETE sont filtrables sur `post_id` grâce à REPLICA IDENTITY FULL
  * posée en migration 020 (feed_comments) — feed_likes l'a déjà via sa PK.
+ *
+ * supabase-js (~62 kB gz) est importé dynamiquement DANS l'effet (sprint 11
+ * Bloc F) : il sort du first load du fil — Realtime ne sert qu'après hydratation.
  */
 export function usePostInteractionsRealtime(postId: string, handlers: PostInteractionHandlers) {
   const handlersRef = useRef(handlers)
@@ -37,33 +39,46 @@ export function usePostInteractionsRealtime(postId: string, handlers: PostIntera
 
   useEffect(() => {
     if (!postId) return
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`post:${postId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
-        (payload) => handlersRef.current.onLikeDelta?.(1, actorFromPayload(payload, 'user_id')),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
-        (payload) => handlersRef.current.onLikeDelta?.(-1, actorFromPayload(payload, 'user_id')),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
-        (payload) => handlersRef.current.onCommentDelta?.(1, actorFromPayload(payload, 'author_id')),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
-        (payload) => handlersRef.current.onCommentDelta?.(-1, actorFromPayload(payload, 'author_id')),
-      )
-      .subscribe()
+    // L'import peut résoudre APRÈS le démontage : flag `cancelled` pour ne pas
+    // souscrire dans le vide, et `cleanup` posé seulement une fois souscrit.
+    let cancelled = false
+    let cleanup: (() => void) | undefined
+
+    void import('@/lib/supabase/client').then(({ createClient }) => {
+      if (cancelled) return
+      const supabase = createClient()
+      const channel = supabase
+        .channel(`post:${postId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
+          (payload) => handlersRef.current.onLikeDelta?.(1, actorFromPayload(payload, 'user_id')),
+        )
+        .on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
+          (payload) => handlersRef.current.onLikeDelta?.(-1, actorFromPayload(payload, 'user_id')),
+        )
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
+          (payload) => handlersRef.current.onCommentDelta?.(1, actorFromPayload(payload, 'author_id')),
+        )
+        .on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
+          (payload) => handlersRef.current.onCommentDelta?.(-1, actorFromPayload(payload, 'author_id')),
+        )
+        .subscribe()
+
+      cleanup = () => {
+        supabase.removeChannel(channel)
+      }
+    })
 
     return () => {
-      supabase.removeChannel(channel)
+      cancelled = true
+      cleanup?.()
     }
   }, [postId])
 }

@@ -538,7 +538,7 @@ export function CatchForm(props: CatchFormProps) {
                     onClick={() => { field.onChange(opt.val); field.onBlur() }}
                     className={`px-4 py-2 text-[13px] font-medium transition-colors ${
                       field.value === opt.val
-                        ? 'bg-teal-500 text-white'
+                        ? 'bg-teal-500 text-navy-950'
                         : 'bg-white text-ink-600'
                     }`}
                   >
@@ -836,7 +836,7 @@ export function CatchForm(props: CatchFormProps) {
                       i > 0 ? 'border-l border-sand-200' : ''
                     } ${
                       field.value === opt.val
-                        ? 'bg-teal-500 text-white border-teal-500'
+                        ? 'bg-teal-500 text-navy-950 border-teal-500'
                         : 'bg-white text-ink-600'
                     }`}
                   >

@@ -3,15 +3,16 @@ import type { FishingWindow, QualityLevel } from '@/lib/solunar/types'
 
 // ─── Config qualité ───────────────────────────────────────────────────────────
 
+// Teintes -500/-700 : contraste ≥ 4.5:1 (texte blanc sur badge, label sur fond clair)
 const QUALITY_CONFIG: Record<
   QualityLevel,
   { label: string; badgeCls: string; textCls: string; pulse: boolean }
 > = {
-  faible:        { label: 'Faible',       badgeCls: 'bg-gray-400 text-white',           textCls: 'text-gray-500',   pulse: false },
-  moyenne:       { label: 'Moyenne',      badgeCls: 'bg-amber-500 text-white',           textCls: 'text-amber-600',  pulse: false },
-  bonne:         { label: 'Bonne',        badgeCls: 'bg-lime-500 text-white',            textCls: 'text-lime-600',   pulse: false },
-  tres_bonne:    { label: 'Très Bonne',   badgeCls: 'bg-teal-500 text-white',            textCls: 'text-teal-600',   pulse: false },
-  exceptionnelle:{ label: 'Exceptionnelle', badgeCls: 'bg-emerald-600 text-white',       textCls: 'text-emerald-700',pulse: true  },
+  faible:        { label: 'Faible',       badgeCls: 'bg-gray-500 text-white',           textCls: 'text-gray-500',   pulse: false },
+  moyenne:       { label: 'Moyenne',      badgeCls: 'bg-amber-700 text-white',           textCls: 'text-amber-700',  pulse: false },
+  bonne:         { label: 'Bonne',        badgeCls: 'bg-lime-700 text-white',            textCls: 'text-lime-700',   pulse: false },
+  tres_bonne:    { label: 'Très Bonne',   badgeCls: 'bg-teal-700 text-white',            textCls: 'text-teal-700',   pulse: false },
+  exceptionnelle:{ label: 'Exceptionnelle', badgeCls: 'bg-emerald-700 text-white',       textCls: 'text-emerald-700',pulse: true  },
 }
 
 // ─── BestMomentCard ───────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
     >
       {/* Badge "Maintenant" */}
       {isCurrent && (
-        <span className="absolute -top-2.5 left-4 rounded-full bg-teal-500 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+        <span className="absolute -top-2.5 left-4 rounded-full bg-teal-500 px-2.5 py-0.5 text-[11px] font-bold text-navy-950 shadow-sm">
           Maintenant
         </span>
       )}
@@ -94,9 +95,9 @@ export function BestMomentRow({ window: w }: BestMomentRowProps) {
       <span className="tabular-nums font-medium text-navy-900">
         {w.startLocal} – {w.endLocal}
       </span>
-      <span className="text-ink-300">·</span>
+      <span className="text-ink-500" aria-hidden="true">·</span>
       <span className={`font-semibold ${cfg.textCls}`}>{cfg.label}</span>
-      <span className="text-ink-300">·</span>
+      <span className="text-ink-500" aria-hidden="true">·</span>
       <span
         className={[
           'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold',

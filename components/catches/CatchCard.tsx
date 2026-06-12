@@ -57,7 +57,7 @@ export function CatchCard({
 
         {/* Badge relâché */}
         {c.released && (
-          <div className="absolute bottom-2 left-2 bg-teal-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <div className="absolute bottom-2 left-2 bg-teal-500/90 text-navy-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
             Relâché
           </div>
         )}

@@ -67,11 +67,11 @@ export default async function TarifsPage() {
   const [tier, eligible] = await Promise.all([getUserTier(), getIsEligibleForPaidTier()])
 
   return (
-    <main>
+    <div>
       {/* Hero */}
       <section className="bg-sand-50 pt-16 sm:pt-24 pb-4">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 text-center">
-          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-600">
+          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-700">
             <span aria-hidden="true" className="inline-block h-px w-7 bg-teal-500" />
             Tarifs
           </span>
@@ -99,7 +99,7 @@ export default async function TarifsPage() {
                 <div aria-hidden="true">{item.icon}</div>
                 <div>
                   <p className="font-semibold text-navy-900 text-sm">{item.title}</p>
-                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-400">
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-500">
                     {item.subtitle}
                   </p>
                 </div>
@@ -112,7 +112,7 @@ export default async function TarifsPage() {
       {/* FAQ */}
       <section className="bg-sand-100 py-24 sm:py-28">
         <div className="max-w-[1100px] mx-auto px-5 sm:px-6">
-          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-600">
+          <span className="inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-700">
             <span aria-hidden="true" className="inline-block h-px w-7 bg-teal-500" />
             Questions fréquentes
           </span>
@@ -144,11 +144,11 @@ export default async function TarifsPage() {
           >
             Créer mon carnet gratuit
           </a>
-          <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/30">
+          <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/50">
             Prix TTC · Stripe · Paiement sécurisé
           </p>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

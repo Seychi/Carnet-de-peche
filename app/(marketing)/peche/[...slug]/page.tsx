@@ -179,7 +179,7 @@ export default async function ProgrammaticPageView({
   }
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -323,7 +323,7 @@ export default async function ProgrammaticPageView({
             </div>
             <p className="mt-3 text-[13px] text-ink-600">
               Coordonnées floutées à 1 km en accès gratuit —{' '}
-              <Link href="/carte" className="font-medium text-teal-600 hover:underline">
+              <Link href="/carte" className="font-medium text-teal-700 hover:underline">
                 explore la carte complète
               </Link>
               .
@@ -406,6 +406,6 @@ export default async function ProgrammaticPageView({
           </div>
         </section>
       </div>
-    </main>
+    </div>
   )
 }

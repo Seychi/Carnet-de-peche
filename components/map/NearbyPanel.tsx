@@ -147,10 +147,10 @@ export default function NearbyPanel({
                 key={key}
                 onClick={() => setSort(key)}
                 className={[
-                  'px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+                  'px-2.5 py-1 rounded-full text-xs transition-colors',
                   sort === key
-                    ? 'bg-teal-500 text-white'
-                    : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
+                    ? 'bg-teal-500 text-navy-950 font-semibold'
+                    : 'bg-ink-100 text-ink-600 font-medium hover:bg-ink-200',
                 ].join(' ')}
               >
                 {SORT_LABELS[key]}
@@ -222,7 +222,7 @@ export default function NearbyPanel({
             </p>
             <Link
               href="/tarifs"
-              className="shrink-0 px-2.5 py-1.5 bg-teal-500 hover:bg-teal-400 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+              className="shrink-0 px-2.5 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
             >
               Voir les tarifs
             </Link>

@@ -188,7 +188,7 @@ export default async function SpotsPage({ searchParams }: Props) {
   }
 
   return (
-    <main>
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -295,7 +295,7 @@ export default async function SpotsPage({ searchParams }: Props) {
                 <div key={deptCode}>
                   <h2 className="font-display text-navy-900 text-xl mb-5">
                     {DEPARTMENT_LABELS[deptCode] ?? deptCode}
-                    <span className="text-ink-400 text-base font-normal ml-2">
+                    <span className="text-ink-500 text-base font-normal ml-2">
                       · {deptSpots.length} spot{deptSpots.length > 1 ? 's' : ''}
                     </span>
                   </h2>
@@ -329,6 +329,6 @@ export default async function SpotsPage({ searchParams }: Props) {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

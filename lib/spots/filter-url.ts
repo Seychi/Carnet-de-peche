@@ -1,60 +1,8 @@
-import { z } from 'zod'
-import { catchSpeciesEnum, catchTechniqueEnum } from '@/lib/catches/schema'
-import { spotFiltersSchema } from '@/lib/spots/filters-schema'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 
-type RawParams = URLSearchParams | Record<string, string | string[] | undefined>
-
-function getString(params: RawParams, key: string): string | undefined {
-  if (params instanceof URLSearchParams) return params.get(key) ?? undefined
-  const v = params[key]
-  return Array.isArray(v) ? v[0] : v
-}
-
-function getArray(params: RawParams, key: string): string[] {
-  if (params instanceof URLSearchParams) return params.getAll(key)
-  const v = params[key]
-  if (!v) return []
-  return Array.isArray(v) ? v : [v]
-}
-
-// Parse + valide les filtres depuis URLSearchParams ou un Record.
-// Les valeurs invalides sont ignorées silencieusement.
-export function parseFiltersFromSearchParams(params: RawParams): SpotFilters {
-  const filters: SpotFilters = {}
-
-  const speciesRaw = getArray(params, 'species')
-  const speciesResult = z.array(catchSpeciesEnum).safeParse(speciesRaw)
-  if (speciesResult.success && speciesResult.data.length > 0) {
-    filters.species = speciesResult.data
-  }
-
-  const techniquesRaw = getArray(params, 'techniques')
-  const techniquesResult = z.array(catchTechniqueEnum).safeParse(techniquesRaw)
-  if (techniquesResult.success && techniquesResult.data.length > 0) {
-    filters.techniques = techniquesResult.data
-  }
-
-  const deptRaw = getString(params, 'department')
-  const deptResult = spotFiltersSchema.shape.department.safeParse(deptRaw)
-  if (deptResult.success && deptResult.data !== undefined) {
-    filters.department = deptResult.data
-  }
-
-  const structureRaw = getString(params, 'structure')
-  const structureResult = spotFiltersSchema.shape.structure.safeParse(structureRaw)
-  if (structureResult.success && structureResult.data !== undefined) {
-    filters.structure = structureResult.data
-  }
-
-  const difficultyRaw = getString(params, 'difficulty')
-  const difficultyResult = spotFiltersSchema.shape.difficulty.safeParse(difficultyRaw)
-  if (difficultyResult.success && difficultyResult.data !== undefined) {
-    filters.difficulty = difficultyResult.data
-  }
-
-  return filters
-}
+// Helpers filtres URL côté CLIENT — aucun import runtime volontairement :
+// ce module est dans le bundle client de /carte (MapShell, MapFilters).
+// Le parse + validation zod vit dans filter-url.server.ts (serveur uniquement).
 
 // Sérialise les filtres actifs vers URLSearchParams (pour reconstruire l'URL).
 // Les filtres vides/undefined sont omis.

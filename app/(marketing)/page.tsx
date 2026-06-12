@@ -39,7 +39,7 @@ function Kicker({ children, onDark = false }: { children: React.ReactNode; onDar
   return (
     <span
       className={`inline-flex items-center gap-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] ${
-        onDark ? "text-teal-300" : "text-teal-600"
+        onDark ? "text-teal-300" : "text-teal-700"
       }`}
     >
       <span aria-hidden="true" className="inline-block h-px w-7 bg-teal-500" />
@@ -50,7 +50,7 @@ function Kicker({ children, onDark = false }: { children: React.ReactNode; onDar
 
 function SecNum({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[13px] font-medium uppercase tracking-[0.1em] text-ink-400">
+    <p className="font-mono text-[13px] font-medium uppercase tracking-[0.1em] text-ink-500">
       {children}
     </p>
   );
@@ -433,7 +433,7 @@ export default function HomePage() {
                       {["Marée", "Heure", "Hauteur", "Coef"].map((h) => (
                         <th
                           key={h}
-                          className="pb-2 text-left font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400"
+                          className="pb-2 text-left font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500"
                         >
                           {h}
                         </th>
@@ -450,7 +450,7 @@ export default function HomePage() {
                         <td className="py-2.5 text-ink-600">{r.t}</td>
                         <td className="py-2.5 font-mono text-[13px] text-ink-900">{r.h}</td>
                         <td className="py-2.5 font-mono text-[13px] text-ink-900">{r.m}</td>
-                        <td className={`py-2.5 font-mono text-[13px] ${r.c === "—" ? "text-ink-400" : "text-teal-600"}`}>
+                        <td className={`py-2.5 font-mono text-[13px] ${r.c === "—" ? "text-ink-500" : "text-teal-700"}`}>
                           {r.c}
                         </td>
                       </tr>
@@ -604,10 +604,10 @@ export default function HomePage() {
                 <TagData>{p.name}</TagData>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className="font-mono text-[32px] font-semibold leading-none text-navy-900">{p.price}</span>
-                  <span className="text-sm text-ink-400">{p.per}</span>
+                  <span className="text-sm text-ink-500">{p.per}</span>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-ink-600">{p.desc}</p>
-                <span className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-teal-600">
+                <span className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-teal-700">
                   Voir le détail
                   <ArrowRight size={15} strokeWidth={1.7} className="transition-transform duration-150 group-hover:translate-x-0.5" />
                 </span>
@@ -623,7 +623,7 @@ export default function HomePage() {
               Voir les tarifs
             </Link>
           </div>
-          <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
+          <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
             Essai 7 jours · satisfait ou remboursé · annulation en ligne depuis ton compte
           </p>
         </div>

@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { signOut } from '@/app/actions/auth'
 import { LogOut, User, BookOpen, CreditCard, ChevronDown } from 'lucide-react'
 
 interface UserMenuProps {
@@ -14,7 +13,6 @@ interface UserMenuProps {
 export function UserMenu({ username, avatarUrl }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const router = useRouter()
 
   // Fermer si clic en dehors
   useEffect(() => {
@@ -27,11 +25,10 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  async function handleSignOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+  function handleSignOut() {
+    setOpen(false)
+    // Server Action : session révoquée côté serveur, puis redirect '/'
+    startTransition(() => signOut('/'))
   }
 
   const initials = username ? username.slice(0, 2).toUpperCase() : '?'

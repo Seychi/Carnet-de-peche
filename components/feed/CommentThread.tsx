@@ -156,7 +156,7 @@ export function CommentThread({
             onClick={handleAdd}
             disabled={submitting || !text.trim()}
             aria-label="Envoyer"
-            className="flex items-center justify-center size-11 rounded-full bg-teal-500 text-white disabled:opacity-40 hover:bg-teal-600 transition-colors"
+            className="flex items-center justify-center size-11 rounded-full bg-teal-500 text-navy-950 disabled:opacity-40 hover:bg-teal-400 transition-colors"
           >
             {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>

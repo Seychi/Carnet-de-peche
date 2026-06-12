@@ -1,5 +1,5 @@
 import { ExternalLink, Waves, Sunrise, Sunset } from 'lucide-react'
-import TideChart from '@/components/conditions/TideChart'
+import TideChart from '@/components/conditions/TideChartLazy'
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
@@ -70,7 +70,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
           href={windyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 flex items-center gap-1.5 text-xs text-ink-500 hover:text-teal-600 border border-ink-200 hover:border-teal-300 px-3 py-1.5 rounded-full transition-colors"
+          className="shrink-0 flex items-center gap-1.5 text-xs text-ink-500 hover:text-teal-700 border border-ink-200 hover:border-teal-300 px-3 py-1.5 rounded-full transition-colors"
         >
           <ExternalLink size={12} />
           Windy
@@ -130,7 +130,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
       )}
 
       {/* Footer */}
-      <p className="text-[11px] text-ink-400 text-right">
+      <p className="text-[11px] text-ink-500 text-right">
         Mis à jour à {updatedAt} · Source Open-Meteo
       </p>
     </section>

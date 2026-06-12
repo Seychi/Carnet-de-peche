@@ -66,11 +66,11 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={[
-        'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+        'px-3 py-1.5 rounded-full text-xs transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
         active
-          ? 'bg-teal-500 text-white border border-teal-500'
-          : 'bg-ink-100 text-ink-700 border border-ink-200 hover:bg-ink-200 hover:border-ink-300',
+          ? 'bg-teal-500 text-navy-950 font-semibold border border-teal-500'
+          : 'bg-ink-100 text-ink-700 font-medium border border-ink-200 hover:bg-ink-200 hover:border-ink-300',
       ].join(' ')}
     >
       {label}
@@ -241,7 +241,7 @@ export default function MapFilters({
             </p>
             <Link
               href="/tarifs"
-              className="mt-1.5 inline-block text-xs font-semibold text-white bg-teal-500 hover:bg-teal-600 px-3 py-1 rounded-lg transition-colors"
+              className="mt-1.5 inline-block text-xs font-semibold text-navy-950 bg-teal-500 hover:bg-teal-400 px-3 py-1 rounded-lg transition-colors"
             >
               Débloquer les filtres
             </Link>
@@ -249,13 +249,16 @@ export default function MapFilters({
         </div>
       )}
 
-      {/* Sections filtres — disabled visuellement si gated */}
+      {/* Sections filtres — disabled visuellement si gated.
+          inert (React 19) retire le panneau du tab order ET de l'arbre
+          d'accessibilité — corrige l'audit axe « aria-hidden-focus »
+          (les boutons restaient focusables au clavier sous aria-hidden). */}
       <div
         className={[
           'flex-1 overflow-y-auto space-y-5 p-4',
           isGated ? 'opacity-50 pointer-events-none select-none' : '',
         ].join(' ')}
-        aria-hidden={isGated || undefined}
+        inert={isGated || undefined}
       >
         {/* Espèces */}
         <div>
@@ -400,7 +403,7 @@ export default function MapFilters({
           <button
             type="button"
             onClick={() => onApply(filters)}
-            className="px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="px-4 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
           >
             Appliquer
           </button>

@@ -121,7 +121,7 @@ export function CatchFiltersBar({
               onClick={() => toggleSpecies(opt.value)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${
                 initialSpecies.includes(opt.value)
-                  ? 'bg-teal-500 text-white border-teal-500'
+                  ? 'bg-teal-500 text-navy-950 border-teal-500'
                   : 'bg-slate-50 text-ink-600 border-slate-200 hover:border-teal-300'
               }`}
             >
@@ -144,7 +144,7 @@ export function CatchFiltersBar({
               onClick={() => toggleTechnique(opt.value)}
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${
                 initialTechniques.includes(opt.value)
-                  ? 'bg-teal-500 text-white border-teal-500'
+                  ? 'bg-teal-500 text-navy-950 border-teal-500'
                   : 'bg-slate-50 text-ink-600 border-slate-200 hover:border-teal-300'
               }`}
             >

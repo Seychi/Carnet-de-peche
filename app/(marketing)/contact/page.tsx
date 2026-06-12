@@ -31,7 +31,7 @@ const channels = [
 
 export default function ContactPage() {
   return (
-    <main className="bg-sand-50 min-h-screen py-20">
+    <div className="bg-sand-50 min-h-screen py-20">
       <div className="max-w-[680px] mx-auto px-6">
         <div className="text-center">
           <h1 className="font-display text-4xl text-navy-900 mb-4">Contact</h1>
@@ -88,6 +88,6 @@ export default function ContactPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

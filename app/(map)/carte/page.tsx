@@ -7,7 +7,7 @@ import type { UserTier } from '@/lib/auth/tier'
 import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
 import type { SpotMarker } from '@/lib/map/utils'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
-import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url'
+import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url.server'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 import type { QualityLevel } from '@/lib/solunar/types'
 
@@ -136,15 +136,19 @@ export default async function CartePage({
   const showUpsell = tier === 'discovery' && !isDismissed
 
   return (
-    <MapShell
-      spots={spots}
-      userTier={tier}
-      initialCenter={initialCenter}
-      initialZoom={initialZoom}
-      showUpsell={showUpsell}
-      initialFilters={initialFilters}
-      userDepartment={homeDept ?? undefined}
-      availableDepartments={availableDepartments}
-    />
+    <>
+      {/* h1 invisible : la carte n'a pas de titre visible (audit axe « page-has-heading-one ») */}
+      <h1 className="sr-only">Carte des spots de pêche</h1>
+      <MapShell
+        spots={spots}
+        userTier={tier}
+        initialCenter={initialCenter}
+        initialZoom={initialZoom}
+        showUpsell={showUpsell}
+        initialFilters={initialFilters}
+        userDepartment={homeDept ?? undefined}
+        availableDepartments={availableDepartments}
+      />
+    </>
   )
 }

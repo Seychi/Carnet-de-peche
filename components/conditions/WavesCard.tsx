@@ -15,11 +15,11 @@ export default function WavesCard({ waves, swell }: Props) {
     <div className="bg-white border border-sand-200 rounded-[14px] p-5">
       <div className="flex items-center gap-2 mb-4">
         <Waves size={16} className="text-teal-500" />
-        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">Vagues</span>
+        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">Vagues</span>
       </div>
 
       {!hasWaves ? (
-        <p className="text-sm text-ink-400">Données non disponibles</p>
+        <p className="text-sm text-ink-500">Données non disponibles</p>
       ) : (
         <>
           <div className="flex items-baseline gap-1.5 mb-1">
@@ -58,7 +58,7 @@ export default function WavesCard({ waves, swell }: Props) {
 
           {hasSwell && (
             <div className="mt-4 pt-4 border-t border-ink-100">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-400 mb-2">Houle</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 mb-2">Houle</p>
               <dl className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-ink-500">Hauteur</dt>

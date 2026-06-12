@@ -9,6 +9,20 @@ import Link from 'next/link'
 import { BackButton } from '@/components/layout/BackButton'
 import type { Map as MapLibreMap } from 'maplibre-gl'
 
+import UpsellBanner from '@/components/map/UpsellBanner'
+import UserLocationMarker from '@/components/map/UserLocationMarker'
+import MapLegend from '@/components/map/MapLegend'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import type { SpotMarker } from '@/lib/map/utils'
+import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
+import type { UserTier } from '@/lib/auth/tier'
+import type { SpotFilters } from '@/lib/spots/filters-schema'
+import { hasActiveFilters, countActiveFilters, serializeFiltersToSearchParams } from '@/lib/spots/filter-url'
+import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
+import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { getCenterForDepartment } from '@/lib/geo/department-centroids'
+import type { NearbySpot } from '@/lib/spots/nearby'
+
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
 function MapSkeleton() {
@@ -23,22 +37,35 @@ const MapView = dynamic(() => import('@/components/map/MapView'), {
   ssr: false,
   loading: () => <MapSkeleton />,
 })
-import SpotPopup from '@/components/map/SpotPopup'
-import MapFilters from '@/components/map/MapFilters'
-import UpsellBanner from '@/components/map/UpsellBanner'
-import NearbyPanel from '@/components/map/NearbyPanel'
-import UserLocationMarker from '@/components/map/UserLocationMarker'
-import MapLegend from '@/components/map/MapLegend'
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
-import type { SpotMarker } from '@/lib/map/utils'
-import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
-import type { UserTier } from '@/lib/auth/tier'
-import type { SpotFilters } from '@/lib/spots/filters-schema'
-import { hasActiveFilters, countActiveFilters, serializeFiltersToSearchParams } from '@/lib/spots/filter-url'
-import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
-import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
-import { getCenterForDepartment } from '@/lib/geo/department-centroids'
-import type { NearbySpot } from '@/lib/spots/nearby'
+
+// Panneaux affichés uniquement à l'interaction (sidebar/sheet filtres, panneau
+// nearby, popup spot) — lazy-chargés pour les sortir du First Load JS de /carte.
+function FiltersSkeleton() {
+  return (
+    <div className="p-4 space-y-5 animate-pulse" aria-hidden="true">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-2.5 w-20 bg-ink-100 rounded" />
+          <div className="h-8 bg-ink-100 rounded-xl" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const MapFilters = dynamic(() => import('@/components/map/MapFilters'), {
+  ssr: false,
+  loading: () => <FiltersSkeleton />,
+})
+
+const NearbyPanel = dynamic(() => import('@/components/map/NearbyPanel'), {
+  ssr: false,
+})
+
+// Chunk préchargé dès que la carte est prête (cf onMapReady) : il est déjà en
+// cache au premier clic marker → ouverture instantanée du popup.
+const loadSpotPopup = () => import('@/components/map/SpotPopup')
+const SpotPopup = dynamic(loadSpotPopup, { ssr: false })
 
 type MapShellProps = {
   spots: SpotMarker[]
@@ -325,7 +352,7 @@ export default function MapShell({
         >
           <SlidersHorizontal size={20} />
           {activeCount > 0 && (
-            <span className="absolute top-1.5 right-1 w-[18px] h-[18px] flex items-center justify-center rounded-full bg-teal-500 text-white text-[9px] font-bold leading-none">
+            <span className="absolute top-1.5 right-1 w-[18px] h-[18px] flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-[9px] font-bold leading-none">
               {activeCount}
             </span>
           )}
@@ -375,7 +402,7 @@ export default function MapShell({
             <SlidersHorizontal size={14} />
             Filtres
             {activeCount > 0 && (
-              <span className="w-4 h-4 flex items-center justify-center rounded-full bg-teal-500 text-white text-[10px] font-bold">
+              <span className="w-4 h-4 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-[10px] font-bold">
                 {activeCount}
               </span>
             )}
@@ -395,6 +422,8 @@ export default function MapShell({
           onMapReady={(map) => {
             mapInstanceRef.current = map
             setMapInstance(map)
+            // Carte prête → un clic marker peut suivre : on précharge le chunk popup
+            void loadSpotPopup()
           }}
         />
 
@@ -437,7 +466,7 @@ export default function MapShell({
               'backdrop-blur-sm shadow-md text-sm font-medium transition-all',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
               nearby.isOpen
-                ? 'bg-teal-500 border border-teal-500 text-white hover:bg-teal-600'
+                ? 'bg-teal-500 border border-teal-500 text-navy-950 font-semibold hover:bg-teal-400'
                 : 'bg-white/95 border border-ink-200 text-ink-700 hover:bg-white hover:border-teal-400',
             ].join(' ')}
           >
@@ -468,7 +497,7 @@ export default function MapShell({
           <SlidersHorizontal size={16} className="text-ink-500" />
           <span>Filtres</span>
           {activeCount > 0 && (
-            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-teal-500 text-white text-xs font-bold">
+            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-xs font-bold">
               {activeCount}
             </span>
           )}
@@ -495,7 +524,7 @@ export default function MapShell({
               </p>
               <Link
                 href="/auth/login?tab=register"
-                className="shrink-0 px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
+                className="shrink-0 px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
               >
                 C&apos;est gratuit
               </Link>
@@ -554,7 +583,7 @@ export default function MapShell({
             'shadow-lg border-2 transition-all',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
             nearby.isOpen
-              ? 'bg-teal-500 border-teal-500 text-white hover:bg-teal-600 active:bg-teal-700'
+              ? 'bg-teal-500 border-teal-500 text-navy-950 hover:bg-teal-400 active:bg-teal-600'
               : 'bg-white border-teal-500/20 text-ink-700 hover:border-teal-500 active:scale-95',
           ].join(' ')}
         >

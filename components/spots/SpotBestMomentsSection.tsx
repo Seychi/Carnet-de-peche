@@ -59,7 +59,7 @@ function HowItWorksDialog() {
   return (
     <Dialog>
       <DialogTrigger
-        className="flex items-center gap-1.5 text-[12px] text-ink-400 hover:text-teal-600 transition-colors shrink-0 bg-transparent border-0 cursor-pointer p-0"
+        className="flex items-center gap-1.5 text-[12px] text-ink-500 hover:text-teal-700 transition-colors shrink-0 bg-transparent border-0 cursor-pointer p-0"
         aria-label="Comment le score est calculé"
       >
         <Info size={14} />
@@ -94,7 +94,7 @@ function HowItWorksDialog() {
               </span>
             </li>
           </ul>
-          <p className="text-[12px] text-ink-400 border-t border-ink-100 pt-3 mt-1">
+          <p className="text-[12px] text-ink-500 border-t border-ink-100 pt-3 mt-1">
             Ce scoring est générique : il s&apos;appuie sur les conditions
             astronomiques, la marée et le vent — identiques pour tous les pêcheurs.
           </p>

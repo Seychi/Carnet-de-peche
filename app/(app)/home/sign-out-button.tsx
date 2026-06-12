@@ -1,21 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { startTransition } from "react";
+import { signOut } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 export function SignOutButton() {
-  const router = useRouter();
-
-  async function handleSignOut() {
-    const supabase = createClient();
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // Session locale effacée même si Supabase est injoignable
-    }
-    router.push("/auth/login");
+  function handleSignOut() {
+    // Server Action : session révoquée côté serveur, puis redirect /auth/login
+    startTransition(() => signOut("/auth/login"));
   }
 
   return (

@@ -35,7 +35,7 @@ function Card({
   return (
     <div className="bg-white border border-sand-200 rounded-[14px] p-4">
       <div className="text-teal-500 mb-2">{icon}</div>
-      <p className="mb-1 font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">{title}</p>
+      <p className="mb-1 font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-500">{title}</p>
       <p className="font-mono text-lg font-semibold text-navy-900 leading-tight">{value}</p>
       {detail && <p className="text-xs text-ink-500 mt-0.5 leading-snug">{detail}</p>}
     </div>

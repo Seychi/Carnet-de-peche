@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 const VARIANTS = {
   default: 'border-sand-200 bg-sand-100 text-ink-600',
-  teal: 'border-teal-500/25 bg-teal-500/10 text-teal-600',
+  teal: 'border-teal-500/25 bg-teal-500/10 text-teal-700',
   gold: 'border-gold-500/30 bg-gold-500/10 text-[#A87C20]',
   coral: 'border-coral-500/30 bg-coral-500/10 text-coral-500',
   navy: 'border-navy-900 bg-navy-900 text-white',

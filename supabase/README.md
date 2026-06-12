@@ -101,6 +101,7 @@ psql $DATABASE_URL -f seed.sql              # optionnel
 | `002_rls.sql` | Row Level Security : qui voit/écrit quoi |
 | `003_indexes_views.sql` | Index PostGIS + B-tree, vues `public_catches` et `profile_stats` |
 | `004_functions_triggers.sql` | Auto-création profil, floutage GPS, updated_at, RPC `nearby_spots` |
+| `024_perf_rls.sql` | Perf RLS (sprint 11 Bloc F, audit EXPLAIN prod) : `auth.uid()` / `has_active_subscription` évalués 1 fois par requête (initplan) sur le chemin carte (`get_spots_for_map`, `nearby_spots`, `spots_for_viewer`, `spots_select_visible`) + ~28 policies wrappées `(select auth.uid())`, 4 index ajoutés (feed/reports), 3 index redondants supprimés. **Non appliquée, à relire** |
 | `seed.sql` | 10 spots Bretagne pour dev |
 
 ## Tables clés

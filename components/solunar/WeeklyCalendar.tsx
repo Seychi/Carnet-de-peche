@@ -7,12 +7,13 @@ import { wmoIconName, type WeatherIconName } from '@/lib/conditions/weather-code
 
 // ─── Config qualité ───────────────────────────────────────────────────────────
 
+// Teintes -500/-700 : contraste ≥ 4.5:1 (texte blanc sur badge, label sur fond clair)
 const QUALITY_CONFIG: Record<QualityLevel, { label: string; badgeCls: string; textCls: string }> = {
-  faible:         { label: 'Faible',         badgeCls: 'bg-gray-400 text-white',    textCls: 'text-gray-500'    },
-  moyenne:        { label: 'Moyenne',        badgeCls: 'bg-amber-500 text-white',   textCls: 'text-amber-600'   },
-  bonne:          { label: 'Bonne',          badgeCls: 'bg-lime-500 text-white',    textCls: 'text-lime-600'    },
-  tres_bonne:     { label: 'Très Bonne',     badgeCls: 'bg-teal-500 text-white',    textCls: 'text-teal-600'    },
-  exceptionnelle: { label: 'Exceptionnelle', badgeCls: 'bg-emerald-600 text-white', textCls: 'text-emerald-700' },
+  faible:         { label: 'Faible',         badgeCls: 'bg-gray-500 text-white',    textCls: 'text-gray-500'    },
+  moyenne:        { label: 'Moyenne',        badgeCls: 'bg-amber-700 text-white',   textCls: 'text-amber-700'   },
+  bonne:          { label: 'Bonne',          badgeCls: 'bg-lime-700 text-white',    textCls: 'text-lime-700'    },
+  tres_bonne:     { label: 'Très Bonne',     badgeCls: 'bg-teal-700 text-white',    textCls: 'text-teal-700'    },
+  exceptionnelle: { label: 'Exceptionnelle', badgeCls: 'bg-emerald-700 text-white', textCls: 'text-emerald-700' },
 }
 
 const WEATHER_ICON_MAP: Record<WeatherIconName, ElementType> = {
@@ -64,6 +65,9 @@ export function WeeklyCalendar({
       // Scroll la card dans le viewport (comportement snap mobile)
       const li = scrollRef.current?.children[index] as HTMLElement | undefined
       li?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' })
+      // Le focus suit la sélection (flèches clavier) : le lecteur d'écran
+      // annonce le nouveau jour, Entrée/Espace agit sur le bon bouton.
+      li?.querySelector('button')?.focus({ preventScroll: true })
     },
     [onSelectDate]
   )
@@ -92,17 +96,13 @@ export function WeeklyCalendar({
   const activeIndex = weekly.findIndex(d => d.date === activeDate)
 
   return (
-    <div
-      className="flex flex-col gap-3"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="listbox"
-      aria-label="Calendrier 7 jours"
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-    >
-      {/* Carousel / grid */}
+    <div className="flex flex-col gap-3" onKeyDown={handleKeyDown}>
+      {/* Carousel / grid — liste sémantique simple : le pattern listbox/option
+          était invalide (pas une vraie sélection de valeur ARIA). Chaque jour
+          est un bouton toggle (aria-pressed), navigable au Tab + flèches. */}
       <ul
         ref={scrollRef}
+        aria-label="Calendrier 7 jours"
         className={[
           'flex gap-2',
           // Mobile : scroll horizontal avec snap
@@ -129,8 +129,7 @@ export function WeeklyCalendar({
               <button
                 type="button"
                 onClick={() => handleSelect(daily.date, i)}
-                role="option"
-                aria-selected={isSelected}
+                aria-pressed={isSelected}
                 aria-label={`${weekday} ${day} ${month}, score ${daily.dayScore}, ${cfg.label}`}
                 className={[
                   'w-full flex flex-col items-center gap-1 rounded-[14px] border px-2 py-3',
@@ -147,7 +146,7 @@ export function WeeklyCalendar({
                 <span className="text-[22px] font-bold leading-none text-navy-900 tabular-nums">
                   {day}
                 </span>
-                <span className="text-[11px] text-ink-400 capitalize">
+                <span className="text-[11px] text-ink-500 capitalize">
                   {month}
                 </span>
 
@@ -179,7 +178,7 @@ export function WeeklyCalendar({
 
                 {/* Marées (si dispo) */}
                 {tides && (tides.high || tides.low) && (
-                  <div className="mt-0.5 flex flex-col items-center gap-0.5 text-[10px] text-ink-400">
+                  <div className="mt-0.5 flex flex-col items-center gap-0.5 text-[10px] text-ink-500">
                     {tides.high && <span>↑ {tides.high}</span>}
                     {tides.low  && <span>↓ {tides.low}</span>}
                   </div>
