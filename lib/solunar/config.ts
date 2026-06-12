@@ -11,34 +11,49 @@ export const SOLUNAR_CONFIG = {
     wind: 0.25,
   },
 
+  // Recalibré sprint 10.6 (WS E) : le scoring saturait (6 jours sur 7 « Exceptionnelle »).
+  // « Exceptionnelle » (≥ 95) exige désormais la conjonction de TOUS les facteurs :
+  // événement lunaire majeur EN nouvelle/pleine lune + marée montante avec PM/BM
+  // dans la fenêtre + vent ≤ ~17 km/h.
   QUALITY_THRESHOLDS: {
     faible: 0,
     moyenne: 40,
     bonne: 60,
-    tres_bonne: 75,
-    exceptionnelle: 90,
+    tres_bonne: 80,
+    exceptionnelle: 95,
   },
 
+  // Poids de base par événement. Aucun ne vaut 1.0 seul : la composante max
+  // n'est atteignable qu'avec le bonus de phase lunaire (cumul plafonné à
+  // MAX_SOLUNAR_SCORE — les bonus lune ne saturent plus le score à eux seuls).
   SOLUNAR_WEIGHTS: {
-    moon_apex: 1.0,
-    moon_nadir: 1.0,
-    moonrise: 0.8,
-    moonset: 0.8,
-    sunrise: 0.6,
-    sunset: 0.6,
+    moon_apex: 0.85,
+    moon_nadir: 0.85,
+    moonrise: 0.7,
+    moonset: 0.7,
+    sunrise: 0.55,
+    sunset: 0.55,
   },
+
+  // Bonus multiplicatif nouvelle/pleine lune + plafond du cumul des bonus solunaires.
+  MOON_PHASE_BONUS: 1.2,
+  MAX_SOLUNAR_SCORE: 1.0,
 
   TIDE: {
-    RISING_BONUS: 0.4,
-    FALLING_BONUS: 0.2,
-    SLACK_BONUS: 0.0,
-    COEF_THRESHOLD_GOOD: 70,
-    COEF_THRESHOLD_EXCEPTIONAL: 95,
+    RISING_SCORE: 0.8, // montante seule
+    FALLING_SCORE: 0.6, // descendante seule
+    SLACK_SCORE: 0.0, // étale plate
+    EXTREMUM_BONUS: 0.2, // PM/BM dans la fenêtre (cumul plafonné à 1.0)
+    NO_DATA_SCORE: 0.35, // marée inconnue : plafonnée sous le neutre (avant : 0.5)
   },
 
   WIND: {
-    IDEAL_KMH: 10,
+    CALM_MAX_KMH: 5,
+    CALM_SCORE: 0.9,
+    IDEAL_MAX_KMH: 15,
     ACCEPTABLE_MAX_KMH: 25,
-    DEGRADATION_PER_KMH_ABOVE_IDEAL: 0.05,
+    ACCEPTABLE_MIN_SCORE: 0.5,
+    STRONG_MAX_KMH: 40, // au-delà : composante à 0 (plus de plancher 0.2)
+    UNKNOWN_SCORE: 0.7,
   },
 } as const

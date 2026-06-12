@@ -8,16 +8,18 @@ import { SOLUNAR_CONFIG } from './config'
 export function scoreSolunar(centerEvent: SolunarEvent): number {
   const base = SOLUNAR_CONFIG.SOLUNAR_WEIGHTS[centerEvent.type]
 
-  // Bonus nouvelle lune (0) ou pleine lune (~0.5)
+  // Bonus nouvelle lune (0) ou pleine lune (~0.5).
+  // Le cumul base × bonus est plafonné : seul un événement lunaire majeur
+  // (zénith/nadir) EN nouvelle ou pleine lune atteint la composante max.
   let moonBonus = 1.0
   if (centerEvent.moonPhase !== undefined) {
     const phase = centerEvent.moonPhase
     const isNewMoon = phase < 0.05 || phase > 0.95
     const isFullMoon = phase > 0.45 && phase < 0.55
-    if (isNewMoon || isFullMoon) moonBonus = 1.2
+    if (isNewMoon || isFullMoon) moonBonus = SOLUNAR_CONFIG.MOON_PHASE_BONUS
   }
 
-  return Math.min(1.0, base * moonBonus)
+  return Math.min(SOLUNAR_CONFIG.MAX_SOLUNAR_SCORE, base * moonBonus)
 }
 
 // ─── Scoring marée ───────────────────────────────────────────────────────────
@@ -28,9 +30,9 @@ export function scoreTide(
   tidePoints: TidePoint[],
   tideExtrema: TideExtremum[]
 ): number {
-  // Si pas de données de marée (v1 : Open-Meteo ne fournit pas de marées),
-  // retourne le score neutre. À améliorer quand tidePoints sera rempli.
-  if (tidePoints.length === 0) return 0.5
+  // Pas de données de marée : composante plafonnée sous le neutre (0.35).
+  // Sans marée vérifiable, une fenêtre ne peut pas prétendre à « Exceptionnelle ».
+  if (tidePoints.length === 0) return SOLUNAR_CONFIG.TIDE.NO_DATA_SCORE
 
   // Heures couvrant la fenêtre
   const startHour = new Date(windowStartISO).getUTCHours()
@@ -38,7 +40,7 @@ export function scoreTide(
 
   // Points de marée dans la fenêtre
   const windowPoints = tidePoints.filter(p => p.hour >= startHour && p.hour <= endHour)
-  if (windowPoints.length < 2) return 0.5
+  if (windowPoints.length < 2) return SOLUNAR_CONFIG.TIDE.NO_DATA_SCORE
 
   // Direction : montante ou descendante
   const first = windowPoints[0].height_m
@@ -47,16 +49,16 @@ export function scoreTide(
 
   let tideScore: number
   if (Math.abs(delta) < 0.1) {
-    tideScore = SOLUNAR_CONFIG.TIDE.SLACK_BONUS
+    tideScore = SOLUNAR_CONFIG.TIDE.SLACK_SCORE
   } else if (delta > 0) {
-    tideScore = SOLUNAR_CONFIG.TIDE.RISING_BONUS + 0.6 // montante = 1.0 max
+    tideScore = SOLUNAR_CONFIG.TIDE.RISING_SCORE // montante : 1.0 atteignable avec extremum
   } else {
-    tideScore = SOLUNAR_CONFIG.TIDE.FALLING_BONUS + 0.6 // descendante = 0.8 max
+    tideScore = SOLUNAR_CONFIG.TIDE.FALLING_SCORE // descendante : 0.8 max avec extremum
   }
 
   // Bonus si un extremum (basse/haute mer) tombe dans la fenêtre
   const hasExtremum = tideExtrema.some(e => e.hour >= startHour && e.hour <= endHour)
-  if (hasExtremum) tideScore = Math.min(1.0, tideScore + 0.2)
+  if (hasExtremum) tideScore = Math.min(1.0, tideScore + SOLUNAR_CONFIG.TIDE.EXTREMUM_BONUS)
 
   return Math.min(1.0, Math.max(0, tideScore))
 }
@@ -64,21 +66,24 @@ export function scoreTide(
 // ─── Scoring vent ─────────────────────────────────────────────────────────────
 
 export function scoreWind(windSpeed_kmh: number | null): number {
-  if (windSpeed_kmh === null) return 0.7 // neutre si inconnu
+  const { CALM_MAX_KMH, CALM_SCORE, IDEAL_MAX_KMH, ACCEPTABLE_MAX_KMH, ACCEPTABLE_MIN_SCORE, STRONG_MAX_KMH, UNKNOWN_SCORE } =
+    SOLUNAR_CONFIG.WIND
+
+  if (windSpeed_kmh === null) return UNKNOWN_SCORE // neutre si inconnu
 
   const v = windSpeed_kmh
 
-  if (v < 5) return 0.9
-  if (v <= 15) return 1.0
-  if (v <= 25) {
+  if (v < CALM_MAX_KMH) return CALM_SCORE
+  if (v <= IDEAL_MAX_KMH) return 1.0
+  if (v <= ACCEPTABLE_MAX_KMH) {
     // Décroissance linéaire 1.0 → 0.5
-    return 1.0 - ((v - 15) / 10) * 0.5
+    return 1.0 - ((v - IDEAL_MAX_KMH) / (ACCEPTABLE_MAX_KMH - IDEAL_MAX_KMH)) * (1.0 - ACCEPTABLE_MIN_SCORE)
   }
-  if (v <= 35) {
-    // Décroissance linéaire 0.5 → 0.2
-    return 0.5 - ((v - 25) / 10) * 0.3
+  if (v < STRONG_MAX_KMH) {
+    // Décroissance linéaire 0.5 → 0 : plus de plancher, un vent fort écrase la composante
+    return ACCEPTABLE_MIN_SCORE * (1 - (v - ACCEPTABLE_MAX_KMH) / (STRONG_MAX_KMH - ACCEPTABLE_MAX_KMH))
   }
-  return 0.1
+  return 0
 }
 
 // ─── Assemblage final ─────────────────────────────────────────────────────────
