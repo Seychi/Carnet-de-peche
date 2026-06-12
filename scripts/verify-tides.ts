@@ -61,7 +61,12 @@ const PORTS: Record<string, { label: string; lat: number; lon: number; note?: st
   },
 }
 
-const FIXTURE_PATH = resolve(__dirname, 'fixtures', 'shom-tides.json')
+// --fixture <chemin> pour pointer une autre fenêtre (ex : shom-tides-fenetre2.json)
+const fixtureArgIdx = process.argv.indexOf('--fixture')
+const FIXTURE_PATH =
+  fixtureArgIdx !== -1 && process.argv[fixtureArgIdx + 1]
+    ? resolve(process.argv[fixtureArgIdx + 1])
+    : resolve(__dirname, 'fixtures', 'shom-tides.json')
 const MATCH_WINDOW_MIN = 3 * 60 // un événement SHOM doit matcher un des nôtres à ±3h
 
 // ---------------------------------------------------------------------------

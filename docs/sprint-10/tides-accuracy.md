@@ -51,6 +51,20 @@ Biais signé négatif = Open-Meteo annonce la marée **plus tôt** que le SHOM.
 
 **Recommandation** : tenter l'option B d'abord (elle est gratuite et mesurée à 2-9 min sur ce panel), avec validation préalable sur une **2e fenêtre de 7 jours** (re-run du script avec un nouveau fixture, idéalement à une autre période du cycle lunaire / autre saison) pour confirmer la stabilité du biais. Si le biais bouge entre les deux fenêtres → bascule option A. Dans les deux cas, la copy « horaires de marée vérifiés port par port » ne sort qu'après re-mesure < 15 min partout.
 
+## Validation fenêtre 2 — résultat intermédiaire (12/06/2026)
+
+Fixture `scripts/fixtures/shom-tides-fenetre2.json` (19-25 juin, coef ~83 → ~46, phase lunaire inverse de la fenêtre 1). ⚠️ Open-Meteo ne prévoit que ~8 jours : seuls les 2 premiers jours ont pu être appariés (n=8/port). Sur cet échantillon partiel :
+
+| Port | Biais fenêtre 1 | Biais fenêtre 2 (n=8) | Stabilité |
+|---|---|---|---|
+| Brest | −48 | −49 | ✅ 1 min |
+| Saint-Malo | −31 | −34 | ✅ 3 min |
+| Les Sables-d'Olonne | −33 | −30 | ✅ 3 min |
+| Arcachon | −93 | −85,5 | ~ 7,5 min |
+| Pornichet | −33 (résidu 9) | **−17,5 (résidu 27,5)** | ❌ instable sur ce petit échantillon |
+
+**Conclusion intermédiaire** : la calibration tient sur 4 ports / 5 ; Pornichet (le port marketing-critique) est incohérent sur n=8. **Décision finale reportée au ~19 juin** : relancer `npx tsx scripts/verify-tides.ts --fixture scripts/fixtures/shom-tides-fenetre2.json` quand la fenêtre sera dans l'horizon de prévision (27 événements/port). Si Pornichet reste instable → WorldTides (Bloc B sprint 11) ; sinon → calibration gratuite.
+
 ## Reproduire
 
 ```bash
