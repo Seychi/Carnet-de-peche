@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Bathy } from '@/components/ui-v2/bathy'
+import { Logo } from '@/components/ui-v2/Logo'
 import { TagData } from '@/components/ui-v2/tag-data'
 
 const InstagramIcon = () => (
@@ -53,16 +54,7 @@ export function Footer() {
           {/* Colonne 1 — Logo + tagline */}
           <div className="col-span-2 lg:col-span-1 flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true">
-                <rect width="30" height="30" rx="8" fill="var(--teal-500)" />
-                <path
-                  d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13"
-                  stroke="var(--navy-950)"
-                  strokeWidth="2.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <Logo size={28} variant="dark" className="shrink-0" />
               <span className="font-display font-700 text-white text-lg leading-tight">
                 Carnet de Pêche
               </span>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 48" fill="none">
+  <mask id="gap">
+    <rect width="48" height="48" fill="white"/>
+    <path d="M31 33v4" stroke="black" stroke-width="5" stroke-linecap="butt"/>
+  </mask>
+  <g stroke="#FBF8F2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="11" y="6" width="26" height="29" rx="5" mask="url(#gap)"/>
+    <path d="M16 13.5h10"/>
+    <path d="M16 19.5h10"/>
+    <path d="M16 25.5h6"/>
+  </g>
+  <path d="M31 6v31a4.5 4.5 0 1 1-9 0v-2" stroke="#5EEAD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="32" font-family="'Space Grotesk', Inter, sans-serif" font-size="24" font-weight="600" letter-spacing="-0.5" fill="#FBF8F2">Carnet de Pêche</text>
+</svg>

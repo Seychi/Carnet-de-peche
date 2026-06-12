@@ -20,7 +20,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 - **Tagline** : « Logue. Partage. Progresse. »
 - **Concept** : le carnet de pêche numérique et le réseau social des pêcheurs à la canne du bord en France. Le carnet apprend de tes prises pour te dire QUAND et OÙ pêcher selon TES patterns — pas selon des moyennes génériques.
 - **Périmètre v1** : pêche à la canne du bord uniquement. Pas de pêche à pied, pas de bateau, pas d'eau douce.
-- **Espèces ciblées** : bar, dorade royale, lieu jaune, maquereau, sar, orphie.
+- **Espèces ciblées (cœur produit)** : bar, dorade royale, lieu jaune, maquereau, sar, orphie. Côté éditorial (décision 2026-06-11) : extension progressive à **~20 espèces pêchables du bord** au même standard de profondeur — le carnet/onboarding reste sur les 6.
 - **Géographie** : France métropolitaine (Atlantique, Manche, Méditerranée).
 - **Concurrent direct #1** : [spot-de-peche.com](https://spot-de-peche.com) — **sérieux, à ne pas sous-estimer**. Carte interactive avec heatmap de qualité, fiche spot complète (courbe de marée 24h avec curseur "maintenant", météo détaillée : vent + direction, temp air + eau, vagues + houle + période, précipitations + probabilité, pression, nébulosité), section "Meilleurs moments" avec scoring solunar (lever/coucher de lune, lever/coucher de soleil, justifications astronomiques par créneau), explorer en cascade (dépt → technique → espèce → spot), bouton itinéraire GPS. Forces = exhaustivité des données environnementales + UX maps soignée + couverture multi-techniques (pêche à pied + canne + leurre). Faiblesses = pas de carnet personnel, pas de fil social, scoring 100% générique (modèles océanographiques + solunar standard, identique pour tous), pas d'app mobile native, pas de personnalisation. **Notre angle vs eux** = carnet personnel + scoring qui apprend de TES catches + signal communautaire ("3 prises ici aujourd'hui") + app mobile native iOS/Android. Implication concrète : on ne peut PAS sortir une carte squelettique face à eux — les données environnementales (marées + météo + vagues) sont des table stakes, pas un différenciateur. C'est fusionné dans le sprint 4.
 - **Concurrent direct #2** : [FishFriender](https://www.fishfriender.com/) — 4,7/5 sur 3 200 avis, lancé 2016, généraliste toutes pêches, 12 langues. Force = boîte de pêche numérique (130k produits scannables). Faiblesses = carte 100% paywall, pas spécialisé FR, pas de fil régional. Notre angle = hyper-spécialisation canne du bord en mer FR + carte basique gratuite + fil régional par département.
@@ -29,7 +29,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-05-22, sprint 9.5 cleanup code-complet — branche `sprint-9.5-cleanup`)
+## 2. État actuel du projet (à jour 2026-06-11 : sprints 9.5 + 10.5 mergés et déployés, Stripe LIVE validé)
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -79,7 +79,13 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-spr
 - **Retirés (décision John 2026-05-21)** : T0.5 médiateur conso (promesse retirée de la CGU, risque L612-1 assumé) + T1.1 durée guide bar.
 - **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint-9.5-RECAP.md`.
 
-🔜 **SUITE — Sprint 10 : Guides + SEO + riposte Fishing Grid** (durci 2026-06-11, brief : `docs/sprint-10/BRIEF.md`) : Bloc 0 pivot social 100% gratuit (migration 022), MDX + 20 guides, ~600 pages programmatiques, 6 fiches espèces profondes, vérif précision marées vs SHOM. Puis sprint 11 : polish + **PWA installable** + beta.
+✅ **État au 2026-06-11 (vérifié git + prod)** : `main` == `origin/main` (commit `2854c4f`) contient les sprints 8, 9, 9.5, **10.5 (DA v2)** et les **Blocs 0 + 4 du sprint 10** — tout est déployé. **QA Stripe LIVE validée par John (2026-06-11)**. Migration 022 (`social_free`) appliquée en prod. La prod compte **10 spots** (8 en Finistère, 2 en Morbihan).
+
+🔜 **SUITE — Sprint 10, Blocs restants 1 → 2 → 3 → 5** (brief : `docs/sprint-10/BRIEF.md`) : MDX + guides, ~500 pages programmatiques, fiches espèces profondes, SEO global. **Élargi le 2026-06-11 (décisions John, riposte Fishing Grid)** :
+- **Curation de spots** : objectif **100-120 spots curés**, priorité Bretagne → façade Atlantique, par lots validés par John avant insertion — plan et lots dans `docs/sprint-10/spots-curation.md`. C'est le préalable pour tenir la copy home « 100+ spots curés » et Gate 2.
+- **Fiches espèces étendues** : les 6 profondes d'abord (Bloc 3 inchangé), **puis extension à ~20 espèces mer du bord** (mulet, vieille, congre, chinchard, oblade, pageot…) au même standard : réglementation sourcée + datée (`verified_at`), saisons par façade. On ne court PAS après leurs 266 fiches creuses.
+
+Puis sprint 11 : polish + **PWA installable** + beta.
 
 🔜 **Suite (sprints 10 → 23 + phase 2)**
 Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta → Mobile → Lancement → Phase 2). Résumé section 9 plus bas dans ce fichier.
@@ -384,8 +390,8 @@ Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurre
 | **7** | S7 | **Scoring personnalisé** (notre vrai différenciateur) : overlay sur les conditions = "Tu pêches mieux quand…" basé sur l'historique des catches du user. Algorithme côté Edge Function. Affiché sur fiche spot + sur la carte sous forme de "ton score" en plus du "score global". |
 | **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
 | **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
-| **10** | S10 | **Guides + SEO + riposte Fishing Grid** : Bloc 0 social 100% gratuit (migration 022), MDX + 20 guides phares + SEO programmatique (espèces × départements × techniques) + 6 fiches espèces profondes + vérif marées étalon SHOM. Brief : `docs/sprint-10/BRIEF.md`. |
-| **10.5** | — | **Refonte UI** ✅ code-complet 2026-06-11 (branche `sprint-10.5-ui`, à valider/merger — `docs/sprint-10.5/RECAP.md`) : DA v2 sur les 7 écrans app + onboarding (+ écran final « carnet prêt ») + home/tarifs/OG/footer. Lancée avant les Blocs 1-3/5 du sprint 10 (décision John) : les guides naîtront directement en v2. |
+| **10** | S10 | **Guides + SEO + riposte Fishing Grid** : Blocs 0 (social gratuit, migration 022) + 4 (vérif marées SHOM) ✅ déployés 2026-06-11. Restent : MDX + 20 guides phares + SEO programmatique + 6 fiches espèces profondes. **Élargi** : curation 100+ spots (`docs/sprint-10/spots-curation.md`) + extension ~20 fiches espèces mer du bord. Brief : `docs/sprint-10/BRIEF.md`. |
+| **10.5** | — | **Refonte UI** ✅ **mergé + déployé 2026-06-11** (`docs/sprint-10.5/RECAP.md`) : DA v2 sur les 7 écrans app + onboarding (+ écran final « carnet prêt ») + home/tarifs/OG/footer. Les guides naîtront directement en v2. |
 | **11** | S11 | **Polish + PWA + Beta privée** : PWA installable (manifest + service worker, pont vers Expo), emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. WorldTides si le rapport marées du sprint 10 est mauvais. |
 | **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |
 | **20-23** | S20-S23 | **Lancement public** : App Store + Play Store + campagne acquisition (organique + partenariats fédérations + presse pêche). |
@@ -567,6 +573,16 @@ Si tu bloques sur une erreur technique :
 
 ---
 
-*Dernière mise à jour : mai 2026, par Claude (web) avant le sprint 1. À tenir à jour à chaque décision majeure.*
+## 19. Mode d'exécution Fable (décision John 2026-06-11)
+
+À partir du sprint 10, John lance les sessions de dev avec **Claude Fable** en mode effort maximal. Règles :
+
+- **Mots-clés d'invocation** : John inclut `ultracode` (active l'orchestration multi-agents / workflows) et demande l'effort `xhigh` dans son message de lancement. Ces mots-clés agissent **par message** — ils doivent figurer dans le prompt de John, pas seulement dans un fichier. Si le message contient `ultracode`, découpe le travail en workstreams parallèles confiés à des agents (exploration, implémentation par bloc, QA), au lieu de tout faire séquentiellement.
+- **Briefs de sprint** : tout nouveau brief doit être écrit pour exploiter ce mode. Suivre `docs/BRIEF-TEMPLATE.md` : ligne de lancement prête à copier-coller (avec les mots-clés), blocs découpés en workstreams avec dépendances explicites (ce qui est parallélisable doit l'être), critères d'acceptation vérifiables par un agent, et un workstream final de vérification dédié (tests + build + revue croisée par un agent indépendant).
+- **Vérification systématique** : chaque sprint exécuté dans ce mode se termine par un agent de vérification (suite Vitest verte, build OK, relecture des critères d'acceptation du brief). Pas de « code-complet » déclaré sans cette passe.
+
+---
+
+*Dernière mise à jour : juin 2026 (sprint 10, mode d'exécution Fable). À tenir à jour à chaque décision majeure.*
 
 **Maintenant, attends que John te dise « vas-y » et exécute la section 10 dans l'ordre.**

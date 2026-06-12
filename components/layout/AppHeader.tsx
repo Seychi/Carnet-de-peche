@@ -1,23 +1,8 @@
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { Logo } from '@/components/ui-v2/Logo'
 import { UserMenu } from './UserMenu'
-
-/** Logo DA v2 (carré teal + onde navy) — repris des maquettes. */
-function BrandMark({ size = 30 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 30 30" aria-hidden="true" className="shrink-0">
-      <rect width="30" height="30" rx="8" fill="var(--teal-500)" />
-      <path
-        d="M5 19 C9 12, 12 12, 15 16 S 21 21, 25 13"
-        stroke="var(--navy-950)"
-        strokeWidth="2.2"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
 
 /**
  * Header app allégé DA v2 : logo + « + Loguer » + avatar.
@@ -46,7 +31,7 @@ export async function AppHeader() {
           href="/home"
           className="flex min-h-11 items-center gap-2.5 font-display text-[17px] font-bold text-navy-900"
         >
-          <BrandMark />
+          <Logo size={30} variant="light" className="shrink-0" />
           <span className="hidden sm:inline">Carnet de Pêche</span>
         </Link>
 

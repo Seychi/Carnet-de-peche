@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Logo } from "@/components/ui-v2/Logo";
 
 // /auth/login et /auth/reset-password sont des client components → leur <title>
 // doit être défini ici (server). `default` couvre /auth/login (pas de title propre).
@@ -9,33 +10,6 @@ export const metadata: Metadata = {
     default: "Connexion · Carnet de Pêche",
   },
 };
-
-function BrandMark({ size = 34 }: { size?: number }) {
-  return (
-    <span
-      className="grid place-items-center text-white shrink-0"
-      style={{
-        width: size,
-        height: size,
-        background: "linear-gradient(135deg, var(--navy-900), var(--teal-500))",
-        borderRadius: Math.round(size * 0.3),
-      }}
-    >
-      <svg
-        width={size * 0.59}
-        height={size * 0.59}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" />
-      </svg>
-    </span>
-  );
-}
 
 export default function AuthLayout({
   children,
@@ -50,7 +24,7 @@ export default function AuthLayout({
           href="/"
           className="flex items-center gap-2.5 font-display font-bold text-[17px] text-navy-900 min-h-[44px]"
         >
-          <BrandMark size={34} />
+          <Logo size={34} variant="light" className="shrink-0" />
           <span>Carnet de Pêche</span>
         </Link>
       </header>

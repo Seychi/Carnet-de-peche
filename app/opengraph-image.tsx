@@ -13,6 +13,7 @@ const NAVY950 = '#04141C'
 const NAVY700 = '#155A73'
 const TEAL = '#14B8A6'
 const TEAL300 = '#5EEAD4'
+const SAND50 = '#FBF8F2'
 const WHITE = '#FFFFFF'
 
 // Isobathes décoratives (paths repris de docs/maquette-v2/index.html)
@@ -136,19 +137,26 @@ export default function Image() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: TEAL,
-              }}
-            >
-              <span style={{ fontSize: '16px', fontWeight: 900, color: NAVY950 }}>CP</span>
-            </div>
+            {/* Picto « carnet qui ferre » — variante dark (fond navy-950) */}
+            {/* source: public/logo/logo-icon.svg — Satori ne supporte pas <mask>,
+                l'échancrure de l'hameçon est émulée par un trait couleur du fond */}
+            <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+              <g stroke={SAND50} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="11" y="6" width="26" height="29" rx="5" />
+                <path d="M16 13.5h10" />
+                <path d="M16 19.5h10" />
+                <path d="M16 25.5h6" />
+              </g>
+              {/* échancrure : repeint le fond par-dessus le bord du carnet */}
+              <path d="M31 33v4" stroke={NAVY950} strokeWidth={5} strokeLinecap="butt" />
+              <path
+                d="M31 6v31a4.5 4.5 0 1 1-9 0v-2"
+                stroke={TEAL300}
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             <span style={{ fontSize: '24px', fontWeight: 700, color: WHITE }}>Carnet de Pêche</span>
           </div>
           <span style={{ fontSize: '16px', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.35)' }}>
