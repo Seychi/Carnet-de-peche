@@ -353,6 +353,7 @@ export type Database = {
           home_department: string | null
           id: string
           is_ambassador: boolean | null
+          is_moderator: boolean
           level: string | null
           onboarded: boolean
           onboarded_at: string | null
@@ -373,6 +374,7 @@ export type Database = {
           home_department?: string | null
           id: string
           is_ambassador?: boolean | null
+          is_moderator?: boolean
           level?: string | null
           onboarded?: boolean
           onboarded_at?: string | null
@@ -393,6 +395,7 @@ export type Database = {
           home_department?: string | null
           id?: string
           is_ambassador?: boolean | null
+          is_moderator?: boolean
           level?: string | null
           onboarded?: boolean
           onboarded_at?: string | null

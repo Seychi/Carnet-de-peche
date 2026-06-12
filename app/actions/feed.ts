@@ -46,6 +46,34 @@ function firstZodError(error: z.ZodError): string {
   return error.issues[0]?.message ?? 'Données invalides.'
 }
 
+// ---------------------------------------------------------------------------
+// Filtre anti-spam minimal (sprint 10.6 WS B) — le rate-limit 022 ne filtre
+// que la fréquence : un post arnaque « gift cards » est passé (audit 2026-06-11).
+// Heuristiques volontairement étroites pour éviter les faux positifs : un post
+// avec UN lien (article météo…) passe.
+// ---------------------------------------------------------------------------
+const SPAM_MSG =
+  'Ton message ressemble à du spam. Si c’est une erreur, reformule sans lien ni code promo.'
+
+const SPAM_PATTERNS: RegExp[] = [
+  /gift\s*card/i,
+  /coupon\s*code/i,
+  /promo\s*code/i,
+  /whatsapp\s*\+?\d/i,
+  /telegram\s*@/i,
+  // Suites type code promo : OP-SBNG-TFBC (majuscules volontaires, pas de /i —
+  // sinon les mots composés français matcheraient)
+  /\b[A-Z]{2,}-[A-Z0-9]{4}(-[A-Z0-9]{4})+\b/,
+]
+
+/** Retourne un message d'erreur si le texte ressemble à du spam, sinon null. */
+function spamCheck(text: string): string | null {
+  const urlCount = (text.match(/https?:\/\/|\bwww\./gi) ?? []).length
+  if (urlCount > 1) return SPAM_MSG
+  if (SPAM_PATTERNS.some((re) => re.test(text))) return SPAM_MSG
+  return null
+}
+
 // Revalide le fil global + le fil du département concerné.
 function revalidateFeed(region?: string | null) {
   revalidatePath('/fil')
@@ -80,6 +108,11 @@ export async function createPost(input: {
   const { region, catchId } = parsed.data
   const text = parsed.data.text?.trim() || undefined
   if (!text && !catchId) return fail('Écris un message ou partage une prise.')
+
+  if (text) {
+    const spamError = spamCheck(text)
+    if (spamError) return fail(spamError)
+  }
 
   // Rate-limit anti-spam (le trigger DB feed_posts_rate_limit est le backstop).
   if ((await countLast24h(supabase, 'feed_posts', user.id)) >= MAX_POSTS_PER_24H) {
@@ -187,6 +220,9 @@ export async function addComment(
   const parsedText = commentSchema.safeParse(text)
   if (!parsedText.success) return fail(firstZodError(parsedText.error))
 
+  const spamError = spamCheck(parsedText.data)
+  if (spamError) return fail(spamError)
+
   const { data: post } = await supabase
     .from('feed_posts')
     .select('region')
@@ -269,6 +305,116 @@ export async function deleteComment(commentId: string): Promise<ActionResult<{ i
   }
   if (!deleted || deleted.length === 0) return fail('Commentaire introuvable ou pas à toi.')
 
+  revalidateFeed()
+  return ok({ id: commentId })
+}
+
+// ---------------------------------------------------------------------------
+// Modération (sprint 10.6 WS B) — suppression par un modérateur flaggé
+// profiles.is_moderator (migration 023). Chaque suppression laisse une trace
+// dans reports (status resolved) et résout les signalements en attente.
+// ---------------------------------------------------------------------------
+const NOT_MODERATOR_MSG = 'Action réservée aux modérateurs.'
+
+async function viewerIsModerator(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('is_moderator')
+    .eq('id', userId)
+    .maybeSingle()
+  return data?.is_moderator === true
+}
+
+// Trace d'audit + résolution des signalements en attente sur la cible.
+async function resolveReportsForTarget(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  moderatorId: string,
+  targetType: 'post' | 'comment',
+  targetId: string,
+) {
+  const now = new Date().toISOString()
+  const { error: auditError } = await supabase.from('reports').insert({
+    reporter_id: moderatorId,
+    target_type: targetType,
+    target_id: targetId,
+    reason: 'spam',
+    details: 'Supprimé par modération.',
+    status: 'resolved',
+    resolved_by: moderatorId,
+    resolved_at: now,
+  })
+  if (auditError) {
+    // Non bloquant (le contenu est déjà supprimé) mais jamais silencieux.
+    console.error('[moderation:audit]', auditError.message)
+  }
+  const { error: resolveError } = await supabase
+    .from('reports')
+    .update({ status: 'resolved', resolved_by: moderatorId, resolved_at: now })
+    .eq('target_type', targetType)
+    .eq('target_id', targetId)
+    .eq('status', 'pending')
+  if (resolveError) {
+    console.error('[moderation:resolve]', resolveError.message)
+  }
+}
+
+export async function moderatorDeletePost(
+  postId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  if (!z.string().uuid().safeParse(postId).success) return fail('Post invalide.')
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(NOT_MODERATOR_MSG)
+
+  const { data: deleted, error } = await supabase
+    .from('feed_posts')
+    .delete()
+    .eq('id', postId)
+    .select('id, region')
+
+  if (error) {
+    console.error('[moderatorDeletePost]', error.message)
+    return fail('Impossible de supprimer ce post. Réessaie.')
+  }
+  if (!deleted || deleted.length === 0) return fail('Post introuvable.')
+
+  await resolveReportsForTarget(supabase, user.id, 'post', postId)
+  revalidateFeed(deleted[0].region)
+  return ok({ id: postId })
+}
+
+export async function moderatorDeleteComment(
+  commentId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  if (!z.string().uuid().safeParse(commentId).success) return fail('Commentaire invalide.')
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(NOT_MODERATOR_MSG)
+
+  const { data: deleted, error } = await supabase
+    .from('feed_comments')
+    .delete()
+    .eq('id', commentId)
+    .select('id')
+
+  if (error) {
+    console.error('[moderatorDeleteComment]', error.message)
+    return fail('Impossible de supprimer ce commentaire. Réessaie.')
+  }
+  if (!deleted || deleted.length === 0) return fail('Commentaire introuvable.')
+
+  await resolveReportsForTarget(supabase, user.id, 'comment', commentId)
   revalidateFeed()
   return ok({ id: commentId })
 }
