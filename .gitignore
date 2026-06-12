@@ -21,3 +21,12 @@ coverage/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Playwright + Lighthouse CI (sprint 11 Bloc E)
+playwright-report/
+test-results/
+.lighthouseci/
+
+# Supabase local (Docker)
+supabase/.temp/
+supabase/.branches/

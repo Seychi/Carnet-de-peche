@@ -1,0 +1,54 @@
+# Config Supabase CLI — stack LOCALE uniquement (e2e + dev avec Docker).
+# Le projet cloud (glgciwwnpmgifyhbvxsw) n'est PAS géré par ce fichier :
+# les migrations y sont appliquées via le dashboard (cf supabase/README.md).
+# Usage : `supabase start` (Docker requis) → applique migrations/ + db.seed.sql_paths.
+
+project_id = "carnet-de-peche"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = true
+# Ordre important : spots d'abord, puis comptes test (le garde-fou de
+# seed_test_accounts.sql vérifie qu'aucun profil réel n'existe).
+sql_paths = ["./seed.sql", "./seed_test_accounts.sql", "./seed_e2e.sql"]
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = false
+# Autoconfirm : pas de mail de confirmation en local → le signup E2E pose
+# directement la session (en prod, la confirmation reste active côté cloud).
+enable_confirmations = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false

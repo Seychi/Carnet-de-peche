@@ -1,0 +1,88 @@
+# E2E Playwright + Lighthouse CI (sprint 11 Bloc E).
+# Stack Supabase LOCALE (Docker du runner) : migrations 001→022 + seeds
+# appliqués à une base jetable — AUCUN accès au projet cloud.
+# Les vars Stripe TEST sont des valeurs factices cohérentes : le scénario 3
+# signe lui-même son webhook avec STRIPE_TEST_WEBHOOK_SECRET.
+name: E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  # Stripe TEST factice (jamais de vraie clé ici — le Checkout hébergé n'est
+  # pas couvert en CI, cf e2e/README.md)
+  STRIPE_TEST_SECRET_KEY: sk_test_e2e_dummy
+  STRIPE_TEST_WEBHOOK_SECRET: whsec_e2e_local_signing_secret
+  NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY: pk_test_e2e_dummy
+  STRIPE_TEST_PRICE_LOCAL_MONTHLY: price_e2e_local_monthly
+  STRIPE_TEST_PRICE_LOCAL_ANNUAL: price_e2e_local_annual
+  STRIPE_TEST_PRICE_ITINERANT_MONTHLY: price_e2e_itinerant_monthly
+  STRIPE_TEST_PRICE_ITINERANT_ANNUAL: price_e2e_itinerant_annual
+  # Optionnelle : sans elle la carte affiche son état "clé manquante",
+  # les specs n'en dépendent pas. À ajouter dans Settings → Secrets si voulu.
+  NEXT_PUBLIC_MAPTILER_KEY: ${{ secrets.MAPTILER_KEY }}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Stack locale : applique supabase/migrations + db.seed.sql_paths
+      # (spots + comptes test). Services inutiles exclus pour la vitesse.
+      - name: Démarrer Supabase local
+        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector
+
+      - name: Exporter les clés Supabase locales
+        run: |
+          eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)=')"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      # Build de prod : les NEXT_PUBLIC_* sont inlinées ici → l'ordre compte.
+      - run: pnpm build
+
+      - name: Installer Chromium Playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Tests E2E (4 scénarios)
+        run: pnpm exec playwright test
+
+      - name: Artefacts Playwright (échec)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      # Lighthouse CI — budgets du brief : FCP < 2s, LCP < 2,5s, CLS < 0,1.
+      # Réutilise le build + la stack Supabase déjà démarrés.
+      - name: Lighthouse CI
+        run: pnpm exec lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}

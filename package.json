@@ -10,6 +10,9 @@
     "check-apis": "tsx scripts/check-apis.ts",
     "verify-tides": "tsx scripts/verify-tides.ts",
     "test": "vitest run",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "lhci": "lhci autorun",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
@@ -65,6 +68,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.60.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^25.6.2",
     "@types/react": "^19.2.14",
