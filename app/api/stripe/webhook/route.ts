@@ -37,6 +37,9 @@ export async function POST(request: NextRequest) {
         await handlers.handleCheckoutCompleted(event.data.object);
         break;
       case "customer.subscription.created":
+        // isCreation → déclenche l'email « ton essai démarre » (une seule fois)
+        await handlers.handleSubscriptionUpsert(event.data.object, { isCreation: true });
+        break;
       case "customer.subscription.updated":
         await handlers.handleSubscriptionUpsert(event.data.object);
         break;

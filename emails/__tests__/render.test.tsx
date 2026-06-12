@@ -1,6 +1,7 @@
 import * as React from "react";
 import { describe, it, expect } from "vitest";
 import { render } from "@react-email/components";
+import WelcomeEmail from "../welcome";
 import WelcomeTrialEmail from "../welcome-trial";
 import TrialDay5Email from "../trial-day-5";
 import PaymentFailedEmail from "../payment-failed";
@@ -9,6 +10,13 @@ import SubscriptionCanceledEmail from "../subscription-canceled";
 // Vérifie que chaque template se rend en HTML non vide et contient son contenu
 // clé. Headless — pas d'envoi, pas de serveur preview (Resend = sprint 11).
 describe("templates emails (rendu HTML)", () => {
+  it("welcome (inscription) mentionne le fil 100% gratuit", async () => {
+    const html = await render(<WelcomeEmail firstName="Julien" />);
+    expect(html).toContain("Bienvenue");
+    expect(html).toContain("gratuit");
+    expect(html).toContain("/carnet/nouvelle");
+  });
+
   it("welcome-trial mentionne l'essai et le plan", async () => {
     const html = await render(<WelcomeTrialEmail firstName="Julien" planLabel="Local" />);
     expect(html).toContain("Bienvenue");

@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import type { Database } from "@/lib/types";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { priceIdToPlan } from "./pricing";
+import { priceIdToPlan, priceIdToInterval, PLAN_LABELS, PLAN_PRICING } from "./pricing";
 
 // Handlers webhook Stripe. RÈGLES :
 //  - Stripe est la SEULE source de vérité : on écrit `subscriptions` uniquement ici
@@ -23,7 +23,10 @@ const toIso = (unixSeconds: number | null | undefined): string | null =>
  * NB API dahlia (2026-04-22) : current_period_start/end ne sont plus sur la
  * Subscription mais sur chaque SubscriptionItem.
  */
-export async function handleSubscriptionUpsert(sub: Stripe.Subscription) {
+export async function handleSubscriptionUpsert(
+  sub: Stripe.Subscription,
+  opts: { isCreation?: boolean } = {}
+) {
   const item = sub.items.data[0];
   const priceId = item?.price.id;
   const plan = priceId ? priceIdToPlan(priceId) : null;
@@ -78,6 +81,31 @@ export async function handleSubscriptionUpsert(sub: Stripe.Subscription) {
     plan,
     status: sub.status,
   });
+
+  // Email « ton essai démarre » UNIQUEMENT sur customer.subscription.created
+  // (pas sur .updated, qui rejoue à chaque changement d'état) + status trialing.
+  // Après l'update DB, et jamais bloquant : un échec d'email ne doit pas faire
+  // rejouer le webhook (sendEmail ne throw pas, le reste est try/catch).
+  if (opts.isCreation && sub.status === "trialing") {
+    try {
+      const { getEmailRecipient } = await import("@/lib/email/recipient");
+      const recipient = await getEmailRecipient(userId);
+      if (recipient) {
+        const { sendEmail } = await import("@/lib/email/send");
+        const { default: WelcomeTrialEmail } = await import("@/emails/welcome-trial");
+        await sendEmail({
+          to: recipient.email,
+          subject: "Bienvenue dans Carnet de Pêche · Ton essai 7 jours démarre",
+          react: WelcomeTrialEmail({
+            firstName: recipient.firstName,
+            planLabel: PLAN_LABELS[plan],
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("[stripe-webhook] email trial start non envoyé", { subId: sub.id, err });
+    }
+  }
 }
 
 /**
@@ -124,14 +152,55 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
 
 /**
  * customer.subscription.trial_will_end : Stripe prévient ~3j avant la fin
- * d'essai. Email J-2 câblé en sprint 11 (Resend) — ici on logge.
+ * d'essai → email « plus que X jours » (sprint 11 Bloc C). Pas d'écriture DB.
+ * Stripe n'émet cet event qu'UNE fois par trial → pas de doublon possible
+ * hors retry réseau (acceptable).
  */
 export async function handleTrialWillEnd(sub: Stripe.Subscription) {
+  const userId = sub.metadata.user_id;
   console.log("[stripe-webhook] trial bientôt fini", {
     subId: sub.id,
-    userId: sub.metadata.user_id,
+    userId,
     trialEnd: toIso(sub.trial_end),
   });
+
+  if (!userId || typeof sub.trial_end !== "number") return;
+
+  const priceId = sub.items.data[0]?.price.id;
+  const plan = priceId ? priceIdToPlan(priceId) : null;
+  const interval = priceId ? priceIdToInterval(priceId) : null;
+  if (!plan || !interval) return; // price inconnu : pas d'email plutôt qu'un montant faux
+
+  try {
+    const { getEmailRecipient } = await import("@/lib/email/recipient");
+    const recipient = await getEmailRecipient(userId);
+    if (!recipient) return;
+
+    const daysLeft = Math.max(
+      1,
+      Math.round((sub.trial_end * 1000 - Date.now()) / 86_400_000)
+    );
+    const dateLabel = new Intl.DateTimeFormat("fr-FR", {
+      day: "numeric",
+      month: "long",
+      timeZone: "Europe/Paris",
+    }).format(new Date(sub.trial_end * 1000));
+
+    const { sendEmail } = await import("@/lib/email/send");
+    const { default: TrialDay5Email } = await import("@/emails/trial-day-5");
+    await sendEmail({
+      to: recipient.email,
+      subject: `Plus que ${daysLeft} jour${daysLeft > 1 ? "s" : ""} d'essai — toujours partant ?`,
+      react: TrialDay5Email({
+        firstName: recipient.firstName,
+        daysLeft,
+        amount: PLAN_PRICING[plan][interval].amount,
+        dateLabel,
+      }),
+    });
+  } catch (err) {
+    console.error("[stripe-webhook] email trial J-2 non envoyé", { subId: sub.id, err });
+  }
 }
 
 /**

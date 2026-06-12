@@ -61,6 +61,22 @@ describe("POST /api/stripe/webhook", () => {
     const res = await POST(makeRequest("{}", "sig") as never);
     expect(res.status).toBe(200);
     expect(handlerMocks.handleSubscriptionUpsert).toHaveBeenCalledTimes(1);
+    // created porte le flag isCreation (déclenche l'email trial start)
+    expect(handlerMocks.handleSubscriptionUpsert).toHaveBeenCalledWith(
+      { id: "sub_1" },
+      { isCreation: true }
+    );
+  });
+
+  it("200 + dispatch sans isCreation sur subscription.updated", async () => {
+    constructEvent.mockReturnValue({
+      id: "evt_1b",
+      type: "customer.subscription.updated",
+      data: { object: { id: "sub_1" } },
+    });
+    const res = await POST(makeRequest("{}", "sig") as never);
+    expect(res.status).toBe(200);
+    expect(handlerMocks.handleSubscriptionUpsert).toHaveBeenCalledWith({ id: "sub_1" });
   });
 
   it("200 + ignoré pour un event non géré (pas de handler appelé)", async () => {

@@ -15,6 +15,15 @@ vi.mock("@/lib/supabase/service-role", () => ({
   createServiceRoleClient: () => ({ from: fromMock }),
 }));
 
+// --- Mock des emails (sprint 11 Bloc C) : aucun envoi réel ---
+const { sendEmailMock, getRecipientMock } = vi.hoisted(() => ({
+  sendEmailMock: vi.fn(),
+  getRecipientMock: vi.fn(),
+}));
+
+vi.mock("@/lib/email/send", () => ({ sendEmail: sendEmailMock }));
+vi.mock("@/lib/email/recipient", () => ({ getEmailRecipient: getRecipientMock }));
+
 import {
   handleSubscriptionUpsert,
   handleSubscriptionDeleted,
@@ -28,6 +37,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   upsertMock.mockResolvedValue({ error: null });
   eqMock.mockResolvedValue({ error: null });
+  sendEmailMock.mockResolvedValue({ sent: true });
+  getRecipientMock.mockResolvedValue({ email: "julien@test.fr", firstName: "Julien" });
 });
 
 // Fabrique une Subscription Stripe minimale pour les tests.
@@ -126,6 +137,91 @@ describe("handleSubscriptionUpsert", () => {
     await expect(
       handleSubscriptionUpsert(makeSub({ userId: "user-7" }))
     ).rejects.toBeTruthy();
+  });
+});
+
+describe("handleSubscriptionUpsert — email trial start (sprint 11 Bloc C)", () => {
+  it("envoie le welcome-trial sur created + trialing", async () => {
+    await handleSubscriptionUpsert(
+      makeSub({ status: "trialing", trialEnd: 1_701_000_000, userId: "user-1" }),
+      { isCreation: true }
+    );
+    expect(getRecipientMock).toHaveBeenCalledWith("user-1");
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
+    const call = sendEmailMock.mock.calls[0][0];
+    expect(call.to).toBe("julien@test.fr");
+    expect(call.subject).toContain("essai 7 jours");
+  });
+
+  it("n'envoie RIEN sur updated (pas isCreation), même trialing", async () => {
+    await handleSubscriptionUpsert(
+      makeSub({ status: "trialing", trialEnd: 1_701_000_000, userId: "user-1" })
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("n'envoie RIEN sur created sans trial (status active)", async () => {
+    await handleSubscriptionUpsert(makeSub({ status: "active", userId: "user-1" }), {
+      isCreation: true,
+    });
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("skip l'envoi si le destinataire est introuvable (pas de throw)", async () => {
+    getRecipientMock.mockResolvedValueOnce(null);
+    await handleSubscriptionUpsert(
+      makeSub({ status: "trialing", trialEnd: 1_701_000_000, userId: "user-x" }),
+      { isCreation: true }
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("un échec d'email ne fait pas échouer le handler (pas de retry Stripe)", async () => {
+    getRecipientMock.mockRejectedValueOnce(new Error("auth admin down"));
+    await expect(
+      handleSubscriptionUpsert(
+        makeSub({ status: "trialing", trialEnd: 1_701_000_000, userId: "user-1" }),
+        { isCreation: true }
+      )
+    ).resolves.toBeUndefined();
+    expect(upsertMock).toHaveBeenCalledTimes(1); // la DB est bien écrite avant
+  });
+});
+
+describe("handleTrialWillEnd — email J-2 (sprint 11 Bloc C)", () => {
+  it("envoie le trial-day-5 avec jours restants, montant et date", async () => {
+    const in2Days = Math.floor(Date.now() / 1000) + 2 * 86_400;
+    await handleTrialWillEnd(
+      makeSub({ status: "trialing", trialEnd: in2Days, userId: "user-1" })
+    );
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
+    const call = sendEmailMock.mock.calls[0][0];
+    expect(call.to).toBe("julien@test.fr");
+    expect(call.subject).toContain("2 jours");
+  });
+
+  it("ne fait rien sans metadata.user_id", async () => {
+    await handleTrialWillEnd(
+      makeSub({ status: "trialing", trialEnd: 1_701_000_000, userId: undefined })
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("ne fait rien sans trial_end", async () => {
+    await handleTrialWillEnd(makeSub({ status: "trialing", userId: "user-1" }));
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("n'envoie pas d'email si le price est inconnu (montant indéterminable)", async () => {
+    await handleTrialWillEnd(
+      makeSub({
+        status: "trialing",
+        trialEnd: 1_701_000_000,
+        userId: "user-1",
+        priceId: "price_inconnu",
+      })
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
   });
 });
 
