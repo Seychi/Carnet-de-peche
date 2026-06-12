@@ -4,6 +4,11 @@ import { redirect } from 'next/navigation'
 import { MapPin, MessageCircle, UserPlus, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
+// La page lit auth.getUser() pour rediriger les connectés vers leur fil : elle
+// ne peut pas être servie statique (en prod, le stub s'affichait même connecté —
+// audit 2026-06-11).
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Fil régional · Carnet de Pêche',
   description:
@@ -47,7 +52,9 @@ export default async function FilTeaserPage() {
       .select('home_department')
       .eq('id', user.id)
       .maybeSingle()
-    if (profile?.home_department) redirect(`/fil/${profile.home_department}`)
+    // char(3) Postgres → '06 ' paddé : trim obligatoire avant l'URL
+    const dept = profile?.home_department?.trim()
+    if (dept) redirect(`/fil/${dept}`)
     redirect('/profil')
   }
 

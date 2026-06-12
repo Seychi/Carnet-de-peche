@@ -17,6 +17,7 @@ export function PostList({
   region,
   tab,
   currentUserId,
+  viewerIsModerator = false,
   emptyVariant,
 }: {
   initialPosts: FeedPostEnriched[]
@@ -24,6 +25,7 @@ export function PostList({
   region: string
   tab: FeedTab
   currentUserId: string | null
+  viewerIsModerator?: boolean
   emptyVariant: EmptyVariant
 }) {
   const [posts, setPosts] = useState(initialPosts)
@@ -65,6 +67,7 @@ export function PostList({
           key={p.id}
           post={p}
           currentUserId={currentUserId}
+          viewerIsModerator={viewerIsModerator}
           catchPhotoUrl={p.catchPhotoUrl}
         />
       ))}

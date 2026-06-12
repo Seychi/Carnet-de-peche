@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { memo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Linkify from 'linkify-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
-import { toggleLike, deletePost } from '@/app/actions/feed'
+import { toggleLike, deletePost, moderatorDeletePost } from '@/app/actions/feed'
 import { usePostInteractionsRealtime } from '@/lib/feed/usePostInteractionsRealtime'
 import type { FeedPost } from '@/lib/feed/types'
 import { CommentThread } from './CommentThread'
@@ -31,14 +31,18 @@ function initials(name: string | null, username: string | null) {
   return (name || username || '?').trim().slice(0, 2).toUpperCase()
 }
 
-export function PostCard({
+// memo : un like sur un post ne doit pas re-rendre les autres cartes de la
+// liste (perf INP, audit 2026-06-11). Les props sont stables côté PostList.
+export const PostCard = memo(function PostCard({
   post,
   currentUserId,
   catchPhotoUrl,
+  viewerIsModerator = false,
 }: {
   post: FeedPost
   currentUserId: string | null
   catchPhotoUrl?: string | null
+  viewerIsModerator?: boolean
 }) {
   const postId = post.id
   const [liked, setLiked] = useState(Boolean(post.liked_by_me))
@@ -49,10 +53,19 @@ export function PostCard({
   const [expanded, setExpanded] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  // Compteurs pilotés par le Realtime (couvre aussi nos propres actions
-  // rediffusées) → pas de double comptage avec l'optimistic du cœur.
+  // Nombre d'actions like optimistes en vol dont l'écho Realtime n'est pas
+  // encore revenu : on consomme ces échos au lieu de les recompter (sinon
+  // double incrément). Les actions des AUTRES (et nos autres onglets) passent.
+  const pendingSelfLikes = useRef(0)
+
   usePostInteractionsRealtime(postId ?? '', {
-    onLikeDelta: (d) => setLikeCount((c) => Math.max(0, c + d)),
+    onLikeDelta: (d, userId) => {
+      if (userId !== null && userId === currentUserId && pendingSelfLikes.current > 0) {
+        pendingSelfLikes.current -= 1
+        return
+      }
+      setLikeCount((c) => Math.max(0, c + d))
+    },
     onCommentDelta: (d) => setCommentCount((c) => Math.max(0, c + d)),
   })
 
@@ -69,10 +82,16 @@ export function PostCard({
       return
     }
     const next = !liked
-    setLiked(next) // optimistic (cœur). Le compteur suit via Realtime.
+    // Optimistic complet : cœur ET compteur (l'audit voyait « 1 » n'apparaître
+    // qu'à l'écho Realtime, voire jamais). L'écho de cette action sera dédupliqué.
+    setLiked(next)
+    setLikeCount((c) => Math.max(0, c + (next ? 1 : -1)))
+    pendingSelfLikes.current += 1
     const res = await toggleLike(id)
     if (!res.ok) {
       setLiked(!next)
+      setLikeCount((c) => Math.max(0, c + (next ? -1 : 1)))
+      pendingSelfLikes.current = Math.max(0, pendingSelfLikes.current - 1)
       toast.error(res.error)
     }
   }
@@ -101,6 +120,17 @@ export function PostCard({
     toast.success('Post supprimé.')
   }
 
+  async function handleModeratorDelete() {
+    setDeleting(true)
+    const res = await moderatorDeletePost(id)
+    if (!res.ok) {
+      setDeleting(false)
+      toast.error(res.error)
+      return
+    }
+    toast.success('Post supprimé (modération).')
+  }
+
   return (
     <article className="flex flex-col gap-2.5 rounded-[14px] border border-sand-200 bg-white p-4">
       {/* En-tête */}
@@ -126,7 +156,7 @@ export function PostCard({
               formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: fr })}
           </p>
         </div>
-        {isMine && (
+        {(isMine || viewerIsModerator) && (
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Options du post"
@@ -135,10 +165,18 @@ export function PostCard({
               {deleting ? <Loader2 size={18} className="animate-spin" /> : <MoreHorizontal size={18} />}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white">
-              <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={handleDelete}>
-                <Trash2 size={14} />
-                Supprimer
-              </DropdownMenuItem>
+              {isMine && (
+                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={handleDelete}>
+                  <Trash2 size={14} />
+                  Supprimer
+                </DropdownMenuItem>
+              )}
+              {viewerIsModerator && !isMine && (
+                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={handleModeratorDelete}>
+                  <Trash2 size={14} />
+                  Supprimer (modération)
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -218,7 +256,7 @@ export function PostCard({
       <ReportDialog postId={postId} open={reportOpen} onOpenChange={setReportOpen} />
     </article>
   )
-}
+})
 
 function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | null }) {
   const species = SPECIES_LABELS[post.catch_species ?? ''] ?? post.catch_species ?? 'Prise'

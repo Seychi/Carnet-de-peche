@@ -22,7 +22,7 @@ export function SignOutButton() {
     <Button
       onClick={handleSignOut}
       variant="outline"
-      className="min-h-[48px] rounded-full text-[14px] font-medium text-ink-700 border-ink-200 w-full"
+      className="min-h-[48px] self-start rounded-full text-[14px] font-medium text-ink-700 border-ink-200"
     >
       <LogOut size={16} className="mr-2" />
       Me déconnecter

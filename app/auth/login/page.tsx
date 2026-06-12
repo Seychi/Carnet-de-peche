@@ -231,6 +231,9 @@ function SentScreen({
 export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("signin");
   const [showReset, setShowReset] = useState(false);
+  // Email saisi sur le formulaire connexion, repris en pré-remplissage du reset
+  // (audit 2026-06-11 : l'utilisateur devait retaper son email).
+  const [resetPrefill, setResetPrefill] = useState("");
   const [showMagicLink, setShowMagicLink] = useState(false);
 
   // Erreurs de validation client, par formulaire.
@@ -368,13 +371,13 @@ export default function LoginPage() {
                 Ton email
               </Label>
               <Input
-                key={resetState.submittedAt ?? "reset-email-initial"}
+                key={resetState.submittedAt ?? `reset-email-${resetPrefill}`}
                 id="reset-email"
                 name="email"
                 type="email"
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
-                defaultValue={resetState.email}
+                defaultValue={resetState.email || resetPrefill}
                 onBlur={gateBlur(emailOnlySchema, setResetErrors)}
                 aria-invalid={resetErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
@@ -439,7 +442,14 @@ export default function LoginPage() {
               <FieldError message={signinErrors.password} />
               <button
                 type="button"
-                onClick={() => setShowReset(true)}
+                onClick={() => {
+                  // Reprend l'email déjà tapé (input non contrôlé → lecture DOM)
+                  const typed = (
+                    document.getElementById("signin-email") as HTMLInputElement | null
+                  )?.value?.trim();
+                  if (typed) setResetPrefill(typed);
+                  setShowReset(true);
+                }}
                 className="text-[13px] text-teal-600 font-medium hover:underline self-start transition-colors"
               >
                 Mot de passe oublié ?

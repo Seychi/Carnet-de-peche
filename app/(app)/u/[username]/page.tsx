@@ -43,6 +43,19 @@ export default async function PublicProfilePage({
   if (!profile) notFound()
 
   const isMe = user?.id === profile.id
+
+  // Bouton « Supprimer (modération) » sur les posts du profil (migration 023) —
+  // c'est ici qu'on retrouve tous les posts d'un compte spammeur.
+  let viewerIsModerator = false
+  if (user) {
+    const { data: viewerProfile } = await supabase
+      .from('profiles')
+      .select('is_moderator')
+      .eq('id', user.id)
+      .maybeSingle()
+    viewerIsModerator = viewerProfile?.is_moderator === true
+  }
+
   let initialFollowing = false
   if (user && !isMe) {
     const { data: f } = await supabase
@@ -157,6 +170,7 @@ export default async function PublicProfilePage({
                 key={p.id}
                 post={p}
                 currentUserId={user?.id ?? null}
+                viewerIsModerator={viewerIsModerator}
                 catchPhotoUrl={p.catchPhotoUrl}
               />
             ))
