@@ -1,0 +1,35 @@
+import type { Facade, SpeciesSlug, TechniqueSlug } from '@/lib/seo/programmatic'
+
+/**
+ * Contenu des fiches espèces /especes/[slug] (sprint 10 Bloc 3 — riposte
+ * directe Fishing Grid). Chaque fiche doit battre l'équivalent FG :
+ * réglementation SOURCÉE et DATÉE par façade, saisons par façade,
+ * techniques par saison, postes selon conditions. Cf checklist du brief.
+ */
+export type EspeceContent = {
+  slug: SpeciesSlug
+  /** Accroche + portrait de l'espèce vue du bord (2-3 §, ~200 mots). */
+  intro: string[]
+  identity: {
+    famille: string
+    /** « 30-50 cm du bord, 70 cm+ pour les beaux sujets » */
+    tailleCourante: string
+    tailleMax: string
+    habitat: string
+    regime: string
+  }
+  /** Réglementation VÉRIFIÉE — les chiffres sont injectés, ne jamais inventer. */
+  regulation: {
+    verifiedAt: string
+    source: string
+    items: string[]
+  }
+  /** 4 saisons par façade : activité 1 (faible) → 3 (forte) + note concrète. */
+  saisons: Record<Facade, { saison: string; activite: 1 | 2 | 3; note: string }[]>
+  /** Techniques du bord, de la plus pertinente à l'occasionnelle. */
+  techniques: { slug: TechniqueSlug; why: string }[]
+  /** Postes et conditions : vent, houle, moment de marée (2-3 §). */
+  postes: string[]
+  /** Questions fréquentes (SEO People Also Ask). */
+  faq: { q: string; a: string }[]
+}

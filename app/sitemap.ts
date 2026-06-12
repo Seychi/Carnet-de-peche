@@ -1,7 +1,12 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getAllGuides } from '@/lib/guides/loader'
-import { getAllProgrammaticPages, programmaticUrl } from '@/lib/seo/programmatic'
+import {
+  getAllProgrammaticPages,
+  programmaticUrl,
+  SPECIES,
+  type SpeciesSlug,
+} from '@/lib/seo/programmatic'
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
@@ -51,5 +56,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly',
   }))
 
-  return [...staticPages, ...spotPages, ...guidePages, ...programmaticPages]
+  // Fiches espèces profondes (sprint 10 Bloc 3)
+  const especePages: MetadataRoute.Sitemap = (Object.keys(SPECIES) as SpeciesSlug[]).map((s) => ({
+    url: `${BASE_URL}/especes/${s}`,
+    priority: 0.8,
+    changeFrequency: 'monthly',
+  }))
+
+  return [...staticPages, ...spotPages, ...guidePages, ...programmaticPages, ...especePages]
 }

@@ -10,6 +10,7 @@ import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
@@ -240,12 +241,21 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions, forecastWeek] = await Promise.all([
+  const [catches, catchCount, conditions, forecastWeek, allGuides] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
     fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
+    getAllGuides().catch(() => []),
   ])
+
+  // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
+  const spotSpeciesLabels = new Set(
+    spot.species.map((s) => SPECIES_LABELS[s] ?? s),
+  )
+  const relatedGuideLinks = allGuides
+    .filter((g) => spotSpeciesLabels.has(g.species) || g.species === 'Multi-espèces')
+    .slice(0, 3)
 
   // Scoring perso neutralisé (B1 sprint 7.5) : le forecast reste générique tant que
   // la « vraie performance » (sorties loguées) n'est pas implémentée.
@@ -454,6 +464,29 @@ export default async function SpotPage({
               <section className="bg-white rounded-[18px] border border-sand-200 p-6 md:p-7">
                 <h2 className="font-display text-navy-900 text-xl mb-4">Accès</h2>
                 <p className="text-ink-700 leading-relaxed">{spot.access_notes}</p>
+              </section>
+            )}
+
+            {/* Guides liés (sprint 10 Bloc 5 — maillage interne) */}
+            {relatedGuideLinks.length > 0 && (
+              <section className="bg-white rounded-[18px] border border-sand-200 p-6 md:p-7">
+                <h2 className="font-display text-navy-900 text-xl mb-4">Guides liés</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {relatedGuideLinks.map((g) => (
+                    <Link
+                      key={g.slug}
+                      href={`/guides/${g.slug}`}
+                      className="group rounded-[14px] border border-sand-200 p-4 transition-colors hover:border-teal-500/40"
+                    >
+                      <p className="text-[14px] font-semibold leading-snug text-navy-900 group-hover:text-teal-700">
+                        {g.title}
+                      </p>
+                      <TagData className="mt-1.5 block">
+                        {g.category.toUpperCase()} · {g.readTime} MIN
+                      </TagData>
+                    </Link>
+                  ))}
+                </div>
               </section>
             )}
           </div>
