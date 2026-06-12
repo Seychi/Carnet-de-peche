@@ -293,13 +293,12 @@ export default async function SpotsPage({ searchParams }: Props) {
             <div className="space-y-14">
               {grouped.map(([deptCode, deptSpots]) => (
                 <div key={deptCode}>
-                  <h2 className="font-display text-navy-900 text-xl mb-1">
+                  <h2 className="font-display text-navy-900 text-xl mb-5">
                     {DEPARTMENT_LABELS[deptCode] ?? deptCode}
-                    <span className="text-ink-400 text-base font-normal ml-2">({deptCode})</span>
+                    <span className="text-ink-400 text-base font-normal ml-2">
+                      · {deptSpots.length} spot{deptSpots.length > 1 ? 's' : ''}
+                    </span>
                   </h2>
-                  <p className="text-sm text-ink-500 mb-5">
-                    {deptSpots.length} spot{deptSpots.length > 1 ? 's' : ''}
-                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {deptSpots.map((spot) => (
                       <SpotCard key={spot.id} spot={spot} />

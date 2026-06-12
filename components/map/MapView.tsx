@@ -114,7 +114,55 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   return wrapper
 }
 
-function addSpotsToMap(
+// Disques floutés (1 km) des spots sans abonnement (coordonnées non précises en
+// Discovery). Donnée à part de la création des couches pour pouvoir resynchroniser
+// au changement de filtre via setData (sans recréer source/layers).
+function buildFuzzyData(spots: SpotMarker[]) {
+  return {
+    type: 'FeatureCollection' as const,
+    features: spots.filter((s) => !s.isPrecise).map((s) => createFuzzyCircle(s, 1)),
+  }
+}
+
+// Source + layers des disques floutés, initialisés VIDES — le peuplement passe
+// toujours par setData (effet de resync), y compris au premier rendu.
+function addFuzzyLayers(
+  map: MapLibreMap,
+  getSpotById: (id: string) => SpotMarker | undefined,
+  onMarkerClick?: (spot: SpotMarker) => void,
+): void {
+  map.addSource(FUZZY_SOURCE, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+  map.addLayer({
+    id: FUZZY_FILL_LAYER,
+    type: 'fill',
+    source: FUZZY_SOURCE,
+    paint: { 'fill-color': QUALITY_COLOR_EXPR, 'fill-opacity': 0.2 },
+  })
+  map.addLayer({
+    id: FUZZY_LINE_LAYER,
+    type: 'line',
+    source: FUZZY_SOURCE,
+    paint: { 'line-color': QUALITY_COLOR_EXPR, 'line-width': 1.5 },
+  })
+  map.on('mouseenter', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = 'pointer' })
+  map.on('mouseleave', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = '' })
+  // Lookup via getSpotById (ref) et pas une closure sur la liste : la liste
+  // filtrée change après le mount, une closure servirait des spots périmés.
+  map.on('click', FUZZY_FILL_LAYER, (e) => {
+    const spotId = e.features?.[0]?.properties?.spotId as string | undefined
+    const spot = spotId ? getSpotById(spotId) : undefined
+    if (spot) onMarkerClick?.(spot)
+  })
+}
+
+// Pins HTML pour TOUS les spots (précis ET floutés). En Discovery les spots
+// n'étaient rendus que comme disques pâles (opacity 0.2) → quasi invisibles au
+// zoom France. Le pin est posé sur le centre du disque (geom_public) : il rend le
+// spot visible et cliquable sans rien révéler de plus que le disque lui-même.
+function createPins(
   map: MapLibreMap,
   maplibre: MaplibreModule,
   spots: SpotMarker[],
@@ -122,41 +170,6 @@ function addSpotsToMap(
   markerElemsOut?: Map<string, HTMLElement>,
 ): Marker[] {
   const markers: Marker[] = []
-  const fuzzySpots = spots.filter((s) => !s.isPrecise)
-
-  // Disques floutés (1 km) rendus SOUS les pins pour les spots sans abonnement —
-  // ils matérialisent la zone approximative (coordonnées non précises en Discovery).
-  if (fuzzySpots.length > 0) {
-    const features = fuzzySpots.map((s) => createFuzzyCircle(s, 1))
-    map.addSource(FUZZY_SOURCE, {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features },
-    })
-    map.addLayer({
-      id: FUZZY_FILL_LAYER,
-      type: 'fill',
-      source: FUZZY_SOURCE,
-      paint: { 'fill-color': QUALITY_COLOR_EXPR, 'fill-opacity': 0.2 },
-    })
-    map.addLayer({
-      id: FUZZY_LINE_LAYER,
-      type: 'line',
-      source: FUZZY_SOURCE,
-      paint: { 'line-color': QUALITY_COLOR_EXPR, 'line-width': 1.5 },
-    })
-    map.on('mouseenter', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = 'pointer' })
-    map.on('mouseleave', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = '' })
-    map.on('click', FUZZY_FILL_LAYER, (e) => {
-      const spotId = e.features?.[0]?.properties?.spotId as string | undefined
-      const spot = fuzzySpots.find((s) => s.id === spotId)
-      if (spot) onMarkerClick?.(spot)
-    })
-  }
-
-  // Pins HTML pour TOUS les spots (précis ET floutés). En Discovery les spots
-  // n'étaient rendus que comme disques pâles (opacity 0.2) → quasi invisibles au
-  // zoom France. Le pin est posé sur le centre du disque (geom_public) : il rend le
-  // spot visible et cliquable sans rien révéler de plus que le disque lui-même.
   for (const spot of spots) {
     const el = createPinElement(spot)
     markerElemsOut?.set(spot.id, el)
@@ -167,26 +180,31 @@ function addSpotsToMap(
     el.addEventListener('click', () => onMarkerClick?.(spot))
     markers.push(marker)
   }
-
   return markers
 }
 
 // ── Mode cluster : GeoJSON source + layers MapLibre ───────────────────────────
 
+function buildClusterData(spots: SpotMarker[]) {
+  return {
+    type: 'FeatureCollection' as const,
+    features: spots.map((s) => ({
+      type: 'Feature' as const,
+      geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] as [number, number] },
+      properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '' },
+    })),
+  }
+}
+
 function addClusteredSpotsToMap(
   map: MapLibreMap,
-  spots: SpotMarker[],
+  getSpotById: (id: string) => SpotMarker | undefined,
   onMarkerClick?: (spot: SpotMarker) => void,
 ): void {
-  const features = spots.map((s) => ({
-    type: 'Feature' as const,
-    geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] as [number, number] },
-    properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '' },
-  }))
-
+  // Source initialisée vide — peuplée par setData dans l'effet de resync.
   map.addSource(CLUSTER_SOURCE, {
     type: 'geojson',
-    data: { type: 'FeatureCollection', features },
+    data: { type: 'FeatureCollection', features: [] },
     cluster: true,
     clusterMaxZoom: 14,
     clusterRadius: 50,
@@ -268,10 +286,11 @@ function addClusteredSpotsToMap(
     } catch { /* cluster inexistant entre deux renders */ }
   })
 
-  // Clic sur point individuel → popup
+  // Clic sur point individuel → popup. Lookup via getSpotById (ref) : la liste
+  // filtrée change après le mount, une closure servirait des spots périmés.
   map.on('click', UNCLUSTERED_LAYER, (e) => {
     const spotId = e.features?.[0]?.properties?.spotId as string | undefined
-    const spot = spots.find((s) => s.id === spotId)
+    const spot = spotId ? getSpotById(spotId) : undefined
     if (spot) onMarkerClick?.(spot)
   })
 }
@@ -292,6 +311,13 @@ export default function MapView({
   const readoutRef = useRef<HTMLSpanElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerElemsRef = useRef<Map<string, HTMLElement>>(new Map())
+  // Refs pour le resync des markers au changement de filtre (la liste `spots`
+  // change après le mount) : module maplibre, markers HTML posés, liste courante
+  // (lue par les handlers de clic), mode choisi au mount.
+  const maplibreRef = useRef<MaplibreModule | null>(null)
+  const markersRef = useRef<Marker[]>([])
+  const spotsRef = useRef<SpotMarker[]>(spots)
+  const useClusterRef = useRef(false)
   const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY
 
   // État d'erreur dérivé au montage : si la clé MapTiler manque, l'erreur est
@@ -318,13 +344,16 @@ export default function MapView({
       return
     }
 
-    const useCluster = spots.length >= MAX_HTML_MARKERS
-    // En mode HTML : cap à MAX_HTML_MARKERS. En mode cluster : tous les spots.
-    const visibleSpots = useCluster ? spots : spots.slice(0, MAX_HTML_MARKERS)
+    // Mode figé au mount : HTML markers sous le seuil, clustering au-dessus.
+    useClusterRef.current = spots.length >= MAX_HTML_MARKERS
 
-    let markers: Marker[] = []
     let mounted = true
     let attribObserver: MutationObserver | null = null
+    let revealTimer: ReturnType<typeof setTimeout> | undefined
+
+    // Les handlers de clic résolvent le spot dans la liste COURANTE (ref), pas
+    // dans une closure : la liste filtrée change après le mount.
+    const getSpotById = (id: string) => spotsRef.current.find((s) => s.id === id)
 
     // MapLibre rend les liens d'attribution (MapTiler, OpenStreetMap) via innerHTML
     // à partir du style, sans rel="noopener" → faille tabnabbing. On patche les
@@ -360,6 +389,7 @@ export default function MapView({
       }
 
       mapRef.current = map
+      maplibreRef.current = maplibre
 
       // Erreur style (401 clé invalide, 403 domaine non autorisé, réseau, etc.)
       map.on('error', (e) => {
@@ -368,6 +398,21 @@ export default function MapView({
       })
 
       map.on('move', () => writeReadout(map, readoutRef.current))
+
+      // Si 'load' ne part jamais (fiches spot en prod, audit 2026-06-11 : skeleton
+      // sombre permanent avec attribution visible), 'idle' — qui fire dès que la
+      // carte a fini de rendre — lève le skeleton. Et à défaut des deux, le timer
+      // révèle la carte plutôt que de la masquer indéfiniment.
+      map.once('idle', () => {
+        if (!mounted) return
+        map.resize()
+        setLoaded(true)
+      })
+      revealTimer = setTimeout(() => {
+        if (!mounted) return
+        map.resize()
+        setLoaded(true)
+      }, 10_000)
 
       map.on('load', () => {
         if (!mounted) return
@@ -386,10 +431,12 @@ export default function MapView({
           attribObserver.observe(attribInner, { childList: true, subtree: true })
         }
 
-        if (useCluster) {
-          addClusteredSpotsToMap(map, visibleSpots, onMarkerClick)
+        // Sources/layers créés vides — le peuplement (pins + setData) est fait
+        // par l'effet de resync sur [spots, loaded], y compris au premier rendu.
+        if (useClusterRef.current) {
+          addClusteredSpotsToMap(map, getSpotById, onMarkerClick)
         } else {
-          markers = addSpotsToMap(map, maplibre, visibleSpots, onMarkerClick, markerElemsRef.current)
+          addFuzzyLayers(map, getSpotById, onMarkerClick)
         }
       })
     }
@@ -403,15 +450,43 @@ export default function MapView({
 
     return () => {
       mounted = false
+      if (revealTimer) clearTimeout(revealTimer)
       ro.disconnect()
       attribObserver?.disconnect()
-      markers.forEach((m) => m.remove())
+      markersRef.current.forEach((m) => m.remove())
+      markersRef.current = []
       markerElemsRef.current.clear()
       mapRef.current?.remove()
       mapRef.current = null
+      maplibreRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // ── Resync markers + sources au changement de la liste (filtrée) ────────────
+  // Sans cet effet, la carte gardait les spots du mount : appliquer un filtre
+  // département ne retirait aucun marqueur (audit 2026-06-11 — « du 56 sous 29 »).
+  useEffect(() => {
+    spotsRef.current = spots
+    const map = mapRef.current
+    const maplibre = maplibreRef.current
+    if (!loaded || !map || !maplibre) return
+
+    // En mode HTML : cap à MAX_HTML_MARKERS. En mode cluster : tous les spots.
+    const visibleSpots = useClusterRef.current ? spots : spots.slice(0, MAX_HTML_MARKERS)
+
+    if (useClusterRef.current) {
+      const src = map.getSource(CLUSTER_SOURCE) as GeoJSONSource | undefined
+      src?.setData(buildClusterData(visibleSpots))
+    } else {
+      markersRef.current.forEach((m) => m.remove())
+      markerElemsRef.current.clear()
+      markersRef.current = createPins(map, maplibre, visibleSpots, onMarkerClick, markerElemsRef.current)
+      const src = map.getSource(FUZZY_SOURCE) as GeoJSONSource | undefined
+      src?.setData(buildFuzzyData(visibleSpots))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spots, loaded])
 
   // ── Highlight des nearby spots ──────────────────────────────────────────────
   useEffect(() => {

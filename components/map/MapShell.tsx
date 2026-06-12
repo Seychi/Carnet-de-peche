@@ -37,6 +37,7 @@ import type { SpotFilters } from '@/lib/spots/filters-schema'
 import { hasActiveFilters, countActiveFilters, serializeFiltersToSearchParams } from '@/lib/spots/filter-url'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import type { NearbySpot } from '@/lib/spots/nearby'
 
 type MapShellProps = {
@@ -155,6 +156,15 @@ export default function MapShell({
   const handleFiltersChange = useCallback((f: SpotFilters) => setFilters(f), [])
 
   function handleApply(newFilters: SpotFilters) {
+    // Recentrage : un (autre) département vient d'être sélectionné → flyTo son centroïde.
+    // Sans ça, filtrer « 29 » depuis une vue Morbihan laisse des spots 56 à l'écran (audit 2026-06-11).
+    if (newFilters.department && newFilters.department !== filters.department) {
+      mapInstanceRef.current?.flyTo({
+        center: getCenterForDepartment(newFilters.department),
+        zoom: 8.5,
+        duration: 1500,
+      })
+    }
     handleFiltersChange(newFilters)
     const params = serializeFiltersToSearchParams(newFilters)
     const qs = params.toString()
