@@ -34,7 +34,7 @@ C'est LE différenciateur vs le tuto bar de Fishing Grid (réglementation non so
 - ✅ Lighthouse SEO **100** sur guide + page programmatique + fiche espèce (critère ≥ 95)
 - ✅ Build 48 s (< 4 min) · typecheck 0 · 217 tests verts
 - ⚠️ Lint : dette pré-existante Bloc C sprint 7.5 inchangée (fichiers du sprint propres)
-- 🔲 **Sitemap à soumettre à Search Console (manuel John, après merge + déploiement)** : https://search.google.com/search-console → propriété carnet-de-peche.com → Sitemaps → `https://www.carnet-de-peche.com/sitemap.xml`
+- ✅ **Sitemap soumis à Search Console le 12/06/2026** (382 URLs publiées) — l'indexation Google est lancée
 
 ## Restes (production continue, pas bloquants)
 
