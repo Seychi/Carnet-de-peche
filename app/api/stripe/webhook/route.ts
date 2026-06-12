@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
         await handlers.handleSubscriptionUpsert(event.data.object, { isCreation: true });
         break;
       case "customer.subscription.updated":
-        await handlers.handleSubscriptionUpsert(event.data.object);
+        // previous_attributes → détection du flip cancel_at_period_end (email annulation)
+        await handlers.handleSubscriptionUpsert(event.data.object, {
+          previousAttributes: event.data.previous_attributes,
+        });
         break;
       case "customer.subscription.deleted":
         await handlers.handleSubscriptionDeleted(event.data.object);

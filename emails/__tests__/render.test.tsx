@@ -5,6 +5,7 @@ import WelcomeEmail from "../welcome";
 import WelcomeTrialEmail from "../welcome-trial";
 import TrialDay5Email from "../trial-day-5";
 import PaymentFailedEmail from "../payment-failed";
+import PaymentSuccessEmail from "../payment-success";
 import SubscriptionCanceledEmail from "../subscription-canceled";
 
 // Vérifie que chaque template se rend en HTML non vide et contient son contenu
@@ -30,6 +31,15 @@ describe("templates emails (rendu HTML)", () => {
     );
     expect(html).toContain("2 jour");
     expect(html).toContain("4,90");
+    expect(html).toContain("/compte/abonnement");
+  });
+
+  it("payment-success mentionne le montant et la date", async () => {
+    const html = await render(
+      <PaymentSuccessEmail firstName="Julien" amount="4,90 €" dateLabel="12 juin 2026" />
+    );
+    expect(html).toContain("4,90");
+    expect(html).toContain("12 juin 2026");
     expect(html).toContain("/compte/abonnement");
   });
 

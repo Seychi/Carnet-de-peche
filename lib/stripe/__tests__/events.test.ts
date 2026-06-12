@@ -188,6 +188,69 @@ describe("handleSubscriptionUpsert — email trial start (sprint 11 Bloc C)", ()
   });
 });
 
+describe("handleSubscriptionUpsert — email annulation (flip cancel_at_period_end)", () => {
+  it("envoie l'email annulation quand cancel_at_period_end passe false → true", async () => {
+    await handleSubscriptionUpsert(
+      makeSub({ status: "active", cancelAtPeriodEnd: true, userId: "user-1" }),
+      { previousAttributes: { cancel_at_period_end: false } }
+    );
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
+    const call = sendEmailMock.mock.calls[0][0];
+    expect(call.subject).toContain("annulé");
+    expect(call.to).toBe("julien@test.fr");
+  });
+
+  it("n'envoie RIEN si l'update ne porte pas sur cancel_at_period_end", async () => {
+    await handleSubscriptionUpsert(
+      makeSub({ status: "active", cancelAtPeriodEnd: true, userId: "user-1" }),
+      { previousAttributes: { status: "trialing" } as never }
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("n'envoie RIEN si cancel_at_period_end repasse à false (réactivation)", async () => {
+    await handleSubscriptionUpsert(
+      makeSub({ status: "active", cancelAtPeriodEnd: false, userId: "user-1" }),
+      { previousAttributes: { cancel_at_period_end: true } }
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleInvoicePaymentSucceeded — reçu de paiement (sprint 11 Bloc C)", () => {
+  function makePaidInvoice(overrides: {
+    amountPaid?: number;
+    customerEmail?: string | null;
+  }): Stripe.Invoice {
+    return {
+      id: "in_ok",
+      amount_paid: overrides.amountPaid ?? 490,
+      currency: "eur",
+      customer_email: overrides.customerEmail === undefined ? "julien@test.fr" : overrides.customerEmail,
+      created: 1_780_000_000,
+      status_transitions: { paid_at: 1_780_000_000 },
+    } as unknown as Stripe.Invoice;
+  }
+
+  it("envoie le reçu avec le montant formaté", async () => {
+    await handleInvoicePaymentSucceeded(makePaidInvoice({ amountPaid: 490 }));
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
+    const call = sendEmailMock.mock.calls[0][0];
+    expect(call.to).toBe("julien@test.fr");
+    expect(call.subject).toContain("Paiement reçu");
+  });
+
+  it("n'envoie RIEN pour la facture à 0 € du début d'essai", async () => {
+    await handleInvoicePaymentSucceeded(makePaidInvoice({ amountPaid: 0 }));
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("n'envoie RIEN sans customer_email", async () => {
+    await handleInvoicePaymentSucceeded(makePaidInvoice({ customerEmail: null }));
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("handleTrialWillEnd — email J-2 (sprint 11 Bloc C)", () => {
   it("envoie le trial-day-5 avec jours restants, montant et date", async () => {
     const in2Days = Math.floor(Date.now() / 1000) + 2 * 86_400;

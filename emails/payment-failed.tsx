@@ -16,7 +16,7 @@ export default function PaymentFailedEmail({ firstName = "pêcheur" }: Props) {
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>
         Mets à jour ta carte en quelques secondes pour ne pas perdre l&rsquo;accès à la carte
-        complète et au fil régional.
+        complète, au GPS précis et au score d&rsquo;activité.
       </Text>
       <CtaButton href={`${SITE_URL}/compte/abonnement`} label="Mettre à jour ma carte" />
       <Text style={{ fontSize: "13px", color: BRAND.inkSoft, margin: "20px 0 0" }}>

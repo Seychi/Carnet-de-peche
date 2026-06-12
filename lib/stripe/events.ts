@@ -16,6 +16,22 @@ type SubscriptionRow = Database["public"]["Tables"]["subscriptions"]["Insert"];
 const toIso = (unixSeconds: number | null | undefined): string | null =>
   typeof unixSeconds === "number" ? new Date(unixSeconds * 1000).toISOString() : null;
 
+/** "28 juin 2026" — dates affichées dans les emails (fuseau Paris). */
+const toFrDate = (unixSeconds: number): string =>
+  new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Europe/Paris",
+  }).format(new Date(unixSeconds * 1000));
+
+/** "4,90 €" — montants Stripe (centimes) au format français. */
+const toFrAmount = (cents: number, currency: string | null | undefined): string =>
+  new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: (currency ?? "eur").toUpperCase(),
+  }).format(cents / 100);
+
 /**
  * Crée ou met à jour la subscription locale depuis un event Stripe
  * (customer.subscription.created / .updated). Idempotent via onConflict user_id.
@@ -25,7 +41,11 @@ const toIso = (unixSeconds: number | null | undefined): string | null =>
  */
 export async function handleSubscriptionUpsert(
   sub: Stripe.Subscription,
-  opts: { isCreation?: boolean } = {}
+  opts: {
+    isCreation?: boolean;
+    /** event.data.previous_attributes (events .updated) — détecte les flips d'état. */
+    previousAttributes?: Partial<Stripe.Subscription>;
+  } = {}
 ) {
   const item = sub.items.data[0];
   const priceId = item?.price.id;
@@ -104,6 +124,43 @@ export async function handleSubscriptionUpsert(
       }
     } catch (err) {
       console.error("[stripe-webhook] email trial start non envoyé", { subId: sub.id, err });
+    }
+  }
+
+  // Email « abonnement annulé » sur le FLIP cancel_at_period_end false → true
+  // (l'utilisateur vient d'annuler via le Customer Portal ; l'accès court
+  // jusqu'à la fin de période). previous_attributes ne contient le champ que
+  // sur l'event où il a changé → pas de renvoi sur les updates suivants.
+  const justCanceled =
+    sub.cancel_at_period_end &&
+    opts.previousAttributes !== undefined &&
+    "cancel_at_period_end" in opts.previousAttributes &&
+    opts.previousAttributes.cancel_at_period_end === false;
+
+  if (justCanceled) {
+    try {
+      const { getEmailRecipient } = await import("@/lib/email/recipient");
+      const recipient = await getEmailRecipient(userId);
+      if (recipient) {
+        const { sendEmail } = await import("@/lib/email/send");
+        const { default: SubscriptionCanceledEmail } = await import(
+          "@/emails/subscription-canceled"
+        );
+        await sendEmail({
+          to: recipient.email,
+          subject: "Ton abonnement est annulé — à bientôt",
+          react: SubscriptionCanceledEmail({
+            firstName: recipient.firstName,
+            // Fallback compatible avec le « jusqu'au » du template
+            accessUntil:
+              typeof item?.current_period_end === "number"
+                ? toFrDate(item.current_period_end)
+                : "terme de ta période en cours",
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("[stripe-webhook] email annulation non envoyé", { subId: sub.id, err });
     }
   }
 }
@@ -205,10 +262,33 @@ export async function handleTrialWillEnd(sub: Stripe.Subscription) {
 
 /**
  * invoice.payment_succeeded : l'état actif est déjà reflété par
- * customer.subscription.updated. On logge uniquement.
+ * customer.subscription.updated (pas d'écriture DB ici). Email reçu de
+ * paiement (sprint 11 Bloc C) quand un vrai montant a été encaissé — la
+ * facture à 0 € du début d'essai n'envoie rien (welcome-trial couvre).
  */
 export async function handleInvoicePaymentSucceeded(inv: Stripe.Invoice) {
-  console.log("[stripe-webhook] paiement réussi", { invId: inv.id });
+  console.log("[stripe-webhook] paiement réussi", { invId: inv.id, amountPaid: inv.amount_paid });
+
+  if (!inv.customer_email || typeof inv.amount_paid !== "number" || inv.amount_paid <= 0) return;
+
+  try {
+    const { sendEmail } = await import("@/lib/email/send");
+    const { default: PaymentSuccessEmail } = await import("@/emails/payment-success");
+    await sendEmail({
+      to: inv.customer_email,
+      subject: "Paiement reçu — bonne pêche 🎣",
+      react: PaymentSuccessEmail({
+        amount: toFrAmount(inv.amount_paid, inv.currency),
+        dateLabel: toFrDate(
+          typeof inv.status_transitions?.paid_at === "number"
+            ? inv.status_transitions.paid_at
+            : inv.created
+        ),
+      }),
+    });
+  } catch (err) {
+    console.error("[stripe-webhook] email reçu de paiement non envoyé", { invId: inv.id, err });
+  }
 }
 
 /**
@@ -235,16 +315,20 @@ export async function handleInvoicePaymentFailed(inv: Stripe.Invoice) {
     throw error;
   }
 
-  // Email après l'update DB (jamais bloquant : sendEmail ne throw pas, et un
-  // échec d'envoi ne doit pas faire rejouer le webhook par Stripe).
-  // Imports dynamiques : évite de charger React Email dans les tests webhook.
+  // Email après l'update DB. try/catch obligatoire (même pattern que tous les
+  // envois de ce fichier) : un échec d'email — y compris au chargement des
+  // modules — ne doit JAMAIS faire rejouer le webhook par Stripe.
   if (inv.customer_email) {
-    const { sendEmail } = await import("@/lib/email/send");
-    const { default: PaymentFailedEmail } = await import("@/emails/payment-failed");
-    await sendEmail({
-      to: inv.customer_email,
-      subject: "On n'a pas pu encaisser ton paiement",
-      react: PaymentFailedEmail({}),
-    });
+    try {
+      const { sendEmail } = await import("@/lib/email/send");
+      const { default: PaymentFailedEmail } = await import("@/emails/payment-failed");
+      await sendEmail({
+        to: inv.customer_email,
+        subject: "On n'a pas pu encaisser ton paiement",
+        react: PaymentFailedEmail({}),
+      });
+    } catch (err) {
+      console.error("[stripe-webhook] email échec de paiement non envoyé", { invId: inv.id, err });
+    }
   }
 }

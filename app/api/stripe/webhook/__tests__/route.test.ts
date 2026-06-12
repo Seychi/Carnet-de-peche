@@ -68,15 +68,21 @@ describe("POST /api/stripe/webhook", () => {
     );
   });
 
-  it("200 + dispatch sans isCreation sur subscription.updated", async () => {
+  it("200 + dispatch avec previous_attributes sur subscription.updated", async () => {
     constructEvent.mockReturnValue({
       id: "evt_1b",
       type: "customer.subscription.updated",
-      data: { object: { id: "sub_1" } },
+      data: {
+        object: { id: "sub_1" },
+        previous_attributes: { cancel_at_period_end: false },
+      },
     });
     const res = await POST(makeRequest("{}", "sig") as never);
     expect(res.status).toBe(200);
-    expect(handlerMocks.handleSubscriptionUpsert).toHaveBeenCalledWith({ id: "sub_1" });
+    expect(handlerMocks.handleSubscriptionUpsert).toHaveBeenCalledWith(
+      { id: "sub_1" },
+      { previousAttributes: { cancel_at_period_end: false } }
+    );
   });
 
   it("200 + ignoré pour un event non géré (pas de handler appelé)", async () => {
