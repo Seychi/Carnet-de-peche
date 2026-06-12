@@ -326,7 +326,9 @@ app/(app)/compte/abonnement/cancel/page.tsx
 
 ---
 
-## 🟢 Sprint 10 — Guides + SEO programmatique + riposte Fishing Grid (2 semaines)
+## ✅ Sprint 10 — Guides + SEO programmatique + riposte Fishing Grid — CODE-COMPLET (2026-06-12)
+
+> **Statut** : tous les blocs livrés en 2 jours (au lieu de 2 semaines). Blocs 0+4 sur `main` (déployés le 11/06) ; Blocs 1-2-3-5 sur la branche **`sprint-10-seo`** à valider/merger : moteur MDX + 5 guides + **350 pages programmatiques** + 6 fiches espèces (réglementation vérifiée aux sources, 3 erreurs corrigées dont lieu jaune 30→42 cm) + sitemap ≈ 380 URLs. Lighthouse SEO 100 partout. Détail : `docs/sprint-10/RECAP.md`. Reste manuel John : relecture encarts réglementaires, merge, soumission sitemap Search Console.
 
 **Objectif** : capter du trafic organique gratuit via guides longs + SEO programmatique massif sur la combinatoire espèce × département × technique. **Durci le 2026-06-11** suite à l'analyse Fishing Grid (`docs/concurrents/fishing-grid.md`) : ils ont 266 fiches espèces indexées et une surface web SEO (espèces, marées, réglementations, techniques) qui attaque exactement notre terrain. On ne gagne pas en largeur contre eux, on gagne en **profondeur sur nos 6 espèces**.
 
