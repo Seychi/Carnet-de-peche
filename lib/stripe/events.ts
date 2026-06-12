@@ -143,9 +143,9 @@ export async function handleInvoicePaymentSucceeded(inv: Stripe.Invoice) {
 }
 
 /**
- * invoice.payment_failed : tag la subscription en past_due (email Resend en
- * sprint 11). NB API dahlia : l'id de subscription est sous
- * invoice.parent.subscription_details.subscription.
+ * invoice.payment_failed : tag la subscription en past_due + email Resend
+ * « mets à jour ta CB » (sprint 11 Bloc C). NB API dahlia : l'id de
+ * subscription est sous invoice.parent.subscription_details.subscription.
  */
 export async function handleInvoicePaymentFailed(inv: Stripe.Invoice) {
   const subRef = inv.parent?.subscription_details?.subscription;
@@ -164,5 +164,18 @@ export async function handleInvoicePaymentFailed(inv: Stripe.Invoice) {
   if (error) {
     console.error("[stripe-webhook] tag past_due échoué", { subId, error });
     throw error;
+  }
+
+  // Email après l'update DB (jamais bloquant : sendEmail ne throw pas, et un
+  // échec d'envoi ne doit pas faire rejouer le webhook par Stripe).
+  // Imports dynamiques : évite de charger React Email dans les tests webhook.
+  if (inv.customer_email) {
+    const { sendEmail } = await import("@/lib/email/send");
+    const { default: PaymentFailedEmail } = await import("@/emails/payment-failed");
+    await sendEmail({
+      to: inv.customer_email,
+      subject: "On n'a pas pu encaisser ton paiement",
+      react: PaymentFailedEmail({}),
+    });
   }
 }

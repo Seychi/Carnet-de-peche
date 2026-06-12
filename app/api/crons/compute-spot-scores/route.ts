@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { computeAndStoreSpotScores } from '@/lib/scoring/spot-scores-job'
 
@@ -23,6 +24,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, ...result })
   } catch (err) {
     console.error('[cron compute-spot-scores] échec global:', err)
+    // Alerte Sentry explicite : la réponse 500 part vers Vercel Cron (pas un
+    // navigateur), sans capture le crash serait invisible (brief Bloc D).
+    Sentry.captureException(err, { tags: { job: 'compute-spot-scores' } })
     return NextResponse.json(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

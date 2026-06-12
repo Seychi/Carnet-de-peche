@@ -24,6 +24,11 @@ const envSchema = z
     SUPABASE_SERVICE_ROLE_KEY: isProd ? z.string().min(1) : z.string().min(1).optional(),
     CRON_SECRET: isProd ? z.string().min(8) : z.string().optional(),
 
+    // Emails transactionnels (sprint 11 Bloc C) — requis en prod
+    RESEND_API_KEY: isProd ? z.string().startsWith("re_") : z.string().optional(),
+    // Monitoring (sprint 11 Bloc D) — requis en prod (DSN public, pas un secret)
+    NEXT_PUBLIC_SENTRY_DSN: isProd ? z.string().url() : z.string().optional(),
+
     // Stripe — LIVE (prod)
     STRIPE_SECRET_KEY: stripeStr,
     STRIPE_WEBHOOK_SECRET: stripeStr,
@@ -80,6 +85,8 @@ const _env = envSchema.safeParse({
   SUPABASE_PROJECT_REF: process.env.SUPABASE_PROJECT_REF,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   CRON_SECRET: process.env.CRON_SECRET,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,

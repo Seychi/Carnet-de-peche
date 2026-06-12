@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import type Stripe from "stripe";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/client";
 import * as handlers from "@/lib/stripe/events";
@@ -57,7 +58,13 @@ export async function POST(request: NextRequest) {
     return new NextResponse("ok", { status: 200 });
   } catch (err) {
     // 500 → Stripe rejoue. Idempotence garantie côté handlers.
+    // Capture Sentry explicite : un user payé non-débloqué est l'incident
+    // le plus coûteux du produit (brief Bloc D : alerte sur tout échec webhook).
     console.error("[webhook] erreur handler", event.id, err);
+    Sentry.captureException(err, {
+      tags: { webhook: "stripe", event_type: event.type },
+      extra: { event_id: event.id },
+    });
     return new NextResponse("Handler error", { status: 500 });
   }
 }
