@@ -30,7 +30,7 @@ export default function CGUPage() {
   return (
     <LegalLayout
       title="Conditions Générales d’Utilisation"
-      lastUpdated="21 mai 2026"
+      lastUpdated="12 juin 2026"
       toc={toc}
     >
       <h2 id="objet">Article 1 — Objet</h2>
@@ -116,10 +116,12 @@ export default function CGUPage() {
       </p>
       <h3>5.3 Paiement</h3>
       <p>
-        À compter de l’activation des paiements, ceux-ci sont effectués par carte bancaire via notre
-        prestataire <strong>Stripe</strong>. Les données bancaires ne transitent pas par nos
-        serveurs. L’abonnement est automatiquement reconduit à échéance, pour la même durée et au
-        même tarif, sauf résiliation préalable.
+        Les paiements sont effectués par carte bancaire via notre prestataire{' '}
+        <strong>Stripe</strong>. Les données bancaires ne transitent pas par nos serveurs. Les
+        plans Local et Itinérant débutent par l’essai gratuit de 7 jours (article 5.2) : ta carte
+        bancaire est demandée à la souscription et le premier prélèvement intervient à l’issue de
+        l’essai, sauf annulation avant son terme. L’abonnement est ensuite automatiquement reconduit
+        à échéance, pour la même durée et au même tarif, sauf résiliation préalable.
       </p>
       <h3>5.4 Garantie satisfait ou remboursé</h3>
       <p>
@@ -129,8 +131,9 @@ export default function CGUPage() {
       </p>
       <h3>5.5 Annulation et résiliation</h3>
       <p>
-        Tu peux annuler ton abonnement à tout moment, <strong>en un clic</strong>, depuis l’espace de
-        gestion de ton compte ou par email à contact@carnet-de-peche.com. L’annulation prend effet à
+        Tu peux annuler ton abonnement à tout moment, <strong>en ligne, sans contact ni
+        justification</strong>, depuis l’espace de gestion de ton compte ou par email à
+        contact@carnet-de-peche.com. L’annulation prend effet à
         la fin de la période en cours (mois ou année). Tu conserves l’accès aux fonctionnalités
         payantes jusqu’à cette date.
       </p>

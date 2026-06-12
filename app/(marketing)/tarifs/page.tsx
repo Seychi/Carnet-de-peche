@@ -26,8 +26,8 @@ const trustItems = [
   },
   {
     icon: <Clock size={26} strokeWidth={1.7} className="text-teal-600" />,
-    title: 'Annulation en 1 clic',
-    subtitle: 'Aucun engagement.',
+    title: 'Annulation en ligne',
+    subtitle: 'Depuis ton compte, sans justification.',
   },
   {
     icon: <MessageCircle size={26} strokeWidth={1.7} className="text-teal-600" />,
@@ -47,7 +47,7 @@ const faqItems = [
   },
   {
     q: 'Je peux annuler quand ?',
-    a: "Quand tu veux, en 2 clics, depuis ton compte. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.",
+    a: "Quand tu veux, en ligne, depuis ton compte — sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.",
   },
   {
     q: "L'app fonctionne-t-elle hors ligne ?",

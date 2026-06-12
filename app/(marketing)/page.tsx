@@ -224,7 +224,7 @@ export default function HomePage() {
               <div className="mt-11 flex flex-wrap gap-x-9 gap-y-5 border-t border-white/10 pt-8">
                 {[
                   { v: "6", l: "espèces de chez nous" },
-                  { v: "100+", l: "spots curés au lancement" },
+                  { v: "Bretagne", l: "spots curés — extension Atlantique en cours" },
                   { v: "100%", l: "fil communautaire gratuit" },
                 ].map((s) => (
                   <div key={s.l}>
@@ -349,9 +349,9 @@ export default function HomePage() {
               </p>
               <div className="mt-7 mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="rounded-[14px] border border-sand-200 bg-white p-4 sm:p-5">
-                  <TagData className="block text-[10.5px]">Objectif lancement</TagData>
-                  <div className="my-1.5 font-display text-[28px] font-bold text-navy-900 sm:text-[32px]">100+</div>
-                  <div className="text-[13px] text-ink-600">spots curés · couverture France entière</div>
+                  <TagData className="block text-[10.5px]">Couverture actuelle</TagData>
+                  <div className="my-1.5 font-display text-[28px] font-bold text-navy-900 sm:text-[32px]">Bretagne</div>
+                  <div className="text-[13px] text-ink-600">spots curés — extension Atlantique en cours</div>
                 </div>
                 <div className="rounded-[14px] border border-sand-200 bg-white p-4 sm:p-5">
                   <TagData className="block text-[10.5px]">Créneau du jour · Exemple</TagData>
@@ -513,7 +513,7 @@ export default function HomePage() {
                   { title: "Profil pêcheur", desc: "Ville, technique, espèces favorites, badges, équipement. Pas de stalking GPS." },
                   { title: "Fil régional", desc: "Conditions du jour, prises récentes, événements, alertes locales." },
                   { title: "Floutage GPS systématique", desc: "Toute prise publique est positionnée dans un rayon de 1 km. Anti spot-burning." },
-                  { title: "Modération communautaire", desc: "Signalement à 1 clic. Charte stricte. Modération IA prévue post-beta." },
+                  { title: "Modération communautaire", desc: "Signalement direct sur chaque post. Charte stricte. Modération IA prévue post-beta." },
                 ].map((item) => <CheckItem key={item.title} {...item} />)}
               </ul>
             </div>
@@ -624,7 +624,7 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
-            Essai 7 jours · satisfait ou remboursé · annulation en 1 clic
+            Essai 7 jours · satisfait ou remboursé · annulation en ligne depuis ton compte
           </p>
         </div>
       </section>

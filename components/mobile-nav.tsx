@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X, LogOut, User, BookOpen } from 'lucide-react'
+import { Menu, X, LogOut, User, BookOpen, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -91,6 +91,14 @@ export function MobileNav({ isAuthenticated = false, username = null }: MobileNa
                   >
                     <BookOpen size={18} className="text-ink-400" />
                     Mon carnet
+                  </Link>
+                  <Link
+                    href="/compte/abonnement"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors border-b border-ink-100"
+                  >
+                    <CreditCard size={18} className="text-ink-400" />
+                    Mon abonnement
                   </Link>
                   <button
                     onClick={handleSignOut}

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { LogOut, User, BookOpen, ChevronDown } from 'lucide-react'
+import { LogOut, User, BookOpen, CreditCard, ChevronDown } from 'lucide-react'
 
 interface UserMenuProps {
   username: string | null
@@ -79,6 +79,14 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
             >
               <BookOpen size={15} className="text-ink-400" />
               Mon carnet
+            </Link>
+            <Link
+              href="/compte/abonnement"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <CreditCard size={15} className="text-ink-400" />
+              Mon abonnement
             </Link>
           </nav>
           <div className="py-1.5 border-t border-ink-100">

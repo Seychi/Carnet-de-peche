@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
   return (
     <LegalLayout
       title="Politique de confidentialité"
-      lastUpdated="21 mai 2026"
+      lastUpdated="12 juin 2026"
       toc={toc}
     >
       <h2 id="preambule">1. Préambule</h2>
@@ -99,13 +99,13 @@ export default function ConfidentialitePage() {
         actif. Si nous en ajoutons à l’avenir, cette politique sera mise à jour et ton consentement
         préalable sera demandé pour les outils non-essentiels.
       </p>
-      <h3>3.5 Données de paiement (à venir)</h3>
+      <h3>3.5 Données de paiement</h3>
       <p>
-        Lorsque tu souscris à un abonnement Local ou Itinérant (paiements à venir — non
-        disponibles actuellement) : email de facturation, informations relatives à la souscription
+        Lorsque tu souscris à un abonnement Local ou Itinérant (paiement par carte bancaire via
+        notre prestataire Stripe) : email de facturation, informations relatives à la souscription
         (plan, dates, statut). Les données de carte bancaire <strong>ne transitent JAMAIS</strong>{' '}
-        par nos serveurs : elles sont collectées et traitées exclusivement par <strong>Stripe</strong>,
-        prestataire conforme PCI-DSS Niveau 1.
+        par nos serveurs et ne sont jamais stockées chez nous : elles sont collectées et traitées
+        exclusivement par <strong>Stripe</strong>, prestataire conforme PCI-DSS Niveau 1.
       </p>
 
       <h2 id="finalites">4. Finalités et bases légales</h2>
@@ -136,7 +136,7 @@ export default function ConfidentialitePage() {
           <tr><td><strong>Supabase Inc.</strong></td><td>Base de données, authentification, stockage photos</td><td>eu-west-3 (Paris, France)</td></tr>
           <tr><td><strong>Vercel Inc.</strong></td><td>Hébergement du site et exécution du code</td><td>USA (SCC, DPA disponible)</td></tr>
           <tr><td><strong>Open-Meteo</strong></td><td>Conditions météo, marines, solunaires</td><td>Allemagne (UE), données anonymes</td></tr>
-          <tr><td><strong>Stripe Inc.</strong> (à venir)</td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
+          <tr><td><strong>Stripe Inc.</strong></td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
           <tr><td><strong>Resend Inc.</strong> (à venir)</td><td>Emails transactionnels</td><td>USA (SCC, DPA disponible)</td></tr>
         </tbody>
       </table>
@@ -153,7 +153,7 @@ export default function ConfidentialitePage() {
 
       <h2 id="transferts">6. Transferts hors Union Européenne</h2>
       <p>
-        Certains de nos sous-traitants sont basés hors UE (Vercel, Stripe à venir). Ces transferts
+        Certains de nos sous-traitants sont basés hors UE (Vercel, Stripe). Ces transferts
         sont encadrés par les <strong>Clauses Contractuelles Types (SCC)</strong> de la Commission
         européenne, conformément à l’article 46 du RGPD. Tu peux demander une copie des garanties
         applicables en contactant <a href="mailto:contact@carnet-de-peche.com">contact@carnet-de-peche.com</a>.
