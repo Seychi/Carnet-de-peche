@@ -360,7 +360,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
             className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-ink-200 text-ink-700 text-sm font-medium hover:bg-ink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
           >
             <Fish size={16} />
-            Logger une prise ici
+            Loguer une prise ici
           </Link>
         )}
 

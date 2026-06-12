@@ -205,7 +205,7 @@ function RecentCatchesSection({
             href={ctaHref}
             className="inline-block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors"
           >
-            Logger ma prise
+            Loguer ma prise
           </Link>
         </div>
       ) : (

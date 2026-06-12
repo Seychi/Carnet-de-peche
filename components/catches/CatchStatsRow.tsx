@@ -22,7 +22,10 @@ export function CatchStatsRow({
 
   return (
     <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 ${className ?? ''}`}>
-      <StatCard label="prises au total" value={String(stats.totalCount)} />
+      <StatCard
+        label={stats.totalCount > 1 ? 'prises au total' : 'prise au total'}
+        value={String(stats.totalCount)}
+      />
       <StatCard label="ce mois-ci" value={String(stats.thisMonthCount)} />
       <StatCard label="record" value={biggest} compact />
       <StatCard label="taux de relâche" value={`${stats.releasedRate} %`} />

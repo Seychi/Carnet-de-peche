@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { createCatchSchema, updateCatchSchema } from './schema'
+import { createCatchSchema, updateCatchSchema, isInFranceMetro } from './schema'
 import type { CreateCatchInput, UpdateCatchInput } from './schema'
 import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 
@@ -13,13 +13,23 @@ function toEwkt(lat: number, lng: number): string {
   return `SRID=4326;POINT(${lng} ${lat})`
 }
 
-/** Tente de récupérer les conditions sans jamais lever d'exception */
+/** Conditions stockées quand la prise est hors zone de couverture (exclue du scoring) */
+type OutOfCoverageConditions = { out_of_coverage: true }
+
+/**
+ * Tente de récupérer les conditions sans jamais lever d'exception.
+ * Hors France métropolitaine : pas d'appel Open-Meteo, la prise est flaggée
+ * out_of_coverage (exclue du scoring, conditions non calculées).
+ */
 async function safeConditions(
   lat: number | undefined,
   lng: number | undefined,
   datetime: Date
-) {
+): Promise<ConditionsSnapshot | OutOfCoverageConditions | null> {
   if (lat === undefined || lng === undefined) return null
+  if (!isInFranceMetro(lat, lng)) {
+    return { out_of_coverage: true } as const
+  }
   try {
     return await fetchConditionsAt(lat, lng, datetime)
   } catch (err) {
@@ -48,6 +58,8 @@ export async function createCatch(
 
   const caughtAt = new Date(data.caught_at)
   const conditions = await safeConditions(data.latitude, data.longitude, caughtAt)
+  // Snapshot exploitable pour les colonnes dénormalisées (null si hors couverture)
+  const snapshot = conditions && !('out_of_coverage' in conditions) ? conditions : null
 
   const geom =
     data.latitude !== undefined && data.longitude !== undefined
@@ -78,10 +90,10 @@ export async function createCatch(
       conditions: conditions as unknown,
       photo_path: data.photo_path ?? null,
       location_label: data.location_label ?? null,
-      wind_speed_kmh: conditions?.wind_speed_kmh ?? null,
-      wind_direction_deg: conditions?.wind_direction_deg ?? null,
-      tide_state: conditions?.tide_state === 'rising' || conditions?.tide_state === 'falling'
-        ? conditions.tide_state
+      wind_speed_kmh: snapshot?.wind_speed_kmh ?? null,
+      wind_direction_deg: snapshot?.wind_direction_deg ?? null,
+      tide_state: snapshot?.tide_state === 'rising' || snapshot?.tide_state === 'falling'
+        ? snapshot.tide_state
         : null,
     })
     .select('id')
@@ -134,10 +146,10 @@ export async function updateCatch(
       ? toEwkt(data.latitude, data.longitude)
       : undefined
 
-  let conditions: unknown = undefined
+  let conditions: ConditionsSnapshot | OutOfCoverageConditions | null | undefined = undefined
   if (geomChanged && data.latitude !== undefined && data.longitude !== undefined) {
     const caughtAt = data.caught_at ? new Date(data.caught_at) : new Date()
-    conditions = await safeConditions(data.latitude, data.longitude, caughtAt) as unknown
+    conditions = await safeConditions(data.latitude, data.longitude, caughtAt)
   }
 
   const payload: Record<string, unknown> = {}
@@ -160,7 +172,8 @@ export async function updateCatch(
   if (data.reveal_precise_to_public !== undefined) payload.reveal_precise_to_public = data.reveal_precise_to_public
   if (conditions !== undefined) {
     payload.conditions = conditions
-    const c = conditions as ConditionsSnapshot | null
+    // Snapshot exploitable pour les colonnes dénormalisées (null si hors couverture)
+    const c = conditions && !('out_of_coverage' in conditions) ? conditions : null
     payload.wind_speed_kmh = c?.wind_speed_kmh ?? null
     payload.wind_direction_deg = c?.wind_direction_deg ?? null
     payload.tide_state = c?.tide_state === 'rising' || c?.tide_state === 'falling'

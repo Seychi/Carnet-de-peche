@@ -85,7 +85,7 @@ export function CatchStatsDetailed({
       <div className={`border-t border-slate-100 ${open ? 'block' : 'hidden sm:block'}`}>
         {isEmpty ? (
           <p className="text-[13px] text-ink-400 text-center py-10 px-5">
-            Pas encore de prises loggées.
+            Pas encore de prises loguées.
           </p>
         ) : (
           <div className="px-5 pb-5 pt-4 space-y-4">

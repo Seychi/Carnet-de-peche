@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { MapPin, Loader2, Fish } from 'lucide-react'
 
-import { createCatchSchema, catchBaseSchema, type CreateCatchInput } from '@/lib/catches/schema'
+import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
 import { PhotoInput } from '@/components/forms/PhotoInput'
 import { analytics } from '@/lib/analytics'
@@ -203,8 +203,21 @@ export function CatchForm(props: CatchFormProps) {
   const legalSize = watchedSpecies ? (LEGAL_SIZES[watchedSpecies] ?? 0) : 0
   const isUndersize = !!watchedSizeCm && legalSize > 0 && watchedSizeCm < legalSize
 
-  // Auto-relâché si sous-taille légale
+  const isOutOfCoverage =
+    watchedLat != null && watchedLng != null && !isInFranceMetro(watchedLat, watchedLng)
+
+  // Auto-relâché si sous-taille légale — uniquement quand l'utilisateur modifie
+  // taille ou espèce. Au montage (édition), on ne doit pas écraser un « conservé »
+  // déjà enregistré en base.
+  const prevSizeSpeciesRef = useRef<{ size?: number; species?: string }>({
+    size: defaultValues.size_cm,
+    species: defaultValues.species,
+  })
   useEffect(() => {
+    const prev = prevSizeSpeciesRef.current
+    const changed = prev.size !== watchedSizeCm || prev.species !== watchedSpecies
+    prevSizeSpeciesRef.current = { size: watchedSizeCm, species: watchedSpecies }
+    if (!changed) return
     if (!watchedSizeCm || !watchedSpecies) return
     const legal = LEGAL_SIZES[watchedSpecies] ?? 0
     if (legal > 0 && watchedSizeCm < legal) {
@@ -371,7 +384,7 @@ export function CatchForm(props: CatchFormProps) {
       hasPhoto: !!photoPath,
     })
     localStorage.removeItem(DRAFT_KEY)
-    toast.success('Prise loggée !')
+    toast.success('Prise loguée !')
     router.push(`/carnet/${result.id}`)
   }
 
@@ -741,6 +754,13 @@ export function CatchForm(props: CatchFormProps) {
         {/* Erreur lat/lng uniquement en mode création */}
         {!isEdit && (errors.latitude || errors.longitude) && (
           <FieldError error="Position requise. Utilise le GPS ou saisis les coordonnées." />
+        )}
+
+        {isOutOfCoverage && (
+          <p className="mt-3 rounded-[10px] border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-800">
+            Position hors France métropolitaine — la prise sera enregistrée, mais les
+            conditions et le score ne seront pas calculés.
+          </p>
         )}
       </Card>
 

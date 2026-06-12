@@ -5,7 +5,7 @@ import { PERSONAL_SCORING_CONFIG as CFG } from '@/lib/scoring/personal-config'
 
 // ─── PersonalScoreSection ─────────────────────────────────────────────────────
 // Vue DESCRIPTIVE : on montre où et quand tombent tes prises, sans prétendre
-// mesurer une "réussite" (impossible sans logger les sorties bredouilles).
+// mesurer une "réussite" (impossible sans loguer les sorties bredouilles).
 
 const FACTOR_META: Record<
   CatchPattern['factor'],
@@ -103,7 +103,7 @@ function EmptyState({ count }: { count: number }) {
         href="/carnet/nouvelle"
         className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors"
       >
-        Logger une prise
+        Loguer une prise
         <span aria-hidden>→</span>
       </Link>
     </div>

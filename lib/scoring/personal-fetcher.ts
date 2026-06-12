@@ -11,7 +11,7 @@ async function fetchUserCatches(
 ): Promise<DbCatch[]> {
   const { data, error } = await supabase
     .from('catches')
-    .select('id, caught_at, size_cm, wind_speed_kmh, wind_direction_deg, tide_state, spot_id')
+    .select('id, caught_at, size_cm, wind_speed_kmh, wind_direction_deg, tide_state, spot_id, conditions')
     .eq('user_id', userId)
     .order('caught_at', { ascending: false })
 
@@ -21,7 +21,10 @@ async function fetchUserCatches(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return ((data ?? []) as any[]).map((row): DbCatch => ({
+  return ((data ?? []) as any[])
+    // Prises hors France métropolitaine : conditions non calculées, exclues du scoring
+    .filter((row) => !(row.conditions as { out_of_coverage?: boolean } | null)?.out_of_coverage)
+    .map((row): DbCatch => ({
     id: String(row.id),
     user_id: userId,
     caught_at: String(row.caught_at),
