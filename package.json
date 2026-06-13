@@ -54,6 +54,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@sentry/cli",
       "sharp",
       "unrs-resolver",
       "msw",
