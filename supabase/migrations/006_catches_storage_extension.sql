@@ -127,8 +127,8 @@ CREATE INDEX IF NOT EXISTS conditions_cache_fetched_at_idx
 -- ─────────────────────────────────────────────────────────────────────
 -- 5. Vue catches_for_viewer — mise à jour avec les nouvelles colonnes
 -- ─────────────────────────────────────────────────────────────────────
--- CREATE OR REPLACE est non-destructif (même colonnes existantes conservées).
-
+-- replay : redéfinition incompatible avec OR REPLACE (colonnes modifiées) — drop préalable (réparation sprint 11, sans effet prod)
+DROP VIEW IF EXISTS public.catches_for_viewer;
 CREATE OR REPLACE VIEW public.catches_for_viewer AS
 SELECT
   c.id,

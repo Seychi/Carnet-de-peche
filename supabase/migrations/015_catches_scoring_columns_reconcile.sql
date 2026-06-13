@@ -31,6 +31,8 @@ ALTER TABLE public.catches
 -- 2. catches_for_viewer — sur-ensemble (append-only, rien retiré)
 -- ─────────────────────────────────────────────────────────────────────
 
+-- replay : redéfinition incompatible avec OR REPLACE (colonnes modifiées) — drop préalable (réparation sprint 11, sans effet prod)
+DROP VIEW IF EXISTS public.catches_for_viewer;
 CREATE OR REPLACE VIEW public.catches_for_viewer AS
 SELECT
   c.id,

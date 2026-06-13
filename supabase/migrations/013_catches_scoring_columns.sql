@@ -30,6 +30,8 @@ ALTER TABLE public.catches
 -- 3. Vue catches_for_viewer — mise à jour avec les nouvelles colonnes
 -- ─────────────────────────────────────────────────────────────────────
 
+-- replay : redéfinition incompatible avec OR REPLACE (colonnes modifiées) — drop préalable (réparation sprint 11, sans effet prod)
+DROP VIEW IF EXISTS public.catches_for_viewer;
 CREATE OR REPLACE VIEW public.catches_for_viewer AS
 SELECT
   c.id,
