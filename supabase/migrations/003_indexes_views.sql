@@ -37,74 +37,14 @@ create index if not exists reports_status_idx             on public.reports (sta
 create index if not exists spots_name_trgm_idx
   on public.spots using gin (name gin_trgm_ops);
 
--- ---------- Vues publiques (masquent les colonnes sensibles) ----------
-
--- Vue : prises visibles par l'utilisateur courant.
--- Le geom retourné dépend de la relation (ami ? non-ami ?) et des préférences du pêcheur.
-create or replace view public.catches_for_viewer as
-select
-  c.id,
-  c.user_id,
-  p.username,
-  p.display_name,
-  p.avatar_url,
-  c.spot_id,
-  s.name           as spot_name,
-  s.department,
-  coalesce(public.catch_visible_geom(c), c.geom_public) as geom_visible,
-  c.species,
-  c.size_cm,
-  c.weight_g,
-  c.technique,
-  c.bait,
-  c.caught_at,
-  c.photo_path,
-  c.notes,
-  c.privacy,
-  c.released,
-  c.created_at
-from public.catches c
-join public.profiles p on p.id = c.user_id
-left join public.spots s on s.id = c.spot_id
-where
-  c.user_id = auth.uid()
-  or c.privacy = 'public'
-  or (
-    c.privacy = 'friends'
-    and exists (
-      select 1 from public.follows
-      where follower_id = auth.uid() and following_id = c.user_id
-    )
-  );
-
--- Vue : spots avec geom adapté (précis pour abonnés, flouté pour gratuits).
-create or replace view public.spots_for_viewer as
-select
-  s.id,
-  s.name,
-  s.slug,
-  s.department,
-  s.region,
-  coalesce(public.spot_visible_geom(s), null) as geom_precise,  -- null si pas autorisé
-  s.geom_public,                                                 -- toujours dispo (flouté 1 km)
-  s.techniques,
-  s.species,
-  s.structure,
-  s.difficulty,
-  s.description,
-  s.access_notes,
-  s.hazards,
-  s.visibility,
-  s.created_by,
-  s.verified,
-  s.created_at
-from public.spots s
-where
-  s.visibility = 'public'
-  or (s.visibility = 'subscriber' and public.has_active_subscription(auth.uid()))
-  or s.created_by = auth.uid();
-
-comment on view public.public_catches is 'Vue lecture seule des prises publiques avec géoloc floutée. À utiliser pour le fil régional.';
+-- ---------- Vues publiques ----------
+-- ⚠ RÉPARATION REPLAY (sprint 11, 2026-06-13) : les vues catches_for_viewer
+-- et spots_for_viewer étaient définies ICI alors qu'elles dépendent de
+-- catch_visible_geom / spot_visible_geom créées en 004 → toute application
+-- de la séquence sur une base FRAÎCHE (branche preview Supabase, CI E2E)
+-- échouait à ce statement. Elles sont déplacées en FIN de 004. Sans effet
+-- sur la prod (003/004 déjà enregistrées comme appliquées). Un `comment on
+-- view public.public_catches` orphelin (vue jamais créée) a aussi été retiré.
 
 -- Vue : compteurs de profil (à utiliser dans les fiches profil).
 create or replace view public.profile_stats as

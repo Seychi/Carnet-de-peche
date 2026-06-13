@@ -32,9 +32,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # pnpm 10 : aligné sur le poste de dev (lockfile généré en 10.x).
       - uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
 
       - uses: actions/setup-node@v4
         with:

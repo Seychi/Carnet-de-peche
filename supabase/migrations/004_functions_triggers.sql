@@ -222,3 +222,76 @@ as $$
   order by distance_m
   limit 100;
 $$;
+
+-- ---------- Vues *_for_viewer (déplacées depuis 003) ----------
+-- ⚠ RÉPARATION REPLAY (sprint 11, 2026-06-13) : ces vues dépendent de
+-- catch_visible_geom / spot_visible_geom définies plus haut dans CE fichier
+-- — elles étaient dans 003 et cassaient toute application sur base fraîche.
+-- Définitions reprises VERBATIM de 003 (les versions ultérieures 013/015
+-- les redéfinissent plus loin dans la séquence, comme avant). Sans effet
+-- sur la prod (004 déjà enregistrée comme appliquée).
+
+-- Vue : prises visibles par l'utilisateur courant.
+-- Le geom retourné dépend de la relation (ami ? non-ami ?) et des préférences du pêcheur.
+create or replace view public.catches_for_viewer as
+select
+  c.id,
+  c.user_id,
+  p.username,
+  p.display_name,
+  p.avatar_url,
+  c.spot_id,
+  s.name           as spot_name,
+  s.department,
+  coalesce(public.catch_visible_geom(c), c.geom_public) as geom_visible,
+  c.species,
+  c.size_cm,
+  c.weight_g,
+  c.technique,
+  c.bait,
+  c.caught_at,
+  c.photo_path,
+  c.notes,
+  c.privacy,
+  c.released,
+  c.created_at
+from public.catches c
+join public.profiles p on p.id = c.user_id
+left join public.spots s on s.id = c.spot_id
+where
+  c.user_id = auth.uid()
+  or c.privacy = 'public'
+  or (
+    c.privacy = 'friends'
+    and exists (
+      select 1 from public.follows
+      where follower_id = auth.uid() and following_id = c.user_id
+    )
+  );
+
+-- Vue : spots avec geom adapté (précis pour abonnés, flouté pour gratuits).
+create or replace view public.spots_for_viewer as
+select
+  s.id,
+  s.name,
+  s.slug,
+  s.department,
+  s.region,
+  coalesce(public.spot_visible_geom(s), null) as geom_precise,  -- null si pas autorisé
+  s.geom_public,                                                 -- toujours dispo (flouté 1 km)
+  s.techniques,
+  s.species,
+  s.structure,
+  s.difficulty,
+  s.description,
+  s.access_notes,
+  s.hazards,
+  s.visibility,
+  s.created_by,
+  s.verified,
+  s.created_at
+from public.spots s
+where
+  s.visibility = 'public'
+  or (s.visibility = 'subscriber' and public.has_active_subscription(auth.uid()))
+  or s.created_by = auth.uid();
