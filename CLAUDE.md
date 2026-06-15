@@ -29,7 +29,7 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-06-11 : sprints 9.5 + 10.5 mergés et déployés, Stripe LIVE validé)
+## 2. État actuel du projet (à jour 2026-06-13 : sprints 10.6 + 11 mergés sur main et déployés, migrations 023+024 en prod, fil réparé)
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -80,6 +80,10 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-spr
 - **Reste avant merge** (manuel John) : relire → `sprint-9.5-cleanup` → `main` → déploiement → QA Stripe LIVE (`docs/sprint-9/RECAP.md`). Détail : `docs/sprint-9.5-RECAP.md`.
 
 ✅ **État au 2026-06-11 (vérifié git + prod)** : `main` == `origin/main` (commit `2854c4f`) contient les sprints 8, 9, 9.5, **10.5 (DA v2)** et les **Blocs 0 + 4 du sprint 10** — tout est déployé. **QA Stripe LIVE validée par John (2026-06-11)**. Migration 022 (`social_free`) appliquée en prod. La prod compte **10 spots** (8 en Finistère, 2 en Morbihan).
+
+✅ **État au 2026-06-13 (vérifié git + Vercel + Supabase)** : `main` == `origin/main` (commit `698f7c2`) = **branche de production Vercel**, déployée. Le **sprint 10.6** (fixes fil) **et le sprint 11** (PWA installable + manifest + SW, Sentry câblé, emails Resend, E2E Playwright + Lighthouse CI, perf bundle, a11y AA) sont **mergés sur main et en prod**. Migrations **023 (modération, colonne `is_moderator` + policies) + 024 (perf RLS initplan + index)** appliquées en prod.
+- **Incident résolu** : la prod tournait sur un commit `sprint-11` promu à la main par-dessus la branche `main`, **sans que 023/024 soient appliquées** → le code déployé interrogeait `profiles.is_moderator` inexistant → `/fil/[dept]` en erreur (`column does not exist`) et `/fil` connecté renvoyé en cul-de-sac `/profil` (compte John sans `home_department`). Corrigé : migrations appliquées, `home_department` de John = `06`, John flaggé **modérateur**, et `/fil` sans département affiche désormais un **sélecteur de côte** au lieu de `/profil`.
+- **⚠️ Reste (dashboard Vercel, hors outils Claude)** : ajouter `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` à l'env **Preview** — sans elles, **tous les builds de branche/PR + la CI E2E échouent** (prod non affectée). Leçon : appliquer les migrations Supabase en prod **avant** de promouvoir le code qui en dépend.
 
 🔜 **SUITE — Sprint 10, Blocs restants 1 → 2 → 3 → 5** (brief : `docs/sprint-10/BRIEF.md`) : MDX + guides, ~500 pages programmatiques, fiches espèces profondes, SEO global. **Élargi le 2026-06-11 (décisions John, riposte Fishing Grid)** :
 - **Curation de spots** : objectif **100-120 spots curés**, priorité Bretagne → façade Atlantique, par lots validés par John avant insertion — plan et lots dans `docs/sprint-10/spots-curation.md`. C'est le préalable pour tenir la copy home « 100+ spots curés » et Gate 2.
