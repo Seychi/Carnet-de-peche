@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { MapPin, MessageCircle, UserPlus, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { COASTAL_DEPARTMENTS, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 // La page lit auth.getUser() pour rediriger les connectés vers leur fil : elle
 // ne peut pas être servie statique (en prod, le stub s'affichait même connecté —
@@ -39,6 +40,69 @@ const STEPS = [
   },
 ]
 
+// Départements méditerranéens, pour séparer les deux façades dans le sélecteur.
+const MEDITERRANEE = new Set(['06', '11', '13', '30', '34', '66', '83', '2A', '2B'])
+
+// Connecté sans département : on lui fait choisir sa côte plutôt que de le
+// renvoyer en cul-de-sac vers /profil. Server component (zéro JS client).
+function DepartmentChooser() {
+  const groups: { title: string; depts: string[] }[] = [
+    { title: 'Atlantique & Manche', depts: COASTAL_DEPARTMENTS.filter((d) => !MEDITERRANEE.has(d)) },
+    { title: 'Méditerranée', depts: COASTAL_DEPARTMENTS.filter((d) => MEDITERRANEE.has(d)) },
+  ]
+
+  return (
+    <div className="bg-sand-50 text-ink-900 font-sans min-h-screen">
+      <div className="mx-auto max-w-[760px] px-5 py-14 sm:py-20">
+        <span className="inline-flex items-center gap-2 text-[12px] sm:text-[13px] font-semibold tracking-[.04em] uppercase text-teal-700 rounded-full px-3.5 py-1.5 border border-teal-500/25 bg-teal-500/10">
+          <MapPin size={13} />
+          La communauté
+        </span>
+
+        <h1 className="mt-5 mb-3">
+          Choisis ta <span className="text-teal-600">côte</span>.
+        </h1>
+        <p className="text-[15px] sm:text-[16px] text-ink-700 leading-relaxed max-w-[560px]">
+          Ton compte n’a pas encore de département. Choisis celui où tu pêches pour ouvrir ton
+          fil — tu pourras le fixer définitivement dans ton profil.
+        </p>
+
+        <div className="mt-9 flex flex-col gap-8">
+          {groups.map((group) => (
+            <div key={group.title}>
+              <h2 className="mb-3 font-mono text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-400">
+                {group.title}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {group.depts.map((d) => (
+                  <Link
+                    key={d}
+                    href={`/fil/${d}`}
+                    className="flex items-center gap-2 rounded-[14px] border border-ink-100 bg-white px-3.5 min-h-[48px] text-[14px] text-ink-900 transition-colors hover:border-teal-500/40 hover:bg-teal-50/50"
+                  >
+                    <span className="font-mono text-[12px] font-semibold text-teal-700">{d}</span>
+                    <span className="truncate">{DEPARTMENT_LABELS[d]}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10">
+          <Link
+            href="/profil"
+            className="inline-flex items-center gap-2 text-[14px] font-semibold text-navy-900 underline-offset-4 hover:underline"
+          >
+            Définir mon département dans mon profil
+            <ArrowRight size={15} />
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function FilTeaserPage() {
   const supabase = await createClient()
   const {
@@ -55,7 +119,9 @@ export default async function FilTeaserPage() {
     // char(3) Postgres → '06 ' paddé : trim obligatoire avant l'URL
     const dept = profile?.home_department?.trim()
     if (dept) redirect(`/fil/${dept}`)
-    redirect('/profil')
+    // Connecté mais sans département : sélecteur de côte (plutôt qu'un renvoi
+    // vers /profil en cul-de-sac — cf 4 comptes/14 sans home_department).
+    return <DepartmentChooser />
   }
 
   // Anonyme → teaser public (évite le soft-404 du sitemap + capte les visiteurs froids).
