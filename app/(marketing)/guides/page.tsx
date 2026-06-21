@@ -5,6 +5,7 @@ import { Clock, ArrowRight, Fish } from 'lucide-react'
 import { getAllGuides } from '@/lib/guides/loader'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { MarketingCTA } from '@/components/marketing/MarketingCTA'
 
 export const revalidate = 86400
 
@@ -22,6 +23,7 @@ function GuideCardImage({ src, alt }: { src: string; alt: string }) {
         src={src}
         alt={alt}
         fill
+        loading="lazy"
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
         className="object-cover group-hover:scale-105 transition-transform duration-500"
       />
@@ -116,24 +118,10 @@ export default async function GuidesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-white py-14 border-t border-sand-200">
-        <div className="max-w-[760px] mx-auto px-6 text-center">
-          <h2 className="font-display text-navy-900 text-2xl mb-3">
-            Logue tes prises, améliore ta technique
-          </h2>
-          <p className="text-ink-600 mb-6 text-sm">
-            Un carnet de pêche numérique pour suivre tes sessions, analyser tes progrès et partager
-            avec la communauté.
-          </p>
-          <Link
-            href="/auth/login"
-            className="inline-block px-8 py-3 bg-navy-900 hover:bg-navy-800 text-white font-semibold rounded-[12px] transition-colors duration-200 text-sm"
-          >
-            Créer mon carnet gratuit
-          </Link>
-        </div>
-      </section>
+      <MarketingCTA
+        title="Logue tes prises, améliore ta technique"
+        subtitle="Un carnet de pêche numérique pour suivre tes sessions, analyser tes progrès et partager avec la communauté. Gratuit, illimité."
+      />
     </div>
   )
 }

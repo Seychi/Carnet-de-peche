@@ -192,7 +192,7 @@ export function PricingCards({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
 
         {/* Découverte */}
-        <div className="bg-white border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col">
+        <div className="bg-white border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none motion-reduce:hover:shadow-none">
           <TagData>{plans.decouverte.name}</TagData>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">
@@ -224,7 +224,7 @@ export function PricingCards({
         </div>
 
         {/* Local — featured, navy-950 + isobathes */}
-        <div className="relative overflow-hidden bg-navy-950 rounded-[22px] p-7 sm:p-8 flex flex-col">
+        <div className="relative overflow-hidden bg-navy-950 rounded-[22px] p-7 sm:p-8 flex flex-col transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none motion-reduce:hover:shadow-none">
           <Bathy opacity={0.3} />
           <div className="relative flex flex-col flex-1">
             <div className="flex items-center justify-between gap-3">
@@ -275,7 +275,7 @@ export function PricingCards({
         </div>
 
         {/* Itinérant */}
-        <div className="bg-gradient-to-b from-white to-sand-100 border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col">
+        <div className="bg-gradient-to-b from-white to-sand-100 border border-sand-200 rounded-[22px] p-7 sm:p-8 flex flex-col transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none motion-reduce:hover:shadow-none">
           <TagData variant="teal">{plans.itinerant.name}</TagData>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="font-mono text-[40px] font-semibold leading-none text-navy-900">

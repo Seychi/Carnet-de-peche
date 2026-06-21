@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Logo } from '@/components/ui-v2/Logo'
 import { UserMenu } from './UserMenu'
 import { MobileNav } from '@/components/mobile-nav'
+import { HeaderShell } from './HeaderShell'
 
 const NAV_LINKS = [
   { label: 'Carte', href: '/carte' },
@@ -26,15 +27,7 @@ export async function Header() {
   }
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{
-        background: 'rgba(251,248,242,.92)',
-        backdropFilter: 'saturate(180%) blur(14px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(14px)',
-        borderBottom: '1px solid rgba(10,47,61,.07)',
-      }}
-    >
+    <HeaderShell>
       <div className="mx-auto max-w-[1280px] px-6 flex items-center justify-between gap-4 h-[68px]">
         {/* Logo */}
         <Link
@@ -82,6 +75,6 @@ export async function Header() {
           <MobileNav isAuthenticated={!!user} username={profile?.username ?? null} />
         </div>
       </div>
-    </header>
+    </HeaderShell>
   )
 }

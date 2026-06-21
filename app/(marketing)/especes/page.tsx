@@ -5,7 +5,12 @@ import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
 import { ESPECES_CONTENT } from '@/lib/especes/content'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { MarketingCTA } from '@/components/marketing/MarketingCTA'
 
+// Page 100 % statique : les espèces viennent de modules statiques (SPECIES,
+// ESPECES_CONTENT), aucune lecture async/réseau au rendu et les couvertures
+// sont des SVG décoratifs (<Bathy>), pas des images distantes. Donc pas de
+// loading.tsx ni de next/image à optimiser ici (rien à charger → CLS nul).
 export const revalidate = 86400
 
 export const metadata: Metadata = {
@@ -113,6 +118,11 @@ export default function EspecesIndexPage() {
           </div>
         </div>
       </section>
+
+      <MarketingCTA
+        title="Pêche, note, recommence"
+        subtitle="Garde une trace de chaque prise, espèce par espèce, et laisse ton carnet te montrer tes patterns. Gratuit, illimité."
+      />
     </div>
   )
 }
