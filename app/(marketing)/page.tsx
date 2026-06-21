@@ -15,6 +15,7 @@ import {
   type TideSparklinePoint,
 } from "@/components/ui-v2/tide-sparkline";
 import { getHomeStats } from "@/lib/marketing/home-stats";
+import { HomeVisualMap, HomeVisualCarnet, HomeVisualFeed } from "@/components/marketing/home-visuals";
 
 const SITE_URL = "https://www.carnet-de-peche.com";
 
@@ -102,107 +103,6 @@ function CheckItem({ title, desc }: { title: string; desc: string }) {
         <div className="mt-0.5 text-sm leading-relaxed text-ink-600">{desc}</div>
       </div>
     </li>
-  );
-}
-
-/* ─── Aperçus produit (mockups UI — aucune donnée d'utilisateur réel) ──── */
-
-function VisualCarnet() {
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-[22px] border border-white/10"
-      style={{
-        aspectRatio: "4/3",
-        background:
-          "radial-gradient(at 30% 70%, rgba(217,165,60,.22), transparent 50%), linear-gradient(135deg, #0A3A4D, #04141C)",
-      }}
-    >
-      <svg viewBox="0 0 400 300" style={{ position: "absolute", inset: 0, padding: 28, width: "100%", height: "100%" }}>
-        <g opacity="0.15" stroke="white" strokeWidth="0.5">
-          <line x1="0" y1="60" x2="400" y2="60" /><line x1="0" y1="120" x2="400" y2="120" />
-          <line x1="0" y1="180" x2="400" y2="180" /><line x1="0" y1="240" x2="400" y2="240" />
-        </g>
-        <text x="20" y="38" fill="white" fontFamily="var(--font-display)" fontSize="18" fontWeight="700">Ton année, en un coup d&apos;œil</text>
-        <text x="20" y="56" fill="rgba(255,255,255,.6)" fontFamily="var(--font-mono)" fontSize="10">SESSIONS · PRISES · CONDITIONS</text>
-        <g transform="translate(20, 90)">
-          {[50, 30, 40, 10, 20, 35, 55, 60, 50, 40, 65, 80].map((y, i) => (
-            <rect key={i} x={i * 30} y={y} width="22" height={110 - y}
-              fill={y <= 30 ? "#14B8A6" : `rgba(20,184,166,${0.35 + (110 - y) / 200})`} rx="3" />
-          ))}
-        </g>
-        <g transform="translate(20, 228)">
-          <text fill="rgba(255,255,255,.5)" fontFamily="var(--font-mono)" fontSize="9">PLUS BELLE PRISE</text>
-          <text y="18" fill="white" fontFamily="var(--font-display)" fontSize="16" fontWeight="700">Ton record perso</text>
-          <text y="34" fill="rgba(255,255,255,.45)" fontFamily="var(--font-mono)" fontSize="9">ESPÈCE · TAILLE · SPOT</text>
-        </g>
-        <g transform="translate(210, 228)">
-          <text fill="rgba(255,255,255,.5)" fontFamily="var(--font-mono)" fontSize="9">SPOT FÉTICHE</text>
-          <text y="18" fill="white" fontFamily="var(--font-display)" fontSize="16" fontWeight="700">Là où ça mord</text>
-          <text y="34" fill="rgba(255,255,255,.45)" fontFamily="var(--font-mono)" fontSize="9">TES SESSIONS LES PLUS PRODUCTIVES</text>
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function VisualCarte({ spotsCount }: { spotsCount: number | null }) {
-  const label = spotsCount ? `${spotsCount} SPOTS CURÉS · BRETAGNE` : "SPOTS CURÉS · BRETAGNE";
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-[22px] border border-white/10"
-      style={{
-        aspectRatio: "4/3",
-        background:
-          "radial-gradient(at 60% 40%, rgba(20,184,166,.5), transparent 50%), linear-gradient(135deg, #0A3A4D, #04141C)",
-      }}
-    >
-      <svg viewBox="0 0 400 300" style={{ position: "absolute", inset: 0, padding: 28, width: "100%", height: "100%" }}>
-        <path d="M0,180 Q60,160 120,170 T240,180 Q300,160 400,150 L400,300 L0,300 Z" fill="rgba(20,184,166,.15)" />
-        <path d="M0,200 Q70,180 130,190 T260,200 Q320,185 400,175 L400,300 L0,300 Z" fill="rgba(20,184,166,.25)" />
-        <circle cx="100" cy="160" r="40" fill="rgba(20,184,166,.5)" />
-        <circle cx="100" cy="160" r="25" fill="rgba(20,184,166,.7)" />
-        <circle cx="240" cy="180" r="50" fill="rgba(217,165,60,.4)" />
-        <circle cx="240" cy="180" r="30" fill="rgba(217,165,60,.6)" />
-        <circle cx="320" cy="140" r="35" fill="rgba(20,184,166,.4)" />
-        <circle cx="100" cy="160" r="5" fill="white" /><circle cx="100" cy="160" r="3" fill="#14B8A6" />
-        <circle cx="240" cy="180" r="5" fill="white" /><circle cx="240" cy="180" r="3" fill="#D9A53C" />
-        <circle cx="320" cy="140" r="5" fill="white" /><circle cx="320" cy="140" r="3" fill="#14B8A6" />
-        <text x="20" y="38" fill="white" fontFamily="var(--font-display)" fontSize="13" fontWeight="700">Carte · score d&apos;activité</text>
-        <text x="20" y="54" fill="rgba(255,255,255,.6)" fontFamily="var(--font-mono)" fontSize="9">{label}</text>
-      </svg>
-    </div>
-  );
-}
-
-// Représentation du fil (UI), volontairement anonymisée : départements, pas de
-// noms inventés ni de position GPS. Le vrai fil affiche les vrais pseudos in-app.
-function VisualCommunaute() {
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-[22px] border border-white/10"
-      style={{
-        aspectRatio: "4/3",
-        background:
-          "radial-gradient(at 30% 70%, rgba(217,165,60,.22), transparent 50%), linear-gradient(135deg, #0A3A4D, #04141C)",
-      }}
-    >
-      <svg viewBox="0 0 400 300" style={{ position: "absolute", inset: 0, padding: 28, width: "100%", height: "100%" }}>
-        {[
-          { y: 10, color: "#14B8A6", dept: "29", place: "Un pêcheur du Finistère", line1: "Bar · 67 cm · marée descendante", line2: "COEF 88 · SHAD KAKI", lineColor: "#5EEAD4" },
-          { y: 100, color: "#D9A53C", dept: "56", place: "Une pêcheuse du Morbihan", line1: "Lieu jaune · 54 cm · pleine mer +1 h", line2: "MADAÏ ROSE", lineColor: "#D9A53C" },
-          { y: 190, color: "#155A73", dept: "22", place: "Un pêcheur des Côtes-d'Armor", line1: "Bar · 55 cm · basse mer −2 h", line2: "STICKBAIT BLANC", lineColor: "#5EEAD4" },
-        ].map((c) => (
-          <g key={c.y} transform={`translate(28, ${c.y})`}>
-            <rect width="344" height="72" rx="12" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.1)" strokeWidth="1" />
-            <circle cx="32" cy="36" r="20" fill={c.color} />
-            <text x="32" y="41" fill="white" fontFamily="var(--font-mono)" fontSize="13" fontWeight="700" textAnchor="middle">{c.dept}</text>
-            <text x="64" y="30" fill="white" fontFamily="var(--font-display)" fontSize="12" fontWeight="700">{c.place}</text>
-            <text x="64" y="46" fill="rgba(255,255,255,.6)" fontFamily="sans-serif" fontSize="10">{c.line1}</text>
-            <text x="64" y="62" fill={c.lineColor} fontFamily="var(--font-mono)" fontSize="9">{c.line2}</text>
-          </g>
-        ))}
-      </svg>
-    </div>
   );
 }
 
@@ -366,7 +266,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <VisualCarnet />
+              <HomeVisualCarnet />
             </div>
           </ScrollReveal>
         </div>
@@ -377,7 +277,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1200px] px-5">
           <ScrollReveal className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div className="order-2 lg:order-1">
-              <VisualCarte spotsCount={spotsCount} />
+              <HomeVisualMap spotsCount={spotsCount} />
             </div>
             <div className="order-1 lg:order-2">
               <SecNum>02 — La carte qui apprend</SecNum>
@@ -562,7 +462,7 @@ export default async function HomePage() {
               </ul>
             </div>
             <div className="order-1 lg:order-2">
-              <VisualCommunaute />
+              <HomeVisualFeed />
             </div>
           </ScrollReveal>
         </div>
