@@ -8,6 +8,7 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { TideSparkline } from '@/components/ui-v2/tide-sparkline'
+import { AvatarUploader } from '@/components/profile/AvatarUploader'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,7 +61,7 @@ export default async function OnboardingFiniPage() {
   const { data: profile } = await supabase
     .from('profiles')
     .select(
-      'username, display_name, city, home_department, techniques, favorite_species, fishing_frequency, years_practicing, onboarded',
+      'username, display_name, city, home_department, techniques, favorite_species, fishing_frequency, years_practicing, onboarded, avatar_url',
     )
     .eq('id', user.id)
     .maybeSingle()
@@ -142,6 +143,21 @@ export default async function OnboardingFiniPage() {
             />
           </div>
         )}
+
+        {/* Photo de profil (optionnel) — l'onboarding est déjà terminé ici, donc
+            cet encart ne bloque jamais : « Ouvrir mon carnet » fait office de Passer. */}
+        <div className="mt-3 rounded-[14px] border border-white/10 bg-white/[0.05] p-4">
+          <TagData className="mb-2.5 block text-white/50">TA PHOTO · OPTIONNEL</TagData>
+          <AvatarUploader
+            userId={user.id}
+            username={profile.username}
+            initialUrl={profile.avatar_url ?? null}
+            variant="dark"
+          />
+          <p className="mt-2.5 text-[12px] text-white/40">
+            Tu peux aussi l’ajouter plus tard depuis ton profil.
+          </p>
+        </div>
 
         {/* CTAs */}
         <div className="mt-auto pt-8">

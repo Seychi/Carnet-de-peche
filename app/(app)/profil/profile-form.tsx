@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { updateProfile, deleteAccount } from './actions'
 import { Loader2, Trash2 } from 'lucide-react'
 import { DEPARTMENT_OPTIONS } from '@/lib/geo/departments'
+import { AvatarUploader } from '@/components/profile/AvatarUploader'
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -34,25 +35,6 @@ type Profile = {
   fishing_frequency: string | null
   avatar_url: string | null
   created_at: string
-}
-
-function Avatar({ username, avatarUrl }: { username: string | null; avatarUrl: string | null }) {
-  const initials = username ? username.slice(0, 2).toUpperCase() : '?'
-  if (avatarUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- avatar utilisateur (Supabase Storage), <img> volontaire : pas de refacto next/image dans ce sprint
-      <img
-        src={avatarUrl}
-        alt={username ?? 'Avatar'}
-        className="w-20 h-20 rounded-full object-cover border-4 border-white shadow"
-      />
-    )
-  }
-  return (
-    <div className="w-20 h-20 rounded-full bg-navy-900 flex items-center justify-center border-4 border-white shadow">
-      <span className="text-white font-display font-bold text-xl">{initials}</span>
-    </div>
-  )
 }
 
 function DeleteModal({ onConfirm, onCancel, isPending }: {
@@ -133,10 +115,14 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-        {/* Avatar + email */}
-        <div className="bg-white border border-ink-100 rounded-[18px] p-6 flex items-center gap-5">
-          <Avatar username={profile.username} avatarUrl={profile.avatar_url} />
-          <div>
+        {/* Avatar (éditable) + email */}
+        <div className="bg-white border border-ink-100 rounded-[18px] p-6 flex flex-col gap-5 sm:flex-row sm:items-center">
+          <AvatarUploader
+            userId={profile.id}
+            username={profile.username}
+            initialUrl={profile.avatar_url}
+          />
+          <div className="sm:border-l sm:border-ink-100 sm:pl-5">
             <p className="font-semibold text-navy-900">{profile.username ?? 'Nouveau pêcheur'}</p>
             <p className="text-sm text-ink-500 mt-0.5">{email}</p>
             <p className="text-xs text-ink-400 mt-1">
