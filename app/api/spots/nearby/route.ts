@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getUserTier } from '@/lib/auth/tier'
 import { nearbyQuerySchema } from '@/lib/spots/nearby'
 import type { NearbySpot } from '@/lib/spots/nearby'
 
@@ -43,5 +44,10 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  return NextResponse.json((data ?? []) as NearbySpot[])
+  // Garde de tier serveur (double sécurité avec le plafond SQL de la migration 029) :
+  // anon = 3 max, discovery = 5 max, local/itinerant = tout (la RPC limite déjà à 100).
+  const tier = await getUserTier()
+  const cap = tier === 'local' || tier === 'itinerant' ? 100 : tier === 'discovery' ? 5 : 3
+
+  return NextResponse.json(((data ?? []) as NearbySpot[]).slice(0, cap))
 }

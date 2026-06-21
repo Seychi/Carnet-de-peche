@@ -20,7 +20,6 @@ export const DEPARTMENT_SEA_COORDS: Record<string, { lat: number; lng: number; p
   '62': { lat: 50.74, lng: 1.55, place: 'Boulogne-sur-Mer' },
   '64': { lat: 43.49, lng: -1.58, place: 'Biarritz' },
   '76': { lat: 49.95, lng: 1.07, place: 'Dieppe' },
-  '80': { lat: 50.2, lng: 1.45, place: 'Cayeux-sur-Mer' },
   '85': { lat: 46.46, lng: -1.83, place: 'Les Sables-d’Olonne' },
   // Méditerranée
   '06': { lat: 43.66, lng: 7.25, place: 'Nice' },

@@ -24,9 +24,12 @@ export type RecentCatch = {
 export function PostComposer({
   region,
   recentCatches = [],
+  onCreated,
 }: {
   region: string
   recentCatches?: RecentCatch[]
+  // Si fourni (FeedClient), insère le post sans rechargement ; sinon fallback refresh.
+  onCreated?: () => void
 }) {
   const router = useRouter()
   const [text, setText] = useState('')
@@ -50,7 +53,8 @@ export function PostComposer({
     setText('')
     setAttached(null)
     toast.success('Posté !')
-    router.refresh()
+    if (onCreated) onCreated()
+    else router.refresh()
   }
 
   return (

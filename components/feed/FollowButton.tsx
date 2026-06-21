@@ -8,10 +8,13 @@ export function FollowButton({
   targetUserId,
   initialFollowing,
   size = 'md',
+  onToggle,
 }: {
   targetUserId: string
   initialFollowing: boolean
   size?: 'sm' | 'md'
+  // Appelé après un toggle réussi (ex. /follows retire la carte au désabonnement).
+  onToggle?: (following: boolean) => void
 }) {
   const [following, setFollowing] = useState(initialFollowing)
   const [pending, setPending] = useState(false)
@@ -29,6 +32,7 @@ export function FollowButton({
       return
     }
     setFollowing(res.data.following)
+    onToggle?.(res.data.following)
   }
 
   const base =

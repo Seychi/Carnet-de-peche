@@ -116,4 +116,33 @@ describe('listFollowing / listFollowers', () => {
     mock({ user: USER, tables: { follows: { data: [] } } })
     expect(await listFollowing(USER.id)).toEqual({ ok: true, data: [] })
   })
+
+  it('listFollowing propage une erreur du select profiles (plus de « Tu suis 0 » silencieux — BUG-04)', async () => {
+    mock({
+      user: USER,
+      tables: {
+        follows: { data: [{ following_id: TARGET }] },
+        profiles: { data: null, error: { message: 'boom' } },
+      },
+    })
+    expect((await listFollowing(USER.id)).ok).toBe(false)
+  })
+
+  it('listFollowing préserve l’ordre des follows même si profiles renvoie en désordre', async () => {
+    mock({
+      user: USER,
+      tables: {
+        follows: { data: [{ following_id: TARGET }, { following_id: OTHER }] },
+        profiles: {
+          data: [
+            { id: OTHER, username: 'bob', display_name: 'Bob', avatar_url: null, home_department: '29' },
+            { id: TARGET, username: 'cesar', display_name: 'César', avatar_url: null, home_department: '56' },
+          ],
+        },
+      },
+    })
+    const r = await listFollowing(USER.id)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.data.map((u) => u.id)).toEqual([TARGET, OTHER])
+  })
 })

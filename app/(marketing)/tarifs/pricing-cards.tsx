@@ -24,7 +24,7 @@ const plans = {
       { text: 'Marées + météo pour ta ville' },
       { text: 'Tous les guides éditoriaux' },
       { text: 'Fil régional complet : poste, commente, like, suis' },
-      { text: 'App iOS / Android — bientôt' },
+      { text: 'Apps iOS / Android en préparation' },
     ],
   },
   local: {

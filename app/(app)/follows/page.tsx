@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildLoginRedirect } from '@/lib/auth/redirect'
 import { createClient } from '@/lib/supabase/server'
 import { listFollowing, listFollowers, getFollowSuggestions } from '@/app/actions/follow'
 import { UserCard } from '@/components/feed/UserCard'
+import { FollowingList } from '@/components/feed/FollowingList'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
@@ -15,7 +17,7 @@ export default async function FollowsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login?redirect=/follows')
+  if (!user) redirect(buildLoginRedirect('/follows'))
 
   const [following, followers, suggestions] = await Promise.all([
     listFollowing(user.id),
@@ -33,9 +35,7 @@ export default async function FollowsPage() {
         <h1 className="font-display text-2xl text-navy-900">Tes pêcheurs</h1>
 
         <Section title={`Tu suis (${followingList.length})`} empty="Tu ne suis personne pour l’instant.">
-          {followingList.map((u) => (
-            <UserCard key={u.id} user={u} following />
-          ))}
+          <FollowingList initialUsers={followingList} />
         </Section>
 
         <Section title={`Te suivent (${followersList.length})`} empty="Personne ne te suit encore.">

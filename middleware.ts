@@ -36,9 +36,13 @@ export async function middleware(request: NextRequest) {
   const isAppRoute = APP_ROUTES.some((r) => pathname.startsWith(r));
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
 
-  // Pas connecté → redirige vers /auth/login si tentative d'accès à l'app
+  // Pas connecté → redirige vers /auth/login en gardant la cible de retour
+  // (chemin INTERNE uniquement — l'URL est construite à partir du pathname
+  // courant, jamais d'une entrée externe → pas d'open-redirect possible ici).
   if (!user && isAppRoute) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (user) {

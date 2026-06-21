@@ -18,7 +18,6 @@ export const DEPARTMENT_CENTROIDS: Record<string, [number, number]> = {
   '62': [2.30, 50.52],  // Pas-de-Calais
   '64': [-0.75, 43.30], // Pyrénées-Atlantiques
   '76': [1.00, 49.65],  // Seine-Maritime
-  '80': [2.30, 49.90],  // Somme
   '85': [-1.30, 46.65], // Vendée
   // Méditerranée
   '06': [7.18, 43.93],  // Alpes-Maritimes

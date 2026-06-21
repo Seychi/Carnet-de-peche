@@ -16,6 +16,10 @@ import type { CatchRow } from '@/lib/catches/queries'
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
 const DRAFT_KEY = 'carnet:draft-catch'
+// Durée de vie du brouillon : au-delà, on l'ignore au montage (évite de
+// ressusciter des valeurs périmées — ville/leurre/date d'une session abandonnée,
+// BUG-18). Le brouillon protège contre une perte accidentelle DANS la session.
+const DRAFT_TTL_MS = 30 * 60 * 1000
 
 const SPECIES = [
   { value: 'bar', label: 'Bar' },
@@ -141,11 +145,26 @@ export function CatchForm(props: CatchFormProps) {
   const submittedRef = useRef(false)
   const lastFieldRef = useRef('')
 
-  // Brouillon localStorage (mode création uniquement)
+  // Brouillon localStorage (mode création uniquement). On stocke désormais
+  // { savedAt, data } et on ignore (et purge) tout brouillon plus vieux que TTL.
   const [draft] = useState<Partial<CreateCatchInput> | null>(() => {
     if (isEdit || typeof window === 'undefined') return null
-    try { return JSON.parse(localStorage.getItem(DRAFT_KEY) ?? 'null') }
-    catch { return null }
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (!raw) return null
+      const parsed = JSON.parse(raw) as { savedAt?: number; data?: Partial<CreateCatchInput> } | null
+      if (!parsed || typeof parsed.savedAt !== 'number' || !parsed.data) {
+        localStorage.removeItem(DRAFT_KEY)
+        return null
+      }
+      if (Date.now() - parsed.savedAt > DRAFT_TTL_MS) {
+        localStorage.removeItem(DRAFT_KEY)
+        return null
+      }
+      return parsed.data
+    } catch {
+      return null
+    }
   })
 
   const [locationMode, setLocationMode] = useState<'gps' | 'manual' | 'spot'>(() => {
@@ -252,7 +271,7 @@ export function CatchForm(props: CatchFormProps) {
       clearTimeout(timer)
       timer = setTimeout(() => {
         const { photo_path: _p, ...toSave } = values as Partial<CreateCatchInput>
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(toSave))
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: toSave }))
       }, 800)
     })
     return () => { unsubscribe(); clearTimeout(timer) }
@@ -393,7 +412,7 @@ export function CatchForm(props: CatchFormProps) {
     isEdit && !watchedLat ? (initialValues?.location_label ?? null) : null
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-32">
+    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="space-y-4 pb-32">
 
       {/* ── Bandeau spot pré-sélectionné ── */}
       {spotContext && (

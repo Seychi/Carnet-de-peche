@@ -5,6 +5,29 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
+import { safeInternalPath } from "@/lib/auth/redirect";
+
+// Détermine la destination post-auth à partir des hidden inputs du formulaire.
+// Priorité : plan payant (→ /tarifs avec sélection) > redirect interne validé
+// > /home. Le lancement réel du Checkout se fait via le formulaire POST de
+// /tarifs (qui exige déjà auth + éligibilité), donc on renvoie l'utilisateur
+// authentifié sur /tarifs avec son plan/intervalle pré-sélectionnés.
+function destinationFrom(formData: FormData): string {
+  const plan = formData.get("plan");
+  const interval = formData.get("interval");
+  if (plan === "local" || plan === "itinerant") {
+    const params = new URLSearchParams({ plan });
+    if (interval === "monthly" || interval === "annual")
+      params.set("interval", interval);
+    return `/tarifs?${params.toString()}`;
+  }
+  return safeInternalPath(
+    typeof formData.get("redirect") === "string"
+      ? (formData.get("redirect") as string)
+      : null,
+    "/home"
+  );
+}
 
 export type LoginState = {
   error: string | null;
@@ -150,7 +173,7 @@ export async function signInWithPassword(
     };
   }
 
-  redirect("/home");
+  redirect(destinationFrom(formData));
 }
 
 export async function signUpWithPassword(
@@ -195,11 +218,25 @@ export async function signUpWithPassword(
   const supabase = await createClient();
   const origin = await getOrigin();
 
+  // L'onboarding reste obligatoire ; on reporte le contexte plan/redirect en
+  // query du callback pour le réutiliser une fois l'onboarding terminé.
+  const ctxParams = new URLSearchParams({ next: "/onboarding/1" });
+  const plan = formData.get("plan");
+  if (plan === "local" || plan === "itinerant") ctxParams.set("plan", plan);
+  const interval = formData.get("interval");
+  if (interval === "monthly" || interval === "annual")
+    ctxParams.set("interval", interval);
+  const back = formData.get("redirect");
+  if (typeof back === "string") {
+    const safe = safeInternalPath(back, "");
+    if (safe) ctxParams.set("after", safe);
+  }
+
   const { error } = await supabase.auth.signUp({
     email,
     password: passwordParsed.data,
     options: {
-      emailRedirectTo: `${origin}/auth/callback?next=/onboarding/1`,
+      emailRedirectTo: `${origin}/auth/callback?${ctxParams.toString()}`,
     },
   });
 

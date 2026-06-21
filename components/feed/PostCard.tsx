@@ -43,6 +43,8 @@ const ReportDialog = dynamic(
   { ssr: false },
 )
 
+const PostDeleteDialog = dynamic(() => import('./PostDeleteDialog'), { ssr: false })
+
 function initials(name: string | null, username: string | null) {
   return (name || username || '?').trim().slice(0, 2).toUpperCase()
 }
@@ -54,11 +56,14 @@ export const PostCard = memo(function PostCard({
   currentUserId,
   catchPhotoUrl,
   viewerIsModerator = false,
+  onDeleted,
 }: {
   post: FeedPost
   currentUserId: string | null
   catchPhotoUrl?: string | null
   viewerIsModerator?: boolean
+  // Appelé après une suppression réussie → le parent retire la carte (BUG-09).
+  onDeleted?: (id: string) => void
 }) {
   const postId = post.id
   const [liked, setLiked] = useState(Boolean(post.liked_by_me))
@@ -71,6 +76,12 @@ export const PostCard = memo(function PostCard({
   const [reportMounted, setReportMounted] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  // Flux de confirmation (BUG-15) : modale montée à la 1re demande puis laissée
+  // montée (anim de fermeture + retour focus natifs). `deleteKind` distingue la
+  // suppression auteur de la suppression modérateur.
+  const [deleteMounted, setDeleteMounted] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleteKind, setDeleteKind] = useState<'self' | 'moderation'>('self')
 
   // Nombre d'actions like optimistes en vol dont l'écho Realtime n'est pas
   // encore revenu : on consomme ces échos au lieu de les recompter (sinon
@@ -137,6 +148,7 @@ export const PostCard = memo(function PostCard({
       return
     }
     toast.success('Post supprimé.')
+    onDeleted?.(id)
   }
 
   async function handleModeratorDelete() {
@@ -148,6 +160,13 @@ export const PostCard = memo(function PostCard({
       return
     }
     toast.success('Post supprimé (modération).')
+    onDeleted?.(id)
+  }
+
+  function openDeleteFlow(kind: 'self' | 'moderation') {
+    setDeleteKind(kind)
+    setDeleteMounted(true)
+    setShowDelete(true)
   }
 
   return (
@@ -185,13 +204,13 @@ export const PostCard = memo(function PostCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white">
               {isMine && (
-                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={handleDelete}>
+                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={() => openDeleteFlow('self')}>
                   <Trash2 size={14} />
                   Supprimer
                 </DropdownMenuItem>
               )}
               {viewerIsModerator && !isMine && (
-                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={handleModeratorDelete}>
+                <DropdownMenuItem variant="destructive" className="gap-2 cursor-pointer" onClick={() => openDeleteFlow('moderation')}>
                   <Trash2 size={14} />
                   Supprimer (modération)
                 </DropdownMenuItem>
@@ -277,6 +296,16 @@ export const PostCard = memo(function PostCard({
 
       {reportMounted && (
         <ReportDialog postId={postId} open={reportOpen} onOpenChange={setReportOpen} />
+      )}
+
+      {deleteMounted && (
+        <PostDeleteDialog
+          open={showDelete}
+          onOpenChange={setShowDelete}
+          deleting={deleting}
+          moderation={deleteKind === 'moderation'}
+          onConfirm={deleteKind === 'moderation' ? handleModeratorDelete : handleDelete}
+        />
       )}
     </article>
   )

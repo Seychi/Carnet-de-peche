@@ -20,24 +20,37 @@ export type SpeciesSlug =
 
 export const SPECIES: Record<
   SpeciesSlug,
-  { label: string; labelLower: string; dbKey: string; latin: string }
+  {
+    label: string
+    labelLower: string
+    dbKey: string
+    latin: string
+    /** Article défini majuscule, élision incluse : « Le », « La », « L' ». Espace final SAUF élision. Toujours coller : `${article}${labelLower}`. */
+    article: string
+    /** « de » + défini : « du », « de la », « de l' ». Espace final SAUF élision. Toujours coller : `${articleDe}${labelLower}`. */
+    articleDe: string
+  }
 > = {
-  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax' },
+  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax', article: 'Le ', articleDe: 'du ' },
   'dorade-royale': {
     label: 'Dorade royale',
     labelLower: 'dorade royale',
     dbKey: 'dorade_royale',
     latin: 'Sparus aurata',
+    article: 'La ',
+    articleDe: 'de la ',
   },
   'lieu-jaune': {
     label: 'Lieu jaune',
     labelLower: 'lieu jaune',
     dbKey: 'lieu_jaune',
     latin: 'Pollachius pollachius',
+    article: 'Le ',
+    articleDe: 'du ',
   },
-  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus' },
-  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus' },
-  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone' },
+  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus', article: 'Le ', articleDe: 'du ' },
+  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus', article: 'Le ', articleDe: 'du ' },
+  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone', article: "L'", articleDe: "de l'" },
 }
 
 // ─── Techniques ───────────────────────────────────────────────────────────────
@@ -72,7 +85,6 @@ export const DEPARTMENT_SLUGS: Record<string, string> = {
   '62': 'pas-de-calais',
   '64': 'pyrenees-atlantiques',
   '76': 'seine-maritime',
-  '80': 'somme',
   '85': 'vendee',
   // Méditerranée
   '06': 'alpes-maritimes',
@@ -196,7 +208,6 @@ const DEPT_PREPOSITIONS: Record<string, string> = {
   '62': 'dans le ', // Pas-de-Calais
   '64': 'dans les ', // Pyrénées-Atlantiques
   '76': 'en ', // Seine-Maritime
-  '80': 'dans la ', // Somme
   '85': 'en ', // Vendée
   '06': 'dans les ', // Alpes-Maritimes
   '11': "dans l'", // Aude

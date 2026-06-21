@@ -40,7 +40,7 @@ export async function generateMetadata({
   const species = SPECIES[slug as SpeciesSlug]
   const canonical = `${BASE_URL}/especes/${slug}`
   const title = `${species.label} (${species.latin}) : pêche du bord, saisons, taille légale`
-  const description = `La fiche complète du ${species.labelLower} pour la canne du bord : taille légale vérifiée, saisons par façade, techniques, postes selon les conditions, prises récentes de la communauté.`
+  const description = `La fiche complète ${species.articleDe}${species.labelLower} pour la canne du bord : taille légale vérifiée, saisons par façade, techniques, postes selon les conditions, prises récentes de la communauté.`
   return {
     title: `${title} · Carnet de Pêche`,
     description,
@@ -165,7 +165,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             <TagData className="text-white/45">{species.label.toUpperCase()}</TagData>
           </nav>
           <h1 className="font-display text-white">
-            Le {species.labelLower}{' '}
+            {species.article}{species.labelLower}{' '}
             <span className="text-[0.55em] font-normal italic text-white/40">{species.latin}</span>
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">{content.intro[0]}</p>
@@ -381,7 +381,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                 <Bathy density={2} opacity={0.3} />
                 <div className="relative">
                   <p className="text-sm font-semibold text-white">
-                    Tes prises de {species.labelLower}, tes patterns
+                    Tes prises {species.articleDe}{species.labelLower}, tes patterns
                   </p>
                   <p className="mt-1.5 text-xs leading-relaxed text-white/60">
                     Logue tes sorties : le carnet apprend quand et où TU le prends.

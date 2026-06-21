@@ -1,11 +1,12 @@
 import { notFound, redirect } from 'next/navigation'
+import { buildLoginRedirect } from '@/lib/auth/redirect'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { isCoastalDepartment, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getFeedPage } from '@/app/actions/feed'
 import { FeedTabs } from '@/components/feed/FeedTabs'
-import { PostComposer, type RecentCatch } from '@/components/feed/PostComposer'
-import { PostList } from '@/components/feed/PostList'
+import { type RecentCatch } from '@/components/feed/PostComposer'
+import { FeedClient } from '@/components/feed/FeedClient'
 import type { FeedTab } from '@/lib/feed/types'
 
 export const dynamic = 'force-dynamic'
@@ -45,7 +46,7 @@ export default async function DepartmentFeedPage({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect(`/auth/login?redirect=/fil/${department}`)
+  if (!user) redirect(buildLoginRedirect(`/fil/${department}`))
 
   const { tab: rawTab } = await searchParams
   const tab = resolveTab(rawTab)
@@ -87,9 +88,7 @@ export default async function DepartmentFeedPage({
 
         <FeedTabs current={tab} />
 
-        <PostComposer region={department} recentCatches={(recent ?? []) as RecentCatch[]} />
-
-        <PostList
+        <FeedClient
           initialPosts={posts}
           initialCursor={cursor}
           region={department}
@@ -97,6 +96,7 @@ export default async function DepartmentFeedPage({
           currentUserId={user.id}
           viewerIsModerator={viewerIsModerator}
           emptyVariant={emptyVariant}
+          recentCatches={(recent ?? []) as RecentCatch[]}
         />
       </div>
     </main>

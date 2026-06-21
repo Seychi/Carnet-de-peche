@@ -4,7 +4,15 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import type { UserSummary } from '@/app/actions/follow'
 import { FollowButton } from './FollowButton'
 
-export function UserCard({ user, following }: { user: UserSummary; following?: boolean }) {
+export function UserCard({
+  user,
+  following,
+  onToggle,
+}: {
+  user: UserSummary
+  following?: boolean
+  onToggle?: (following: boolean) => void
+}) {
   const name = user.display_name || `@${user.username ?? 'pêcheur'}`
   const dept = user.home_department
     ? (DEPARTMENT_LABELS[user.home_department] ?? user.home_department)
@@ -33,7 +41,7 @@ export function UserCard({ user, following }: { user: UserSummary; following?: b
         identity
       )}
       {following !== undefined && (
-        <FollowButton targetUserId={user.id} initialFollowing={following} size="sm" />
+        <FollowButton targetUserId={user.id} initialFollowing={following} size="sm" onToggle={onToggle} />
       )}
     </div>
   )

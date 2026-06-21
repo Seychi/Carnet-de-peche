@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification } from 'maplibre-gl'
 import { type SpotMarker, createFuzzyCircle, markerColorForQuality } from '@/lib/map/utils'
+import { scheduleReliableResize, resizeIfSized } from '@/lib/map/resize'
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -350,6 +351,7 @@ export default function MapView({
     let mounted = true
     let attribObserver: MutationObserver | null = null
     let revealTimer: ReturnType<typeof setTimeout> | undefined
+    let cancelResize: (() => void) | undefined
 
     // Les handlers de clic résolvent le spot dans la liste COURANTE (ref), pas
     // dans une closure : la liste filtrée change après le mount.
@@ -405,21 +407,24 @@ export default function MapView({
       // révèle la carte plutôt que de la masquer indéfiniment.
       map.once('idle', () => {
         if (!mounted) return
-        map.resize()
+        resizeIfSized(map, containerRef.current)
         setLoaded(true)
       })
       revealTimer = setTimeout(() => {
         if (!mounted) return
-        map.resize()
+        resizeIfSized(map, containerRef.current)
         setLoaded(true)
       }, 10_000)
 
       map.on('load', () => {
         if (!mounted) return
         // Le conteneur flex peut mesurer 0 px à l'instant de `new Map()` (init async,
-        // layout pas encore résolu) → canvas uniforme tant qu'on n'interagit pas. Un
-        // resize explicite au 'load' force MapLibre à relire les dimensions réelles.
-        map.resize()
+        // layout pas encore résolu) → canvas noir tant qu'on n'interagit pas. Le resize
+        // au seul 'load' était intermittent (T0.4 sprint 9.5) : 'load' peut partir avant
+        // que le navigateur ait peint la taille flex finale. On reprogramme donc le
+        // resize sur deux frames une fois la VRAIE taille du conteneur disponible (BUG-06).
+        cancelResize?.()
+        cancelResize = scheduleReliableResize(map, () => containerRef.current)
         setLoaded(true)
         onMapReady?.(map)
 
@@ -441,16 +446,25 @@ export default function MapView({
       })
     }
 
-    init().catch(() => {
-      if (mounted) setError('init-error')
-    })
+    // ResizeObserver : resize la carte chaque fois que le conteneur change de taille
+    // (rotation, ouverture sidebar/sheet, paint flex tardif au mount). Ne resize que
+    // si carte instanciée ET conteneur > 0 (resizeIfSized) — sinon no-op. On observe
+    // APRÈS l'init pour que le 1er callback (qui fire à l'observe()) ait une chance de
+    // voir mapRef.current assigné (l'observe() initial était auparavant un no-op garanti).
+    const ro = new ResizeObserver(() => resizeIfSized(mapRef.current, containerRef.current))
 
-    const ro = new ResizeObserver(() => mapRef.current?.resize())
-    ro.observe(containerRef.current)
+    init()
+      .then(() => {
+        if (mounted && containerRef.current) ro.observe(containerRef.current)
+      })
+      .catch(() => {
+        if (mounted) setError('init-error')
+      })
 
     return () => {
       mounted = false
       if (revealTimer) clearTimeout(revealTimer)
+      cancelResize?.()
       ro.disconnect()
       attribObserver?.disconnect()
       markersRef.current.forEach((m) => m.remove())
@@ -608,7 +622,7 @@ export default function MapView({
   }
 
   return (
-    <div className={className} style={{ position: 'relative' }}>
+    <div className={className} style={{ position: 'relative', minHeight: '100%' }}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
       {/* Lecture coords + zoom — la donnée est l'ornement (DA v2) */}
       {loaded && interactive && (

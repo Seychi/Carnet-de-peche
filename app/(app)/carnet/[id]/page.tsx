@@ -123,11 +123,13 @@ export default async function CatchDetailPage({ params }: Props) {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
+                  timeZone: 'Europe/Paris',
                 })}{' '}
                 à{' '}
                 {caughtAt.toLocaleTimeString('fr-FR', {
                   hour: '2-digit',
                   minute: '2-digit',
+                  timeZone: 'Europe/Paris',
                 })}
               </p>
               {location && (

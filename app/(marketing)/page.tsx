@@ -348,7 +348,7 @@ export default function HomePage() {
                   { title: "Auto-snapshot des conditions", desc: "Marée, vent, météo, lune, pression captés au moment de la prise." },
                   { title: "Privé par défaut", desc: "Tu décides ce que tu publies, sur quel mur, à quel cercle." },
                   { title: "Stats et insights", desc: "Tes meilleures conditions, ton coefficient idéal, ton heure d'or." },
-                  { title: "Tes données t'appartiennent", desc: "Export GPX/JSON prévu cette année. Pas d'enfermement." },
+                  { title: "Tes données t'appartiennent", desc: "Tes prises restent les tiennes : pas d'enfermement, pas de revente." },
                 ].map((item) => <CheckItem key={item.title} {...item} />)}
               </ul>
               <TagData className="block">Bar · 67 cm · Coef 88 · 19:42</TagData>

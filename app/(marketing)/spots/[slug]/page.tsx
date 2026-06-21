@@ -6,6 +6,7 @@ import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock } from 'lucide
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
+import { buildLoginRedirect } from '@/lib/auth/redirect'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { Bathy } from '@/components/ui-v2/bathy'
@@ -272,7 +273,7 @@ export default async function SpotPage({
 
   const ctaHref = user
     ? `/carnet/nouvelle?spot_id=${spot.id}`
-    : `/auth/login?next=/spots/${spot.slug}`
+    : buildLoginRedirect(`/spots/${spot.slug}`)
 
   const googleMapsUrl =
     `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
@@ -346,7 +347,7 @@ export default async function SpotPage({
           <TagData className="mb-5 block text-white/45">
             {spot.is_precise
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
-              : `ZONE FLOUTÉE 1 KM · ${structureLabel.toUpperCase() || 'SPOT'}`}
+              : `ZONE APPROCHÉE · ${structureLabel.toUpperCase() || 'SPOT'}`}
           </TagData>
 
           <div className="flex flex-wrap items-center gap-2">

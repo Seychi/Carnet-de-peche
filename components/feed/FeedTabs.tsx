@@ -14,7 +14,7 @@ export function FeedTabs({ current }: { current: FeedTab }) {
   const pathname = usePathname()
 
   return (
-    <nav className="flex gap-1 border-b border-slate-100 overflow-x-auto">
+    <nav className="flex gap-1 border-b border-slate-100 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {TABS.map((t) => {
         const active = t.key === current
         const href = t.key === 'dept' ? pathname : `${pathname}?tab=${t.key}`
@@ -24,7 +24,7 @@ export function FeedTabs({ current }: { current: FeedTab }) {
             href={href}
             scroll={false}
             aria-current={active ? 'page' : undefined}
-            className={`whitespace-nowrap min-h-11 flex items-center px-3 text-[14px] font-semibold border-b-2 -mb-px transition-colors ${
+            className={`whitespace-nowrap min-h-11 flex items-center px-2.5 sm:px-3 text-[13px] sm:text-[14px] font-semibold border-b-2 -mb-px transition-colors ${
               active
                 ? 'border-teal-500 text-navy-900'
                 : 'border-transparent text-ink-400 hover:text-ink-600'

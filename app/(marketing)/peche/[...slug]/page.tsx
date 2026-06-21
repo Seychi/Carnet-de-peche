@@ -52,7 +52,7 @@ export async function generateMetadata({
   const where = page.deptCode
     ? `${deptPreposition(page.deptCode)}${DEPARTMENT_LABELS[page.deptCode]}`
     : 'en France'
-  const description = `Où et comment pêcher le ${species.labelLower} ${technique.withArticle} ${where} : spots, saisons, marées favorables et conseils de pêcheurs du bord.`
+  const description = `Où et comment pêcher ${species.article.toLowerCase()}${species.labelLower} ${technique.withArticle} ${where} : spots, saisons, marées favorables et conseils de pêcheurs du bord.`
   const canonical = `${BASE_URL}${programmaticUrl(page)}`
 
   return {
@@ -161,7 +161,7 @@ export default async function ProgrammaticPageView({
       {
         '@type': 'ListItem',
         position: 2,
-        name: `Pêche du ${species.labelLower}`,
+        name: `Pêche ${species.articleDe}${species.labelLower}`,
         item: `${BASE_URL}/peche/${page.species}/${page.technique}`,
       },
       ...(page.deptCode
@@ -234,7 +234,7 @@ export default async function ProgrammaticPageView({
           {techContent && (
             <>
               <h2>
-                Le {species.labelLower} {technique.withArticle} : comment t&apos;y prendre
+                {species.article}{species.labelLower} {technique.withArticle} : comment t&apos;y prendre
               </h2>
               {techContent.paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -260,7 +260,7 @@ export default async function ProgrammaticPageView({
           {page.deptCode && (
             <>
               <h2>
-                Pêcher le {species.labelLower} {deptPreposition(page.deptCode)}
+                Pêcher {species.article.toLowerCase()}{species.labelLower} {deptPreposition(page.deptCode)}
                 {deptLabel}
               </h2>
               <p>{content.facades[facadeOf(page.deptCode)]}</p>
@@ -284,7 +284,7 @@ export default async function ProgrammaticPageView({
         {spots.length > 0 && (
           <section className="mt-10">
             <h2 className="font-display text-xl text-navy-900">
-              Où pêcher le {species.labelLower}
+              Où pêcher {species.article.toLowerCase()}{species.labelLower}
               {deptLabel ? ` ${deptPreposition(page.deptCode!)}${deptLabel}` : ''} : les spots de la
               carte
             </h2>
@@ -390,7 +390,7 @@ export default async function ProgrammaticPageView({
           <Bathy density={2} opacity={0.3} />
           <div className="relative">
             <p className="font-display text-xl text-white">
-              Ta prochaine prise de {species.labelLower} mérite mieux qu&apos;un souvenir.
+              Ta prochaine prise {species.articleDe}{species.labelLower} mérite mieux qu&apos;un souvenir.
             </p>
             <p className="mx-auto mt-2 max-w-md text-[14px] text-white/60">
               Logue-la : conditions auto-enregistrées, patterns qui se dessinent, et un carnet qui

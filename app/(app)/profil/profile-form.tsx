@@ -4,18 +4,7 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { updateProfile, deleteAccount } from './actions'
 import { Loader2, Trash2 } from 'lucide-react'
-
-const DEPARTMENTS = [
-  { value: '14', label: '14 — Calvados' }, { value: '17', label: '17 — Charente-Maritime' },
-  { value: '22', label: '22 — Côtes-d\'Armor' }, { value: '29', label: '29 — Finistère' },
-  { value: '33', label: '33 — Gironde' }, { value: '34', label: '34 — Hérault' },
-  { value: '35', label: '35 — Ille-et-Vilaine' }, { value: '40', label: '40 — Landes' },
-  { value: '44', label: '44 — Loire-Atlantique' }, { value: '50', label: '50 — Manche' },
-  { value: '56', label: '56 — Morbihan' }, { value: '62', label: '62 — Pas-de-Calais' },
-  { value: '64', label: '64 — Pyrénées-Atlantiques' }, { value: '66', label: '66 — Pyrénées-Orientales' },
-  { value: '76', label: '76 — Seine-Maritime' }, { value: '83', label: '83 — Var' },
-  { value: '85', label: '85 — Vendée' },
-]
+import { DEPARTMENT_OPTIONS } from '@/lib/geo/departments'
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -213,12 +202,12 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
               <select
                 id="home_department"
                 name="home_department"
-                defaultValue={profile.home_department ?? ''}
+                defaultValue={profile.home_department?.trim() ?? ''}
                 className="px-4 py-2.5 border border-ink-200 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
               >
                 <option value="">Sélectionne ton département</option>
-                {DEPARTMENTS.map((d) => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
+                {DEPARTMENT_OPTIONS.map((d) => (
+                  <option key={d.code} value={d.code}>{d.label}</option>
                 ))}
               </select>
             </div>

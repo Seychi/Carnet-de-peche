@@ -119,10 +119,17 @@ export async function getFollowSuggestions(): Promise<ActionResult<UserSummary[]
 async function listProfilesByIds(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ids: string[],
-): Promise<UserSummary[]> {
-  if (ids.length === 0) return []
-  const { data } = await supabase.from('profiles').select(PROFILE_COLS).in('id', ids)
-  return (data ?? []) as UserSummary[]
+): Promise<ActionResult<UserSummary[]>> {
+  if (ids.length === 0) return ok([])
+  const { data, error } = await supabase.from('profiles').select(PROFILE_COLS).in('id', ids)
+  if (error) {
+    // BUG-04 : ne plus avaler l'erreur (elle donnait silencieusement « Tu suis (0) »).
+    console.error('[listProfilesByIds]', error.message)
+    return fail('Impossible de charger les profils.')
+  }
+  // PostgREST .in() ne garantit pas l'ordre → on réordonne selon `ids`.
+  const byId = new Map((data ?? []).map((p) => [p.id, p as UserSummary]))
+  return ok(ids.map((id) => byId.get(id)).filter((p): p is UserSummary => Boolean(p)))
 }
 
 export async function listFollowing(userId: string): Promise<ActionResult<UserSummary[]>> {
@@ -142,8 +149,7 @@ export async function listFollowing(userId: string): Promise<ActionResult<UserSu
     return fail('Impossible de charger les abonnements.')
   }
 
-  const profiles = await listProfilesByIds(supabase, (rows ?? []).map((r) => r.following_id))
-  return ok(profiles)
+  return listProfilesByIds(supabase, (rows ?? []).map((r) => r.following_id))
 }
 
 export async function listFollowers(userId: string): Promise<ActionResult<UserSummary[]>> {
@@ -163,6 +169,5 @@ export async function listFollowers(userId: string): Promise<ActionResult<UserSu
     return fail('Impossible de charger les abonnés.')
   }
 
-  const profiles = await listProfilesByIds(supabase, (rows ?? []).map((r) => r.follower_id))
-  return ok(profiles)
+  return listProfilesByIds(supabase, (rows ?? []).map((r) => r.follower_id))
 }

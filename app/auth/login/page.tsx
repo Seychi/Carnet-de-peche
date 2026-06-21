@@ -231,6 +231,13 @@ function SentScreen({
 export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("signin");
   const [showReset, setShowReset] = useState(false);
+  // Contexte porté par l'URL (?redirect / ?plan / ?interval) — embarqué en
+  // hidden inputs car les Server Actions n'ont pas accès à l'URL d'origine.
+  const [authCtx, setAuthCtx] = useState<{
+    redirect?: string;
+    plan?: string;
+    interval?: string;
+  }>({});
   // Email saisi sur le formulaire connexion, repris en pré-remplissage du reset
   // (audit 2026-06-11 : l'utilisateur devait retaper son email).
   const [resetPrefill, setResetPrefill] = useState("");
@@ -259,12 +266,18 @@ export default function LoginPage() {
   );
   const [magicState, magicAction] = useActionState(sendMagicLink, initialState);
 
-  // Initialise le tab depuis ?tab=register
+  // Initialise le tab + le contexte d'auth depuis l'URL.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("tab") === "register") setTab("signup");
-    // Affiche l'erreur OAuth si renvoyé depuis le callback
-    // (pas de state à afficher ici, juste un indicateur visuel géré plus bas)
+    const ctx: { redirect?: string; plan?: string; interval?: string } = {};
+    const r = params.get("redirect");
+    if (r && r.startsWith("/") && !r.startsWith("//")) ctx.redirect = r;
+    const p = params.get("plan");
+    if (p === "local" || p === "itinerant") ctx.plan = p;
+    const i = params.get("interval");
+    if (i === "monthly" || i === "annual") ctx.interval = i;
+    setAuthCtx(ctx);
   }, []);
 
   // Détecte les succès qui ouvrent l'écran "email envoyé"
@@ -403,6 +416,15 @@ export default function LoginPage() {
             onSubmit={gateSubmit(signinSchema, setSigninErrors)}
             className="flex flex-col gap-5"
           >
+            {authCtx.redirect && (
+              <input type="hidden" name="redirect" value={authCtx.redirect} />
+            )}
+            {authCtx.plan && (
+              <input type="hidden" name="plan" value={authCtx.plan} />
+            )}
+            {authCtx.interval && (
+              <input type="hidden" name="interval" value={authCtx.interval} />
+            )}
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="signin-email"
@@ -474,6 +496,15 @@ export default function LoginPage() {
             onSubmit={gateSubmit(signupSchema, setSignupErrors)}
             className="flex flex-col gap-5"
           >
+            {authCtx.redirect && (
+              <input type="hidden" name="redirect" value={authCtx.redirect} />
+            )}
+            {authCtx.plan && (
+              <input type="hidden" name="plan" value={authCtx.plan} />
+            )}
+            {authCtx.interval && (
+              <input type="hidden" name="interval" value={authCtx.interval} />
+            )}
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="signup-email"

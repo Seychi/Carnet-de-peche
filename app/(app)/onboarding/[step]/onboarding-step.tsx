@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,35 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveOnboardingStep, checkUsernameAvailable, completeOnboarding } from "../actions";
+import { DEPARTMENT_OPTIONS } from "@/lib/geo/departments";
 
 /* ─── Constantes ─────────────────────────────────────────────────────────── */
-
-const DEPARTMENTS = [
-  { code: "06", label: "06 — Alpes-Maritimes" },
-  { code: "11", label: "11 — Aude" },
-  { code: "13", label: "13 — Bouches-du-Rhône" },
-  { code: "14", label: "14 — Calvados" },
-  { code: "17", label: "17 — Charente-Maritime" },
-  { code: "22", label: "22 — Côtes-d'Armor" },
-  { code: "29", label: "29 — Finistère" },
-  { code: "30", label: "30 — Gard" },
-  { code: "33", label: "33 — Gironde" },
-  { code: "34", label: "34 — Hérault" },
-  { code: "35", label: "35 — Ille-et-Vilaine" },
-  { code: "40", label: "40 — Landes" },
-  { code: "44", label: "44 — Loire-Atlantique" },
-  { code: "50", label: "50 — Manche" },
-  { code: "56", label: "56 — Morbihan" },
-  { code: "59", label: "59 — Nord" },
-  { code: "62", label: "62 — Pas-de-Calais" },
-  { code: "64", label: "64 — Pyrénées-Atlantiques" },
-  { code: "66", label: "66 — Pyrénées-Orientales" },
-  { code: "76", label: "76 — Seine-Maritime" },
-  { code: "83", label: "83 — Var" },
-  { code: "85", label: "85 — Vendée" },
-  { code: "2A", label: "2A — Corse-du-Sud" },
-  { code: "2B", label: "2B — Haute-Corse" },
-];
 
 const TECHNIQUES = [
   { value: "leurres", label: "Leurres" },
@@ -203,7 +177,10 @@ export function OnboardingStep({
   profile: ProfileSnapshot;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [saving, setSaving] = useState(false);
+  // Le bouton reste occupé pendant l'écriture serveur ET pendant la nav RSC.
+  const loading = saving || isPending;
 
   // Étape 1 — username
   const [usernameStatus, setUsernameStatus] = useState<
@@ -230,6 +207,12 @@ export function OnboardingStep({
     const timer = setTimeout(() => verifyUsername(watchedUsername), 500);
     return () => clearTimeout(timer);
   }, [watchedUsername, step, verifyUsername]);
+
+  // Précharge le payload RSC de l'étape suivante pour réduire la latence du push.
+  useEffect(() => {
+    if (step < totalSteps) router.prefetch(`/onboarding/${step + 1}`);
+    else router.prefetch("/onboarding/fini");
+  }, [step, totalSteps, router]);
 
   // Étape 2 — ville + département
   const form2 = useForm({
@@ -265,25 +248,25 @@ export function OnboardingStep({
       form1.setError("username", { message: "Ce pseudo est déjà pris." });
       return;
     }
-    setLoading(true);
+    setSaving(true);
     const result = await saveOnboardingStep(1, { username: values.username });
-    setLoading(false);
+    setSaving(false);
     if (result.error) {
       toast.error("Oups, une erreur. Réessaie ?");
       return;
     }
-    router.push("/onboarding/2");
+    startTransition(() => router.push("/onboarding/2"));
   }
 
   async function handleStep2(values: { city: string; home_department: string }) {
-    setLoading(true);
+    setSaving(true);
     const result = await saveOnboardingStep(2, {
       city: values.city,
       home_department: values.home_department,
     });
-    setLoading(false);
+    setSaving(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
-    router.push("/onboarding/3");
+    startTransition(() => router.push("/onboarding/3"));
   }
 
   async function handleStep3() {
@@ -291,11 +274,11 @@ export function OnboardingStep({
       toast.error("Choisis au moins une technique.");
       return;
     }
-    setLoading(true);
+    setSaving(true);
     const result = await saveOnboardingStep(3, { techniques });
-    setLoading(false);
+    setSaving(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
-    router.push("/onboarding/4");
+    startTransition(() => router.push("/onboarding/4"));
   }
 
   async function handleStep4() {
@@ -303,11 +286,11 @@ export function OnboardingStep({
       toast.error("Choisis au moins une espèce.");
       return;
     }
-    setLoading(true);
+    setSaving(true);
     const result = await saveOnboardingStep(4, { favorite_species: species });
-    setLoading(false);
+    setSaving(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
-    router.push("/onboarding/5");
+    startTransition(() => router.push("/onboarding/5"));
   }
 
   async function handleStep5() {
@@ -315,23 +298,23 @@ export function OnboardingStep({
       toast.error("Indique ton niveau.");
       return;
     }
-    setLoading(true);
+    setSaving(true);
     const result = await saveOnboardingStep(5, { level });
-    setLoading(false);
+    setSaving(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
-    router.push("/onboarding/6");
+    startTransition(() => router.push("/onboarding/6"));
   }
 
   async function handleStep6(values: { fishing_frequency: string; years_practicing: number }) {
-    setLoading(true);
+    setSaving(true);
     const result = await completeOnboarding({
       fishing_frequency: values.fishing_frequency,
       years_practicing: values.years_practicing,
     });
-    setLoading(false);
+    setSaving(false);
     if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     // Écran final « Ton carnet est prêt » (DA v2, frame 07) — remplace le toast.
-    router.push("/onboarding/fini");
+    startTransition(() => router.push("/onboarding/fini"));
   }
 
   /* ── Rendu ────────────────────────────────────────────────────────────── */
@@ -440,7 +423,7 @@ export function OnboardingStep({
                           {...field}
                         >
                           <option value="">Sélectionne ton département</option>
-                          {DEPARTMENTS.map((d) => (
+                          {DEPARTMENT_OPTIONS.map((d) => (
                             <option key={d.code} value={d.code}>{d.label}</option>
                           ))}
                         </select>
