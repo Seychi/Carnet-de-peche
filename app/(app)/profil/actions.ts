@@ -84,6 +84,96 @@ export async function updateProfile(formData: FormData) {
   return { error: null }
 }
 
+const AVATAR_BUCKET = 'avatars'
+
+// Extrait le chemin Storage (<uid>/fichier.webp) d'une URL publique avatars,
+// uniquement si elle pointe bien vers le dossier de l'utilisateur.
+function avatarPathFromUrl(url: string, uid: string): string | null {
+  const marker = `/object/public/${AVATAR_BUCKET}/`
+  const i = url.indexOf(marker)
+  if (i === -1) return null
+  const path = url.slice(i + marker.length).split('?')[0]
+  return path.startsWith(`${uid}/`) ? path : null
+}
+
+// Enregistre l'avatar (fichier déjà uploadé côté client dans avatars/<uid>/…).
+export async function updateAvatar(path: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  // Anti-claim + validation stricte du chemin : <uid>/<nom>.webp, sans '/'
+  // intermédiaire ni '..' (défense en profondeur ; le composant génère un UUID).
+  if (!new RegExp(`^${user.id}/[A-Za-z0-9-]+\\.webp$`).test(path)) {
+    return { error: 'Chemin invalide.' }
+  }
+
+  const { data: pub } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path)
+  const publicUrl = pub.publicUrl
+  if (!publicUrl) return { error: 'URL de la photo introuvable.' }
+
+  const { data: prof } = await supabase
+    .from('profiles')
+    .select('avatar_url')
+    .eq('id', user.id)
+    .maybeSingle()
+  const oldUrl = prof?.avatar_url ?? null
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+  if (error) {
+    console.error('[updateAvatar]', error.message)
+    return { error: 'Erreur lors de la mise à jour de la photo. Réessaie.' }
+  }
+
+  // Supprime l'ancien fichier (best-effort) pour éviter les orphelins.
+  if (oldUrl) {
+    const oldPath = avatarPathFromUrl(oldUrl, user.id)
+    if (oldPath && oldPath !== path) {
+      const { error: rmErr } = await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+      if (rmErr) console.error('[updateAvatar:storage]', rmErr.message)
+    }
+  }
+
+  revalidatePath('/profil')
+  return { error: null, url: publicUrl }
+}
+
+export async function removeAvatar() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const { data: prof } = await supabase
+    .from('profiles')
+    .select('avatar_url')
+    .eq('id', user.id)
+    .maybeSingle()
+  const oldUrl = prof?.avatar_url ?? null
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: null, updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+  if (error) {
+    console.error('[removeAvatar]', error.message)
+    return { error: 'Erreur lors du retrait de la photo. Réessaie.' }
+  }
+
+  if (oldUrl) {
+    const oldPath = avatarPathFromUrl(oldUrl, user.id)
+    if (oldPath) {
+      const { error: rmErr } = await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+      if (rmErr) console.error('[removeAvatar:storage]', rmErr.message)
+    }
+  }
+
+  revalidatePath('/profil')
+  return { error: null }
+}
+
 export async function deleteAccount() {
   // Auth via le client SSR (cookie de session de l'utilisateur courant).
   const supabase = await createClient()
@@ -115,9 +205,15 @@ export async function deleteAccount() {
   // service-role est indépendant de la session (désormais invalide).
   try {
     const admin = createServiceRoleClient()
-    const { data: files } = await admin.storage.from('catches').list(uid, { limit: 1000 })
-    if (files && files.length > 0) {
-      await admin.storage.from('catches').remove(files.map((f) => `${uid}/${f.name}`))
+    // Photos de prises (bucket privé catches/<uid>/).
+    const { data: catchFiles } = await admin.storage.from('catches').list(uid, { limit: 1000 })
+    if (catchFiles && catchFiles.length > 0) {
+      await admin.storage.from('catches').remove(catchFiles.map((f) => `${uid}/${f.name}`))
+    }
+    // Avatars (bucket public avatars/<uid>/) — sprint 12.5.
+    const { data: avatarFiles } = await admin.storage.from('avatars').list(uid, { limit: 1000 })
+    if (avatarFiles && avatarFiles.length > 0) {
+      await admin.storage.from('avatars').remove(avatarFiles.map((f) => `${uid}/${f.name}`))
     }
   } catch (err) {
     Sentry.captureException(err, {
