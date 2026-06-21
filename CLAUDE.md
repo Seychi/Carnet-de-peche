@@ -85,7 +85,7 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-spr
 - **Incident résolu** : la prod tournait sur un commit `sprint-11` promu à la main par-dessus la branche `main`, **sans que 023/024 soient appliquées** → le code déployé interrogeait `profiles.is_moderator` inexistant → `/fil/[dept]` en erreur (`column does not exist`) et `/fil` connecté renvoyé en cul-de-sac `/profil` (compte John sans `home_department`). Corrigé : migrations appliquées, `home_department` de John = `06`, John flaggé **modérateur**, et `/fil` sans département affiche désormais un **sélecteur de côte** au lieu de `/profil`.
 - **⚠️ Reste (dashboard Vercel, hors outils Claude)** : ajouter `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` à l'env **Preview** — sans elles, **tous les builds de branche/PR + la CI E2E échouent** (prod non affectée). Leçon : appliquer les migrations Supabase en prod **avant** de promouvoir le code qui en dépend.
 
-✅ **État au 2026-06-21 (post-audit, vérifié git + Supabase live)** : la prod compte **38 spots** (lot 1 Bretagne curé inséré le 2026-06-21, commits `feat(spots): lot 1` — dernier commit prod avant ce sprint : `05ee5bd`). Région Supabase réelle = **eu-west-1 (Irlande)** (la doc disait eu-west-3 Paris, corrigé). **Audit transverse 2026-06-21 traité** (`docs/audits/AUDIT-2026-06-21.md`) via le **sprint 11.5** (`docs/sprint-11.5/BRIEF.md`) : 🔴 fuite GPS `get_spots_for_scoring` fermée (migration **025**, à appliquer en prod par John), durcissement `search_path` + index FK (**026/027**), lint réactivé + bloquant, SEO (canonical/JSON-LD home·tarifs·especes, noindex `/techniques`), tests (`env`, régression floutage, E2E downgrade Stripe, Lighthouse a11y+seo), build aligné **Node 20** + région Vercel **`dub1`**, hygiène code/docs. **~265 tests Vitest.**
+✅ **État au 2026-06-21 (post-audit, vérifié git + Supabase live)** : la prod compte **38 spots** (lot 1 Bretagne curé inséré le 2026-06-21, commits `feat(spots): lot 1` — dernier commit prod avant ce sprint : `05ee5bd`). Région Supabase réelle = **eu-west-1 (Irlande)** (la doc disait eu-west-3 Paris, corrigé). **Audit transverse 2026-06-21 traité** (`docs/audits/AUDIT-2026-06-21.md`) via le **sprint 11.5** (`docs/sprint-11.5/BRIEF.md`) : 🔴 fuite GPS `get_spots_for_scoring` fermée (migration **025**, appliquée + vérifiée en prod le 2026-06-21), durcissement `search_path` + index FK (**026/027**), lint réactivé + bloquant, SEO (canonical/JSON-LD home·tarifs·especes, noindex `/techniques`), tests (`env`, régression floutage, E2E downgrade Stripe, Lighthouse a11y+seo), build aligné **Node 24** (LTS active) + région Vercel **`dub1`**, hygiène code/docs. **~265 tests Vitest.**
 
 🔜 **SUITE — Sprint 10, Blocs restants 1 → 2 → 3 → 5** (brief : `docs/sprint-10/BRIEF.md`) : MDX + guides, ~500 pages programmatiques, fiches espèces profondes, SEO global. **Élargi le 2026-06-11 (décisions John, riposte Fishing Grid)** :
 - **Curation de spots** : objectif **100-120 spots curés**, priorité Bretagne → façade Atlantique, par lots validés par John avant insertion — plan et lots dans `docs/sprint-10/spots-curation.md`. C'est le préalable pour tenir la copy home « 100+ spots curés » et Gate 2.
@@ -127,7 +127,7 @@ Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta �
 | **CI/CD** | GitHub Actions + Vercel + EAS Build (mobile) | Vercel auto-deploy déjà branché |
 
 **Versions précises au lancement**
-- Node 20+ (utiliser `nvm use 20` ou `.nvmrc`)
+- Node 24 (LTS active — Node 20 est EOL depuis avril 2026) ; `nvm use 24` ou `.nvmrc`
 - pnpm 9+
 - TypeScript 5.5+
 - Next.js 15.0+ (App Router obligatoire, pas pages router)
@@ -178,7 +178,7 @@ Carnet-de-peche/
 ├── .gitignore
 ├── .env.example                       ← committé (template)
 ├── .env.local                         ← PAS committé (vraies clés)
-├── .nvmrc                             ← Node 20
+├── .nvmrc                             ← Node 24
 ├── package.json
 ├── pnpm-lock.yaml
 ├── tsconfig.json
@@ -410,8 +410,8 @@ Quand John dit « vas-y » :
 
 1. **Setup Node + pnpm**
    ```bash
-   echo "20" > .nvmrc
-   nvm use 20 || true
+   echo "24" > .nvmrc
+   nvm use 24 || true
    corepack enable
    corepack prepare pnpm@latest --activate
    ```
