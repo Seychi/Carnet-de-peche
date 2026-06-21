@@ -23,10 +23,14 @@ export const sarEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
-    source: 'Arrêté du 26 octobre 2012 modifié le 6 janvier 2026 (tailles minimales pêche de loisir)',
+    verifiedAt: '21/06/2026',
+    source:
+      'Arrêté du 26 octobre 2012 modifié le 6 janvier 2026 (maille) ; arrêté du 17 mai 2011 modifié (marquage)',
+    minSizeCm: { 'manche-atlantique': 25, mediterranee: 23 },
+    marquage: true,
     items: [
-      `<strong>Taille minimale : 25 cm</strong> pour le sar commun — en dessous, remise à l'eau immédiate.`,
+      `<strong>Taille minimale : 25 cm</strong> en Manche et Atlantique, <strong>23 cm</strong> en Méditerranée — en dessous, remise à l'eau immédiate.`,
+      `<strong>Marquage obligatoire</strong> de chaque sar conservé : ablation de la partie inférieure de la nageoire caudale, dès la capture.`,
       `<strong>Pas de quota national</strong> de captures pour la pêche de loisir. Reste raisonnable malgré tout : un poisson de roche se prélève avec mesure.`,
       `En Méditerranée, <strong>vérifie la réglementation locale avant de pêcher</strong> : réserves marines et zones protégées (Cerbère-Banyuls, Scandola, cœur du Parc national des Calanques…) peuvent restreindre ou interdire la pêche.`,
     ],
@@ -99,7 +103,7 @@ export const sarEspece: EspeceContent = {
   faq: [
     {
       q: `Quelle est la taille minimale du sar ?`,
-      a: `La taille minimale de capture du sar commun en pêche de loisir est de 25 cm (arrêté du 26 octobre 2012, modifié le 6 janvier 2026). Tout poisson en dessous se remet à l'eau immédiatement, et vite : décroché dans l'eau si possible, il repart sans dommage. En Méditerranée, vérifie aussi les règles locales des réserves marines.`,
+      a: `La taille minimale est de 25 cm en Manche et Atlantique, et de 23 cm en Méditerranée (arrêté du 26 octobre 2012 modifié le 6 janvier 2026). Tout poisson en dessous se remet à l'eau immédiatement, et vite : décroché dans l'eau si possible, il repart sans dommage. Tout sar conservé doit aussi être marqué (ablation de la partie inférieure de la nageoire caudale). En Méditerranée, vérifie aussi les règles locales des réserves marines.`,
     },
     {
       q: `Quel est le meilleur appât pour pêcher le sar du bord ?`,

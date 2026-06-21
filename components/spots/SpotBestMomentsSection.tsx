@@ -17,12 +17,14 @@ type SpotBestMomentsSectionProps = {
   weekly: DailyForecast[]
   spotName: string
   weatherCodes?: Record<string, number>
+  tidesByDate?: Record<string, { high?: string; low?: string }>
 }
 
 export function SpotBestMomentsSection({
   weekly,
   spotName,
   weatherCodes,
+  tidesByDate,
 }: SpotBestMomentsSectionProps) {
   const [selectedDate, setSelectedDate] = useState(weekly[0]?.date ?? '')
   const selectedDaily = weekly.find(d => d.date === selectedDate) ?? weekly[0]
@@ -45,6 +47,7 @@ export function SpotBestMomentsSection({
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
         weatherCodes={weatherCodes}
+        tidesByDate={tidesByDate}
       />
 
       {/* Détail du jour sélectionné */}
@@ -82,8 +85,9 @@ function HowItWorksDialog() {
             <li className="flex items-start gap-2">
               <span className="font-mono font-bold text-navy-900 shrink-0">35%</span>
               <span>
-                <strong>Marée</strong> — montante &gt; descendante &gt; étale, coefficient.
-                La marée montante concentre les poissons et favorise l&apos;alimentation.
+                <strong>Marée</strong> — montante &gt; descendante &gt; étale, avec un bonus
+                quand une pleine ou basse mer tombe dans le créneau. La marée qui bouge
+                concentre les poissons et favorise l&apos;alimentation.
               </span>
             </li>
             <li className="flex items-start gap-2">

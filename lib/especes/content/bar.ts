@@ -23,13 +23,15 @@ export const barEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
+    verifiedAt: '21/06/2026',
     source:
-      'Arrêté du 1er avril 2026 (pêche de loisir du bar européen) ; arrêté du 26 octobre 2012 modifié (tailles minimales)',
+      'Arrêté du 1er avril 2026 (pêche de loisir du bar européen) ; arrêté du 26 octobre 2012 modifié (tailles minimales) ; arrêté du 17 mai 2011 modifié (marquage)',
+    minSizeCm: { 'manche-atlantique': 42, mediterranee: 30 },
+    marquage: true,
     items: [
-      '<strong>Maille : 42 cm</strong> en Atlantique, Manche et mer du Nord — <strong>30 cm</strong> en Méditerranée.',
-      '<strong>Quota : 3 bars/jour/pêcheur</strong> au nord du 48e parallèle, <strong>2 bars/jour</strong> au sud (façade Atlantique).',
-      '<strong>Février et mars : pêcher-relâcher uniquement</strong> sur les façades Atlantique, Manche et mer du Nord — aucun prélèvement autorisé.',
+      '<strong>Maille : 42 cm</strong> en Manche, mer du Nord et Atlantique — <strong>30 cm</strong> en Méditerranée (42 cm dans le Parc naturel marin du Golfe du Lion).',
+      '<strong>Quota : 3 bars/jour/pêcheur au nord du 48e parallèle</strong> (≈ Audierne), <strong>2 bars/jour au sud</strong> du 48e parallèle.',
+      "<strong>Février et mars : pêcher-relâcher obligatoire au nord du 48e parallèle</strong> — aucun prélèvement ; au sud du 48e, la pêche reste autorisée toute l'année (2/jour).",
       '<strong>Marquage obligatoire</strong> de tout bar conservé : ablation de la partie inférieure de la nageoire caudale.',
     ],
   },
@@ -113,7 +115,7 @@ export const barEspece: EspeceContent = {
     },
     {
       q: 'Combien de bars peut-on garder par jour ?',
-      a: `Le quota est de 3 bars par jour et par pêcheur au nord du 48e parallèle, et de 2 bars par jour au sud, sur la façade Atlantique. Attention : en février et mars, c'est pêcher-relâcher uniquement sur les façades Atlantique et Manche — aucun prélèvement. Logue aussi tes poissons relâchés : ils comptent dans tes patterns.`,
+      a: `Le quota est de 3 bars par jour et par pêcheur au nord du 48e parallèle (qui passe vers Audierne), et de 2 bars par jour au sud du 48e parallèle. Attention : en février et mars, c'est pêcher-relâcher obligatoire au nord du 48e parallèle — aucun prélèvement ; au sud, la pêche reste ouverte. Logue aussi tes poissons relâchés : ils comptent dans tes patterns.`,
     },
     {
       q: 'Quel est le meilleur moment de marée pour pêcher le bar ?',

@@ -3,6 +3,7 @@
 import { CalendarX, Moon, Sun } from 'lucide-react'
 import type { DailyForecast, FishingWindow, QualityLevel } from '@/lib/solunar/types'
 import { BestMomentCard } from './BestMomentCard'
+import { ScoreBreakdown } from '@/components/scoring/ScoreBreakdown'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -57,6 +58,10 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
   const dayLabel = formatDayHeader(daily.date)
   const moonTimes = showMoonInfo ? extractMoonTimes(daily) : {}
   const illuminationPct = Math.round(daily.moonIllumination * 100)
+  const bestWindow =
+    daily.windows.length > 0
+      ? daily.windows.reduce((a, b) => (b.score > a.score ? b : a))
+      : null
 
   return (
     <section className="flex flex-col gap-3">
@@ -106,16 +111,25 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
 
       {/* Liste des fenêtres */}
       {daily.windows.length > 0 ? (
-        <ul className="flex flex-col gap-2 md:gap-3">
-          {daily.windows.map((w, i) => (
-            <li key={i}>
-              <BestMomentCard
-                window={w}
-                isCurrent={isWindowCurrent(w)}
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-2 md:gap-3">
+            {daily.windows.map((w, i) => (
+              <li key={i}>
+                <BestMomentCard
+                  window={w}
+                  isCurrent={isWindowCurrent(w)}
+                />
+              </li>
+            ))}
+          </ul>
+          {bestWindow && (
+            <ScoreBreakdown
+              window={bestWindow}
+              title="Décomposition du meilleur créneau"
+              className="mt-1"
+            />
+          )}
+        </>
       ) : (
         /* Empty state */
         <div className="flex flex-col items-center gap-2 rounded-[14px] border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center">

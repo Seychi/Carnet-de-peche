@@ -22,6 +22,17 @@ export type EspeceContent = {
   regulation: {
     verifiedAt: string
     source: string
+    /**
+     * Maille (taille minimale de capture) en cm, par façade — DONNÉE structurée,
+     * réutilisable (badge, carte, filtre, score). null = espèce non listée /
+     * non réglementée sur cette façade.
+     */
+    minSizeCm: Record<Facade, number | null>
+    /**
+     * Marquage obligatoire (ablation de la partie inférieure de la nageoire
+     * caudale, arrêté du 17 mai 2011 — liste limitative d'espèces).
+     */
+    marquage: boolean
     items: string[]
   }
   /** 4 saisons par façade : activité 1 (faible) → 3 (forte) + note concrète. */

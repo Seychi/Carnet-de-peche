@@ -24,13 +24,16 @@ export const lieuJauneEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
-    source: 'Arrêté du 24 décembre 2024 (pêche de loisir du lieu jaune)',
+    verifiedAt: '21/06/2026',
+    source:
+      'Arrêté du 24 décembre 2024 (fermeture + quota, zones CIEM 7 et 8) ; arrêté du 26 octobre 2012 modifié (maille) ; arrêté du 17 mai 2011 modifié (marquage)',
+    minSizeCm: { 'manche-atlantique': 42, mediterranee: null },
+    marquage: true,
     items: [
-      `<strong>Maille : 42 cm</strong> — tout lieu jaune sous cette taille doit être relâché immédiatement.`,
+      `<strong>Maille : 42 cm</strong> en Manche et Atlantique — tout lieu jaune sous cette taille doit être relâché immédiatement.`,
       `<strong>Quota : 2 lieus jaunes par jour et par pêcheur</strong>, toutes techniques confondues.`,
       `<strong>Fermeture totale du 1er janvier au 30 avril</strong> — aucune capture ni détention pendant cette période.`,
-      `<strong>Marquage obligatoire</strong> de chaque lieu jaune conservé.`,
+      `<strong>Marquage obligatoire</strong> de chaque lieu jaune conservé : ablation de la partie inférieure de la nageoire caudale.`,
     ],
   },
 

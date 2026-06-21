@@ -13,6 +13,7 @@ import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
+import { fetchSpotDepth } from '@/lib/conditions/bathymetry'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
@@ -243,12 +244,13 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions, forecastWeek, allGuides] = await Promise.all([
+  const [catches, catchCount, conditions, forecastWeek, allGuides, depth] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
     fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
     getAllGuides().catch(() => []),
+    fetchSpotDepth(spot.lat, spot.lng).catch(() => null),
   ])
 
   // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
@@ -267,8 +269,18 @@ export default async function SpotPage({
 
   // WMO code par date pour les icônes météo du calendrier
   const weatherCodes: Record<string, number> = {}
+  // PM/BM par date (1re pleine et 1re basse mer du jour) pour le calendrier 7j.
+  const tidesByDate: Record<string, { high?: string; low?: string }> = {}
   for (const fc of forecastWeek) {
     if (fc.weather.code != null) weatherCodes[fc.date] = fc.weather.code
+    const hi = fc.tide.extrema.find((e) => e.type === 'high')
+    const lo = fc.tide.extrema.find((e) => e.type === 'low')
+    if (hi || lo) {
+      tidesByDate[fc.date] = {
+        high: hi ? `${hi.hour}h` : undefined,
+        low: lo ? `${lo.hour}h` : undefined,
+      }
+    }
   }
 
   const ctaHref = user
@@ -430,6 +442,7 @@ export default async function SpotPage({
                 weekly={weekly}
                 spotName={spot.name}
                 weatherCodes={weatherCodes}
+                tidesByDate={tidesByDate}
               />
             )}
 
@@ -440,6 +453,7 @@ export default async function SpotPage({
                 lat={spot.lat}
                 lng={spot.lng}
                 conditions={conditions}
+                forecastWeek={forecastWeek}
               />
             )}
 
@@ -534,6 +548,25 @@ export default async function SpotPage({
                 )}
               </dl>
             </div>
+
+            {/* Profondeur (bathymétrie réelle EMODnet) */}
+            {depth && (
+              <div className="bg-white rounded-[18px] border border-sand-200 p-6">
+                <h3 className="mb-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-500">
+                  Profondeur du spot
+                </h3>
+                <p className="font-mono text-3xl font-bold leading-none text-navy-900">
+                  ≈ {depth.depth_m} m
+                </p>
+                {depth.deep_m > depth.shallow_m && (
+                  <p className="mt-2 text-sm text-ink-500">
+                    Entre <span className="font-mono text-navy-900">{depth.shallow_m}</span> et{' '}
+                    <span className="font-mono text-navy-900">{depth.deep_m}</span> m sur la zone
+                  </p>
+                )}
+                <p className="mt-2 text-[11px] text-ink-400">Source {depth.source}</p>
+              </div>
+            )}
 
             {/* Dangers */}
             {spot.hazards && spot.hazards.length > 0 && (

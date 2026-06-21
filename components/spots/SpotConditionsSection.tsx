@@ -1,5 +1,6 @@
 import { ExternalLink, Waves, Sunrise, Sunset } from 'lucide-react'
 import TideChart from '@/components/conditions/TideChartLazy'
+import TideStrengthBand, { buildMarnageDays } from '@/components/conditions/TideStrengthBand'
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
@@ -9,6 +10,8 @@ type Props = {
   lat: number
   lng: number
   conditions: SpotConditions
+  /** Prévisions 7 jours — alimente la bande « force des marées » (marnage réel). */
+  forecastWeek?: SpotConditions[]
 }
 
 function formatDate(isoDate: string): string {
@@ -49,12 +52,13 @@ function currentHourParis(): number {
   return parseInt(h, 10) % 24
 }
 
-export default function SpotConditionsSection({ spotName, lat, lng, conditions }: Props) {
+export default function SpotConditionsSection({ spotName, lat, lng, conditions, forecastWeek }: Props) {
   const windyUrl = `https://www.windy.com/?${lat.toFixed(4)},${lng.toFixed(4)},10`
   const dateLabel = formatDate(conditions.date)
   const updatedAt = formatTime(conditions.fetched_at)
   const currentHour = currentHourParis()
   const hasTide = conditions.tide.points.length > 0
+  const marnageDays = forecastWeek && forecastWeek.length > 0 ? buildMarnageDays(forecastWeek) : []
 
   return (
     <section className="bg-white rounded-[18px] border border-sand-200 p-5 md:p-7">
@@ -79,12 +83,13 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
 
       {/* Marées */}
       {hasTide ? (
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-5">
           <TideChart
             points={conditions.tide.points}
             extrema={conditions.tide.extrema}
             currentHourIdx={currentHour}
           />
+          {marnageDays.length > 0 && <TideStrengthBand days={marnageDays} />}
         </div>
       ) : (
         <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-ink-50 rounded-[10px]">

@@ -23,10 +23,12 @@ export const orphieEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
+    verifiedAt: '21/06/2026',
     source: 'Arrêté du 26 octobre 2012 modifié le 6 janvier 2026 (tailles minimales pêche de loisir)',
+    minSizeCm: { 'manche-atlantique': 30, mediterranee: null },
+    marquage: false,
     items: [
-      `<strong>Maille : 30 cm</strong> — toute orphie sous cette taille doit être remise à l'eau immédiatement.`,
+      `<strong>Maille : 30 cm</strong> en Manche et Atlantique — toute orphie sous cette taille doit être remise à l'eau immédiatement. En Méditerranée, l'espèce n'a pas de taille minimale réglementaire.`,
       `<strong>Pas de quota national</strong> en pêche de loisir — reste raisonnable, prélève ce que tu manges.`,
       `<strong>Arêtes vertes naturelles</strong> : c'est la biliverdine, un pigment inoffensif — l'orphie est parfaitement comestible.`,
     ],
@@ -103,7 +105,7 @@ export const orphieEspece: EspeceContent = {
     },
     {
       q: `Quelle est la taille minimale de capture de l'orphie ?`,
-      a: `La maille est fixée à 30 cm pour la pêche de loisir (arrêté du 26 octobre 2012 modifié le 6 janvier 2026) : toute orphie plus petite doit être relâchée immédiatement. Il n'y a pas de quota national, mais la plupart des poissons pris du bord font 40 à 60 cm, donc bien au-dessus de la maille.`,
+      a: `La maille est de 30 cm en Manche et Atlantique (arrêté du 26 octobre 2012 modifié le 6 janvier 2026) ; en Méditerranée, l'orphie n'a pas de taille minimale réglementaire. Il n'y a pas de quota national, et la plupart des poissons pris du bord font 40 à 60 cm, donc bien au-dessus de la maille.`,
     },
     {
       q: `Comment ferrer une orphie sans la décrocher ?`,

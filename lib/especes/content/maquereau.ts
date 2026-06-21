@@ -25,11 +25,15 @@ export const maquereauEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
-    source: 'Arrêté du 26 octobre 2012 modifié (tailles minimales pêche de loisir)',
+    verifiedAt: '21/06/2026',
+    source:
+      'Arrêté du 26 octobre 2012 modifié (maille) ; arrêté du 1er avril 2026 (quota, zones CIEM 4/7/8) ; arrêté du 17 mai 2011 modifié (marquage)',
+    minSizeCm: { 'manche-atlantique': 20, mediterranee: 18 },
+    marquage: true,
     items: [
-      `<strong>Maille : 20 cm</strong> — toute prise sous cette taille retourne à l'eau, sans exception.`,
-      `<strong>Pas de quota récréatif national</strong> sur le maquereau à ce jour.`,
+      `<strong>Maille : 20 cm</strong> en Manche et Atlantique, <strong>18 cm</strong> en Méditerranée — toute prise sous la taille retourne à l'eau.`,
+      `<strong>Quota : 10 maquereaux/jour/pêcheur</strong> en Manche, mer du Nord et Atlantique (depuis avril 2026). Pas de quota en Méditerranée.`,
+      `<strong>Marquage obligatoire</strong> de chaque maquereau conservé : ablation de la partie inférieure de la nageoire caudale (possible avant le débarquement, et non dès la mise à bord).`,
       `<strong>Prélève ce que tu consommes</strong> — les bancs ne sont pas inépuisables, et un seau plein qui finit à la poubelle ne fait honneur à personne.`,
     ],
   },
@@ -105,7 +109,7 @@ export const maquereauEspece: EspeceContent = {
     },
     {
       q: 'Quelle est la taille minimale du maquereau ?',
-      a: `La maille du maquereau en pêche de loisir est fixée à 20 cm (arrêté du 26 octobre 2012 modifié, vérifié le 12/06/2026). Tout poisson sous cette taille doit être remis à l'eau. Il n'existe pas de quota récréatif national, mais prélève uniquement ce que tu consommes : les bancs paraissent inépuisables, ils ne le sont pas.`,
+      a: `La maille est de 20 cm en Manche et Atlantique, et de 18 cm en Méditerranée. Depuis avril 2026, un quota de 10 maquereaux par jour et par pêcheur s'applique en Manche, mer du Nord et Atlantique (pas de quota en Méditerranée), et tout poisson conservé doit être marqué (ablation de la partie inférieure de la nageoire caudale). Prélève uniquement ce que tu consommes : les bancs paraissent inépuisables, ils ne le sont pas.`,
     },
     {
       q: 'Quel montage pour pêcher le maquereau ?',

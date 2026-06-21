@@ -28,6 +28,18 @@ const FACADE_LABELS: Record<Facade, string> = {
   mediterranee: 'Méditerranée',
 }
 
+/** Format compact de la maille (donnée structurée) pour le badge mono. */
+function formatMaille(minSize: Record<Facade, number | null>): string {
+  const atl = minSize['manche-atlantique']
+  const med = minSize.mediterranee
+  if (atl != null && med != null) {
+    return atl === med ? `${atl} cm` : `${atl} cm (Manche/Atl.) · ${med} cm (Médit.)`
+  }
+  if (atl != null) return `${atl} cm (Manche/Atl.)`
+  if (med != null) return `${med} cm (Médit.)`
+  return '—'
+}
+
 export async function generateStaticParams() {
   return (Object.keys(SPECIES) as SpeciesSlug[]).map((slug) => ({ slug }))
 }
@@ -211,13 +223,28 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                 Taille légale et réglementation
               </h2>
               <aside className="mt-4 rounded-[14px] border border-gold-500/35 bg-gold-500/[0.07] p-5">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-2 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-[#A87C20]">
                     <ShieldCheck size={14} strokeWidth={1.7} />
                     {species.label} · pêche de loisir
                   </span>
-                  <TagData variant="gold">VÉRIFIÉ LE {content.regulation.verifiedAt}</TagData>
                 </div>
+
+                {/* Badge maille (donnée structurée, mono — DA v2) */}
+                <div className="mb-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 rounded-[10px] border border-gold-500/25 bg-white/60 px-3.5 py-2.5">
+                  <span className="font-mono text-xl font-bold leading-none text-navy-900">
+                    Maille {formatMaille(content.regulation.minSizeCm)}
+                  </span>
+                  <span className="font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-ink-500">
+                    · vérifié le {content.regulation.verifiedAt} · Légifrance
+                  </span>
+                  {content.regulation.marquage && (
+                    <span className="rounded-full bg-navy-900 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.06em] text-white">
+                      Marquage obligatoire
+                    </span>
+                  )}
+                </div>
+
                 <ul className="flex flex-col gap-2 text-[14px] leading-relaxed text-ink-700">
                   {content.regulation.items.map((item, i) => (
                     <li key={i} className="flex gap-2.5">

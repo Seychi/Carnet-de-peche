@@ -23,12 +23,15 @@ export const doradeRoyaleEspece: EspeceContent = {
   },
 
   regulation: {
-    verifiedAt: '12/06/2026',
-    source: 'Arrêté du 26 octobre 2012 modifié (tailles minimales pêche de loisir)',
+    verifiedAt: '21/06/2026',
+    source:
+      'Arrêté du 26 octobre 2012 modifié le 6 janvier 2026 (tailles minimales) ; arrêté du 17 mai 2011 modifié (marquage)',
+    minSizeCm: { 'manche-atlantique': 23, mediterranee: 23 },
+    marquage: true,
     items: [
-      `Taille minimale de capture : <strong>23 cm</strong>, sur toutes les façades (Manche, Atlantique, Méditerranée).`,
+      `Taille minimale de capture : <strong>23 cm</strong>, sur toutes les façades (Manche, Atlantique, Méditerranée). Exception locale : 30 cm dans le Parc naturel marin du Golfe du Lion.`,
       `<strong>Marquage obligatoire</strong> de chaque poisson conservé : ablation de la partie inférieure de la nageoire caudale.`,
-      `Pas de quota national à ce jour — pratique raisonnée conseillée : relâche de préférence les sujets proches de la maille.`,
+      `Pas de quota national à ce jour (hors aires marines protégées, où des limites locales s'appliquent) — pratique raisonnée conseillée : relâche de préférence les sujets proches de la maille.`,
     ],
   },
 
