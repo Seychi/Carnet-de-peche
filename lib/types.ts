@@ -273,6 +273,68 @@ export type Database = {
           },
         ]
       }
+      feed_post_photos: {
+        Row: {
+          created_at: string
+          height: number | null
+          id: string
+          position: number
+          post_id: string
+          storage_path: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          height?: number | null
+          id?: string
+          position?: number
+          post_id: string
+          storage_path: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          height?: number | null
+          id?: string
+          position?: number
+          post_id?: string
+          storage_path?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_post_photos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_post_photos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts_for_viewer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_post_photos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_post_photos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feed_posts: {
         Row: {
           author_id: string
@@ -772,6 +834,7 @@ export type Database = {
           id: string | null
           liked_by_me: boolean | null
           likes_count: number | null
+          photo_paths: string[] | null
           region: string | null
           text: string | null
           updated_at: string | null
