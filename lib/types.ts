@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       catches: {
@@ -1051,6 +1076,7 @@ export type Database = {
         Returns: unknown
       }
       current_tier: { Args: { uid: string }; Returns: string }
+      delete_my_account: { Args: never; Returns: undefined }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -1269,6 +1295,7 @@ export type Database = {
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
       is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }
+      is_moderator: { Args: { uid?: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
       nearby_spots: {
         Args: {
@@ -2063,6 +2090,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
