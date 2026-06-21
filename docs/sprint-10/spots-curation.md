@@ -136,6 +136,8 @@ Les façades Manche/Méditerranée passent après : loin des zones que John peut
 
 ## 7. Prochaines étapes
 
+> ✅ **Lot 1 inséré en prod le 2026-06-21** — 28 spots (prod 10 → 38 : 29=18, 22=8, 35=5, 56=7). Vérif réel/public/département + **confirmation satellite de chaque coordonnée** faites (cf `docs/sprint-10/lot-1-verification.md`). Reste : revue `/carte` + `verified=true` par John. Décisions appliquées : Cap Fréhel (bar + mention interdiction), Port-Navalo (+lieu_jaune, diff. 4), Roselier (conservé).
+
 1. **John** : valider/corriger le lot 1 (§5) ligne par ligne — coords sur satellite, accès, retraits, ajouts de spots que tu connais.
 2. **Claude Code** : descriptions voix pêcheur + `supabase/seed-spots-lot-1.sql` + insertion + vérif carte.
 3. **Lot 2** : repartir de la pré-liste §6 (44 + 85) + Charente-Maritime (17), Gironde (33), Landes (40), Pays basque (64) + densification éventuelle 29/22/56.

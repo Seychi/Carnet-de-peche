@@ -1,7 +1,8 @@
 -- =====================================================================
 -- Carnet de Pêche — LOT 1 de curation de spots (Bretagne, 28 spots)
 -- =====================================================================
--- ⚠️ NON INSÉRÉ — À VALIDER PAR JOHN AVANT EXÉCUTION.
+-- ✅ INSÉRÉ EN PROD le 2026-06-21 (28 spots → la prod passe de 10 à 38).
+--    NE PAS REJOUER (doublons de slug). Fichier conservé comme trace/source.
 --
 -- Pipeline de qualité appliqué (2026-06-15) :
 --   1. Proposition (docs/sprint-10/spots-curation.md §5).

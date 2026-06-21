@@ -82,6 +82,8 @@ Résultat :
 
 Les coordonnées du SQL `seed-spots-lot-1.sql` sont **ces coords confirmées**.
 
-## Prochaine étape
+## ✅ Inséré en prod le 2026-06-21
 
-Les coords sont calées au satellite : un **dernier coup d'œil de ta part sur `/carte` après insertion** suffit (plus besoin de tout re-géolocaliser). Décisions ouvertes : Cap Fréhel (bar conservé + mention — **validé**), Port-Navalo (ajouter `lieu_jaune` / difficulté 4 ?), Roselier (garder ou Tablettes ?). Dès ton feu vert : j'insère `seed-spots-lot-1.sql` en prod, on vérifie les pins, puis lot 2 (44 + 85, pré-liste §6).
+Les 28 spots sont **insérés en prod** (`seed-spots-lot-1.sql` joué via le MCP Supabase) → la prod passe de **10 à 38 spots** : **29 = 18, 22 = 8, 35 = 5, 56 = 7**. `geom_public` (flou 1 km) généré par le trigger pour les 28, tous `verified = false`. Décisions appliquées : Cap Fréhel (bar conservé + mention interdiction 1ᵉʳ mars–31 mai), Port-Navalo (`+lieu_jaune`, difficulté 4), Roselier (conservé).
+
+**Reste à ta main** : coup d'œil sur `/carte` (les pins sont calés satellite, mais un check humain ne fait pas de mal) puis passage `verified = true` spot par spot. Puis on enchaînera le **lot 2** (Loire-Atlantique 44 + Vendée 85, pré-liste §6) — **après ton autre brief**.
