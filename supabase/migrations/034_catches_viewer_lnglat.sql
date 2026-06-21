@@ -15,18 +15,19 @@
 -- puis on ajoute lng/lat = st_x/st_y(v.geom_visible::geometry). Le reste des
 -- colonnes est conservé À L'IDENTIQUE (même ordre, mêmes noms) via `v.*`.
 --
--- security_invoker : un CREATE OR REPLACE qui change la liste de colonnes
--- impose un DROP préalable → l'option security_invoker (posée en 031) est
--- perdue à la recréation. On la RÉ-AFFIRME explicitement en fin de migration.
+-- ⚠️ DÉPENDANCE : feed_posts_for_viewer dépend de catches_for_viewer → un DROP
+-- exigerait CASCADE (qui supprimerait la vue dépendante). On évite le DROP :
+-- comme on garde les 32 colonnes existantes À L'IDENTIQUE (mêmes noms, même
+-- ordre, mêmes types) et qu'on AJOUTE seulement lng/lat À LA FIN, un
+-- CREATE OR REPLACE VIEW est autorisé et modifie la vue en place sans toucher
+-- aux dépendants. security_invoker (posée en 031) est ré-affirmée par sécurité.
 --
 -- RLS : aucune table touchée, aucune policy modifiée. Append-only.
 -- ROLLBACK : revenir à la définition de 015 (sans lng/lat) + re-set
 --            security_invoker = true.
 -- =====================================================================
 
-DROP VIEW IF EXISTS public.catches_for_viewer;
-
-CREATE VIEW public.catches_for_viewer AS
+CREATE OR REPLACE VIEW public.catches_for_viewer AS
 SELECT
   v.*,
   ST_X(v.geom_visible::geometry) AS lng,
