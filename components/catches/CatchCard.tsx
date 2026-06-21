@@ -31,7 +31,7 @@ export function CatchCard({
   return (
     <Link
       href={`/carnet/${c.id}`}
-      className="flex flex-col bg-white rounded-[14px] border border-slate-100 overflow-hidden hover:border-teal-200 transition-colors shadow-sm group"
+      className="flex flex-col bg-white rounded-[14px] border border-sand-200 overflow-hidden hover:border-teal-200 transition-colors group"
     >
       {/* Photo ou placeholder */}
       <div className="relative w-full aspect-[4/3] bg-slate-100 overflow-hidden">
@@ -79,7 +79,7 @@ export function CatchCard({
 
         {/* Taille / poids */}
         {(c.size_cm || c.weight_g) && (
-          <p className="text-[13px] text-ink-600 font-medium mt-0.5">
+          <p className="font-mono text-[13px] text-ink-600 font-medium mt-0.5">
             {c.size_cm ? `${c.size_cm} cm` : ''}
             {c.size_cm && c.weight_g ? ' · ' : ''}
             {c.weight_g ? `${(c.weight_g / 1000).toFixed(2)} kg` : ''}

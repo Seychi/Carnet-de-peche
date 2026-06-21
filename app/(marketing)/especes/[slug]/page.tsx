@@ -15,6 +15,8 @@ import { getAllGuides } from '@/lib/guides/loader'
 import { STRUCTURE_LABELS } from '@/lib/labels'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const revalidate = 86400
 export const dynamicParams = false
@@ -388,7 +390,10 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                   </p>
                   <Link
                     href="/auth/register"
-                    className="mt-4 block rounded-lg bg-teal-500 px-5 py-2.5 text-sm font-semibold text-navy-950 transition-colors hover:bg-teal-300"
+                    className={cn(
+                      buttonVariants({ variant: 'accent', size: 'cta-sm' }),
+                      'mt-4 w-full',
+                    )}
                   >
                     Créer mon carnet gratuit
                   </Link>

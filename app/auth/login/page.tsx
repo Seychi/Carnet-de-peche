@@ -10,7 +10,17 @@ import {
   type SetStateAction,
 } from "react";
 import { useFormStatus } from "react-dom";
-import { Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Mail } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Mail,
+  MailCheck,
+  KeyRound,
+  type LucideIcon,
+} from "lucide-react";
 import type { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -167,21 +177,24 @@ function PasswordInput({
 
 // ─── Écran "email envoyé" ──────────────────────────────────────────────────────
 
-const SENT_CONTENT = {
+const SENT_CONTENT: Record<
+  SentReason,
+  { Icon: LucideIcon; title: string; body: string; sub: string }
+> = {
   magic: {
-    icon: "📬",
+    Icon: MailCheck,
     title: "Vérifie ton email",
     body: "On vient d'envoyer un lien de connexion à",
     sub: "Clique dessus depuis ton téléphone ou ton ordi.",
   },
   signup: {
-    icon: "📧",
+    Icon: Mail,
     title: "Confirme ton adresse",
     body: "On vient d'envoyer un lien de confirmation à",
     sub: "Clique dessus pour activer ton compte et accéder à ton carnet.",
   },
   reset: {
-    icon: "🔑",
+    Icon: KeyRound,
     title: "Lien envoyé",
     body: "On a envoyé un lien de réinitialisation à",
     sub: "Clique dessus et choisis un nouveau mot de passe.",
@@ -197,17 +210,11 @@ function SentScreen({
   email: string;
   onResend: () => void;
 }) {
-  const { icon, title, body, sub } = SENT_CONTENT[reason];
+  const { Icon, title, body, sub } = SENT_CONTENT[reason];
   return (
     <div className="w-full max-w-[420px] text-center">
-      <div
-        className="w-16 h-16 rounded-[20px] grid place-items-center mx-auto mb-5 text-3xl"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(20,184,166,.15), rgba(20,184,166,.05))",
-        }}
-      >
-        {icon}
+      <div className="w-16 h-16 rounded-full grid place-items-center mx-auto mb-5 bg-teal-500/10 text-teal-600">
+        <Icon size={28} strokeWidth={1.75} aria-hidden="true" />
       </div>
       <h1 className="text-[26px] mb-2">{title}</h1>
       <p className="text-ink-500 text-[15px] leading-relaxed mb-6">

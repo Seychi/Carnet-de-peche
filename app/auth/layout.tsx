@@ -37,11 +37,14 @@ export default function AuthLayout({
       {/* Footer minimaliste */}
       <footer className="px-5 py-4 text-center text-[12px] text-ink-500">
         © 2026 Carnet de Pêche ·{" "}
-        <Link href="#" className="hover:text-navy-900 transition-colors">
+        <Link href="/legal/cgu" className="hover:text-navy-900 transition-colors">
           CGU
         </Link>{" "}
         ·{" "}
-        <Link href="#" className="hover:text-navy-900 transition-colors">
+        <Link
+          href="/legal/confidentialite"
+          className="hover:text-navy-900 transition-colors"
+        >
           Confidentialité
         </Link>
       </footer>

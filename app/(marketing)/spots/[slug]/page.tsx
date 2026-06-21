@@ -147,7 +147,7 @@ function DifficultyStars({ difficulty }: { difficulty: number | null }) {
   return (
     <span role="img" className="flex items-center gap-0.5" aria-label={`Difficulté ${d} sur 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= d ? 'text-amber-400' : 'text-white/20'} aria-hidden>★</span>
+        <span key={n} className={n <= d ? 'text-gold-500' : 'text-white/20'} aria-hidden>★</span>
       ))}
     </span>
   )
@@ -512,7 +512,7 @@ export default async function SpotPage({
                   <dt className="text-ink-500">Difficulté</dt>
                   <dd className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <span key={n} className={n <= (spot.difficulty ?? 0) ? 'text-amber-400' : 'text-ink-200'} aria-hidden>★</span>
+                      <span key={n} className={n <= (spot.difficulty ?? 0) ? 'text-gold-500' : 'text-ink-200'} aria-hidden>★</span>
                     ))}
                   </dd>
                 </div>

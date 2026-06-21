@@ -181,10 +181,10 @@ export default function TideChart({ points, extrema, currentHourIdx }: Props) {
                     <tr
                       key={p.hour}
                       className={`border-b border-ink-50 last:border-0 ${
-                        isCurrent ? 'bg-amber-50' : 'bg-white'
+                        isCurrent ? 'bg-gold-500/10' : 'bg-white'
                       }`}
                     >
-                      <td className={`px-4 py-2 ${isCurrent ? 'font-bold text-amber-700' : 'text-ink-700'}`}>
+                      <td className={`px-4 py-2 font-mono ${isCurrent ? 'font-bold text-navy-900' : 'text-ink-700'}`}>
                         {p.hour}h{isCurrent ? ' ←' : ''}
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-ink-900">

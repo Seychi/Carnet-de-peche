@@ -7,6 +7,8 @@ import { Chip } from "@/components/ui-v2/chip";
 import { ScoreRing } from "@/components/ui-v2/score-ring";
 import { ScrollReveal } from "@/components/ui-v2/scroll-reveal";
 import { AnimatedCounter } from "@/components/ui-v2/animated-counter";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   TideSparkline,
   type TideSparklineExtremum,
@@ -61,12 +63,11 @@ const PREVIEW_NOW_HOUR = 9.6;
 
 /* ─── Helpers UI ──────────────────────────────────────────────────────── */
 
-const BTN =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold text-[15px] min-h-[48px] px-6 transition-colors duration-150";
-const BTN_PRIMARY = `${BTN} bg-navy-900 text-white hover:bg-navy-800`;
-const BTN_ACCENT = `${BTN} bg-teal-500 text-navy-950 hover:bg-teal-300`;
-const BTN_GHOST = `${BTN} border border-sand-200 text-navy-900 hover:border-navy-900`;
-const BTN_GHOST_DARK = `${BTN} border border-white/20 bg-white/5 text-white hover:bg-white/10`;
+// CTA unifiés via le composant Button (source unique) — cf components/ui/button.tsx
+const BTN_PRIMARY = cn(buttonVariants({ variant: "navy", size: "cta" }));
+const BTN_ACCENT = cn(buttonVariants({ variant: "accent", size: "cta" }));
+const BTN_GHOST = cn(buttonVariants({ variant: "line", size: "cta" }));
+const BTN_GHOST_DARK = cn(buttonVariants({ variant: "lineDark", size: "cta" }));
 
 // Libellé CTA d'inscription unifié sur toute la home (Bloc E).
 const CTA_REGISTER = "Créer mon carnet — gratuit";

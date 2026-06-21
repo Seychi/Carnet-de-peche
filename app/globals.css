@@ -306,3 +306,13 @@
     max-width: 100%;
   }
 }
+
+/* ============================================================
+   Mouvement réduit — filet global (DA v2 / a11y).
+   Neutralise les skeletons animate-pulse non gardés + le smooth-scroll.
+   Les animations critiques gardent leurs propres règles plus haut.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-pulse { animation: none !important; }
+}

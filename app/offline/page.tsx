@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { WifiOff } from 'lucide-react'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Hors ligne · Carnet de Pêche',
@@ -26,7 +28,7 @@ export default function OfflinePage() {
         </p>
         <a
           href="/home"
-          className="mt-6 inline-block rounded-lg bg-teal-500 px-6 py-3 text-[14.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-300"
+          className={cn(buttonVariants({ variant: 'accent', size: 'cta' }), 'mt-6')}
         >
           Réessayer
         </a>

@@ -4,6 +4,8 @@ import { Fish } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getMyCatchStats } from "@/lib/catches/queries";
 import { SPECIES_LABELS } from "@/lib/labels";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { SignOutButton } from "./sign-out-button";
 
 function speciesLabel(species: string | null): string {
@@ -73,13 +75,13 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
                 href="/carnet/nouvelle"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm min-h-[48px]"
+                className={cn(buttonVariants({ variant: "accent", size: "cta" }), "w-full sm:w-auto")}
               >
                 Loguer une prise →
               </Link>
               <Link
                 href="/carte"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-[1.5px] border-navy-900 text-navy-900 font-semibold text-sm min-h-[48px]"
+                className={cn(buttonVariants({ variant: "line", size: "cta" }), "w-full sm:w-auto")}
               >
                 Voir la carte
               </Link>
@@ -89,11 +91,12 @@ export default async function HomePage() {
           <>
             {/* ── Stats clés ── */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard label="Prises loguées" value={String(total)} hint={`dont ${stats?.thisMonthCount ?? 0} ce mois-ci`} />
+              <StatCard label="Prises loguées" value={String(total)} hint={`dont ${stats?.thisMonthCount ?? 0} ce mois-ci`} mono />
               <StatCard
                 label="Plus belle prise"
                 value={stats?.biggestCatch ? `${stats.biggestCatch.size_cm} cm` : "—"}
                 hint={stats?.biggestCatch ? speciesLabel(stats.biggestCatch.species) : "Pas encore de taille"}
+                mono
               />
               <StatCard
                 label="Espèce favorite"
@@ -106,13 +109,13 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/carnet/nouvelle"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm min-h-[52px]"
+                className={cn(buttonVariants({ variant: "accent", size: "cta" }), "flex-1")}
               >
                 Loguer une prise →
               </Link>
               <Link
                 href="/carte"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border-[1.5px] border-navy-900 text-navy-900 font-semibold text-sm min-h-[52px] hover:bg-navy-900 hover:text-white transition-colors"
+                className={cn(buttonVariants({ variant: "line", size: "cta" }), "flex-1")}
               >
                 Voir la carte
               </Link>
@@ -132,13 +135,13 @@ export default async function HomePage() {
                     <div className="min-w-0">
                       <p className="text-[15px] font-medium text-navy-900">
                         {speciesLabel(c.species as string)}
-                        {c.size_cm ? <span className="text-ink-500 font-normal"> · {c.size_cm as number} cm</span> : null}
+                        {c.size_cm ? <span className="font-mono text-ink-500 font-normal"> · {c.size_cm as number} cm</span> : null}
                       </p>
                       {c.location_label ? (
                         <p className="text-[12px] text-ink-400 truncate">{c.location_label as string}</p>
                       ) : null}
                     </div>
-                    <span className="text-[12px] text-ink-400 shrink-0 ml-3">
+                    <span className="font-mono text-[12px] text-ink-400 shrink-0 ml-3">
                       {formatDate(c.caught_at as string)}
                     </span>
                   </li>
@@ -152,11 +155,11 @@ export default async function HomePage() {
   );
 }
 
-function StatCard({ label, value, hint }: { label: string; value: string; hint: string }) {
+function StatCard({ label, value, hint, mono }: { label: string; value: string; hint: string; mono?: boolean }) {
   return (
     <div className="bg-white rounded-[18px] border border-ink-100 p-5">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">{label}</p>
-      <p className="font-display text-navy-900 text-2xl mt-1 truncate">{value}</p>
+      <p className={`${mono ? "font-mono" : "font-display"} text-navy-900 text-2xl mt-1 truncate`}>{value}</p>
       <p className="text-[12px] text-ink-400 mt-0.5 truncate">{hint}</p>
     </div>
   );

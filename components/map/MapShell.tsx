@@ -4,7 +4,7 @@ import { useRef, useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
-import { Navigation, Locate, SlidersHorizontal, X } from 'lucide-react'
+import { Navigation, Locate, SlidersHorizontal, X, Star } from 'lucide-react'
 import Link from 'next/link'
 import { BackButton } from '@/components/layout/BackButton'
 import type { Map as MapLibreMap } from 'maplibre-gl'
@@ -128,8 +128,15 @@ function ActiveFilterChips({ filters }: { filters: SpotFilters }) {
         </span>
       )}
       {filters.difficulty !== undefined && (
-        <span className="px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 text-xs font-medium whitespace-nowrap">
-          {'★'.repeat(filters.difficulty)} max
+        <span
+          role="img"
+          aria-label={`Difficulté ${filters.difficulty}/5 max`}
+          className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 text-xs font-medium whitespace-nowrap"
+        >
+          {Array.from({ length: filters.difficulty }, (_, i) => (
+            <Star key={i} size={11} aria-hidden className="fill-gold-500 text-gold-500" />
+          ))}
+          <span className="ml-0.5">max</span>
         </span>
       )}
     </>
@@ -352,7 +359,7 @@ export default function MapShell({
         >
           <SlidersHorizontal size={20} />
           {activeCount > 0 && (
-            <span className="absolute top-1.5 right-1 w-[18px] h-[18px] flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-[9px] font-bold leading-none">
+            <span className="absolute top-1.5 right-1 w-[18px] h-[18px] flex items-center justify-center rounded-full bg-teal-500 text-navy-950 font-mono text-[9px] font-bold leading-none">
               {activeCount}
             </span>
           )}
@@ -402,7 +409,7 @@ export default function MapShell({
             <SlidersHorizontal size={14} />
             Filtres
             {activeCount > 0 && (
-              <span className="w-4 h-4 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-[10px] font-bold">
+              <span className="w-4 h-4 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 font-mono text-[10px] font-bold">
                 {activeCount}
               </span>
             )}
@@ -497,7 +504,7 @@ export default function MapShell({
           <SlidersHorizontal size={16} className="text-ink-500" />
           <span>Filtres</span>
           {activeCount > 0 && (
-            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 text-xs font-bold">
+            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-teal-500 text-navy-950 font-mono text-xs font-bold">
               {activeCount}
             </span>
           )}

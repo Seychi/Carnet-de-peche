@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, type LucideIcon } from 'lucide-react'
+import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, type LucideIcon } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
@@ -22,8 +22,8 @@ const QUALITY_LABELS: Record<QualityLevel, string> = {
 }
 
 const QUALITY_COLORS: Record<QualityLevel, string> = {
-  faible: 'text-gray-400',
-  moyenne: 'text-amber-500',
+  faible: 'text-ink-400',
+  moyenne: 'text-gold-500',
   bonne: 'text-lime-600',
   tres_bonne: 'text-teal-500',
   exceptionnelle: 'text-emerald-600',
@@ -151,11 +151,14 @@ function BadgeList({
 function DifficultyStars({ difficulty }: { difficulty: number }) {
   if (!difficulty || difficulty < 1) return null
   return (
-    <div className="flex items-center gap-0.5" aria-label={`Difficulté ${difficulty} sur 5`}>
+    <div role="img" className="flex items-center gap-0.5" aria-label={`Difficulté ${difficulty}/5`}>
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={`text-sm ${i < difficulty ? 'text-amber-400' : 'text-ink-200'}`}>
-          ★
-        </span>
+        <Star
+          key={i}
+          size={14}
+          aria-hidden
+          className={i < difficulty ? 'fill-gold-500 text-gold-500' : 'text-ink-300'}
+        />
       ))}
     </div>
   )
@@ -305,7 +308,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           <div className="flex items-center gap-2">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
             <div className="relative group">
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-400">
+              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100 text-ink-400">
                 — / 100
               </span>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 pointer-events-none">

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { X, AlertCircle, RotateCcw, Fish } from 'lucide-react'
+import { X, AlertCircle, RotateCcw, Fish, Star } from 'lucide-react'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS } from '@/lib/labels'
@@ -39,11 +39,14 @@ function formatDistance(meters: number): string {
 function DifficultyStars({ difficulty }: { difficulty: number }) {
   if (!difficulty || difficulty < 1) return null
   return (
-    <div className="flex gap-0.5" aria-label={`Difficulté ${difficulty} sur 5`}>
+    <div role="img" className="flex gap-0.5" aria-label={`Difficulté ${difficulty}/5`}>
       {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={`text-xs ${i < difficulty ? 'text-amber-400' : 'text-ink-200'}`}>
-          ★
-        </span>
+        <Star
+          key={i}
+          size={13}
+          aria-hidden
+          className={i < difficulty ? 'fill-gold-500 text-gold-500' : 'text-ink-300'}
+        />
       ))}
     </div>
   )
@@ -123,9 +126,9 @@ export default function NearbyPanel({
             </h2>
             {!isLoading && !error && (
               <p className="text-xs text-ink-500 mt-0.5">
-                {totalShown} résultat{totalShown !== 1 ? 's' : ''}
+                <span className="font-mono">{totalShown}</span> résultat{totalShown !== 1 ? 's' : ''}
                 {totalRaw > limit && (
-                  <span className="text-teal-600 font-medium"> · limite {limit}</span>
+                  <span className="text-teal-600 font-medium"> · limite <span className="font-mono">{limit}</span></span>
                 )}
               </p>
             )}
@@ -215,10 +218,10 @@ export default function NearbyPanel({
           <div className="bg-navy-900 rounded-xl px-3 py-2.5 flex items-center justify-between gap-3">
             <p className="text-xs text-white/80 leading-snug">
               Tu vois{' '}
-              <span className="text-white font-semibold">{TIER_LIMITS.discovery} spots max</span>.
+              <span className="text-white font-semibold"><span className="font-mono">{TIER_LIMITS.discovery}</span> spots max</span>.
               Passe{' '}
-              <span className="text-teal-400 font-semibold">Local</span> pour 20,{' '}
-              <span className="text-teal-400 font-semibold">Itinérant</span> pour 50.
+              <span className="text-teal-400 font-semibold">Local</span> pour <span className="font-mono">{TIER_LIMITS.local}</span>,{' '}
+              <span className="text-teal-400 font-semibold">Itinérant</span> pour <span className="font-mono">{TIER_LIMITS.itinerant}</span>.
             </p>
             <Link
               href="/tarifs"
@@ -258,7 +261,7 @@ function NearbyCard({
         <span className="font-semibold text-ink-900 text-sm leading-tight group-hover:text-teal-700 transition-colors">
           {spot.name}
         </span>
-        <span className="shrink-0 text-xs text-ink-500 tabular-nums mt-0.5">
+        <span className="shrink-0 font-mono text-xs text-ink-500 tabular-nums mt-0.5">
           {formatDistance(spot.distance_m)}
         </span>
       </div>

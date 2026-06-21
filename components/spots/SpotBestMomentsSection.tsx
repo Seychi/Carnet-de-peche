@@ -73,21 +73,21 @@ function HowItWorksDialog() {
           <p>Le score combine trois facteurs :</p>
           <ul className="flex flex-col gap-2">
             <li className="flex items-start gap-2">
-              <span className="font-bold text-navy-900 shrink-0">40%</span>
+              <span className="font-mono font-bold text-navy-900 shrink-0">40%</span>
               <span>
                 <strong>Astronomique</strong> — lever et coucher de lune et de soleil, transits lunaires.
                 Les moments autour du lever/coucher de lune sont historiquement les plus actifs pour les poissons.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="font-bold text-navy-900 shrink-0">35%</span>
+              <span className="font-mono font-bold text-navy-900 shrink-0">35%</span>
               <span>
                 <strong>Marée</strong> — montante &gt; descendante &gt; étale, coefficient.
                 La marée montante concentre les poissons et favorise l&apos;alimentation.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="font-bold text-navy-900 shrink-0">25%</span>
+              <span className="font-mono font-bold text-navy-900 shrink-0">25%</span>
               <span>
                 <strong>Vent</strong> — idéal entre 5 et 15 km/h. Trop calme ou trop fort dégrade
                 la qualité de pêche.

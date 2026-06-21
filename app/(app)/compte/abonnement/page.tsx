@@ -58,7 +58,7 @@ function TrialCountdown({ trialEnd }: { trialEnd: string | null }) {
   return (
     <div className="mt-4">
       <p className="text-sm text-ink-700 mb-2">
-        Il reste <span className="font-semibold text-navy-900">{remaining} jour{remaining > 1 ? "s" : ""}</span> d&rsquo;essai
+        Il reste <span className="font-mono font-semibold text-navy-900">{remaining} jour{remaining > 1 ? "s" : ""}</span> d&rsquo;essai
       </p>
       <div className="h-2 rounded-full bg-ink-100 overflow-hidden">
         <div className="h-full bg-teal-500" style={{ width: `${pct}%` }} />
@@ -132,7 +132,7 @@ export default async function AbonnementPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white border border-ink-200 rounded-[18px] p-8 shadow-sm">
+        <div className="bg-white border border-sand-200 rounded-[18px] p-8">
           {/* Plan + prix */}
           <div className="flex items-baseline justify-between gap-4 flex-wrap">
             <div>
@@ -141,8 +141,8 @@ export default async function AbonnementPage() {
                 {interval === "annual" ? "annuel" : interval === "monthly" ? "mensuel" : ""}
               </p>
               {priceLabel && (
-                <p className="text-2xl font-display font-bold text-navy-900 mt-1">
-                  {priceLabel.amount}
+                <p className="text-2xl font-bold text-navy-900 mt-1">
+                  <span className="font-mono">{priceLabel.amount}</span>
                   <span className="text-ink-500 text-base font-normal"> {priceLabel.period}</span>
                 </p>
               )}
@@ -155,7 +155,7 @@ export default async function AbonnementPage() {
               <>
                 <p className="text-sm text-ink-700">
                   <span className="font-semibold text-navy-900">Essai en cours</span> · finit le{" "}
-                  {formatDate(sub?.trial_end ?? null)}
+                  <span className="font-mono">{formatDate(sub?.trial_end ?? null)}</span>
                 </p>
                 <TrialCountdown trialEnd={sub?.trial_end ?? null} />
               </>
@@ -163,14 +163,14 @@ export default async function AbonnementPage() {
             {isActive && (
               <p className="text-sm text-ink-700">
                 <span className="font-semibold text-navy-900">Actif</span> · prochain prélèvement le{" "}
-                {formatDate(sub?.current_period_end ?? null)}
-                {priceLabel ? ` (${priceLabel.amount})` : ""}
+                <span className="font-mono">{formatDate(sub?.current_period_end ?? null)}</span>
+                {priceLabel ? <span className="font-mono"> ({priceLabel.amount})</span> : ""}
               </p>
             )}
             {isCancelScheduled && (
               <p className="text-sm text-ink-700">
                 <span className="font-semibold text-amber-600">Annulation programmée</span> · accès
-                jusqu&rsquo;au {formatDate(sub?.current_period_end ?? null)}
+                jusqu&rsquo;au <span className="font-mono">{formatDate(sub?.current_period_end ?? null)}</span>
               </p>
             )}
             {isPastDue && (
@@ -213,8 +213,8 @@ export default async function AbonnementPage() {
               <ul className="flex flex-col gap-2">
                 {invoices.map((inv) => (
                   <li key={inv.id} className="flex items-center justify-between text-sm">
-                    <span className="text-ink-700">{formatDate(inv.date)}</span>
-                    <span className="text-ink-700">{inv.amount}</span>
+                    <span className="font-mono text-ink-700">{formatDate(inv.date)}</span>
+                    <span className="font-mono text-ink-700">{inv.amount}</span>
                     {inv.url ? (
                       <a
                         href={inv.url}

@@ -9,7 +9,7 @@ const QUALITY_CONFIG: Record<
   { label: string; badgeCls: string; textCls: string; pulse: boolean }
 > = {
   faible:        { label: 'Faible',       badgeCls: 'bg-gray-500 text-white',           textCls: 'text-gray-500',   pulse: false },
-  moyenne:       { label: 'Moyenne',      badgeCls: 'bg-amber-700 text-white',           textCls: 'text-amber-700',  pulse: false },
+  moyenne:       { label: 'Moyenne',      badgeCls: 'bg-gold-500 text-navy-900',         textCls: 'text-ink-700',    pulse: false },
   bonne:         { label: 'Bonne',        badgeCls: 'bg-lime-700 text-white',            textCls: 'text-lime-700',   pulse: false },
   tres_bonne:    { label: 'Très Bonne',   badgeCls: 'bg-teal-700 text-white',            textCls: 'text-teal-700',   pulse: false },
   exceptionnelle:{ label: 'Exceptionnelle', badgeCls: 'bg-emerald-700 text-white',       textCls: 'text-emerald-700',pulse: true  },
@@ -43,7 +43,7 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
 
       {/* Ligne haute : horaire + badge score */}
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[15px] font-semibold text-navy-900 tabular-nums">
+        <p className="text-[15px] font-semibold text-navy-900 font-mono tabular-nums">
           {w.startLocal} – {w.endLocal}
         </p>
 
@@ -54,7 +54,7 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
           )}
           <div
             className={[
-              'relative flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold',
+              'relative flex h-10 w-10 items-center justify-center rounded-full font-mono text-[13px] font-bold',
               cfg.badgeCls,
             ].join(' ')}
           >
@@ -92,7 +92,7 @@ export function BestMomentRow({ window: w }: BestMomentRowProps) {
 
   return (
     <div className="flex items-center gap-2 text-[13px] text-ink-700">
-      <span className="tabular-nums font-medium text-navy-900">
+      <span className="font-mono tabular-nums font-medium text-navy-900">
         {w.startLocal} – {w.endLocal}
       </span>
       <span className="text-ink-500" aria-hidden="true">·</span>
@@ -100,7 +100,7 @@ export function BestMomentRow({ window: w }: BestMomentRowProps) {
       <span className="text-ink-500" aria-hidden="true">·</span>
       <span
         className={[
-          'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold',
+          'flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-bold',
           cfg.badgeCls,
         ].join(' ')}
       >

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Lock } from 'lucide-react'
+import { Lock, Star } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -87,21 +87,24 @@ function DifficultyPicker({
 }) {
   return (
     <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange(value === n ? undefined : n)}
-          aria-label={`Difficulté ${n}`}
-          className={[
-            'text-xl leading-none transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded',
-            n <= (value ?? 0) ? 'text-amber-400' : 'text-ink-300 hover:text-amber-300',
-          ].join(' ')}
-        >
-          ★
-        </button>
-      ))}
+      {[1, 2, 3, 4, 5].map((n) => {
+        const filled = n <= (value ?? 0)
+        return (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(value === n ? undefined : n)}
+            aria-label={`Difficulté ${n}`}
+            className={[
+              'p-1 leading-none transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded',
+              filled ? 'text-gold-500' : 'text-ink-300 hover:text-gold-500/60',
+            ].join(' ')}
+          >
+            <Star size={18} aria-hidden className={filled ? 'fill-gold-500' : ''} />
+          </button>
+        )
+      })}
       {value !== undefined && (
         <button
           type="button"
@@ -387,12 +390,12 @@ export default function MapFilters({
 
         <div className="flex-1 text-center">
           {spotCount !== undefined && spotCount === 0 && activeCount > 0 ? (
-            <span className="text-xs text-amber-600 font-medium">
+            <span className="text-xs text-coral-500 font-medium">
               Aucun spot · élargis les filtres
             </span>
           ) : spotCount !== undefined ? (
             <span className="text-xs text-ink-500">
-              <span className="font-semibold text-ink-900">{spotCount}</span>{' '}
+              <span className="font-mono font-semibold text-ink-900">{spotCount}</span>{' '}
               spot{spotCount !== 1 ? 's' : ''}
             </span>
           ) : null}

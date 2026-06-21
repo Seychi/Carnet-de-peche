@@ -38,13 +38,20 @@ export function TrialBanner({
       <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         <p>
           Il te reste{" "}
-          <span className="font-semibold">
+          <span className="font-mono font-semibold">
             {daysLeft} jour{daysLeft > 1 ? "s" : ""}
           </span>{" "}
           d&rsquo;essai.{" "}
-          {amount
-            ? `Tu seras prélevé(e) de ${amount} le ${dateLabel}.`
-            : `Ton essai finit le ${dateLabel}.`}{" "}
+          {amount ? (
+            <>
+              Tu seras prélevé(e) de <span className="font-mono">{amount}</span> le{" "}
+              <span className="font-mono">{dateLabel}</span>.
+            </>
+          ) : (
+            <>
+              Ton essai finit le <span className="font-mono">{dateLabel}</span>.
+            </>
+          )}{" "}
           <Link href="/compte/abonnement" className="underline font-semibold">
             Gérer
           </Link>

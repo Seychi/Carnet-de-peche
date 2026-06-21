@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Bathy } from '@/components/ui-v2/bathy'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 /**
  * Bande de conversion DA v2 — fond navy-950 + isobathes décoratives.
@@ -27,7 +29,7 @@ export function MarketingCTA({
         </p>
         <Link
           href="/auth/register"
-          className="mt-7 inline-flex min-h-[48px] items-center gap-2 rounded-full bg-teal-500 px-8 py-3.5 text-[15px] font-semibold text-navy-950 transition-colors duration-150 hover:bg-teal-300"
+          className={cn(buttonVariants({ variant: 'accent', size: 'cta' }), 'mt-7')}
         >
           Créer mon carnet — gratuit
           <ArrowRight size={17} aria-hidden="true" />

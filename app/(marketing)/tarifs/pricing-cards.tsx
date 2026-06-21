@@ -6,6 +6,8 @@ import { Check } from 'lucide-react'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { Chip } from '@/components/ui-v2/chip'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { UserTier } from '@/lib/auth/tier'
 
 type PaidPlan = 'local' | 'itinerant'
@@ -216,7 +218,7 @@ export function PricingCards({
           <div className="mt-auto">
             <Link
               href="/auth/login"
-              className="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full border border-sand-200 text-navy-900 font-semibold text-sm transition-colors duration-150 hover:border-navy-900"
+              className={cn(buttonVariants({ variant: 'line', size: 'cta' }), 'w-full')}
             >
               Créer mon carnet
             </Link>
@@ -268,7 +270,7 @@ export function PricingCards({
                 tier={tier}
                 eligible={eligible}
                 onDark
-                buttonClass="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full bg-teal-500 text-navy-950 font-semibold text-sm transition-colors duration-150 hover:bg-teal-300"
+                buttonClass={cn(buttonVariants({ variant: 'accent', size: 'cta' }), 'w-full')}
               />
             </div>
           </div>
@@ -307,7 +309,7 @@ export function PricingCards({
               interval={interval}
               tier={tier}
               eligible={eligible}
-              buttonClass="flex w-full min-h-[48px] items-center justify-center px-6 rounded-full bg-navy-900 text-white font-semibold text-sm transition-colors duration-150 hover:bg-navy-800"
+              buttonClass={cn(buttonVariants({ variant: 'navy', size: 'cta' }), 'w-full')}
             />
           </div>
         </div>

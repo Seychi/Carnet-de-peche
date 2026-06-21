@@ -41,13 +41,10 @@ export function CatchRowItem({ catch: c, photoUrl }: { catch: CatchRow; photoUrl
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
   const location = c.location_label ?? c.spot_name ?? null
 
-  const title = [
-    speciesLabel,
+  const measures = [
     c.size_cm ? `${c.size_cm} cm` : null,
     c.weight_g ? `${(c.weight_g / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} kg` : null,
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  ].filter(Boolean) as string[]
 
   const meta: { text: string; variant?: 'teal' }[] = []
   if (c.caught_at) meta.push({ text: fmtDateTime(c.caught_at) })
@@ -75,7 +72,12 @@ export function CatchRowItem({ catch: c, photoUrl }: { catch: CatchRow; photoUrl
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-semibold text-navy-900 sm:text-[15px]">{title}</p>
+        <p className="truncate text-[14px] font-semibold text-navy-900 sm:text-[15px]">
+          {speciesLabel}
+          {measures.length > 0 && (
+            <span className="font-mono"> · {measures.join(' · ')}</span>
+          )}
+        </p>
         <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
           {meta.map((m) => (
             <TagData key={m.text} variant={m.variant} className="whitespace-nowrap">

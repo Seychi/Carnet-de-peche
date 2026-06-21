@@ -103,13 +103,13 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
 
       {/* Astronomie */}
       {(conditions.weather.sunrise || conditions.weather.sunset) && (
-        <div className="flex items-center gap-6 px-4 py-3 bg-amber-50 rounded-[10px] mb-4">
+        <div className="flex items-center gap-6 px-4 py-3 bg-gold-500/10 rounded-[10px] mb-4">
           {conditions.weather.sunrise && (
             <div className="flex items-center gap-2">
               <Sunrise size={18} className="text-gold-500" aria-hidden="true" />
               <div>
-                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-amber-700">Lever</p>
-                <p className="font-mono text-sm font-semibold text-amber-900">
+                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700">Lever</p>
+                <p className="font-mono text-sm font-semibold text-navy-900">
                   {conditions.weather.sunrise.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
                 </p>
               </div>
@@ -119,8 +119,8 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions }
             <div className="flex items-center gap-2">
               <Sunset size={18} className="text-gold-500" aria-hidden="true" />
               <div>
-                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-amber-700">Coucher</p>
-                <p className="font-mono text-sm font-semibold text-amber-900">
+                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700">Coucher</p>
+                <p className="font-mono text-sm font-semibold text-navy-900">
                   {conditions.weather.sunset.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
                 </p>
               </div>

@@ -16,7 +16,7 @@ const QUALITY_LABEL: Record<QualityLevel, string> = {
 
 const QUALITY_BADGE_CLS: Record<QualityLevel, string> = {
   faible:         'bg-gray-100 text-gray-600', // gray-500 sur gray-100 = 4.39:1 < 4.5
-  moyenne:        'bg-amber-100 text-amber-700',
+  moyenne:        'bg-gold-500/10 text-ink-700',
   bonne:          'bg-lime-100 text-lime-700',
   tres_bonne:     'bg-teal-100 text-teal-700',
   exceptionnelle: 'bg-emerald-100 text-emerald-700',
@@ -83,23 +83,23 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
             {daily.moonPhaseLabel}
           </span>
           <span className="text-ink-500" aria-hidden="true">·</span>
-          <span>{illuminationPct}% illuminée</span>
+          <span><span className="font-mono">{illuminationPct}%</span> illuminée</span>
           {moonTimes.rise && (
             <>
               <span className="text-ink-500" aria-hidden="true">·</span>
-              <span>Lever {moonTimes.rise}</span>
+              <span>Lever <span className="font-mono">{moonTimes.rise}</span></span>
             </>
           )}
           {moonTimes.set && (
             <>
               <span className="text-ink-500" aria-hidden="true">·</span>
-              <span>Coucher {moonTimes.set}</span>
+              <span>Coucher <span className="font-mono">{moonTimes.set}</span></span>
             </>
           )}
           <span className="text-ink-500" aria-hidden="true">·</span>
           <span className="inline-flex items-center gap-1">
             <Sun size={12} className="text-gold-500" aria-hidden="true" />
-            {daily.sunrise} – {daily.sunset}
+            <span className="font-mono">{daily.sunrise} – {daily.sunset}</span>
           </span>
         </p>
       )}

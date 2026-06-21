@@ -63,7 +63,7 @@ export function CatchStatsDetailed({
     !breakdown.byMonth?.length
 
   return (
-    <div className={`bg-white rounded-[14px] border border-slate-100 shadow-sm overflow-hidden ${className ?? ''}`}>
+    <div className={`bg-white rounded-[14px] border border-sand-200 overflow-hidden ${className ?? ''}`}>
 
       {/* En-tête / toggle */}
       <button
@@ -149,11 +149,11 @@ function SpeciesChart({
               style={{ width: `${max > 0 ? (d.count / max) * 100 : 0}%` }}
             />
           </div>
-          <span className="text-[12px] font-semibold text-navy-900 w-6 text-right shrink-0">
+          <span className="font-mono text-[12px] font-semibold text-navy-900 w-6 text-right shrink-0">
             {d.count}
           </span>
           {d.avgSize != null && (
-            <span className="text-[11px] text-ink-400 w-14 shrink-0 text-right">
+            <span className="font-mono text-[11px] text-ink-400 w-14 shrink-0 text-right">
               ⌀ {d.avgSize} cm
             </span>
           )}
@@ -185,7 +185,7 @@ function TechniqueChart({
               style={{ width: `${max > 0 ? (d.count / max) * 100 : 0}%` }}
             />
           </div>
-          <span className="text-[12px] font-semibold text-navy-900 w-6 text-right shrink-0">
+          <span className="font-mono text-[12px] font-semibold text-navy-900 w-6 text-right shrink-0">
             {d.count}
           </span>
         </div>
@@ -215,7 +215,7 @@ function MonthChart({
             />
           </div>
           <span
-            className={`text-[12px] font-semibold w-5 text-right shrink-0 ${
+            className={`font-mono text-[12px] font-semibold w-5 text-right shrink-0 ${
               m.count > 0 ? 'text-navy-900' : 'text-slate-300'
             }`}
           >

@@ -155,7 +155,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <div className="flex flex-col gap-1.5">
             <label htmlFor="bio" className="text-sm font-medium text-ink-700 flex justify-between">
               Bio
-              <span className="text-ink-400 font-normal">{bioLength} / 200</span>
+              <span className="font-mono text-ink-400 font-normal">{bioLength} / 200</span>
             </label>
             <textarea
               id="bio"
