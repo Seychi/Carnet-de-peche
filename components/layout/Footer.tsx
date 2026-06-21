@@ -62,7 +62,7 @@ export function Footer() {
             <p className="text-sm leading-relaxed text-white/60">
               Logue. Partage. Progresse.
             </p>
-            <p className="text-sm leading-relaxed text-white/50 mt-2">
+            <p className="text-sm leading-relaxed text-white/70 mt-2">
               Le réseau social des pêcheurs à la canne du bord en France.
             </p>
             <TagData className="mt-2 text-white/35">
@@ -80,7 +80,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/75 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -99,7 +99,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/75 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -118,7 +118,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center min-h-[44px] text-sm text-white/55 transition-colors duration-150 hover:text-teal-300"
+                    className="inline-flex items-center min-h-[44px] text-sm text-white/75 transition-colors duration-150 hover:text-teal-300"
                   >
                     {link.label}
                   </Link>
@@ -130,7 +130,7 @@ export function Footer() {
 
         {/* Bandeau bas */}
         <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[13px] text-white/50">
+          <p className="text-[13px] text-white/70">
             © 2026 Carnet de Pêche · Tous droits réservés
           </p>
           <div className="flex items-center gap-5">
@@ -139,7 +139,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur Instagram"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/70 transition-colors duration-150 hover:text-teal-300"
             >
               <InstagramIcon />
             </a>
@@ -148,7 +148,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur TikTok"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/70 transition-colors duration-150 hover:text-teal-300"
             >
               <TikTokIcon />
             </a>
@@ -157,7 +157,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Carnet de Pêche sur YouTube"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/50 transition-colors duration-150 hover:text-teal-300"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-white/70 transition-colors duration-150 hover:text-teal-300"
             >
               <YoutubeIcon />
             </a>

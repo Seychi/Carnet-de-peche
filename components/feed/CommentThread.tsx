@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Loader2, Send, Trash2 } from 'lucide-react'
@@ -102,9 +103,18 @@ export function CommentThread({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="text-[13px] leading-snug">
-                  <span className="font-semibold text-navy-900">
-                    {c.author_display_name || `@${c.author_username ?? 'pêcheur'}`}
-                  </span>{' '}
+                  {c.author_username ? (
+                    <Link
+                      href={`/u/${c.author_username}`}
+                      className="font-semibold text-navy-900 hover:underline"
+                    >
+                      {c.author_display_name || `@${c.author_username}`}
+                    </Link>
+                  ) : (
+                    <span className="font-semibold text-navy-900">
+                      {c.author_display_name || '@pêcheur'}
+                    </span>
+                  )}{' '}
                   <span className="text-ink-400 text-[11px]">
                     {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: fr })}
                   </span>

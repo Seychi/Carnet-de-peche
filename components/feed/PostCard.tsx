@@ -105,6 +105,35 @@ export const PostCard = memo(function PostCard({
   const isMine = currentUserId != null && currentUserId === post.author_id
   const authorName = post.author_display_name || `@${post.author_username ?? 'pêcheur'}`
   const isLong = (post.text?.length ?? 0) > 300
+  const profileHref = post.author_username ? `/u/${post.author_username}` : null
+
+  // Identité de l'auteur (avatar + nom + méta) factorisée : rendue dans un
+  // <Link> vers le profil public quand le pseudo existe, sinon dans un <div>.
+  const authorIdentity = (
+    <>
+      <Avatar className="size-9 shrink-0">
+        {post.author_avatar_url && <AvatarImage src={post.author_avatar_url} alt="" />}
+        <AvatarFallback className="bg-navy-800 font-mono text-[12px] font-semibold text-teal-300">
+          {initials(post.author_display_name, post.author_username)}
+        </AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 leading-tight">
+        <p className="flex items-center gap-1.5 truncate text-[14px] font-semibold text-navy-900">
+          {authorName}
+          {post.catch_id && (
+            <span className="rounded-full border border-sand-200 bg-sand-100 px-2 py-0.5 font-mono text-[9.5px] font-medium tracking-[0.06em] text-ink-600">
+              CARNET
+            </span>
+          )}
+        </p>
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">
+          {post.region ? `${post.region.trim()} · ` : ''}
+          {post.created_at &&
+            formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: fr })}
+        </p>
+      </div>
+    </>
+  )
 
   async function handleLike() {
     if (!currentUserId) {
@@ -173,27 +202,16 @@ export const PostCard = memo(function PostCard({
     <article className="flex flex-col gap-2.5 rounded-[14px] border border-sand-200 bg-white p-4">
       {/* En-tête */}
       <header className="flex items-center gap-2.5">
-        <Avatar className="size-9 shrink-0">
-          {post.author_avatar_url && <AvatarImage src={post.author_avatar_url} alt="" />}
-          <AvatarFallback className="bg-navy-800 font-mono text-[12px] font-semibold text-teal-300">
-            {initials(post.author_display_name, post.author_username)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1 leading-tight">
-          <p className="flex items-center gap-1.5 truncate text-[14px] font-semibold text-navy-900">
-            {authorName}
-            {post.catch_id && (
-              <span className="rounded-full border border-sand-200 bg-sand-100 px-2 py-0.5 font-mono text-[9.5px] font-medium tracking-[0.06em] text-ink-600">
-                CARNET
-              </span>
-            )}
-          </p>
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">
-            {post.region ? `${post.region.trim()} · ` : ''}
-            {post.created_at &&
-              formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: fr })}
-          </p>
-        </div>
+        {profileHref ? (
+          <Link
+            href={profileHref}
+            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md transition-opacity hover:opacity-90"
+          >
+            {authorIdentity}
+          </Link>
+        ) : (
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">{authorIdentity}</div>
+        )}
         {(isMine || viewerIsModerator) && (
           <DropdownMenu>
             <DropdownMenuTrigger

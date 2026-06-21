@@ -230,27 +230,10 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
         </Section>
 
-        {/* ── Mini carte placeholder ── */}
-        <div className="mt-4 bg-slate-100 rounded-[14px] overflow-hidden aspect-[16/7] relative flex items-center justify-center">
-          {/* Grille imitant une carte */}
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                'linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-            }}
-          />
-          <div className="relative text-center px-4">
-            <MapPin size={28} className="text-slate-400 mx-auto mb-2" />
-            {location ? (
-              <p className="text-[13px] font-semibold text-slate-600">{location}</p>
-            ) : (
-              <p className="text-[13px] font-semibold text-slate-500">Position enregistrée</p>
-            )}
-            <p className="text-[11px] text-slate-400 mt-1">Carte interactive à venir</p>
-          </div>
-        </div>
+        {/* Mini-carte interactive de la prise : branchée au sprint 12 (migration
+            exposant lng/lat sur catches_for_viewer + composant SpotMiniMap, dans
+            le respect du floutage). Le placeholder mensonger « Carte interactive
+            à venir » a été retiré — le lieu figure déjà dans l'en-tête. */}
 
       </div>
     </div>
