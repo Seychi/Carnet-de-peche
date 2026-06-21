@@ -60,14 +60,14 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 ℹ️ **Sprint 8 mergé** : `main` == `sprint-8` (commit `0bcb0cf`) → le fil communautaire est sur `main`.
 
 ✅ **Sprint 9 — Paiements (Stripe) — CODE-COMPLET (branche `sprint-9`, pas encore mergé/déployé)**
-Stripe Checkout + Customer Portal + webhooks idempotents + essai 7j avec CB + Stripe Tax FR + gating réel des tiers via RPC `current_tier` (remplace les inserts manuels / seed dev). Migration 021 appliquée en prod. **215 tests verts, build OK.** Flow Checkout validé en mode test le 2026-05-21.
+Stripe Checkout + Customer Portal + webhooks idempotents + essai 7j avec CB + Stripe Tax FR + gating réel des tiers via RPC `current_tier` (remplace les inserts manuels / seed dev). Migration 021 appliquée en prod. **~265 tests verts, build OK.** Flow Checkout validé en mode test le 2026-05-21.
 - **Reste avant merge** (manuel John) : QA `docs/sprint-9/qa-checklist.md` + captures écran, vars **LIVE** dans Vercel + endpoint webhook prod, arbitrer 2 comptes seed payés sans Stripe (cf `supabase/README.md` § anti-traîne). Voir `docs/sprint-9/RECAP.md`.
 - **Finding API** : SDK Stripe 22.x / API `2026-04-22.dahlia` → `current_period_*` sur les SubscriptionItem, `Invoice` → `parent.subscription_details.subscription`.
 
 ✅ **Sprint 9.5 — Cleanup pré-merge — CODE-COMPLET (branche `sprint-9.5-cleanup`, pas encore mergé/déployé)**
 > ℹ️ État git réel (vérifié) : le code des sprints 8 **et 9** est déjà sur `main` (commits `feat(sprint-9)` … `c79057d`). `sprint-9.5-cleanup` part de `main` → il n'y a PAS de merge `sprint-9` → `main` à faire, seulement `sprint-9.5-cleanup` → `main`.
 
-Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-sprint-9.md`. **Build OK + 215 tests verts.**
+Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-sprint-9.md`. **Build OK + ~265 tests verts.**
 - **T0.1** — « metas in body » = **fausse alerte** (extension navigateur ; SSR brut propre, vérifié). Ajout d'un **og:image de marque** par défaut (`app/opengraph-image.tsx`) car la home/pages marketing n'en avaient aucun → previews sociales muettes.
 - **T0.2** — `/fil` : **stub publique** (`app/(marketing)/fil/page.tsx`, teaser + CTA ; redirige les connectés vers leur fil dépt). Sort du soft-404 sitemap. `/fil/[dept]` reste protégé dans `(app)`.
 - **T0.3** — markers carte visibles en **Discovery** : un pin coloré (cliquable) est posé sur **tous** les spots, y compris floutés (centre `geom_public`), en plus du disque 1 km.
@@ -84,6 +84,8 @@ Nettoyage des bloquants UX/SEO de l'audit `docs/audits/AUDIT-2026-05-21-post-spr
 ✅ **État au 2026-06-13 (vérifié git + Vercel + Supabase)** : `main` == `origin/main` (commit `698f7c2`) = **branche de production Vercel**, déployée. Le **sprint 10.6** (fixes fil) **et le sprint 11** (PWA installable + manifest + SW, Sentry câblé, emails Resend, E2E Playwright + Lighthouse CI, perf bundle, a11y AA) sont **mergés sur main et en prod**. Migrations **023 (modération, colonne `is_moderator` + policies) + 024 (perf RLS initplan + index)** appliquées en prod.
 - **Incident résolu** : la prod tournait sur un commit `sprint-11` promu à la main par-dessus la branche `main`, **sans que 023/024 soient appliquées** → le code déployé interrogeait `profiles.is_moderator` inexistant → `/fil/[dept]` en erreur (`column does not exist`) et `/fil` connecté renvoyé en cul-de-sac `/profil` (compte John sans `home_department`). Corrigé : migrations appliquées, `home_department` de John = `06`, John flaggé **modérateur**, et `/fil` sans département affiche désormais un **sélecteur de côte** au lieu de `/profil`.
 - **⚠️ Reste (dashboard Vercel, hors outils Claude)** : ajouter `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` à l'env **Preview** — sans elles, **tous les builds de branche/PR + la CI E2E échouent** (prod non affectée). Leçon : appliquer les migrations Supabase en prod **avant** de promouvoir le code qui en dépend.
+
+✅ **État au 2026-06-21 (post-audit, vérifié git + Supabase live)** : la prod compte **38 spots** (lot 1 Bretagne curé inséré le 2026-06-21, commits `feat(spots): lot 1` — dernier commit prod avant ce sprint : `05ee5bd`). Région Supabase réelle = **eu-west-1 (Irlande)** (la doc disait eu-west-3 Paris, corrigé). **Audit transverse 2026-06-21 traité** (`docs/audits/AUDIT-2026-06-21.md`) via le **sprint 11.5** (`docs/sprint-11.5/BRIEF.md`) : 🔴 fuite GPS `get_spots_for_scoring` fermée (migration **025**, à appliquer en prod par John), durcissement `search_path` + index FK (**026/027**), lint réactivé + bloquant, SEO (canonical/JSON-LD home·tarifs·especes, noindex `/techniques`), tests (`env`, régression floutage, E2E downgrade Stripe, Lighthouse a11y+seo), build aligné **Node 20** + région Vercel **`dub1`**, hygiène code/docs. **~265 tests Vitest.**
 
 🔜 **SUITE — Sprint 10, Blocs restants 1 → 2 → 3 → 5** (brief : `docs/sprint-10/BRIEF.md`) : MDX + guides, ~500 pages programmatiques, fiches espèces profondes, SEO global. **Élargi le 2026-06-11 (décisions John, riposte Fishing Grid)** :
 - **Curation de spots** : objectif **100-120 spots curés**, priorité Bretagne → façade Atlantique, par lots validés par John avant insertion — plan et lots dans `docs/sprint-10/spots-curation.md`. C'est le préalable pour tenir la copy home « 100+ spots curés » et Gate 2.
@@ -111,7 +113,7 @@ Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta �
 |---|---|---|
 | **Web Frontend** | Next.js 15 (App Router) + TypeScript + Tailwind v4 + shadcn/ui | SSR/ISR pour SEO |
 | **Mobile** | React Native + Expo SDK 51 + Expo Router | À implémenter Sprint 13+, code partagé avec web |
-| **Backend / DB / Auth** | Supabase (PostgreSQL 15+ avec PostGIS + RLS + Auth + Storage + Edge Functions + Realtime) | Région eu-west-3 (Paris) |
+| **Backend / DB / Auth** | Supabase (PostgreSQL 15+ avec PostGIS + RLS + Auth + Storage + Edge Functions + Realtime) | Région eu-west-1 (Irlande) |
 | **Cartographie** | MapLibre GL JS (web) + Native (mobile) + tuiles MapTiler | Free tier suffit jusqu'à 100k tiles/mois |
 | **Marées + météo + vent + houle** | **Open-Meteo Marine** (gratuit, sans clé API) | Pas de SHOM en v1. Migration possible plus tard. |
 | **Bathymétrie** | GEBCO + SHOM Geoservices (open data, sans convention) | Conversion en MBTiles |
@@ -587,6 +589,6 @@ Si tu bloques sur une erreur technique :
 
 ---
 
-*Dernière mise à jour : juin 2026 (sprint 10, mode d'exécution Fable). À tenir à jour à chaque décision majeure.*
+*Dernière mise à jour : 2026-06-21 (sprint 11.5 — durcissement post-audit 2026-06-21 : sécurité GPS, lint, SEO, tests, perf). À tenir à jour à chaque décision majeure.*
 
 **Maintenant, attends que John te dise « vas-y » et exécute la section 10 dans l'ordre.**

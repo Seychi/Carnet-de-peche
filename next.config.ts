@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  // Bug pre-existant eslint-config-next v16 + @eslint/eslintrc v3 (circular JSON)
-  // À corriger quand eslint-config-next sera stable avec flat config
-  eslint: { ignoreDuringBuilds: true },
+  // Lint BLOQUANT au build (sprint 11.5) : eslint-config-next réaligné sur la
+  // ligne 15 via FlatCompat (cf eslint.config.mjs) + dette lint soldée → plus
+  // de bug "circular JSON" v16, `next build` lint sans crash. Ne PAS réintroduire
+  // eslint.ignoreDuringBuilds : on veut que le lint casse le build s'il régresse.
   // Les guides MDX sont lus du filesystem au runtime (ISR) : il faut les
   // embarquer dans le bundle serverless Vercel (le tracing statique ne voit
   // pas les fs.readdir dynamiques).
@@ -26,9 +27,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Fix Windows : pnpm résout les symlinks avec deux casings différents
-  // (Carnet-de-peche vs carnet-de-peche), ce qui fait charger certains
-  // modules Next.js en double et casse GlobalLayoutRouterContext.
+  // Fix SPÉCIFIQUE au poste Windows de John : pnpm résout les symlinks avec deux
+  // casings différents (Carnet-de-peche vs carnet-de-peche), ce qui fait charger
+  // certains modules Next.js en double et casse GlobalLayoutRouterContext.
+  // No-op sur Linux (CI/Vercel) mais embarqué dans la config de prod → ne PAS
+  // retirer sans re-tester un build local sur sa machine.
   webpack: (config) => {
     config.resolve.symlinks = false;
     return config;

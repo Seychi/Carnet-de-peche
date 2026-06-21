@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: 'Techniques — Bientôt disponible · Carnet de Pêche',
   description:
     'Leurres, surfcasting, pêche à la flottante, vif : les guides techniques pour la pêche à la canne du bord arrivent bientôt. Inscris-toi pour être notifié.',
+  alternates: { canonical: 'https://www.carnet-de-peche.com/techniques' },
+  // Page stub « Bientôt disponible » : pas d'indexation tant qu'elle est vide
+  // (évite le signal « contenu mince »). À retirer à la sortie des guides.
+  robots: { index: false },
 }
 
 export default function TechniquesPage() {

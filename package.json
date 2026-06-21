@@ -2,6 +2,9 @@
   "name": "carnet-de-peche",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -73,7 +76,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/suncalc": "^1.9.2",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.6",
+    "eslint-config-next": "^15.5.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.3"

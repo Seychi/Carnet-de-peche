@@ -133,7 +133,7 @@ export default function ConfidentialitePage() {
           <tr><th>Sous-traitant</th><th>Rôle</th><th>Localisation</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Supabase Inc.</strong></td><td>Base de données, authentification, stockage photos</td><td>eu-west-3 (Paris, France)</td></tr>
+          <tr><td><strong>Supabase Inc.</strong></td><td>Base de données, authentification, stockage photos</td><td>eu-west-1 (Dublin, Irlande, UE)</td></tr>
           <tr><td><strong>Vercel Inc.</strong></td><td>Hébergement du site et exécution du code</td><td>USA (SCC, DPA disponible)</td></tr>
           <tr><td><strong>Open-Meteo</strong></td><td>Conditions météo, marines, solunaires</td><td>Allemagne (UE), données anonymes</td></tr>
           <tr><td><strong>Stripe Inc.</strong></td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>

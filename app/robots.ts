@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: ['/', '/carte', '/spots', '/tarifs', '/guides', '/auth/login', '/auth/register'],
-        disallow: ['/api/', '/auth/callback', '/onboarding/', '/home', '/profil', '/carnet'],
+        disallow: ['/api/', '/dev/', '/auth/callback', '/onboarding/', '/home', '/profil', '/carnet'],
       },
     ],
     sitemap: 'https://www.carnet-de-peche.com/sitemap.xml',

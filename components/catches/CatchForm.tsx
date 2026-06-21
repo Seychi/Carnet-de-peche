@@ -526,7 +526,7 @@ export function CatchForm(props: CatchFormProps) {
           control={control}
           render={({ field }) => (
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-sand-200">
-              <span className="text-[13px] text-ink-600">Sort de l'eau</span>
+              <span className="text-[13px] text-ink-600">Sort de l&rsquo;eau</span>
               <div className="flex rounded-[8px] border border-sand-200 overflow-hidden">
                 {[
                   { val: false, label: 'Conservé' },
@@ -881,7 +881,7 @@ export function CatchForm(props: CatchFormProps) {
                 />
                 {field.value && (
                   <p className="text-[12px] font-medium text-red-600 bg-red-50 border border-red-200 rounded-[8px] px-3 py-2">
-                    ⚠️ Tout le monde verra l'endroit exact de ta prise.
+                    ⚠️ Tout le monde verra l&rsquo;endroit exact de ta prise.
                   </p>
                 )}
               </>

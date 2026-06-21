@@ -148,7 +148,6 @@ export default function MapFilters({
       // setState intentionnel au montage : on restaure les filtres depuis
       // localStorage APRÈS le premier render pour éviter un mismatch
       // d'hydratation SSR (le serveur ne connaît pas localStorage).
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (hasActiveFilters(parsed)) setFilters(parsed)
     } catch {
       // localStorage indisponible (SSR, mode privé) — on ignore

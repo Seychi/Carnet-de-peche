@@ -219,7 +219,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
   useEffect(() => {
     if (!isPaid) return
     let cancelled = false
-    setWindowStatus('loading') // eslint-disable-line react-hooks/set-state-in-effect
+    setWindowStatus('loading')
     setNextWindow(null)
     getSpotNextWindow(spot.id, spot.lat, spot.lng)
       .then((result) => {

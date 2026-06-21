@@ -51,6 +51,7 @@ function Avatar({ username, avatarUrl }: { username: string | null; avatarUrl: s
   const initials = username ? username.slice(0, 2).toUpperCase() : '?'
   if (avatarUrl) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element -- avatar utilisateur (Supabase Storage), <img> volontaire : pas de refacto next/image dans ce sprint
       <img
         src={avatarUrl}
         alt={username ?? 'Avatar'}

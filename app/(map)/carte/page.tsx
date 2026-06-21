@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
   description:
     'Carte interactive des spots de pêche à la canne du bord en France. Filtre par espèce et technique, marées et météo en temps réel. Logue tes prises pour affiner les scores.',
+  alternates: { canonical: 'https://www.carnet-de-peche.com/carte' },
 }
 
 const UPSELL_COOKIE = 'upsell-dismissed-at'

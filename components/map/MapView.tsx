@@ -455,6 +455,7 @@ export default function MapView({
       attribObserver?.disconnect()
       markersRef.current.forEach((m) => m.remove())
       markersRef.current = []
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- ref Map stable (jamais réassignée), cleanup d'unmount : faux positif
       markerElemsRef.current.clear()
       mapRef.current?.remove()
       mapRef.current = null

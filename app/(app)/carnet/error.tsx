@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { Fish } from 'lucide-react'
+import * as Sentry from '@sentry/nextjs'
 
 export default function CarnetError({
   error,
@@ -13,7 +14,7 @@ export default function CarnetError({
 }) {
   useEffect(() => {
     console.error('[carnet error]', error)
-    // TODO: Sentry.captureException(error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

@@ -90,7 +90,7 @@ export function WeeklyCalendar({
 
   // Sync si le parent met à jour selectedDate depuis l'extérieur
   useEffect(() => {
-    if (selectedDate) setInternalDate(selectedDate) // eslint-disable-line react-hooks/set-state-in-effect
+    if (selectedDate) setInternalDate(selectedDate)
   }, [selectedDate])
 
   const activeIndex = weekly.findIndex(d => d.date === activeDate)

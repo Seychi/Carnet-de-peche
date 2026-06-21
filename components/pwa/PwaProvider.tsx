@@ -74,7 +74,7 @@ export function PwaProvider() {
       const dismissed = localStorage.getItem(INSTALL_DISMISS_KEY)
       if (total >= 2 && !dismissed) {
         setInstallEvent(e as BeforeInstallPromptEvent)
-        setShowBanner(true) // eslint-disable-line react-hooks/set-state-in-effect -- event handler, pas le corps de l'effet
+        setShowBanner(true)
       }
     }
     window.addEventListener('beforeinstallprompt', onPrompt)

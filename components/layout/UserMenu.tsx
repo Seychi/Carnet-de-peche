@@ -43,6 +43,7 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
       >
         {/* Avatar */}
         {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- avatar utilisateur (Supabase Storage), <img> volontaire : pas de refacto next/image dans ce sprint
           <img src={avatarUrl} alt={username ?? 'Avatar'} className="w-8 h-8 rounded-full object-cover" />
         ) : (
           <div className="w-8 h-8 rounded-full bg-navy-900 flex items-center justify-center shrink-0">

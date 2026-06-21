@@ -18,8 +18,37 @@ export const metadata: Metadata = {
 export default function EspecesIndexPage() {
   const especes = Object.keys(SPECIES) as SpeciesSlug[]
 
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Les espèces de la pêche à la canne du bord',
+      itemListElement: especes.map((slug, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://www.carnet-de-peche.com/especes/${slug}`,
+        name: SPECIES[slug].label,
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://www.carnet-de-peche.com' },
+        { '@type': 'ListItem', position: 2, name: 'Espèces', item: 'https://www.carnet-de-peche.com/especes' },
+      ],
+    },
+  ]
+
   return (
     <div className="bg-sand-50 min-h-screen">
+      {jsonLd.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <section className="relative overflow-hidden bg-navy-950 pt-16 pb-14">
         <Bathy opacity={0.35} withLabels />
         <div className="relative mx-auto max-w-[1100px] px-5">

@@ -11,6 +11,43 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Tarifs — Carnet de Pêche',
   description: '3 formules claires pour tous les pêcheurs à la canne du bord. Découverte gratuit, Local à 4,90 €/mois, Itinérant à 9,90 €/mois. Essai 7 jours, satisfait ou remboursé.',
+  alternates: { canonical: 'https://www.carnet-de-peche.com/tarifs' },
+}
+
+// JSON-LD : les 3 formules (0 / 4,90 / 9,90 €) pour les rich results Google.
+const TARIFS_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'Carnet de Pêche',
+  description:
+    'Carnet de pêche numérique et carte des spots pour la pêche à la canne du bord en France.',
+  brand: { '@type': 'Organization', name: 'Carnet de Pêche' },
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Découverte',
+      price: '0',
+      priceCurrency: 'EUR',
+      url: 'https://www.carnet-de-peche.com/tarifs',
+      availability: 'https://schema.org/InStock',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Local',
+      price: '4.90',
+      priceCurrency: 'EUR',
+      url: 'https://www.carnet-de-peche.com/tarifs',
+      availability: 'https://schema.org/InStock',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Itinérant',
+      price: '9.90',
+      priceCurrency: 'EUR',
+      url: 'https://www.carnet-de-peche.com/tarifs',
+      availability: 'https://schema.org/InStock',
+    },
+  ],
 }
 
 const trustItems = [
@@ -68,6 +105,10 @@ export default async function TarifsPage() {
 
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(TARIFS_JSONLD) }}
+      />
       {/* Hero */}
       <section className="bg-sand-50 pt-16 sm:pt-24 pb-4">
         <div className="max-w-[1280px] mx-auto px-5 sm:px-6 text-center">

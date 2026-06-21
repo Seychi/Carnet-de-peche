@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Fish, TrendingDown, TrendingUp, Waves, Zap } from "lucide-react";
 import { Bathy } from "@/components/ui-v2/bathy";
@@ -9,6 +10,32 @@ import {
   type TideSparklineExtremum,
   type TideSparklinePoint,
 } from "@/components/ui-v2/tide-sparkline";
+
+const SITE_URL = "https://www.carnet-de-peche.com";
+
+export const metadata: Metadata = {
+  alternates: { canonical: SITE_URL },
+};
+
+// JSON-LD : identité du site + organisation (rich results / Knowledge Graph).
+const HOME_JSONLD = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Carnet de Pêche",
+    url: SITE_URL,
+    inLanguage: "fr-FR",
+    description:
+      "Le carnet de pêche numérique et le réseau social des pêcheurs à la canne du bord en France.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Carnet de Pêche",
+    url: SITE_URL,
+    logo: `${SITE_URL}/icons/icon-512.png`,
+  },
+];
 
 /* ─── Données de démo (statiques — aucun fetch, c'est un visuel marqué « Exemple ») ─ */
 
@@ -188,6 +215,13 @@ function VisualCommunaute() {
 export default function HomePage() {
   return (
     <div className="bg-sand-50 font-sans text-ink-900">
+      {HOME_JSONLD.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
 
       {/* ── HERO — navy-950 + isobathes ─────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy-950 py-20 sm:py-24 lg:py-32">

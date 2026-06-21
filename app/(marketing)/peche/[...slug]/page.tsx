@@ -14,7 +14,6 @@ import {
   DEPARTMENT_SLUGS,
   facadeOf,
   type ProgrammaticPage,
-  type TechniqueSlug,
 } from '@/lib/seo/programmatic'
 import { SPECIES_CONTENT } from '@/lib/seo/content'
 import { getAllGuides } from '@/lib/guides/loader'

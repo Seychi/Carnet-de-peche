@@ -20,9 +20,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # TODO (bloc C sprint 7.5) : retirer `continue-on-error` une fois les ~360
-      # erreurs react/no-unescaped-entities corrigées, pour rendre le lint bloquant.
+      # Lint BLOQUANT (sprint 11.5) : config flat réalignée (eslint-config-next 15
+      # + FlatCompat) et dette lint soldée → plus de continue-on-error.
       - run: pnpm lint
-        continue-on-error: true
       - run: pnpm typecheck
       - run: pnpm test
