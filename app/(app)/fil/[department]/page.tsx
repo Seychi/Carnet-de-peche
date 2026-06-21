@@ -71,7 +71,18 @@ export default async function DepartmentFeedPage({
   const cursor = initial.ok ? initial.data.nextCursor : null
 
   const deptName = DEPARTMENT_LABELS[department] ?? department
-  const emptyVariant = tab === 'follows' ? 'follows-empty' : 'dept'
+
+  // Onglet « Tes follows » : distinguer « tu ne suis personne » (CTA découverte)
+  // de « tes follows n'ont rien posté » (calme plat). getFeedPage renvoie [] dans
+  // les deux cas → on tranche ici via le nombre d'abonnements (Bloc F).
+  let emptyVariant: 'dept' | 'follows-none' | 'follows-empty' = 'dept'
+  if (tab === 'follows') {
+    const { count: followCount } = await supabase
+      .from('follows')
+      .select('follower_id', { count: 'exact', head: true })
+      .eq('follower_id', user.id)
+    emptyVariant = (followCount ?? 0) === 0 ? 'follows-none' : 'follows-empty'
+  }
 
   return (
     <main className="bg-sand-50 min-h-screen">
