@@ -25,6 +25,11 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // Le service worker PWA (sprint 11) intercepte les navigations et provoque
+    // des net::ERR_ABORTED intermittents sur /carte et /spots en CI. On le
+    // bloque : les tests valident les pages, pas le cache offline (couvert
+    // ailleurs). Évite une source de flakiness propre à l'environnement.
+    serviceWorkers: "block",
   },
   projects: [
     // Connexion programmatique des comptes test → e2e/.auth/*.json (storageState).
