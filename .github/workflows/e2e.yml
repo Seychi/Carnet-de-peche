@@ -53,6 +53,25 @@ jobs:
       - name: Démarrer Supabase local
         run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector
 
+      # Parité avec Supabase cloud : en prod, anon/authenticated/service_role
+      # reçoivent automatiquement les privilèges sur le schéma public. Le stack
+      # local (`supabase start`) ne pose PAS ces grants par défaut → les requêtes
+      # directes (tables/vues, hors RPC SECURITY DEFINER) tombent en
+      # "permission denied". On réplique les grants standards Supabase. La RLS
+      # reste le vrai garde-fou (les policies n'ouvrent rien de plus).
+      - name: Grants rôles (parité Supabase cloud)
+        run: |
+          eval "$(supabase status -o env | grep -E '^DB_URL=')"
+          psql "$DB_URL" <<'SQL'
+          grant usage on schema public to anon, authenticated, service_role;
+          grant all on all tables in schema public to anon, authenticated, service_role;
+          grant all on all sequences in schema public to anon, authenticated, service_role;
+          grant all on all routines in schema public to anon, authenticated, service_role;
+          alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+          alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+          alter default privileges in schema public grant all on routines to anon, authenticated, service_role;
+          SQL
+
       - name: Exporter les clés Supabase locales
         run: |
           eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)=')"

@@ -1,11 +1,16 @@
 import * as React from "react"
-import { Input as InputPrimitive } from "@base-ui/react/input"
 
 import { cn } from "@/lib/utils"
 
+// Input HTML natif (et non @base-ui/react/input) : Base UI ne propage pas de
+// façon fiable une valeur posée par programme (autofill navigateur,
+// gestionnaire de mots de passe, Playwright .fill) vers le onChange standard
+// — sur un champ contrôlé react-hook-form, l'état RHF restait vide et la
+// valeur ne « tenait » pas. Un input natif déclenche onChange normalement.
+// Mêmes classes/props → rendu identique.
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <InputPrimitive
+    <input
       type={type}
       data-slot="input"
       className={cn(
