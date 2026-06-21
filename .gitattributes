@@ -1,0 +1,17 @@
+# Normalisation des fins de ligne : LF partout dans le dépôt et le working tree.
+# Évite le bruit CRLF sur les machines Windows (poste de John).
+* text=auto eol=lf
+
+# Fichiers binaires : ne jamais normaliser (corromprait le contenu).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.gif  binary
+*.woff  binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp4 binary
