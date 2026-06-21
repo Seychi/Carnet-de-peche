@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, ACCOUNTS } from "./helpers";
+import { login, fillStable, ACCOUNTS } from "./helpers";
 
 /**
  * Scénario 4 (brief Bloc E, nouveau) : poster sur le fil en `discovery` →
@@ -18,7 +18,7 @@ test("post sur le fil en discovery → visible depuis une autre session", async 
   await page.goto("/fil/29");
   const composer = page.getByPlaceholder("Quoi de neuf sur le bord ?");
   await expect(composer).toBeVisible();
-  await composer.fill(message);
+  await fillStable(composer, message);
   await page.getByRole("button", { name: "Publier" }).click();
   await expect(page.getByText("Posté !")).toBeVisible();
   await expect(page.getByText(message)).toBeVisible();

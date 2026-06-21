@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { fillStable } from "./helpers";
 
 /**
  * Scénario 1 (brief Bloc E) : inscription → onboarding 6 étapes → première
@@ -13,9 +14,9 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
 
   // --- Inscription -------------------------------------------------------
   await page.goto("/auth/login?tab=register");
-  await page.locator("#signup-email").fill(email);
-  await page.locator("#signup-password").fill(password);
-  await page.locator("#signup-confirm").fill(password);
+  await fillStable(page.locator("#signup-email"), email);
+  await fillStable(page.locator("#signup-password"), password);
+  await fillStable(page.locator("#signup-confirm"), password);
   await page.getByRole("button", { name: "Créer mon carnet" }).click();
   await expect(page.getByText("Confirme ton adresse")).toBeVisible();
 
@@ -25,13 +26,13 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
   await expect(page.getByText("Choisis ton pseudo")).toBeVisible();
 
   // --- Étape 1 : pseudo (validation temps réel) --------------------------
-  await page.getByLabel("Ton pseudo").fill(username);
+  await fillStable(page.getByLabel("Ton pseudo"), username);
   await expect(page.getByText("Pseudo disponible")).toBeVisible();
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 2 : ville + département -------------------------------------
   await expect(page.getByText("D'où tu pêches ?")).toBeVisible();
-  await page.getByLabel("Ta ville").fill("Brest");
+  await fillStable(page.getByLabel("Ta ville"), "Brest");
   // Select natif département : on cible par valeur '29' (Finistère).
   await page.locator("select").selectOption("29");
   await page.getByRole("button", { name: "Continuer" }).click();
@@ -54,7 +55,7 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
   // --- Étape 6 : fréquence + années ----------------------------------------
   await expect(page.getByText("Ta fréquence de pêche")).toBeVisible();
   await page.getByRole("button", { name: /Toutes les semaines/ }).click();
-  await page.getByPlaceholder("ex. 5").fill("5");
+  await fillStable(page.getByPlaceholder("ex. 5"), "5");
   await page.getByRole("button", { name: "Créer mon carnet" }).click();
 
   // --- Écran final ----------------------------------------------------------
@@ -72,8 +73,8 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
 
   // Lieu : saisie manuelle (pas de GPS en headless) — Pointe du Raz
   await page.getByText("Saisir manuellement").click();
-  await page.getByPlaceholder("ex : 48.2744").fill("48.0381");
-  await page.getByPlaceholder("ex : -4.5765").fill("-4.7361");
+  await fillStable(page.getByPlaceholder("ex : 48.2744"), "48.0381");
+  await fillStable(page.getByPlaceholder("ex : -4.5765"), "-4.7361");
 
   // Soumission : l'appel conditions Open-Meteo est réel (réseau requis en CI)
   await page.getByRole("button", { name: "Loguer la prise" }).click();

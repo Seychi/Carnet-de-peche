@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { expect, type Page, type APIRequestContext } from "@playwright/test";
+import { expect, type Page, type Locator, type APIRequestContext } from "@playwright/test";
 
 /**
  * Helpers partagés des 4 scénarios E2E (sprint 11 Bloc E).
@@ -21,11 +21,27 @@ export const ACCOUNTS = {
 /** UUID fixe de test_upgrade_29 (cf supabase/seed_e2e.sql). */
 export const UPGRADE_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
+/**
+ * Remplit un champ et VÉRIFIE que la valeur tient. Garde-fou contre la course
+ * pré-hydratation React : sur un build de prod, Playwright peut remplir un input
+ * non-contrôlé AVANT que React n'ait hydraté la page — la valeur est alors jetée
+ * à l'hydratation et le formulaire part vide (FormData vide → validation client
+ * « champ requis » → submit bloqué). `toPass` ré-exécute fill + assertion
+ * jusqu'à ce que la valeur persiste réellement (ou échoue avec un message clair
+ * pointant le champ fautif). À utiliser pour TOUTE saisie de champ texte.
+ */
+export async function fillStable(locator: Locator, value: string) {
+  await expect(async () => {
+    await locator.fill(value);
+    await expect(locator).toHaveValue(value, { timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
+}
+
 /** Connexion email/password via l'UI (onglet Connexion de /auth/login). */
 export async function login(page: Page, email: string, password = TEST_PASSWORD) {
   await page.goto("/auth/login");
-  await page.locator("#signin-email").fill(email);
-  await page.locator("#signin-password").fill(password);
+  await fillStable(page.locator("#signin-email"), email);
+  await fillStable(page.locator("#signin-password"), password);
   await page.getByRole("button", { name: "Se connecter" }).click();
   // Le middleware route les connectés onboardés vers /home.
   await page.waitForURL(/\/(home|onboarding)/, { timeout: 15_000 });
