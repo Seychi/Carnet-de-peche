@@ -410,14 +410,18 @@ export default function LoginPage() {
               >
                 Ton email
               </Label>
+              {/* Input non-contrôlé SANS defaultValue/key : Base UI ré-applique
+                  une defaultValue à chaque re-render et écrase une valeur posée
+                  par programme (autofill, gestionnaire de mots de passe, E2E).
+                  Sur échec, submittedAt=null → pas de remount → la valeur DOM
+                  persiste déjà ; sur succès le champ disparaît. La repopulation
+                  était donc inopérante. Aligné sur le champ mot de passe. */}
               <Input
-                key={signinState.submittedAt ?? "signin-email-initial"}
                 id="signin-email"
                 name="email"
                 type="email"
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
-                defaultValue={signinState.email}
                 onBlur={gateBlur(signinSchema, setSigninErrors)}
                 aria-invalid={signinErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
@@ -477,14 +481,13 @@ export default function LoginPage() {
               >
                 Ton email
               </Label>
+              {/* Non-contrôlé sans defaultValue/key — cf champ email connexion. */}
               <Input
-                key={signupState.submittedAt ?? "signup-email-initial"}
                 id="signup-email"
                 name="email"
                 type="email"
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
-                defaultValue={signupState.email}
                 onBlur={gateBlur(signupSchema, setSignupErrors)}
                 aria-invalid={signupErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
