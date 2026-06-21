@@ -709,6 +709,8 @@ export type Database = {
           display_name: string | null
           geom_visible: unknown
           id: string | null
+          lat: number | null
+          lng: number | null
           location_label: string | null
           location_method: string | null
           lure_brand: string | null
