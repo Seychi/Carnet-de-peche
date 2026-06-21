@@ -1,6 +1,21 @@
 # 🎬 Le pire moment pour pêcher en été — série « Erreurs du bord »
-> **Statut** : PRÊT À TOURNER
-> **Durée cible** : 35 s · **Plateformes** : TikTok / Reels / Shorts (9:16)
+> **Statut** : EN PRODUCTION (session 2026-06-12, Claude + John)
+> **Durée cible** : 35 s (réel : VO 52 s → vidéo ~50-55 s, OK < 60 s) · **Plateformes** : TikTok / Reels / Shorts (9:16)
+
+## 0. Journal de production — 2026-06-12
+
+| Élément | Outil / réglage | État |
+|---|---|---|
+| B-roll 1 (midi cru) | Kling VIDEO 2.5 Turbo · 720p · 5 s · 9:16 · sound off · 15 crédits | ✅ généré, validé visuellement |
+| B-roll 2 (golden hour) | idem | 🔄 en génération |
+| B-roll 3 (surface crépuscule) | idem (prompt prêt dans le composer) | ⏳ à lancer après le 2 |
+| B-roll 4 (aube) | idem | ⏳ à lancer après le 3 |
+| Variantes plans 1-2 | — | ⏳ demain (crédits quotidiens épuisés : 66/jour, 15/clip) |
+| Voix-off | ElevenLabs · voix **Franck – Premium French Narrator** (= LA voix de la chaîne) · Multilingual v2 · réglages par défaut | ✅ générée, 52 s — à réécouter par John |
+| Plans réels | Silhouette lancer crépuscule + écran « Meilleurs moments » | ⏳ John |
+| Montage | CapCut (timeline §5, adapter : clips 5 s au lieu de 6-8 s, VO 52 s) | ⏳ John |
+
+**Leçons v1 (pour le workflow récurrent)** : Veo/Flow inutilisable sans Google AI Pro (0 crédit) → Kling 2.5 Turbo = 15 crédits/clip 5 s 720p, 66 crédits gratuits/jour → max 4 clips/jour, 1 tâche à la fois (file ~5-15 min/clip). VIDEO 3.0 = 40 crédits (1080p, 3 essais) : à réserver au hook si besoin. ElevenLabs : compte John OK, ~10 000 crédits, 849 caractères/VO.
 
 ## 1. Script
 
