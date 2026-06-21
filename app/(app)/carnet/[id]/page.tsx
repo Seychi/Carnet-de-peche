@@ -6,6 +6,7 @@ import { getCatchById } from '@/lib/catches/queries'
 import type { ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import { PhotoViewer } from '@/components/catches/PhotoViewer'
 import { CatchActionsMenu } from '@/components/catches/CatchActionsMenu'
+import CatchMiniMap from '@/components/catches/CatchMiniMap'
 
 // ─── Dictionnaires ────────────────────────────────────────────────────────────
 
@@ -76,6 +77,10 @@ export default async function CatchDetailPage({ params }: Props) {
   const privacy = PRIVACY_CONFIG[c.privacy as keyof typeof PRIVACY_CONFIG] ?? PRIVACY_CONFIG.private
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
   const location = c.location_label ?? c.spot_name ?? null
+  // Pour le propriétaire, geom_visible (donc lng/lat) est le point PRÉCIS → pin sans
+  // disque de flou. Pour autrui, précis uniquement si la prise révèle ses coords.
+  const isOwner = user.id === c.user_id
+  const pointIsPrecise = isOwner || (c.reveal_precise_to_public ?? false)
 
   return (
     <div className="min-h-screen bg-sand-50">
@@ -230,10 +235,20 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
         </Section>
 
-        {/* Mini-carte interactive de la prise : branchée au sprint 12 (migration
-            exposant lng/lat sur catches_for_viewer + composant SpotMiniMap, dans
-            le respect du floutage). Le placeholder mensonger « Carte interactive
-            à venir » a été retiré — le lieu figure déjà dans l'en-tête. */}
+        {/* Mini-carte de la prise (sprint 12 Bloc B). lng/lat viennent de
+            catches_for_viewer (geom_visible) → jamais geom brut. Pas de carte si
+            la prise n'a pas de position. */}
+        {c.lng != null && c.lat != null && (
+          <div className="mt-4 aspect-[16/7] overflow-hidden rounded-[14px] border border-slate-100 shadow-sm">
+            <CatchMiniMap
+              lng={c.lng}
+              lat={c.lat}
+              isPrecise={pointIsPrecise}
+              name={location ?? 'Position'}
+              species={c.species ? [c.species] : []}
+            />
+          </div>
+        )}
 
       </div>
     </div>
