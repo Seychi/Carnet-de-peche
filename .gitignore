@@ -26,6 +26,7 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+e2e/.auth/
 
 # Supabase local (Docker)
 supabase/.temp/

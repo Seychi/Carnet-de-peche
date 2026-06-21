@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { fillStable } from "./helpers";
+import { fillStable, fillFormStable } from "./helpers";
+
+// Scénario d'inscription : démarre déconnecté (pas de session injectée).
+test.use({ storageState: { cookies: [], origins: [] } });
 
 /**
  * Scénario 1 (brief Bloc E) : inscription → onboarding 6 étapes → première
@@ -14,9 +17,12 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
 
   // --- Inscription -------------------------------------------------------
   await page.goto("/auth/login?tab=register");
-  await fillStable(page.locator("#signup-email"), email);
-  await fillStable(page.locator("#signup-password"), password);
-  await fillStable(page.locator("#signup-confirm"), password);
+  await page.waitForLoadState("networkidle");
+  await fillFormStable(page, [
+    ["#signup-email", email],
+    ["#signup-password", password],
+    ["#signup-confirm", password],
+  ]);
   await page.getByRole("button", { name: "Créer mon carnet" }).click();
   await expect(page.getByText("Confirme ton adresse")).toBeVisible();
 

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, ACCOUNTS, UPGRADE_USER_ID, sendTrialCreatedWebhook } from "./helpers";
+import { ACCOUNTS, storageFor, UPGRADE_USER_ID, sendTrialCreatedWebhook } from "./helpers";
 
 /**
  * Scénario 3 (brief Bloc E, mis à jour post-pivot) : essai Local → tier
@@ -12,13 +12,15 @@ import { login, ACCOUNTS, UPGRADE_USER_ID, sendTrialCreatedWebhook } from "./hel
  * RPC current_tier → gating UI carte. Compte dédié test_upgrade_29
  * (seed_e2e.sql) pour ne pas muter les autres comptes test.
  */
+// Session test_upgrade_29 injectée (démarre en discovery ; le tier vient de la
+// DB via current_tier, pas du cookie — le webhook le fera passer en local).
+test.use({ storageState: storageFor(ACCOUNTS.upgrade29) });
+
 test("essai Local (webhook signé) → tier upgradé → carte complète", async ({
   page,
   request,
   baseURL,
 }) => {
-  await login(page, ACCOUNTS.upgrade29);
-
   // --- Avant : discovery → paywall visible sur la carte --------------------
   await page.goto("/carte");
   await expect(page.getByText("3 spots par département")).toBeVisible();

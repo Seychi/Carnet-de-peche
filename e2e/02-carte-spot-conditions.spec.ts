@@ -1,18 +1,19 @@
 import { test, expect } from "@playwright/test";
-import { login, ACCOUNTS } from "./helpers";
+import { ACCOUNTS, storageFor } from "./helpers";
 
 /**
- * Scénario 2 (brief Bloc E) : connexion → carte → fiche spot → conditions
- * visibles. Compte test_local_29 (tier local, dépt 29 — seed_test_accounts).
+ * Scénario 2 (brief Bloc E) : carte → fiche spot → conditions visibles, en
+ * tant que test_local_29 (tier local). Session injectée via storageState
+ * (auth.setup.ts) — pas de login UI.
  *
  * Note d'arbitrage : les assertions carte portent sur l'UI hors-canvas
  * (paywall absent pour un tier payant) — le rendu MapLibre dépend de
  * NEXT_PUBLIC_MAPTILER_KEY, optionnelle en CI. La fiche spot est SSR et
  * porte les vraies assertions conditions (marées/météo Open-Meteo).
  */
-test("connexion → carte → fiche spot → conditions visibles", async ({ page }) => {
-  await login(page, ACCOUNTS.local29);
+test.use({ storageState: storageFor(ACCOUNTS.local29) });
 
+test("connexion → carte → fiche spot → conditions visibles", async ({ page }) => {
   // --- Carte : un tier local ne voit PAS le paywall discovery -------------
   await page.goto("/carte");
   await expect(page.getByText("3 spots par département")).toHaveCount(0);

@@ -21,6 +21,14 @@ export const ACCOUNTS = {
 /** UUID fixe de test_upgrade_29 (cf supabase/seed_e2e.sql). */
 export const UPGRADE_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
+/** Dossier des sessions sauvegardées par auth.setup.ts (storageState). */
+export const AUTH_DIR = "e2e/.auth";
+
+/** Chemin du fichier storageState pour un compte (ex. test_local_29.json). */
+export function storageFor(email: string): string {
+  return `${AUTH_DIR}/${email.split("@")[0]}.json`;
+}
+
 /**
  * Remplit un champ et VÉRIFIE que la valeur tient. Garde-fou contre la course
  * pré-hydratation React : sur un build de prod, Playwright peut remplir un input
@@ -34,6 +42,23 @@ export async function fillStable(locator: Locator, value: string) {
   await expect(async () => {
     await locator.fill(value);
     await expect(locator).toHaveValue(value, { timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
+}
+
+/**
+ * Remplit plusieurs champs et garantit qu'ils tiennent TOUS leur valeur
+ * SIMULTANÉMENT avant de rendre la main. Sous CPU lent, un <form action> React
+ * non stabilisé peut vider les champs déjà remplis quand on remplit le suivant
+ * → on re-remplit en boucle (toPass) jusqu'à ce que tous tiennent ensemble,
+ * puis l'appelant soumet aussitôt. À appeler après waitForLoadState('networkidle').
+ */
+export async function fillFormStable(
+  page: Page,
+  fields: ReadonlyArray<readonly [selector: string, value: string]>
+) {
+  await expect(async () => {
+    for (const [sel, val] of fields) await page.locator(sel).fill(val);
+    for (const [sel, val] of fields) await expect(page.locator(sel)).toHaveValue(val);
   }).toPass({ timeout: 15_000 });
 }
 
