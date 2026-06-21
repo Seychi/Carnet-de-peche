@@ -8,6 +8,7 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { FollowButton } from '@/components/feed/FollowButton'
+import { ProfileFollowStats } from '@/components/feed/ProfileFollowStats'
 import { PostCard } from '@/components/feed/PostCard'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
@@ -72,6 +73,23 @@ export default async function PublicProfilePage({
     .select('id', { count: 'exact', head: true })
     .eq('user_id', profile.id)
     .eq('privacy', 'public')
+
+  // Compteurs sociaux (Bloc E) — comptés via follows (RLS select-all pour les
+  // authentifiés) plutôt que la vue profile_stats, qui a perdu son SELECT en 031.
+  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+    supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', profile.id),
+    supabase.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', profile.id),
+  ])
+
+  // Ids que le viewer suit → marque l'état des entrées des listes abonnés/abonnements.
+  let viewerFollowingIds: string[] = []
+  if (user) {
+    const { data: vf } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+    viewerFollowingIds = (vf ?? []).map((r) => r.following_id)
+  }
 
   // Posts de ce pêcheur (+ photos signées).
   const { data: rawPosts } = await supabase
@@ -138,6 +156,13 @@ export default async function PublicProfilePage({
                 </HeroChip>
               )}
             </div>
+            <ProfileFollowStats
+              profileId={profile.id}
+              viewerId={user?.id ?? null}
+              followersCount={followersCount ?? 0}
+              followingCount={followingCount ?? 0}
+              initialViewerFollowingIds={viewerFollowingIds}
+            />
           </div>
           <div className="flex items-center gap-5">
             <div className="text-center">
@@ -172,6 +197,7 @@ export default async function PublicProfilePage({
                 currentUserId={user?.id ?? null}
                 viewerIsModerator={viewerIsModerator}
                 catchPhotoUrl={p.catchPhotoUrl}
+                showFollow={false}
               />
             ))
           )}
