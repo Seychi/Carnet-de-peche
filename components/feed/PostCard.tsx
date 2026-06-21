@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { FollowButton } from './FollowButton'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { toggleLike, deletePost, moderatorDeletePost } from '@/app/actions/feed'
 import { usePostInteractionsRealtime } from '@/lib/feed/usePostInteractionsRealtime'
@@ -56,12 +57,16 @@ export const PostCard = memo(function PostCard({
   currentUserId,
   catchPhotoUrl,
   viewerIsModerator = false,
+  showFollow = true,
   onDeleted,
 }: {
   post: FeedPost
   currentUserId: string | null
   catchPhotoUrl?: string | null
   viewerIsModerator?: boolean
+  // Bouton « Suivre » dans l'en-tête (Bloc C). Désactivé sur le profil public, où
+  // tous les posts sont du même auteur (le bouton est déjà dans le hero).
+  showFollow?: boolean
   // Appelé après une suppression réussie → le parent retire la carte (BUG-09).
   onDeleted?: (id: string) => void
 }) {
@@ -211,6 +216,14 @@ export const PostCard = memo(function PostCard({
           </Link>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-2.5">{authorIdentity}</div>
+        )}
+        {/* Suivre l'auteur sans quitter le fil (Bloc C) — pas sur mes posts ni en non-connecté */}
+        {showFollow && currentUserId && !isMine && post.author_id && post.author_username && (
+          <FollowButton
+            targetUserId={post.author_id}
+            initialFollowing={Boolean(post.author_is_following)}
+            size="sm"
+          />
         )}
         {(isMine || viewerIsModerator) && (
           <DropdownMenu>

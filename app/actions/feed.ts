@@ -607,8 +607,27 @@ export async function getFeedPage(params: {
     }
   }
 
+  // « Je suis déjà l'auteur ? » en UNE requête follows par page (Bloc C — pas de N+1).
+  // Auteurs distincts ≠ moi. Sur l'onglet 'follows' tous sont suivis par définition,
+  // mais la requête reste correcte (et O(1)) → pas de branchement spécial.
+  const authorIds = [
+    ...new Set(
+      posts.map((p) => p.author_id).filter((id): id is string => Boolean(id) && id !== user.id),
+    ),
+  ]
+  const followingSet = new Set<string>()
+  if (authorIds.length > 0) {
+    const { data: frows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+      .in('following_id', authorIds)
+    for (const r of frows ?? []) followingSet.add(r.following_id)
+  }
+
   const enriched: FeedPostEnriched[] = posts.map((p) => ({
     ...p,
+    author_is_following: p.author_id ? followingSet.has(p.author_id) : false,
     catchPhotoUrl: p.catch_photo_path ? (signedByPath.get(p.catch_photo_path) ?? null) : null,
   }))
 
