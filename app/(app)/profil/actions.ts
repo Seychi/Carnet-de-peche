@@ -91,64 +91,42 @@ export async function deleteAccount() {
   if (!user) return { error: 'Non authentifié.' }
   const uid = user.id
 
-  // Suppression effective via le client service-role (bypass RLS). On ne dépend
-  // PLUS de la RPC delete_my_account (absente en prod). auth.admin.deleteUser
-  // efface auth.users → cascade SQL (profiles, catches, feed_posts, feed_comments,
-  // feed_likes, follows, subscriptions). Les FK moderated_by/resolved_by passent
-  // à NULL grâce à la migration 030 (ON DELETE SET NULL).
-  try {
-    const admin = createServiceRoleClient()
-
-    // 1) Nettoyage Storage : photos de prises sous catches/<uid>/ (bucket privé).
-    //    Fait AVANT la suppression du compte car ensuite le dossier n'est plus listable.
-    //    Non bloquant : un échec Storage ne doit pas empêcher l'effacement du compte,
-    //    mais on le remonte à Sentry pour traiter les orphelins.
-    const { data: files, error: listError } = await admin.storage
-      .from('catches')
-      .list(uid, { limit: 1000 })
-    if (listError) {
-      Sentry.captureException(listError, {
-        tags: { action: 'deleteAccount', step: 'storage_list' },
-        extra: { uid },
-      })
-    } else if (files && files.length > 0) {
-      const paths = files.map((f) => `${uid}/${f.name}`)
-      const { error: removeError } = await admin.storage.from('catches').remove(paths)
-      if (removeError) {
-        Sentry.captureException(removeError, {
-          tags: { action: 'deleteAccount', step: 'storage_remove' },
-          extra: { uid, count: paths.length },
-        })
-      }
-    }
-
-    // 2) Suppression du compte auth (cascade SQL sur toutes les tables liées).
-    const { error: deleteError } = await admin.auth.admin.deleteUser(uid)
-    if (deleteError) {
-      Sentry.captureException(deleteError, {
-        tags: { action: 'deleteAccount', step: 'auth_delete' },
-        extra: { uid },
-      })
-      console.error('[deleteAccount] auth.admin.deleteUser :', deleteError.message)
-      return {
-        error:
-          "La suppression n'a pas pu aboutir. On a été prévenus et on règle ça — réessaie dans quelques minutes ou écris à support@carnet-de-peche.com.",
-      }
-    }
-  } catch (err) {
-    // Ex. SUPABASE_SERVICE_ROLE_KEY absente → createServiceRoleClient throw.
-    Sentry.captureException(err, {
-      tags: { action: 'deleteAccount', step: 'unexpected' },
+  // Suppression du compte via le RPC SECURITY DEFINER delete_my_account (owner
+  // postgres) : il fait `delete from auth.users where id = auth.uid()`, et la
+  // cascade ON DELETE s'exécute alors avec les droits de postgres.
+  // ⚠️ NE PAS revenir à auth.admin.deleteUser : ce chemin tourne sous le rôle
+  // supabase_auth_admin (GoTrue), qui n'a PAS les droits DELETE sur les tables
+  // public → échec « permission denied for table feed_posts » (SQLSTATE 42501).
+  const { error: deleteError } = await supabase.rpc('delete_my_account')
+  if (deleteError) {
+    Sentry.captureException(deleteError, {
+      tags: { action: 'deleteAccount', step: 'rpc_delete' },
       extra: { uid },
     })
-    console.error('[deleteAccount] erreur inattendue :', err)
+    console.error('[deleteAccount] delete_my_account :', deleteError.message)
     return {
       error:
-        "La suppression n'a pas pu aboutir (erreur serveur). On a été prévenus — réessaie plus tard ou écris à support@carnet-de-peche.com.",
+        "La suppression n'a pas pu aboutir. On a été prévenus et on règle ça — réessaie dans quelques minutes ou écris à support@carnet-de-peche.com.",
     }
   }
 
-  // redirect() throw NEXT_REDIRECT : OBLIGATOIREMENT hors du try/catch ci-dessus,
-  // sinon il serait capturé comme une 'erreur' par Sentry / le catch.
+  // Compte supprimé : nettoyage best-effort des photos (bucket privé catches/<uid>/).
+  // Non bloquant — un échec laisse des orphelins, remontés à Sentry. Le client
+  // service-role est indépendant de la session (désormais invalide).
+  try {
+    const admin = createServiceRoleClient()
+    const { data: files } = await admin.storage.from('catches').list(uid, { limit: 1000 })
+    if (files && files.length > 0) {
+      await admin.storage.from('catches').remove(files.map((f) => `${uid}/${f.name}`))
+    }
+  } catch (err) {
+    Sentry.captureException(err, {
+      tags: { action: 'deleteAccount', step: 'storage_cleanup' },
+      extra: { uid },
+    })
+    console.error('[deleteAccount] nettoyage Storage :', err)
+  }
+
+  // redirect() throw NEXT_REDIRECT : OBLIGATOIREMENT hors de tout try/catch.
   redirect('/')
 }

@@ -13,7 +13,7 @@ L'application live a révélé 2 défauts du plan initial, corrigés à la volé
 
 Historique : 6 entrées (028, 028b, 029, 030, 031, 032). FK suppression = `SET NULL`. anon `get_spots_for_map()` = **3/dépt, jamais précis**. Fiche `cap-frehel` anon = floutée.
 
-> **Note `delete_my_account`** : ce RPC (migration 005) est **réapparu en prod** entre l'analyse et l'application (probablement appliqué par John). Sans impact : le fix `deleteAccount` utilise `auth.admin.deleteUser`, pas ce RPC.
+> **Hotfix BUG-03 (2026-06-21, après 1er test live)** : `auth.admin.deleteUser` échouait en prod avec « permission denied for table feed_posts » (SQLSTATE 42501) — le rôle GoTrue `supabase_auth_admin` n'a pas DELETE sur les tables `public` ciblées par la cascade. Corrigé : `deleteAccount` repasse par le **RPC `delete_my_account`** (SECURITY DEFINER, owner postgres → cascade exécutée avec les droits postgres, qui a bien DELETE partout). Migration **033** (re)crée le RPC proprement. Le nettoyage Storage reste en best-effort après suppression.
 
 ---
 
@@ -60,7 +60,7 @@ Après application : **régénérer `lib/types.ts`** (`pnpm dlx supabase gen typ
 
 ### B 🟠 Suppression de compte RGPD (BUG-03, 13)
 - **Cause réelle trouvée** : le RPC `delete_my_account` **n'existe pas en prod** (migration 005 jamais appliquée) → PGRST202. Ce n'était PAS la clé service-role.
-- **Fait** : `deleteAccount` réécrit (`app/(app)/profil/actions.ts`) → `createServiceRoleClient().auth.admin.deleteUser` + nettoyage Storage `catches/<uid>/` + erreurs réelles loggées dans Sentry + messages FR exploitables + `redirect('/')` hors try/catch. Migration 030 (FK `moderated_by`/`resolved_by` → SET NULL).
+- **Fait** : `deleteAccount` réécrit (`app/(app)/profil/actions.ts`) → `supabase.rpc('delete_my_account')` (SECURITY DEFINER owner postgres, migration **033**) + nettoyage Storage `catches/<uid>/` best-effort après suppression + erreurs loggées Sentry + message FR + `redirect('/')` hors try/catch. Migration 030 (FK `moderated_by`/`resolved_by` → SET NULL). NB : `auth.admin.deleteUser` a été essayé puis abandonné (permission denied sous `supabase_auth_admin`).
 - **Tester** : `docs/sprint-11.6/qa-bug03-deletion.md` (compte jetable : suppression OK, 0 ligne résiduelle, 0 objet Storage ; scénario modérateur ; échec → Sentry). FK : `select confdeltype from pg_constraint where conname in ('feed_posts_moderated_by_fkey','reports_resolved_by_fkey')` → `n`.
 - **Tests auto** : `lib/__tests__/account-deletion-order.test.ts` (garde-fou SET NULL).
 - **Reste John** : appliquer 030 ; confirmer `SUPABASE_SERVICE_ROLE_KEY` en prod Vercel ; QA suppression sur compte jetable.

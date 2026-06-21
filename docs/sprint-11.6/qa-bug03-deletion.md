@@ -1,13 +1,13 @@
 # QA manuelle — BUG-03 suppression de compte (RGPD)
 
-> WS-B, sprint 11.6. Pas de test automatique possible : `auth.admin.deleteUser` +
-> nettoyage Storage = effets de bord destructifs. **À jouer uniquement sur des
-> comptes jetables**, jamais sur un compte réel.
+> WS-B, sprint 11.6. Suppression via le RPC `delete_my_account` (SECURITY DEFINER,
+> owner postgres ; migration 033) + nettoyage Storage = effets de bord destructifs.
+> **À jouer uniquement sur des comptes jetables**, jamais sur un compte réel.
 
 ## Pré-requis
 - Migration **030** appliquée (FK `moderated_by`/`resolved_by` en `ON DELETE SET NULL`).
 - `SUPABASE_SERVICE_ROLE_KEY` présente dans l'environnement testé (prod ou preview).
-- Code `app/(app)/profil/actions.ts` déployé (n'appelle plus `delete_my_account`).
+- Migration **033** appliquée (RPC `delete_my_account` owner postgres) + code `app/(app)/profil/actions.ts` déployé (appelle `supabase.rpc('delete_my_account')`).
 
 ## Scénario 1 — compte standard
 1. Créer un compte jetable, compléter l'onboarding.
