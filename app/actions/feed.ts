@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isCoastalDepartment } from '@/lib/geo/departments'
+import { attachPostMedia } from '@/lib/feed/media'
 import type { FeedPost, FeedTab } from '@/lib/feed/types'
 import '@/lib/zod-config'
 import { z } from 'zod'
@@ -83,18 +84,27 @@ function revalidateFeed(region?: string | null) {
 // ---------------------------------------------------------------------------
 // createPost — texte libre et/ou partage d'une prise du carnet
 // ---------------------------------------------------------------------------
+const photoInputSchema = z.object({
+  path: z.string().min(1),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+})
+
 const createPostSchema = z.object({
   text: z.string().max(2000, 'Ton message ne peut pas dépasser 2000 caractères.').optional(),
   catchId: z.string().uuid('Prise invalide.').optional(),
   region: z
     .string()
     .refine(isCoastalDepartment, 'Ce département côtier n’est pas reconnu.'),
+  // Photos déjà uploadées côté client dans le dossier Storage de l'auteur (Bloc B).
+  photos: z.array(photoInputSchema).max(4, 'Maximum 4 photos par post.').optional(),
 })
 
 export async function createPost(input: {
   text?: string
   catchId?: string
   region: string
+  photos?: { path: string; width?: number; height?: number }[]
 }): Promise<ActionResult<{ id: string }>> {
   const supabase = await createClient()
   const {
@@ -107,7 +117,16 @@ export async function createPost(input: {
 
   const { region, catchId } = parsed.data
   const text = parsed.data.text?.trim() || undefined
-  if (!text && !catchId) return fail('Écris un message ou partage une prise.')
+  const photos = parsed.data.photos ?? []
+  if (!text && !catchId && photos.length === 0) {
+    return fail('Écris un message, ajoute une photo ou partage une prise.')
+  }
+
+  // Anti-claim : chaque photo doit être dans le dossier Storage de l'auteur.
+  const folderPrefix = `${user.id}/`
+  if (photos.some((p) => !p.path.startsWith(folderPrefix))) {
+    return fail('Photo invalide.')
+  }
 
   if (text) {
     const spamError = spamCheck(text)
@@ -140,6 +159,28 @@ export async function createPost(input: {
     if (error?.message.includes('rate_limit_posts')) return fail(POST_LIMIT_MSG)
     console.error('[createPost]', error?.message)
     return fail('Impossible de publier ton post. Réessaie.')
+  }
+
+  // Lie les photos au post. En cas d'échec, on retire le post (cascade) et on
+  // signale au client qu'il doit nettoyer le Storage (uploads orphelins).
+  if (photos.length > 0) {
+    const rows = photos.map((p, i) => ({
+      post_id: post.id,
+      user_id: user.id,
+      storage_path: p.path,
+      position: i,
+      width: p.width ?? null,
+      height: p.height ?? null,
+    }))
+    const { error: photoErr } = await supabase.from('feed_post_photos').insert(rows)
+    if (photoErr) {
+      await supabase.from('feed_posts').delete().eq('id', post.id).eq('author_id', user.id)
+      console.error('[createPost:photos]', photoErr.message)
+      if (photoErr.message.includes('max_photos_per_post')) {
+        return fail('Maximum 4 photos par post.')
+      }
+      return fail('Impossible d’ajouter tes photos. Réessaie.')
+    }
   }
 
   revalidateFeed(region)
@@ -263,6 +304,13 @@ export async function deletePost(postId: string): Promise<ActionResult<{ id: str
 
   if (!z.string().uuid().safeParse(postId).success) return fail('Post invalide.')
 
+  // Chemins Storage des photos AVANT suppression (la cascade DB ne nettoie pas
+  // le Storage). RLS : on ne lit que les photos d'un post visible.
+  const { data: photoRows } = await supabase
+    .from('feed_post_photos')
+    .select('storage_path')
+    .eq('post_id', postId)
+
   const { data: deleted, error } = await supabase
     .from('feed_posts')
     .delete()
@@ -275,6 +323,13 @@ export async function deletePost(postId: string): Promise<ActionResult<{ id: str
     return fail('Impossible de supprimer ce post. Réessaie.')
   }
   if (!deleted || deleted.length === 0) return fail('Post introuvable ou pas à toi.')
+
+  // Nettoyage best-effort des photos du post (évite les orphelins Storage).
+  const paths = (photoRows ?? []).map((r) => r.storage_path)
+  if (paths.length > 0) {
+    const { error: rmErr } = await supabase.storage.from('feed-photos').remove(paths)
+    if (rmErr) console.error('[deletePost:storage]', rmErr.message)
+  }
 
   revalidateFeed(deleted[0].region)
   return ok({ id: postId })
@@ -553,7 +608,10 @@ export async function getComments(
 // ---------------------------------------------------------------------------
 const PAGE_SIZE = 20
 
-export type FeedPostEnriched = FeedPost & { catchPhotoUrl: string | null }
+export type FeedPostEnriched = FeedPost & {
+  catchPhotoUrl: string | null
+  photoUrls: string[]
+}
 
 export async function getFeedPage(params: {
   tab: FeedTab
@@ -595,17 +653,8 @@ export async function getFeedPage(params: {
 
   const posts = (data ?? []) as FeedPost[]
 
-  // URLs signées des photos de prise (bucket privé catches).
-  const paths = posts
-    .map((p) => p.catch_photo_path)
-    .filter((p): p is string => Boolean(p))
-  const signedByPath = new Map<string, string>()
-  if (paths.length > 0) {
-    const { data: signed } = await supabase.storage.from('catches').createSignedUrls(paths, 3600)
-    for (const s of signed ?? []) {
-      if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl)
-    }
-  }
+  // Médias signés (photos de prise + photos de post) en batch — cf lib/feed/media.
+  const withMedia = await attachPostMedia(posts, supabase)
 
   // « Je suis déjà l'auteur ? » en UNE requête follows par page (Bloc C — pas de N+1).
   // Auteurs distincts ≠ moi. Sur l'onglet 'follows' tous sont suivis par définition,
@@ -625,14 +674,67 @@ export async function getFeedPage(params: {
     for (const r of frows ?? []) followingSet.add(r.following_id)
   }
 
-  const enriched: FeedPostEnriched[] = posts.map((p) => ({
+  const enriched: FeedPostEnriched[] = withMedia.map((p) => ({
     ...p,
     author_is_following: p.author_id ? followingSet.has(p.author_id) : false,
-    catchPhotoUrl: p.catch_photo_path ? (signedByPath.get(p.catch_photo_path) ?? null) : null,
   }))
 
   const nextCursor =
     enriched.length === PAGE_SIZE ? (enriched[enriched.length - 1].created_at ?? null) : null
 
   return ok({ posts: enriched, nextCursor })
+}
+
+// ---------------------------------------------------------------------------
+// getMyCatches — prises de l'utilisateur pour le sélecteur de partage (Bloc D).
+// Pagination + recherche (espèce / lieu) pour aller au-delà des 20 dernières.
+// ---------------------------------------------------------------------------
+export type MyCatchOption = {
+  id: string
+  species: string | null
+  size_cm: number | null
+  caught_at: string | null
+}
+
+export async function getMyCatches(params: {
+  search?: string
+  offset?: number
+  limit?: number
+}): Promise<ActionResult<MyCatchOption[]>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  const limit = Math.min(Math.max(params.limit ?? 20, 1), 50)
+  const offset = Math.max(params.offset ?? 0, 0)
+
+  let query = supabase
+    .from('catches')
+    .select('id, species, size_cm, caught_at, location_label')
+    .eq('user_id', user.id)
+    .order('caught_at', { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  // Recherche espèce / lieu. On nettoie l'entrée (lettres/chiffres/espaces/-)
+  // pour ne pas casser la syntaxe du filtre .or() de PostgREST (virgules, parens).
+  const search = params.search?.replace(/[^\p{L}\p{N}\s-]/gu, '').trim()
+  if (search) {
+    query = query.or(`species.ilike.%${search}%,location_label.ilike.%${search}%`)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    console.error('[getMyCatches]', error.message)
+    return fail('Impossible de charger tes prises.')
+  }
+
+  const result: MyCatchOption[] = (data ?? []).map((c) => ({
+    id: c.id,
+    species: c.species,
+    size_cm: c.size_cm,
+    caught_at: c.caught_at,
+  }))
+  return ok(result)
 }

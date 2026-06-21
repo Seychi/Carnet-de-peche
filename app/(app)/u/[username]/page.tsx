@@ -10,6 +10,7 @@ import { Bathy } from '@/components/ui-v2/bathy'
 import { FollowButton } from '@/components/feed/FollowButton'
 import { ProfileFollowStats } from '@/components/feed/ProfileFollowStats'
 import { PostCard } from '@/components/feed/PostCard'
+import { attachPostMedia } from '@/lib/feed/media'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
 
@@ -100,16 +101,9 @@ export default async function PublicProfilePage({
     .limit(20)
   const posts = (rawPosts ?? []) as FeedPost[]
 
-  const paths = posts.map((p) => p.catch_photo_path).filter((p): p is string => Boolean(p))
-  const signed = new Map<string, string>()
-  if (paths.length > 0) {
-    const { data } = await supabase.storage.from('catches').createSignedUrls(paths, 3600)
-    for (const s of data ?? []) if (s.path && s.signedUrl) signed.set(s.path, s.signedUrl)
-  }
-  const enriched: FeedPostEnriched[] = posts.map((p) => ({
-    ...p,
-    catchPhotoUrl: p.catch_photo_path ? (signed.get(p.catch_photo_path) ?? null) : null,
-  }))
+  // Médias signés en batch (photos de prise + photos de post). Via service_role
+  // pour qu'un visiteur voie aussi les photos d'un AUTRE pêcheur (cf lib/feed/media).
+  const enriched: FeedPostEnriched[] = await attachPostMedia(posts, supabase)
 
   const name = profile.display_name || `@${profile.username}`
   // char(3) Postgres → '29 ' paddé : trim avant lookup (cf. backlog ROADMAP)
@@ -197,6 +191,7 @@ export default async function PublicProfilePage({
                 currentUserId={user?.id ?? null}
                 viewerIsModerator={viewerIsModerator}
                 catchPhotoUrl={p.catchPhotoUrl}
+                photoUrls={p.photoUrls}
                 showFollow={false}
               />
             ))

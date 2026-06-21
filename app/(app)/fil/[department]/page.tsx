@@ -58,13 +58,20 @@ export default async function DepartmentFeedPage({
     .order('caught_at', { ascending: false })
     .limit(20)
 
-  // Bouton « Supprimer (modération) » sur les cartes (migration 023).
+  // Bouton « Supprimer (modération) » sur les cartes (migration 023) + identité
+  // de l'auteur pour le rendu optimiste du composer (Bloc E).
   const { data: viewerProfile } = await supabase
     .from('profiles')
-    .select('is_moderator')
+    .select('is_moderator, username, display_name, avatar_url')
     .eq('id', user.id)
     .maybeSingle()
   const viewerIsModerator = viewerProfile?.is_moderator === true
+  const currentUser = {
+    id: user.id,
+    username: viewerProfile?.username ?? null,
+    display_name: viewerProfile?.display_name ?? null,
+    avatar_url: viewerProfile?.avatar_url ?? null,
+  }
 
   const initial = await getFeedPage({ tab, region: department })
   const posts = initial.ok ? initial.data.posts : []
@@ -104,7 +111,7 @@ export default async function DepartmentFeedPage({
           initialCursor={cursor}
           region={department}
           tab={tab}
-          currentUserId={user.id}
+          currentUser={currentUser}
           viewerIsModerator={viewerIsModerator}
           emptyVariant={emptyVariant}
           recentCatches={(recent ?? []) as RecentCatch[]}

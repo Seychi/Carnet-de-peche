@@ -64,19 +64,37 @@ export function CommentThread({
 
   async function handleAdd() {
     const value = text.trim()
-    if (!value) return
+    if (!value || !currentUserId) return
+
+    // Optimiste : le commentaire apparaît tout de suite sous l'identité « Toi »,
+    // puis on recharge pour récupérer l'id réel + l'avatar/pseudo (ou rollback).
+    const tempId = `temp-${crypto.randomUUID()}`
+    const optimistic: FeedComment = {
+      id: tempId,
+      text: value,
+      created_at: new Date().toISOString(),
+      author_id: currentUserId,
+      author_username: null,
+      author_display_name: 'Toi',
+      author_avatar_url: null,
+    }
+    const prevCount = comments.length
+    setComments((prev) => [...prev, optimistic])
+    setText('')
     setSubmitting(true)
     const res = await addComment(postId, value)
     setSubmitting(false)
     if (!res.ok) {
+      setComments((prev) => prev.filter((c) => c.id !== tempId))
+      setText(value)
       toast.error(res.error)
       return
     }
-    setText('')
-    await load(Math.max(PAGE, comments.length + 1))
+    await load(Math.max(PAGE, prevCount + 1))
   }
 
   async function handleDelete(id: string) {
+    if (id.startsWith('temp-')) return // commentaire optimiste pas encore confirmé
     const res = await deleteComment(id)
     if (!res.ok) {
       toast.error(res.error)

@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
 import { FollowButton } from './FollowButton'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { toggleLike, deletePost, moderatorDeletePost } from '@/app/actions/feed'
@@ -46,6 +47,9 @@ const ReportDialog = dynamic(
 
 const PostDeleteDialog = dynamic(() => import('./PostDeleteDialog'), { ssr: false })
 
+// Lightbox galerie (Bloc C) — montée au 1er clic sur une photo (hors first load).
+const PhotoGalleryLightbox = dynamic(() => import('./PhotoGalleryLightbox'), { ssr: false })
+
 function initials(name: string | null, username: string | null) {
   return (name || username || '?').trim().slice(0, 2).toUpperCase()
 }
@@ -56,6 +60,7 @@ export const PostCard = memo(function PostCard({
   post,
   currentUserId,
   catchPhotoUrl,
+  photoUrls,
   viewerIsModerator = false,
   showFollow = true,
   onDeleted,
@@ -63,6 +68,9 @@ export const PostCard = memo(function PostCard({
   post: FeedPost
   currentUserId: string | null
   catchPhotoUrl?: string | null
+  // Photos du post (URLs signées, Bloc C). Absent sur les surfaces qui ne les
+  // chargent pas encore → la galerie ne s'affiche simplement pas.
+  photoUrls?: string[]
   viewerIsModerator?: boolean
   // Bouton « Suivre » dans l'en-tête (Bloc C). Désactivé sur le profil public, où
   // tous les posts sont du même auteur (le bouton est déjà dans le hero).
@@ -81,6 +89,8 @@ export const PostCard = memo(function PostCard({
   const [reportMounted, setReportMounted] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  // Index de la photo ouverte en plein écran (null = lightbox fermée).
+  const [lightbox, setLightbox] = useState<number | null>(null)
   // Flux de confirmation (BUG-15) : modale montée à la 1re demande puis laissée
   // montée (anim de fermeture + retour focus natifs). `deleteKind` distingue la
   // suppression auteur de la suppression modérateur.
@@ -271,6 +281,11 @@ export const PostCard = memo(function PostCard({
         </div>
       )}
 
+      {/* Galerie de photos du post (Bloc C) */}
+      {photoUrls && photoUrls.length > 0 && (
+        <PostGallery urls={photoUrls} onOpen={(i) => setLightbox(i)} />
+      )}
+
       {/* Encart prise partagée */}
       {post.catch_id && (
         <CatchEmbed post={post} photoUrl={catchPhotoUrl} />
@@ -338,9 +353,54 @@ export const PostCard = memo(function PostCard({
           onConfirm={deleteKind === 'moderation' ? handleModeratorDelete : handleDelete}
         />
       )}
+
+      {lightbox !== null && photoUrls && photoUrls.length > 0 && (
+        <PhotoGalleryLightbox
+          urls={photoUrls}
+          startIndex={lightbox}
+          onClose={() => setLightbox(null)}
+        />
+      )}
     </article>
   )
 })
+
+// Galerie responsive des photos d'un post (Bloc C). Layouts distincts selon le
+// nombre (1 = grand, 2 = côte à côte, 3 = 1 large + 2, 4 = grille 2×2). Au-delà
+// de 4 (sécurité — le composer plafonne à 4), « +N » sur la dernière tuile.
+function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number) => void }) {
+  const shown = urls.slice(0, 4)
+  const extra = urls.length - shown.length
+  const n = shown.length
+
+  return (
+    <div className={cn('grid gap-1.5 overflow-hidden rounded-[12px]', n === 1 ? 'grid-cols-1' : 'grid-cols-2')}>
+      {shown.map((url, i) => {
+        const wide = n === 3 && i === 0
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={() => onOpen(i)}
+            className={cn(
+              'relative block overflow-hidden bg-sand-100 transition-opacity hover:opacity-95',
+              n === 1 ? 'aspect-[4/3]' : 'aspect-square',
+              wide && 'col-span-2 aspect-[16/9]',
+            )}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt={`Photo ${i + 1}`} loading="lazy" className="size-full object-cover" />
+            {extra > 0 && i === shown.length - 1 && (
+              <span className="absolute inset-0 flex items-center justify-center bg-black/55 font-mono text-xl font-semibold text-white">
+                +{extra}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | null }) {
   const species = SPECIES_LABELS[post.catch_species ?? ''] ?? post.catch_species ?? 'Prise'
