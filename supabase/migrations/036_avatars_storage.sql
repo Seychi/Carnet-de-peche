@@ -11,8 +11,11 @@
 --    lecture d'un bucket public) → pas de policy SELECT nécessaire.
 --  - Écriture (insert/update/delete) : réservée à `auth.uid()` sur SON dossier
 --    (`<uid>/…`). Un user ne peut pas écrire dans le dossier d'un autre.
---  - allowed_mime_types = image/webp uniquement (on n'uploade que du WebP
---    re-encodé côté client → EXIF/GPS strippé). file_size_limit ~2 Mo.
+--  - allowed_mime_types = image/webp uniquement (l'app n'uploade que du WebP
+--    re-encodé côté client → EXIF/GPS strippé sur ce chemin). file_size_limit
+--    ~2 Mo. NB : le mime-check valide le TYPE, pas l'absence de métadonnées —
+--    un appel API direct pourrait stocker un webp avec EXIF (risque résiduel
+--    assumé : c'est sa propre photo de tête, faible sensibilité ; cf RECAP).
 --  - Le bucket `catches` reste PRIVÉ (on n'y touche pas).
 --
 -- ROLLBACK : drop des 3 policies + delete from storage.buckets where id='avatars'.

@@ -64,14 +64,18 @@ export async function resizeImageToSquareWebp(
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas 2D indisponible.')
-  ctx.drawImage(source, sx, sy, side, side, 0, 0, size, size)
-  if ('close' in source) source.close()
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, 'image/webp', quality),
-  )
+  let blob: Blob | null
+  try {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Canvas 2D indisponible.')
+    ctx.drawImage(source, sx, sy, side, side, 0, 0, size, size)
+    blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', quality),
+    )
+  } finally {
+    // Libère toujours le bitmap, même si le canvas/toBlob échoue (anti-fuite mémoire).
+    if ('close' in source) source.close()
+  }
   if (!blob) throw new Error('Conversion WebP échouée.')
 
   const baseName = file.name.replace(/\.[^/.]+$/, '')

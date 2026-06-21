@@ -101,9 +101,18 @@ export default async function OnboardingFiniPage() {
         {/* Récap profil */}
         <div className="mt-6 rounded-[14px] border border-white/10 bg-white/[0.05] p-4">
           <div className="mb-3 flex items-center gap-2.5">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-navy-800 font-mono text-[12px] font-semibold text-teal-300">
-              {initials}
-            </span>
+            {profile.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- avatar utilisateur (Storage public), <img> volontaire
+              <img
+                src={profile.avatar_url}
+                alt=""
+                className="size-9 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-navy-800 font-mono text-[12px] font-semibold text-teal-300">
+                {initials}
+              </span>
+            )}
             <div className="min-w-0">
               <p className="truncate text-[13.5px] font-semibold">{name}</p>
               <TagData className="block text-white/45">

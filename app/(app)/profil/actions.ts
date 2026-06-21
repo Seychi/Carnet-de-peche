@@ -102,8 +102,11 @@ export async function updateAvatar(path: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié.' }
 
-  // Anti-claim : le chemin doit être dans le dossier de l'utilisateur.
-  if (!path.startsWith(`${user.id}/`)) return { error: 'Chemin invalide.' }
+  // Anti-claim + validation stricte du chemin : <uid>/<nom>.webp, sans '/'
+  // intermédiaire ni '..' (défense en profondeur ; le composant génère un UUID).
+  if (!new RegExp(`^${user.id}/[A-Za-z0-9-]+\\.webp$`).test(path)) {
+    return { error: 'Chemin invalide.' }
+  }
 
   const { data: pub } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path)
   const publicUrl = pub.publicUrl
@@ -129,7 +132,8 @@ export async function updateAvatar(path: string) {
   if (oldUrl) {
     const oldPath = avatarPathFromUrl(oldUrl, user.id)
     if (oldPath && oldPath !== path) {
-      await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+      const { error: rmErr } = await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+      if (rmErr) console.error('[updateAvatar:storage]', rmErr.message)
     }
   }
 
@@ -160,7 +164,10 @@ export async function removeAvatar() {
 
   if (oldUrl) {
     const oldPath = avatarPathFromUrl(oldUrl, user.id)
-    if (oldPath) await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+    if (oldPath) {
+      const { error: rmErr } = await supabase.storage.from(AVATAR_BUCKET).remove([oldPath])
+      if (rmErr) console.error('[removeAvatar:storage]', rmErr.message)
+    }
   }
 
   revalidatePath('/profil')

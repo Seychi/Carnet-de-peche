@@ -31,6 +31,10 @@ export function AvatarUploader({
   const dark = variant === 'dark'
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    if (busy) {
+      e.target.value = ''
+      return
+    }
     const raw = e.target.files?.[0]
     e.target.value = '' // permet de re-choisir le même fichier
     if (!raw) return
@@ -43,6 +47,10 @@ export function AvatarUploader({
     try {
       // Recadrage carré 512 + WebP (re-encode canvas → EXIF/GPS supprimé).
       const webp = await resizeImageToSquareWebp(raw, 512)
+      if (webp.size > 2_000_000) {
+        toast.error('Photo trop lourde après compression. Essaie une autre image.')
+        return
+      }
       const supabase = createClient()
       const path = `${userId}/${crypto.randomUUID()}.webp`
       const { error: upErr } = await supabase.storage
@@ -68,6 +76,7 @@ export function AvatarUploader({
   }
 
   async function handleRemove() {
+    if (busy) return
     setBusy(true)
     try {
       const res = await removeAvatar()
@@ -78,6 +87,9 @@ export function AvatarUploader({
       setUrl(null)
       toast.success('Photo retirée.')
       router.refresh()
+    } catch (err) {
+      console.error('[AvatarUploader] remove', err)
+      toast.error('Impossible de retirer ta photo. Réessaie.')
     } finally {
       setBusy(false)
     }
@@ -89,6 +101,7 @@ export function AvatarUploader({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={busy}
+        aria-busy={busy}
         aria-label="Changer ma photo de profil"
         className="group relative size-20 shrink-0 overflow-hidden rounded-full border-4 border-white shadow disabled:opacity-70"
       >
