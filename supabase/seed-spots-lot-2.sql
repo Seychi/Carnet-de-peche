@@ -2,9 +2,9 @@
 -- Carnet de Pêche — LOT 2 de curation de spots (Atlantique sud, 24 spots)
 -- Loire-Atlantique (44) + Vendée (85) — region 'pays-de-la-loire'
 -- =====================================================================
--- ⚠️ NON INSÉRÉ — À VALIDER PAR JOHN, ET À INSÉRER UNIQUEMENT APRÈS LE FIX GPS
---    (cf docs/sprint-11.5/ADDENDUM-gps.md). Tant que le floutage est un no-op,
---    insérer = fuiter les coords exactes de 24 spots de plus.
+-- ✅ INSÉRÉ EN PROD le 2026-06-21 (après le fix GPS 11.6 / migrations 028-029,
+--    vérifié : flou centroïde 524-881 m, colonne geom non lisible par anon).
+--    Prod 38 → 62 spots. NE PAS REJOUER (doublons de slug). Conservé comme trace.
 --
 -- Pipeline (2026-06-21) : 1 agent/spot — vérif réel/public/département (web+géo)
 --    + confirmation satellite Esri du VRAI poste + rédaction FR. Audit :
