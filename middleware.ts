@@ -1,8 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Routes qui nécessitent d'être authentifié
-const APP_ROUTES = ["/home", "/carnet", "/onboarding"];
+// Routes qui nécessitent d'être authentifié. Le middleware redirige vers
+// /auth/login EN PRÉSERVANT la cible (?redirect=…) ; le garde-fou du layout
+// (app) redirige sans paramètre, donc toute route protégée doit être listée
+// ICI pour ne pas perdre la destination. NB « /fil/ » (slash final) cible
+// /fil/[department] sans capturer le teaser public « /fil ».
+const APP_ROUTES = ["/home", "/carnet", "/onboarding", "/fil/", "/follows", "/profil", "/compte"];
 // Routes réservées aux visiteurs non-connectés
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 

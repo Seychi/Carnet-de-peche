@@ -29,7 +29,7 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
   // Autoconfirm local → session déjà posée. Le middleware doit nous laisser
   // entrer dans l'onboarding (sinon : redirect login = échec attendu du test).
   await page.goto("/onboarding/1");
-  await expect(page.getByText("Choisis ton pseudo")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choisis ton pseudo" })).toBeVisible();
 
   // --- Étape 1 : pseudo (validation temps réel) --------------------------
   await fillStable(page.getByLabel("Ton pseudo"), username);
@@ -37,29 +37,29 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 2 : ville + département -------------------------------------
-  await expect(page.getByText("D'où tu pêches ?")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "D'où tu pêches ?" })).toBeVisible();
   await fillStable(page.getByLabel("Ta ville"), "Brest");
   // Select natif département : on cible par valeur '29' (Finistère).
   await page.locator("select").selectOption("29");
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 3 : techniques ----------------------------------------------
-  await expect(page.getByText("Tes techniques")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tes techniques" })).toBeVisible();
   await page.getByRole("button", { name: "Leurres", exact: true }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 4 : espèces --------------------------------------------------
-  await expect(page.getByText("Tes espèces favorites")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tes espèces favorites" })).toBeVisible();
   await page.getByRole("button", { name: "Bar", exact: true }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 5 : niveau ----------------------------------------------------
-  await expect(page.getByText("Ton niveau")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ton niveau" })).toBeVisible();
   await page.getByRole("button", { name: /Débutant/ }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 6 : fréquence + années ----------------------------------------
-  await expect(page.getByText("Ta fréquence de pêche")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ta fréquence de pêche" })).toBeVisible();
   await page.getByRole("button", { name: /Toutes les semaines/ }).click();
   await fillStable(page.getByPlaceholder("ex. 5"), "5");
   await page.getByRole("button", { name: "Créer mon carnet" }).click();

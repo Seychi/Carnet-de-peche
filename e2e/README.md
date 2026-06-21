@@ -1,43 +1,38 @@
 # Tests E2E — Playwright (sprint 11 Bloc E)
 
-> ## ⚠️ STATUT : GELÉ (2026-06-21)
+> ## ✅ STATUT : VERT (2026-06-21)
 >
-> Le déclenchement automatique de la CI E2E (`.github/workflows/e2e.yml`) est
-> **débranché** (`workflow_dispatch` seul). Raison : la suite ne se reproduit /
-> débogue qu'avec une **stack Supabase locale (Docker)**, indisponible sur le
-> poste de John → chaque correctif était un tour de CI **à l'aveugle** (~8 min).
-> On reprend **en local avec Docker** pour itérer vite. Le filet actif entre-temps
-> reste le workflow **`Check`** (typecheck + 273 tests unitaires, vert).
+> Toute la suite passe (13/13 : 3 setup + scénarios 01→07) en local contre une
+> stack Supabase fraîche, et la CI est **ré-armée** (`push` + `pull_request`).
+> Pour itérer/déboguer en local : Docker + `supabase start` (cf « Lancer en
+> local » plus bas). Filet complémentaire : workflow **`Check`** (typecheck +
+> tests unitaires).
 >
-> ### Ce qui est résolu (et restera utile à la reprise)
+> ### Comment la suite a été fiabilisée
 >
-> - **Auth programmatique** (`auth.setup.ts` + `storageState`) : les 3 comptes se
->   connectent une fois, les scénarios 02/03/04 réutilisent la session. Fini la
->   fragilité du login piloté à l'UI (cause : React 19 `<form action>` qui
->   réinitialise les champs pendant le `.fill` sous CPU lent).
-> - **Grants rôles** en CI : le stack local ne pose pas les privilèges
->   tables/vues que Supabase cloud accorde par défaut → `permission denied` sur
->   les requêtes directes (webhook→`subscriptions`, fil→`feed_posts`). Corrigé,
->   **tables/vues uniquement** (re-granter les fonctions cassait le verrou GPS de
->   la migration 025).
-> - **Service worker PWA bloqué** dans les tests (`serviceWorkers: "block"`) : il
->   provoquait des `net::ERR_ABORTED` sur `/carte` et `/spots` en CI.
+> - **Auth programmatique** (`auth.setup.ts` + `storageState`) : les comptes se
+>   connectent une fois, les scénarios réutilisent la session. Fini la fragilité
+>   du login piloté à l'UI (React 19 `<form action>` réinitialisait les champs).
+> - **Grants rôles** en CI (tables/vues uniquement — pas les fonctions, pour ne
+>   pas casser le verrou GPS de la migration 025) : le stack local ne pose pas
+>   les privilèges que Supabase cloud accorde par défaut.
+> - **Service worker PWA bloqué** dans les tests (`serviceWorkers: "block"`) :
+>   il provoquait des `net::ERR_ABORTED` sur `/carte` et `/spots`.
+> - **Sélecteurs robustes** : titres d'étape via `getByRole("heading")` (évite
+>   les collisions de sous-chaînes), fiche spot via le `h1` (`level: 1`).
 >
-> ### 2 bugs de PROD trouvés en chemin (corrigés)
+> ### 3 bugs de PROD trouvés en chemin (corrigés)
 >
+> - **Labels d'onboarding non associés** (a11y) : `FormControl` posait l'`id` sur
+>   un `<div>` au lieu de l'input → `<label htmlFor>` pointait dans le vide
+>   (lecteurs d'écran ET `getByLabel` cassés). Corrigé : `id`+aria portés sur
+>   l'input via `cloneElement` (`components/ui/form.tsx`).
+> - **Redirection d'auth qui perdait la destination** : le garde-fou du layout
+>   `(app)` redirigeait vers `/auth/login` SANS `?redirect=` pour les routes hors
+>   `APP_ROUTES` (fil, follows, profil, compte). Ajoutées au middleware (qui
+>   préserve la cible). `middleware.ts`.
 > - **Autofill / gestionnaire de mots de passe** : le composant `Input` (Base UI)
->   écrasait une valeur posée par programme → certains utilisateurs voyaient leur
->   champ se vider. Bascule sur input HTML natif (`components/ui/input.tsx`).
-> - **Parité de permissions** local↔prod documentée (grants).
->
-> ### Ce qui reste (à reprendre en local Docker)
->
-> - **Scénario 01** (inscription → onboarding → 1re prise) : les champs du
->   formulaire d'onboarding sont **contrôlés par react-hook-form** ; sous le CPU
->   lent de la CI, la valeur posée par `.fill` ne « tient » pas de façon fiable
->   (RHF ré-initialise plus vite que l'assertion). À déboguer en local (CPU réel)
->   avec un throttling CDP pour reproduire, puis fiabiliser le remplissage.
-> - **Re-armer** `on: [push, pull_request]` une fois 01 stabilisé en local.
+>   écrasait une valeur posée par programme. Bascule sur input HTML natif.
 >
 > ---
 

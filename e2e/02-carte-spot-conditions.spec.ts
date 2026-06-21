@@ -20,7 +20,7 @@ test("connexion → carte → fiche spot → conditions visibles", async ({ page
 
   // --- Fiche spot (SSR, seed.sql) ------------------------------------------
   await page.goto("/spots/pointe-du-raz");
-  await expect(page.getByRole("heading", { name: "Pointe du Raz" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pointe du Raz", level: 1 })).toBeVisible();
 
   // Section conditions : marées + météo + vagues (Open-Meteo, appel réel)
   await expect(page.getByText(/Conditions à Pointe du Raz/)).toBeVisible({ timeout: 20_000 });

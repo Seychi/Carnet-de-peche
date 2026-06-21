@@ -5,14 +5,14 @@
 # signe lui-même son webhook avec STRIPE_TEST_WEBHOOK_SECRET.
 name: E2E
 
-# ⚠️ GELÉ (2026-06-21). La suite tourne en CI contre une stack Supabase locale,
-# qui ne peut être reproduite/déboguée que via Docker (indisponible côté John) :
-# chaque itération = un tour de CI à l'aveugle. Décision : on débranche le
-# déclenchement automatique (plus de rouge alarmant sur chaque push) et on
-# reprend le dernier scénario (onboarding) plus tard, EN LOCAL avec Docker.
-# Lançable à la main en attendant. Détail de l'état + ce qui reste : e2e/README.md.
-# Le filet de sécurité actif reste le workflow « Check » (typecheck + 273 tests).
+# RÉ-ARMÉE (2026-06-21) : la suite passe en local (Docker + supabase start), les
+# 4 scénarios + les ajouts sprint 11.6 (05/06/07) sont verts. On rebranche le
+# déclenchement automatique. Reste lançable à la main aussi (workflow_dispatch).
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 env:

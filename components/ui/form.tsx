@@ -82,25 +82,25 @@ const FormLabel = React.forwardRef<
 })
 FormLabel.displayName = "FormLabel"
 
-const FormControl = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ ...props }, ref) => {
+// Pose l'id + les aria directement SUR l'input enfant (via cloneElement), pas
+// sur un wrapper. Un <label htmlFor={formItemId}> doit pointer vers un contrôle
+// de formulaire réel : si l'id est sur un <div>, l'association label↔champ est
+// rompue (lecteurs d'écran ET getByLabel). L'ancienne version le mettait sur un
+// <div class="contents"> « pour éviter le Slot » → champ jamais étiqueté.
+const FormControl = ({
+  children,
+}: {
+  children: React.ReactElement<Record<string, unknown>>
+}) => {
   const { formItemId, formDescriptionId, formMessageId, error } = useFormField()
-  // On passe les aria attrs via data attrs pour éviter le Slot
-  return (
-    <div
-      ref={ref}
-      id={formItemId}
-      aria-describedby={
-        !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!error}
-      className="contents"
-      {...props}
-    />
-  )
-})
+  return React.cloneElement(React.Children.only(children), {
+    id: formItemId,
+    "aria-describedby": !error
+      ? formDescriptionId
+      : `${formDescriptionId} ${formMessageId}`,
+    "aria-invalid": error ? true : undefined,
+  })
+}
 FormControl.displayName = "FormControl"
 
 const FormDescription = React.forwardRef<
