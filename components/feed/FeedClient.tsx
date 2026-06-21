@@ -71,7 +71,14 @@ export function FeedClient({
 
   const handleReconcile = useCallback(
     (tempId: string, success: boolean) => {
-      setPosts((prev) => prev.filter((p) => p.id !== tempId))
+      setPosts((prev) => {
+        // Libère les blob: de la carte optimiste avant de la retirer (anti-fuite mémoire).
+        const temp = prev.find((p) => p.id === tempId)
+        for (const u of temp?.photoUrls ?? []) {
+          if (u.startsWith('blob:')) URL.revokeObjectURL(u)
+        }
+        return prev.filter((p) => p.id !== tempId)
+      })
       if (success) mergeFresh()
     },
     [mergeFresh],

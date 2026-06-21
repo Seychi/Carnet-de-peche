@@ -305,11 +305,13 @@ export async function deletePost(postId: string): Promise<ActionResult<{ id: str
   if (!z.string().uuid().safeParse(postId).success) return fail('Post invalide.')
 
   // Chemins Storage des photos AVANT suppression (la cascade DB ne nettoie pas
-  // le Storage). RLS : on ne lit que les photos d'un post visible.
+  // le Storage). On filtre sur user_id = soi → pas de lecture pré-autorisation
+  // des chemins d'un post qui n'est pas le mien (le delete échouera de toute façon).
   const { data: photoRows } = await supabase
     .from('feed_post_photos')
     .select('storage_path')
     .eq('post_id', postId)
+    .eq('user_id', user.id)
 
   const { data: deleted, error } = await supabase
     .from('feed_posts')
@@ -428,6 +430,12 @@ export async function moderatorDeletePost(
   if (!z.string().uuid().safeParse(postId).success) return fail('Post invalide.')
   if (!(await viewerIsModerator(supabase, user.id))) return fail(NOT_MODERATOR_MSG)
 
+  // Chemins Storage avant suppression (le modérateur voit le post → RLS select OK).
+  const { data: photoRows } = await supabase
+    .from('feed_post_photos')
+    .select('storage_path')
+    .eq('post_id', postId)
+
   const { data: deleted, error } = await supabase
     .from('feed_posts')
     .delete()
@@ -439,6 +447,19 @@ export async function moderatorDeletePost(
     return fail('Impossible de supprimer ce post. Réessaie.')
   }
   if (!deleted || deleted.length === 0) return fail('Post introuvable.')
+
+  // Nettoyage Storage via service_role : le modérateur n'est pas propriétaire du
+  // dossier (la policy feed_photos_delete_own ne couvre que le propriétaire).
+  const paths = (photoRows ?? []).map((r) => r.storage_path)
+  if (paths.length > 0) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin')
+      const { error: rmErr } = await createAdminClient().storage.from('feed-photos').remove(paths)
+      if (rmErr) console.error('[moderatorDeletePost:storage]', rmErr.message)
+    } catch (e) {
+      console.error('[moderatorDeletePost:storage] admin indisponible', e)
+    }
+  }
 
   await resolveReportsForTarget(supabase, user.id, 'post', postId)
   revalidateFeed(deleted[0].region)

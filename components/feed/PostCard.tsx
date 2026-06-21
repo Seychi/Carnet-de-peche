@@ -379,7 +379,7 @@ function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number)
         const wide = n === 3 && i === 0
         return (
           <button
-            key={i}
+            key={url}
             type="button"
             onClick={() => onOpen(i)}
             className={cn(

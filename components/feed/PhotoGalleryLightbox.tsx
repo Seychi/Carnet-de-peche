@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 /**
@@ -18,7 +18,13 @@ export default function PhotoGalleryLightbox({
   onClose: () => void
 }) {
   const [index, setIndex] = useState(startIndex)
+  const dialogRef = useRef<HTMLDivElement>(null)
   const count = urls.length
+
+  // Place le focus dans la lightbox à l'ouverture (clavier / lecteur d'écran).
+  useEffect(() => {
+    dialogRef.current?.focus()
+  }, [])
 
   const go = useCallback(
     (dir: 1 | -1) => setIndex((i) => (i + dir + count) % count),
@@ -40,7 +46,9 @@ export default function PhotoGalleryLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 outline-none"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

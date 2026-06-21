@@ -100,6 +100,19 @@ export function PostComposer({
     return () => clearTimeout(t)
   }, [query, pickerOpen, searched])
 
+  // Réinitialise le sélecteur à la fermeture → réouverture = liste initiale,
+  // pas une requête « recherche vide » sur l'ancien état.
+  function handlePickerOpenChange(open: boolean) {
+    setPickerOpen(open)
+    if (!open) {
+      setQuery('')
+      setSearched(false)
+      setOptions(recentCatches)
+      setOptOffset(recentCatches.length)
+      setOptHasMore(recentCatches.length >= 20)
+    }
+  }
+
   async function loadMoreCatches() {
     setOptLoading(true)
     const res = await getMyCatches({ search: query, offset: optOffset, limit: 20 })
@@ -198,16 +211,31 @@ export function PostComposer({
 
     const supabase = createClient()
     const groupId = crypto.randomUUID()
-    const uploaded: { path: string; width: number; height: number }[] = []
+    let uploaded: { path: string; width: number; height: number }[] = []
     try {
-      for (let i = 0; i < photos.length; i++) {
-        const p = photos[i]
-        const path = `${currentUser.id}/${groupId}/${i}.webp`
-        const { error } = await supabase.storage
-          .from('feed-photos')
-          .upload(path, p.file, { contentType: 'image/webp', upsert: false })
-        if (error) throw error
-        uploaded.push({ path, width: p.width, height: p.height })
+      if (photos.length > 0) {
+        // Upload en parallèle (latence mobile) ; l'ordre du tableau = position.
+        const results = await Promise.allSettled(
+          photos.map((p, i) => {
+            const path = `${currentUser.id}/${groupId}/${i}.webp`
+            return supabase.storage
+              .from('feed-photos')
+              .upload(path, p.file, { contentType: 'image/webp', upsert: false })
+              .then(({ error }) => {
+                if (error) throw error
+                return { path, width: p.width, height: p.height }
+              })
+          }),
+        )
+        uploaded = results
+          .filter(
+            (r): r is PromiseFulfilledResult<{ path: string; width: number; height: number }> =>
+              r.status === 'fulfilled',
+          )
+          .map((r) => r.value)
+        if (results.some((r) => r.status === 'rejected')) {
+          throw new Error('upload partiel')
+        }
       }
 
       const res = await createPost({
@@ -299,7 +327,10 @@ export function PostComposer({
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        // Formats dont le décodage → re-encode WebP (donc le strip EXIF/GPS) est
+        // garanti par le navigateur. On exclut HEIC/HEIF : iOS convertit alors
+        // automatiquement en JPEG à la sélection → re-encode → EXIF supprimé.
+        accept="image/jpeg,image/png,image/webp"
         multiple
         aria-label="Ajouter des photos"
         className="sr-only"
@@ -320,7 +351,7 @@ export function PostComposer({
           </button>
 
           {/* Partager une prise */}
-          <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
+          <Sheet open={pickerOpen} onOpenChange={handlePickerOpenChange}>
             <SheetTrigger className="inline-flex min-h-11 items-center gap-1.5 px-1 text-[13px] font-semibold text-teal-600 hover:text-teal-700">
               <Fish size={15} />
               Prise
