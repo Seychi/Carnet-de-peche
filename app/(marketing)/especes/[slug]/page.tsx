@@ -119,7 +119,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       publisher: { '@type': 'Organization', name: 'Carnet de Pêche', url: BASE_URL },
       mainEntityOfPage: `${BASE_URL}/especes/${speciesSlug}`,
       inLanguage: 'fr',
-      dateModified: '2026-06-12',
+      dateModified: '2026-06-21',
     },
     {
       '@context': 'https://schema.org',

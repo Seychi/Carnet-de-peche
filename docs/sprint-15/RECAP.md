@@ -84,7 +84,8 @@ La recherche réglementaire est en confiance **haute** mais certains points rel�
 
 - **Tests** : 348/348 verts (dont **21 nouveaux** : 16 `tide.test.ts` + 5 `insights.test.ts`).
 - **Build / typecheck / lint** : verts. Pages espèces toujours **SSG**, JSON-LD intact.
-- **Revue indépendante** : workflow adversarial `sprint15-verif-review` (3 lentilles : zéro-invention, anti-régression, couverture brief) — voir conclusions intégrées ci-dessous / commit.
+- **Revue indépendante** : workflow adversarial `sprint15-verif-review` (3 lentilles) → **verdict pass-with-nits, aucun blocker, aucun major**. Nits acceptés/documentés (tendance « maintenant » arrondie à l'heure = approximation honnête de la source horaire ; latence SSR EMODnet amortie par cache 30 j + timeout + fallback ; arrondis indépendants du ScoreBreakdown couverts par « ≈ »). Corrigé suite à la revue : `dateModified` JSON-LD des fiches espèces bumpé à 2026-06-21.
+- **Conflit tranché à la source primaire** : la revue doutait que le **maquereau** soit soumis au marquage. Re-vérifié sur **Légifrance (arrêté du 17 mai 2011, annexe)** + corroboration : « Maquereau * / Scomber scombrus » **et** « Sar commun » figurent bien sur la liste → `marquage: true` confirmé pour les deux (dérogation maquereau : marquage possible avant débarquement).
 - **Anti-régression vérifiée** : aucun gating de tier contourné (le score était déjà public sur la fiche ; la décomposition n'expose rien de gated) ; `insights` filtré sur `user_id` ; RLS/floutage GPS non touchés ; bathymétrie n'expose pas plus de précision GPS que la page n'en montre déjà ; courbe interactive toujours lazy.
 
 ## Reste manuel John (post-sprint)
