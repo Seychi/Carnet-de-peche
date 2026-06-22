@@ -56,9 +56,13 @@ function initials(name: string | null, username: string | null) {
 
 // memo : un like sur un post ne doit pas re-rendre les autres cartes de la
 // liste (perf INP, audit 2026-06-11). Les props sont stables côté PostList.
+/** Shape de l'identité viewer passée à CommentThread pour l'optimiste. */
+type ViewerIdentity = { id: string; username: string | null; display_name: string | null; avatar_url: string | null }
+
 export const PostCard = memo(function PostCard({
   post,
   currentUserId,
+  currentUser = null,
   catchPhotoUrl,
   photoUrls,
   viewerIsModerator = false,
@@ -67,15 +71,12 @@ export const PostCard = memo(function PostCard({
 }: {
   post: FeedPost
   currentUserId: string | null
+  /** Identité complète du viewer — utilisée pour le commentaire optimiste. */
+  currentUser?: ViewerIdentity | null
   catchPhotoUrl?: string | null
-  // Photos du post (URLs signées, Bloc C). Absent sur les surfaces qui ne les
-  // chargent pas encore → la galerie ne s'affiche simplement pas.
   photoUrls?: string[]
   viewerIsModerator?: boolean
-  // Bouton « Suivre » dans l'en-tête (Bloc C). Désactivé sur le profil public, où
-  // tous les posts sont du même auteur (le bouton est déjà dans le hero).
   showFollow?: boolean
-  // Appelé après une suppression réussie → le parent retire la carte (BUG-09).
   onDeleted?: (id: string) => void
 }) {
   const postId = post.id
@@ -355,7 +356,10 @@ export const PostCard = memo(function PostCard({
       </footer>
 
       {showComments && (
-        <CommentThread postId={postId} currentUserId={currentUserId} />
+        <CommentThread
+          postId={postId}
+          currentUser={currentUser ?? (currentUserId ? { id: currentUserId, username: null, display_name: null, avatar_url: null } : null)}
+        />
       )}
 
       {reportMounted && (

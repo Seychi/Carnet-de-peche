@@ -48,14 +48,22 @@ export default async function PublicProfilePage({
 
   // Bouton « Supprimer (modération) » sur les posts du profil (migration 023) —
   // c'est ici qu'on retrouve tous les posts d'un compte spammeur.
+  // viewerProfile sert aussi à construire currentUser pour le commentaire optimiste.
   let viewerIsModerator = false
+  let currentUser: { id: string; username: string | null; display_name: string | null; avatar_url: string | null } | null = null
   if (user) {
     const { data: viewerProfile } = await supabase
       .from('profiles')
-      .select('is_moderator')
+      .select('is_moderator, username, display_name, avatar_url')
       .eq('id', user.id)
       .maybeSingle()
     viewerIsModerator = viewerProfile?.is_moderator === true
+    currentUser = {
+      id: user.id,
+      username: viewerProfile?.username ?? null,
+      display_name: viewerProfile?.display_name ?? null,
+      avatar_url: viewerProfile?.avatar_url ?? null,
+    }
   }
 
   let initialFollowing = false
@@ -182,13 +190,14 @@ export default async function PublicProfilePage({
             Posts
           </h2>
           {enriched.length === 0 ? (
-            <p className="text-[14px] text-ink-400">Aucun post pour l’instant.</p>
+            <p className="text-[14px] text-ink-400">{"Aucun post pour l’instant."}</p>
           ) : (
             enriched.map((p) => (
               <PostCard
                 key={p.id}
                 post={p}
                 currentUserId={user?.id ?? null}
+                currentUser={currentUser}
                 viewerIsModerator={viewerIsModerator}
                 catchPhotoUrl={p.catchPhotoUrl}
                 photoUrls={p.photoUrls}

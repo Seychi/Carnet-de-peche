@@ -137,6 +137,7 @@ export function FeedClient({
               key={p.id}
               post={p}
               currentUserId={currentUserId}
+              currentUser={currentUser}
               viewerIsModerator={viewerIsModerator}
               catchPhotoUrl={p.catchPhotoUrl}
               photoUrls={p.photoUrls}

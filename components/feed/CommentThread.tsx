@@ -8,6 +8,8 @@ import { Loader2, Send, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { addComment, deleteComment, getComments, type FeedComment } from '@/app/actions/feed'
+import { buildOptimisticComment } from '@/lib/feed/optimistic-comment'
+import type { ComposerUser } from './PostComposer'
 
 const PAGE = 10
 
@@ -18,11 +20,12 @@ function initials(name: string | null, username: string | null) {
 
 export function CommentThread({
   postId,
-  currentUserId,
+  currentUser,
 }: {
   postId: string
-  currentUserId: string | null
+  currentUser: ComposerUser | null
 }) {
+  const currentUserId = currentUser?.id ?? null
   const [comments, setComments] = useState<FeedComment[]>([])
   const [loading, setLoading] = useState(true)
   const [hasMore, setHasMore] = useState(false)
@@ -64,20 +67,12 @@ export function CommentThread({
 
   async function handleAdd() {
     const value = text.trim()
-    if (!value || !currentUserId) return
+    if (!value || !currentUser) return
 
-    // Optimiste : le commentaire apparaît tout de suite sous l'identité « Toi »,
-    // puis on recharge pour récupérer l'id réel + l'avatar/pseudo (ou rollback).
+    // Optimiste : le commentaire apparaît tout de suite avec la vraie identité
+    // du viewer, puis on recharge pour récupérer l'id réel (ou rollback).
     const tempId = `temp-${crypto.randomUUID()}`
-    const optimistic: FeedComment = {
-      id: tempId,
-      text: value,
-      created_at: new Date().toISOString(),
-      author_id: currentUserId,
-      author_username: null,
-      author_display_name: 'Toi',
-      author_avatar_url: null,
-    }
+    const optimistic: FeedComment = buildOptimisticComment(currentUser, value, tempId)
     const prevCount = comments.length
     setComments((prev) => [...prev, optimistic])
     setText('')

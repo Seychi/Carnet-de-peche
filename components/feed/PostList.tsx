@@ -8,6 +8,7 @@ import { useFeedRealtime } from '@/lib/feed/useFeedRealtime'
 import type { FeedTab } from '@/lib/feed/types'
 import { PostCard } from './PostCard'
 import { EmptyFeed } from './EmptyFeed'
+import type { ComposerUser } from './PostComposer'
 
 type EmptyVariant = 'dept' | 'follows-none' | 'follows-empty'
 
@@ -17,6 +18,7 @@ export function PostList({
   region,
   tab,
   currentUserId,
+  currentUser = null,
   viewerIsModerator = false,
   emptyVariant,
 }: {
@@ -25,6 +27,7 @@ export function PostList({
   region: string
   tab: FeedTab
   currentUserId: string | null
+  currentUser?: ComposerUser | null
   viewerIsModerator?: boolean
   emptyVariant: EmptyVariant
 }) {
@@ -67,6 +70,7 @@ export function PostList({
           key={p.id}
           post={p}
           currentUserId={currentUserId}
+          currentUser={currentUser}
           viewerIsModerator={viewerIsModerator}
           catchPhotoUrl={p.catchPhotoUrl}
         />
