@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { Fish } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
@@ -11,6 +13,7 @@ import { FollowButton } from '@/components/feed/FollowButton'
 import { ProfileFollowStats } from '@/components/feed/ProfileFollowStats'
 import { PostCard } from '@/components/feed/PostCard'
 import { attachPostMedia } from '@/lib/feed/media'
+import { getProfileCatches, type ProfileCatch } from '@/lib/catches/media'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
 
@@ -113,6 +116,10 @@ export default async function PublicProfilePage({
   // pour qu'un visiteur voie aussi les photos d'un AUTRE pêcheur (cf lib/feed/media).
   const enriched: FeedPostEnriched[] = await attachPostMedia(posts, supabase)
 
+  // Prises visibles du profil (catches_for_viewer — privacy + floutage GPS gérés
+  // par la vue ; jamais de prise privée d'autrui, ni de geom précis pour les non-abonnés).
+  const catches = await getProfileCatches(profile.id, supabase, 12)
+
   const name = profile.display_name || `@${profile.username}`
   // char(3) Postgres → '29 ' paddé : trim avant lookup (cf. backlog ROADMAP)
   const dept = profile.home_department
@@ -184,13 +191,33 @@ export default async function PublicProfilePage({
 
       <div className="mx-auto flex max-w-[680px] flex-col gap-6 px-4 py-6">
 
+        {/* Prises */}
+        <section className="flex flex-col gap-3">
+          <h2 className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            Prises
+          </h2>
+          {catches.length === 0 ? (
+            <p className="text-[14px] text-ink-400">
+              {isMe
+                ? "Aucune prise publique pour l'instant. Logue ta prochaine sortie !"
+                : "Aucune prise publique pour l'instant."}
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {catches.map((c) => (
+                <ProfileCatchTile key={c.id} catch_={c} />
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Posts */}
         <section className="flex flex-col gap-3">
           <h2 className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-ink-400">
             Posts
           </h2>
           {enriched.length === 0 ? (
-            <p className="text-[14px] text-ink-400">{"Aucun post pour l’instant."}</p>
+            <p className="text-[14px] text-ink-400">{"Aucun post pour l'instant."}</p>
           ) : (
             enriched.map((p) => (
               <PostCard
@@ -217,5 +244,44 @@ function HeroChip({ children }: { children: React.ReactNode }) {
     <span className="rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1 font-mono text-[10px] font-medium tracking-[0.06em] text-white">
       {children}
     </span>
+  )
+}
+
+// Tuile de prise pour la grille du profil public.
+// Lien vers /carnet/[id] — la page fiche prise gère elle-même l'auth + privacy.
+function ProfileCatchTile({ catch_: c }: { catch_: ProfileCatch }) {
+  const label = c.species ? (SPECIES_LABELS[c.species] ?? c.species) : 'Prise'
+  const date = c.caught_at
+    ? format(new Date(c.caught_at), 'd MMM yyyy', { locale: fr })
+    : null
+
+  return (
+    <Link
+      href={`/carnet/${c.id}`}
+      className="group relative aspect-square overflow-hidden rounded-lg bg-navy-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+    >
+      {c.photoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={c.photoUrl}
+          alt={label}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Fish className="size-7 text-white/20" />
+        </div>
+      )}
+      {/* Bandeau bas : espèce + taille */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-4">
+        <p className="truncate font-mono text-[10px] font-semibold leading-tight text-white">
+          {label}
+          {c.size_cm ? ` · ${c.size_cm} cm` : ''}
+        </p>
+        {date && (
+          <p className="font-mono text-[9px] leading-tight text-white/55">{date}</p>
+        )}
+      </div>
+    </Link>
   )
 }
