@@ -84,7 +84,7 @@ export default function ConfidentialitePage() {
         <li>Photo (optionnelle), date et heure</li>
         <li>Position GPS de la prise</li>
         <li>Conditions environnementales captées automatiquement (météo, vent, vagues, marée, lune) via l’API <strong>Open-Meteo</strong></li>
-        <li>Niveau de confidentialité que tu choisis (privée / amis / publique)</li>
+        <li>Niveau de confidentialité que tu choisis (privée / abonnés / publique)</li>
         <li>Notes libres</li>
       </ul>
       <h3>3.4 Données techniques</h3>
@@ -148,7 +148,7 @@ export default function ConfidentialitePage() {
       <h3>5.3 Visibilité par les autres utilisateurs</h3>
       <ul>
         <li><strong>Données toujours publiques</strong> : pseudo, avatar, bio, ville/département (sur ton profil public)</li>
-        <li><strong>Données dépendantes de tes choix</strong> : prises (privée / amis / publique), géolocalisation (précise / floutée 1 km)</li>
+        <li><strong>Données dépendantes de tes choix</strong> : prises (privée / abonnés / publique), géolocalisation (précise / floutée 1 km)</li>
       </ul>
 
       <h2 id="transferts">6. Transferts hors Union Européenne</h2>

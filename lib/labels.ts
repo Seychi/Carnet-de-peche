@@ -1,3 +1,15 @@
+// Regex canonique username — même règle en onboarding et au profil.
+// Autorise lettres, chiffres, tiret, underscore, point.
+export const USERNAME_REGEX = /^[a-zA-Z0-9_.-]+$/
+
+// Libellés de fréquence de pêche — source unique partagée entre onboarding et profil.
+export const FREQUENCY_LABELS: { value: string; label: string }[] = [
+  { value: 'rare',     label: 'Quelques fois par an' },
+  { value: 'seasonal', label: 'Saisonnièrement' },
+  { value: 'weekly',   label: 'Toutes les semaines' },
+  { value: 'daily',    label: 'Plusieurs fois par semaine' },
+]
+
 export const SPECIES_LABELS: Record<string, string> = {
   // 6 espèces cœur (carnet + onboarding — voir catchSpeciesEnum, liste séparée)
   bar: 'Bar',

@@ -1,7 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { USERNAME_REGEX } from "@/lib/labels";
+
+// Validation serveur du step 1 — même regex canonique que profil/actions.ts
+const step1ServerSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Minimum 3 caractères.")
+    .max(30, "Maximum 30 caractères.")
+    .regex(USERNAME_REGEX, "Lettres, chiffres, -, _ et . uniquement."),
+});
 
 export async function saveOnboardingStep(
   step: number,
@@ -11,6 +22,14 @@ export async function saveOnboardingStep(
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return { error: "Non authentifié." };
+
+  // Validation serveur pour le step 1 (username) — garde-fou contre les appels directs.
+  if (step === 1) {
+    const parsed = step1ServerSchema.safeParse(data);
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? "Pseudo invalide." };
+    }
+  }
 
   const { error } = await supabase
     .from("profiles")

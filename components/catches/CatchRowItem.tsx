@@ -7,7 +7,7 @@ import { Chip } from '@/components/ui-v2/chip'
 
 const PRIVACY_LABELS: Record<string, string> = {
   private: 'PRIVÉE',
-  friends: 'AMIS',
+  friends: 'ABONNÉS',
   public: 'PUBLIQUE',
 }
 

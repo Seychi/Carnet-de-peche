@@ -844,7 +844,7 @@ export function CatchForm(props: CatchFormProps) {
               <div className="mt-2 flex rounded-[10px] border border-sand-200 overflow-hidden">
                 {[
                   { val: 'private', label: 'Privée' },
-                  { val: 'friends', label: 'Amis' },
+                  { val: 'friends', label: 'Abonnés' },
                   { val: 'public', label: 'Publique' },
                 ].map((opt, i) => (
                   <button
@@ -868,7 +868,7 @@ export function CatchForm(props: CatchFormProps) {
           <p className="text-[12px] text-ink-400 mt-2 leading-relaxed">
             {watchedPrivacy === 'private' && 'Visible par toi seul.'}
             {watchedPrivacy === 'friends' &&
-              'Visible par tes amis avec coords précises (si activé).'}
+              'Visible par tes abonnés avec coords précises (si activé).'}
             {watchedPrivacy === 'public' &&
               'Visible par la communauté avec coords floutées à 1 km.'}
           </p>
@@ -880,7 +880,7 @@ export function CatchForm(props: CatchFormProps) {
             control={control}
             render={({ field }) => (
               <ToggleRow
-                label="Coords précises pour mes amis"
+                label="Coords précises pour mes abonnés"
                 checked={field.value ?? true}
                 onChange={field.onChange}
                 onBlur={field.onBlur}

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveOnboardingStep, checkUsernameAvailable, completeOnboarding } from "../actions";
 import { DEPARTMENT_OPTIONS } from "@/lib/geo/departments";
+import { FREQUENCY_LABELS, USERNAME_REGEX } from "@/lib/labels";
 
 /* ─── Constantes ─────────────────────────────────────────────────────────── */
 
@@ -39,12 +40,7 @@ const LEVELS = [
   { value: "expert", label: "Expert", desc: "Je maîtrise plusieurs techniques" },
 ];
 
-const FREQUENCIES = [
-  { value: "rare", label: "Quelques fois par an", desc: "Rare" },
-  { value: "seasonal", label: "Saisonnièrement", desc: "Saisonnier" },
-  { value: "weekly", label: "Toutes les semaines", desc: "Hebdomadaire" },
-  { value: "daily", label: "Plusieurs fois par semaine", desc: "Intensif" },
-];
+// FREQUENCY_LABELS importé depuis @/lib/labels — source unique partagée avec profil/actions.
 
 /* ─── Schemas Zod par étape ──────────────────────────────────────────────── */
 
@@ -53,7 +49,7 @@ const step1Schema = z.object({
     .string()
     .min(3, "Minimum 3 caractères.")
     .max(30, "Maximum 30 caractères.")
-    .regex(/^[a-zA-Z0-9_-]+$/, "Lettres, chiffres, - et _ uniquement."),
+    .regex(USERNAME_REGEX, "Lettres, chiffres, -, _ et . uniquement."),
 });
 
 const step2Schema = z.object({
@@ -545,7 +541,7 @@ export function OnboardingStep({
                     À quelle fréquence tu pêches ?
                   </p>
                   <div className="flex flex-col gap-3">
-                    {FREQUENCIES.map((f) => {
+                    {FREQUENCY_LABELS.map((f) => {
                       const current = form6.watch("fishing_frequency");
                       return (
                         <button

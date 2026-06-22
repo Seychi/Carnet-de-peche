@@ -14,6 +14,7 @@ type Profile = {
   techniques: string[]
   favorite_species: string[]
   fishing_frequency: string | null
+  years_practicing: number | null
   avatar_url: string | null
   created_at: string
 }
@@ -26,7 +27,7 @@ export default async function ProfilPage() {
   const [{ data: profile }, personalProfile] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, avatar_url, created_at')
+      .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
       .eq('id', user.id)
       .single(),
     getCachedPersonalProfile(user.id).catch(() => null),

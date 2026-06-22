@@ -6,6 +6,7 @@ import { updateProfile, deleteAccount } from './actions'
 import { Loader2, Trash2 } from 'lucide-react'
 import { DEPARTMENT_OPTIONS } from '@/lib/geo/departments'
 import { AvatarUploader } from '@/components/profile/AvatarUploader'
+import { FREQUENCY_LABELS } from '@/lib/labels'
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -33,6 +34,7 @@ type Profile = {
   techniques: string[]
   favorite_species: string[]
   fishing_frequency: string | null
+  years_practicing: number | null
   avatar_url: string | null
   created_at: string
 }
@@ -277,11 +279,26 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
               className="px-4 py-2.5 border border-ink-200 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
             >
               <option value="">Sélectionne une fréquence</option>
-              <option value="rare">Occasionnellement</option>
-              <option value="weekly">Chaque semaine</option>
-              <option value="daily">Presque tous les jours</option>
-              <option value="seasonal">Saisonnièrement</option>
+              {FREQUENCY_LABELS.map((f) => (
+                <option key={f.value} value={f.value}>{f.label}</option>
+              ))}
             </select>
+          </div>
+          {/* Années de pratique */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="years_practicing" className="text-sm font-medium text-ink-700">
+              Années de pratique
+            </label>
+            <input
+              id="years_practicing"
+              name="years_practicing"
+              type="number"
+              min={0}
+              max={70}
+              defaultValue={profile.years_practicing ?? ''}
+              className="w-28 px-4 py-2.5 border border-ink-200 rounded-[10px] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              placeholder="ex. 5"
+            />
           </div>
         </div>
 

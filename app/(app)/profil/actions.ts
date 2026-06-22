@@ -18,9 +18,10 @@ const profileSchema = z.object({
   city: z.string().max(100).optional().nullable(),
   home_department: z.string().max(3).optional().nullable(),
   level: z.enum(['debutant', 'intermediaire', 'expert']).optional().nullable(),
-  techniques: z.array(z.string()).optional(),
+  techniques: z.array(z.string()).min(1, 'Choisis au moins une technique.'),
   favorite_species: z.array(z.string()).optional(),
   fishing_frequency: z.enum(['rare', 'weekly', 'daily', 'seasonal']).optional().nullable(),
+  years_practicing: z.number().int().min(0, '0 minimum.').max(70, '70 maximum.').optional().nullable(),
 })
 
 export async function updateProfile(formData: FormData) {
@@ -28,6 +29,7 @@ export async function updateProfile(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié.' }
 
+  const yearsPracticingRaw = formData.get('years_practicing')
   const raw = {
     username: formData.get('username') as string,
     bio: (formData.get('bio') as string) || null,
@@ -37,6 +39,9 @@ export async function updateProfile(formData: FormData) {
     techniques: formData.getAll('techniques') as string[],
     favorite_species: formData.getAll('favorite_species') as string[],
     fishing_frequency: (formData.get('fishing_frequency') as string) || null,
+    years_practicing: yearsPracticingRaw !== null && yearsPracticingRaw !== ''
+      ? parseInt(yearsPracticingRaw as string, 10)
+      : null,
   }
 
   const parsed = profileSchema.safeParse(raw)

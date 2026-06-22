@@ -33,7 +33,7 @@ const TECHNIQUE_LABELS: Record<string, string> = {
 
 const PRIVACY_CONFIG = {
   private: { Icon: Lock,  label: 'Privée',    desc: 'Visible par toi seul.',                                       color: 'text-slate-500' },
-  friends: { Icon: Users, label: 'Amis',       desc: 'Visible par tes abonnés avec coords précises (si activé).', color: 'text-blue-500'  },
+  friends: { Icon: Users, label: 'Abonnés',     desc: 'Visible par tes abonnés avec coords précises (si activé).', color: 'text-blue-500'  },
   public:  { Icon: Globe, label: 'Publique',   desc: 'Visible par la communauté avec coords floutées à 1 km.',    color: 'text-teal-500'  },
 }
 
@@ -231,7 +231,7 @@ export default async function CatchDetailPage({ params }: Props) {
           {c.privacy !== 'private' && (
             <div className="space-y-2 pt-3 border-t border-slate-100">
               <PrivacyToggleInfo
-                label="Coords précises pour mes amis"
+                label="Coords précises pour mes abonnés"
                 active={c.precise_for_friends ?? true}
               />
               <PrivacyToggleInfo
