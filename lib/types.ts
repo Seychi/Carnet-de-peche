@@ -648,9 +648,11 @@ export type Database = {
           geom_public: unknown
           hazards: string[] | null
           id: string
+          moderation_status: string
           name: string
           region: string
           slug: string
+          source: string
           species: string[]
           structure: string | null
           techniques: string[]
@@ -669,9 +671,11 @@ export type Database = {
           geom_public?: unknown
           hazards?: string[] | null
           id?: string
+          moderation_status?: string
           name: string
           region: string
           slug: string
+          source?: string
           species?: string[]
           structure?: string | null
           techniques?: string[]
@@ -690,9 +694,11 @@ export type Database = {
           geom_public?: unknown
           hazards?: string[] | null
           id?: string
+          moderation_status?: string
           name?: string
           region?: string
           slug?: string
+          source?: string
           species?: string[]
           structure?: string | null
           techniques?: string[]
@@ -954,9 +960,11 @@ export type Database = {
           geom_public: unknown
           hazards: string[] | null
           id: string | null
+          moderation_status: string | null
           name: string | null
           region: string | null
           slug: string | null
+          source: string | null
           species: string[] | null
           structure: string | null
           techniques: string[] | null
@@ -974,9 +982,11 @@ export type Database = {
           geom_public?: unknown
           hazards?: string[] | null
           id?: string | null
+          moderation_status?: string | null
           name?: string | null
           region?: string | null
           slug?: string | null
+          source?: string | null
           species?: string[] | null
           structure?: string | null
           techniques?: string[] | null
@@ -994,9 +1004,11 @@ export type Database = {
           geom_public?: unknown
           hazards?: string[] | null
           id?: string | null
+          moderation_status?: string | null
           name?: string | null
           region?: string | null
           slug?: string | null
+          source?: string | null
           species?: string[] | null
           structure?: string | null
           techniques?: string[] | null
@@ -1189,6 +1201,14 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+      find_spot_duplicate: {
+        Args: { p_lat: number; p_lng: number; p_radius_m?: number }
+        Returns: {
+          id: string
+          name: string
+          slug: string
+        }[]
+      }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
@@ -1287,6 +1307,24 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_catch_heatmap: {
+        Args: {
+          max_lat: number
+          max_lng: number
+          min_lat: number
+          min_lng: number
+          p_days?: number
+          p_zoom?: number
+          species_filter?: string[]
+          technique_filter?: string[]
+        }
+        Returns: {
+          catch_count: number
+          fishers_count: number
+          lat: number
+          lng: number
+        }[]
+      }
       get_feed_unread_counts: {
         Args: never
         Returns: {
@@ -1334,6 +1372,7 @@ export type Database = {
           name: string
           region: string
           slug: string
+          source: string
           species: string[]
           structure: string
           techniques: string[]
@@ -1357,6 +1396,7 @@ export type Database = {
           name: string
           region: string
           slug: string
+          source: string
           species: string[]
           structure: string
           techniques: string[]

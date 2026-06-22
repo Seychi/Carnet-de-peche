@@ -9,6 +9,8 @@
 import type { Database } from '@/lib/types'
 import type { QualityLevel } from '@/lib/solunar/types'
 
+export type SpotSource = 'curated' | 'community' | 'imported'
+
 export type SpotMarker = {
   id: string
   slug: string
@@ -23,6 +25,11 @@ export type SpotMarker = {
   difficulty: number
   structure?: string | null
   verified: boolean
+  // Provenance (migration 041) : curated (socle vérifié), community (proposé),
+  // imported (OSM/ODbL). Le badge « Vérifié » de la carte = source==='curated'.
+  // Optionnel : les mini-cartes (CatchMiniMap/SpotMiniMap) bâtissent un
+  // SpotMarker sans provenance (pas de badge dans ces contextes mono-spot).
+  source?: SpotSource
   // Qualité actuelle pré-calculée par le cron (spot_scores). undefined si pas
   // encore de score (cron pas passé / spot récent) → marker gris neutre.
   currentQuality?: QualityLevel
@@ -126,5 +133,6 @@ export function toSpotMarker(row: MapSpotRow): SpotMarker {
     difficulty: row.difficulty ?? 3,
     structure: row.structure,
     verified: row.verified ?? false,
+    source: (row.source as SpotSource) ?? 'curated',
   }
 }

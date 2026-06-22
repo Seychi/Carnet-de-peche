@@ -74,3 +74,39 @@ export const DEPARTMENT_OPTIONS: { code: string; label: string }[] =
       return na - nb
     })
     .map((code) => ({ code, label: `${code} — ${DEPARTMENT_LABELS[code]}` }))
+
+/**
+ * Région administrative par département côtier — utilisée pour remplir
+ * `spots.region` (NOT NULL) lors d'une proposition community (lib/spots) ou
+ * d'un import OSM (scripts/import-osm-spots.ts). Source unique.
+ */
+export const DEPARTMENT_REGION: Record<string, string> = {
+  '14': 'Normandie',
+  '50': 'Normandie',
+  '76': 'Normandie',
+  '59': 'Hauts-de-France',
+  '62': 'Hauts-de-France',
+  '22': 'Bretagne',
+  '29': 'Bretagne',
+  '35': 'Bretagne',
+  '56': 'Bretagne',
+  '44': 'Pays de la Loire',
+  '85': 'Pays de la Loire',
+  '17': 'Nouvelle-Aquitaine',
+  '33': 'Nouvelle-Aquitaine',
+  '40': 'Nouvelle-Aquitaine',
+  '64': 'Nouvelle-Aquitaine',
+  '11': 'Occitanie',
+  '30': 'Occitanie',
+  '34': 'Occitanie',
+  '66': 'Occitanie',
+  '06': 'Provence-Alpes-Côte d’Azur',
+  '13': 'Provence-Alpes-Côte d’Azur',
+  '83': 'Provence-Alpes-Côte d’Azur',
+  '2A': 'Corse',
+  '2B': 'Corse',
+}
+
+export function regionForDepartment(dept: string): string {
+  return DEPARTMENT_REGION[dept.trim()] ?? ''
+}

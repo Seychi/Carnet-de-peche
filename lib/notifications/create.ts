@@ -21,8 +21,10 @@ export type NotificationType =
   | 'post_commented'
   | 'catch_commented'
   | 'mention'
+  | 'spot_approved'
+  | 'spot_rejected'
 
-export type NotificationTargetType = 'post' | 'catch' | 'comment'
+export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot'
 
 export type CreateNotificationInput = {
   /** Destinataire de la notif. */

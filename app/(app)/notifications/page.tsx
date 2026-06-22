@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -27,6 +27,10 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: MessageCircle, label: `${who} a commenté ta prise` }
     case 'mention':
       return { icon: MessageCircle, label: `${who} t’a mentionné` }
+    case 'spot_approved':
+      return { icon: MapPinCheck, label: 'Ton spot a été validé 🎣' }
+    case 'spot_rejected':
+      return { icon: MapPinX, label: 'Ta proposition de spot n’a pas été retenue' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -69,6 +73,9 @@ export default async function NotificationsPage() {
   function hrefFor(n: AppNotification): string {
     if (n.type === 'new_follower') {
       return n.actor_username ? `/u/${n.actor_username}` : '/follows'
+    }
+    if (n.type === 'spot_approved' || n.type === 'spot_rejected') {
+      return '/spots/mes-propositions'
     }
     if (n.target_type === 'post' && n.target_id) {
       const region = regionByPostId.get(n.target_id)

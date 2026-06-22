@@ -13,6 +13,7 @@ export function serializeFiltersToSearchParams(filters: SpotFilters): URLSearchP
   if (filters.department) params.set('department', filters.department)
   if (filters.structure) params.set('structure', filters.structure)
   if (filters.difficulty !== undefined) params.set('difficulty', String(filters.difficulty))
+  filters.source?.forEach((s) => params.append('source', s))
   return params
 }
 
@@ -24,6 +25,7 @@ export function countActiveFilters(filters: SpotFilters): number {
   if (filters.department !== undefined) count++
   if (filters.structure !== undefined) count++
   if (filters.difficulty !== undefined) count++
+  if (filters.source?.length) count++
   return count
 }
 

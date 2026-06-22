@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, type LucideIcon } from 'lucide-react'
-import type { SpotMarker } from '@/lib/map/utils'
+import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, ShieldCheck, Users, Globe, type LucideIcon } from 'lucide-react'
+import type { SpotMarker, SpotSource } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
-import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
+import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS, SOURCE_LABELS } from '@/lib/labels'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { getSpotNextWindow } from '@/app/actions/solunar'
@@ -148,6 +148,26 @@ function BadgeList({
   )
 }
 
+// Badge de provenance — label + icône (forme), pas seulement la couleur
+// (daltonisme). « Vérifié » = garantie éditoriale, réservé aux spots curés.
+const SOURCE_BADGE: Record<SpotSource, { Icon: LucideIcon; cls: string }> = {
+  curated: { Icon: ShieldCheck, cls: 'bg-teal-500/10 text-teal-700' },
+  community: { Icon: Users, cls: 'bg-navy-900/10 text-navy-900' },
+  imported: { Icon: Globe, cls: 'bg-gold-500/15 text-ink-700' },
+}
+
+function SourceChip({ source }: { source: SpotSource }) {
+  const { Icon, cls } = SOURCE_BADGE[source] ?? SOURCE_BADGE.community
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] ${cls}`}
+    >
+      <Icon size={11} aria-hidden="true" />
+      {SOURCE_LABELS[source] ?? source}
+    </span>
+  )
+}
+
 function DifficultyStars({ difficulty }: { difficulty: number }) {
   if (!difficulty || difficulty < 1) return null
   return (
@@ -253,6 +273,11 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
               : spot.department}
           </p>
+          {spot.source && (
+            <div className="mt-1.5">
+              <SourceChip source={spot.source} />
+            </div>
+          )}
         </div>
         <button
           onClick={onClose}

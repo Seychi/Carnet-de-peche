@@ -4,7 +4,7 @@ import { useRef, useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
-import { Navigation, Locate, SlidersHorizontal, X, Star } from 'lucide-react'
+import { Navigation, Locate, SlidersHorizontal, X, Star, MapPinPlus } from 'lucide-react'
 import Link from 'next/link'
 import { BackButton } from '@/components/layout/BackButton'
 import type { Map as MapLibreMap } from 'maplibre-gl'
@@ -100,6 +100,7 @@ function filterSpots(spots: SpotMarker[], filters: SpotFilters): SpotMarker[] {
     if (filters.department !== undefined && spot.department !== filters.department) return false
     if (filters.structure !== undefined && spot.structure !== filters.structure) return false
     if (filters.difficulty !== undefined && (spot.difficulty ?? 0) > filters.difficulty) return false
+    if (filters.source?.length && (!spot.source || !(filters.source as string[]).includes(spot.source))) return false
     return true
   })
 }
@@ -379,6 +380,16 @@ export default function MapShell({
             </span>
           )}
         </div>
+        {/* ⟢ C2 — entrée « Proposer un spot » (utilisateurs connectés). */}
+        {!isAnonymous && (
+          <Link
+            href="/spots/proposer"
+            className="mx-4 mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-3 py-2 text-[13px] font-semibold text-teal-700 transition-colors hover:bg-teal-500/20"
+          >
+            <MapPinPlus size={15} aria-hidden="true" />
+            Proposer un spot
+          </Link>
+        )}
         <div className="flex-1 min-h-0 overflow-hidden">
           <MapFilters
             initialFilters={initialFilters}
@@ -633,6 +644,17 @@ export default function MapShell({
             </button>
           </div>
 
+          {/* ⟢ C2 — entrée « Proposer un spot » (mobile, utilisateurs connectés). */}
+          {!isAnonymous && (
+            <Link
+              href="/spots/proposer"
+              onClick={() => setSheetOpen(false)}
+              className="mx-4 mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-3 py-2.5 text-[13px] font-semibold text-teal-700"
+            >
+              <MapPinPlus size={15} aria-hidden="true" />
+              Proposer un spot
+            </Link>
+          )}
           <div className="flex-1 min-h-0 overflow-hidden">
             <MapFilters
               key={sheetOpenCount}

@@ -44,3 +44,12 @@ export const STRUCTURE_LABELS: Record<string, string> = {
   passe: 'Passe',
   cassure: 'Cassure',
 }
+
+// Provenance d'un spot (migration 041) — source unique pour les badges
+// carte / fiche. Le badge « Vérifié » (garantie éditoriale) reste réservé aux
+// spots `curated`. cf docs/carte-v2/RECAP-C2.md.
+export const SOURCE_LABELS: Record<string, string> = {
+  curated: 'Vérifié',
+  community: 'Communautaire',
+  imported: 'OpenStreetMap',
+}
