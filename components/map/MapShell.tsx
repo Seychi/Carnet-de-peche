@@ -22,6 +22,10 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import type { NearbySpot } from '@/lib/spots/nearby'
+import MapLayerSelector from '@/components/map/MapLayerSelector'
+import { useCatchHeatmap } from '@/lib/map/useCatchHeatmap'
+import { useCatchHeatRealtime } from '@/lib/map/useCatchHeatRealtime'
+import type { HeatFilters } from '@/lib/map/heatmap'
 
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
@@ -66,6 +70,9 @@ const NearbyPanel = dynamic(() => import('@/components/map/NearbyPanel'), {
 // cache au premier clic marker → ouverture instantanée du popup.
 const loadSpotPopup = () => import('@/components/map/SpotPopup')
 const SpotPopup = dynamic(loadSpotPopup, { ssr: false })
+
+// Panneau « ton score » (perso, payant) — lazy, hors First Load JS de /carte.
+const ScorePanel = dynamic(() => import('@/components/map/ScorePanel'), { ssr: false })
 
 type MapShellProps = {
   spots: SpotMarker[]
@@ -187,6 +194,39 @@ export default function MapShell({
         : undefined,
     [nearby.isOpen, nearby.results],
   )
+
+  // ── Carte vivante (Carte v2 / C1) ───────────────────────────────────────────
+  const [heatmapOn, setHeatmapOn] = useState(true)   // heatmap communautaire = teaser gratuit (tous tiers)
+  const [scoreOn, setScoreOn] = useState(false)      // « ton score » perso = payant (Local/Itinérant)
+  const [heatmapDays, setHeatmapDays] = useState(30)
+  const [heatVersion, setHeatVersion] = useState(0)
+  const [livePulse, setLivePulse] = useState<{ id: number; dept: string } | null>(null)
+  const pingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  // Filtres heatmap : espèce/technique (si posés par un abonné) + fenêtre temporelle.
+  const heatFilters: HeatFilters = useMemo(
+    () => ({ species: filters.species ?? null, techniques: filters.techniques ?? null, days: heatmapDays }),
+    [filters.species, filters.techniques, heatmapDays],
+  )
+
+  const { cellCount, loading: heatLoading } = useCatchHeatmap({
+    map: mapInstance,
+    enabled: heatmapOn,
+    filters: heatFilters,
+    version: heatVersion,
+  })
+
+  // Prise publique loguée (broadcast geom-free, migration 042) → coalesce un refetch
+  // de la heatmap k-anonyme + pastille « +1 prise » discrète. Aucune coord reçue.
+  useCatchHeatRealtime((dept) => {
+    clearTimeout(pingTimerRef.current)
+    pingTimerRef.current = setTimeout(() => setHeatVersion((v) => v + 1), 1200)
+    const id = Date.now()
+    setLivePulse({ id, dept })
+    clearTimeout(pulseTimerRef.current)
+    pulseTimerRef.current = setTimeout(() => setLivePulse((p) => (p?.id === id ? null : p)), 3500)
+  })
 
   const handleFiltersChange = useCallback((f: SpotFilters) => setFilters(f), [])
 
@@ -445,6 +485,30 @@ export default function MapShell({
           }}
         />
 
+        {/* Sélecteur de couches — heatmap communautaire (gratuit) + ton score (payant) */}
+        <MapLayerSelector
+          userTier={userTier}
+          heatmapOn={heatmapOn}
+          onHeatmapToggle={setHeatmapOn}
+          heatmapDays={heatmapDays}
+          onDaysChange={setHeatmapDays}
+          heatmapEmpty={heatmapOn && cellCount === 0 && !heatLoading}
+          heatmapLoading={heatLoading}
+          scoreOn={scoreOn}
+          onScoreToggle={setScoreOn}
+        />
+
+        {/* Pastille « +1 prise » — carte vivante (broadcast realtime, geom-free) */}
+        {livePulse && (
+          <div
+            key={livePulse.id}
+            className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 rounded-full bg-navy-900/90 px-3 py-1.5 text-[12px] font-medium text-white shadow-lg backdrop-blur-sm"
+          >
+            <span className="h-2 w-2 rounded-full bg-coral-500 animate-pulse" aria-hidden />
+            Nouvelle prise loguée{livePulse.dept ? ` · ${livePulse.dept}` : ''}
+          </div>
+        )}
+
         {/* Stack boutons — top-right — tablet/desktop uniquement (FAB stack gère mobile) */}
         <div className="hidden md:flex absolute top-3 right-3 z-10 flex-col gap-2">
           {/* Géolocaliser */}
@@ -523,6 +587,9 @@ export default function MapShell({
 
         {/* Légende qualité — desktop uniquement */}
         <MapLegend />
+
+        {/* Couche « ton score » — tendances perso descriptives (payant, gating serveur) */}
+        {scoreOn && <ScorePanel onClose={() => setScoreOn(false)} />}
 
         {/* Marqueur position utilisateur — affiché après géolocalisation */}
         <UserLocationMarker map={mapInstance} position={userPosition} />

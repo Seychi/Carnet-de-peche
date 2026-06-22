@@ -1,18 +1,19 @@
 import { Info } from 'lucide-react'
 import type { FishingWindow, QualityLevel } from '@/lib/solunar/types'
+import { QUALITY_LABELS, QUALITY_BADGE_CLS, QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 
 // ─── Config qualité ───────────────────────────────────────────────────────────
 
-// Teintes -500/-700 : contraste ≥ 4.5:1 (texte blanc sur badge, label sur fond clair)
+// Couleurs CIVIDIS colorblind-safe — source unique : lib/solunar/quality-style.
 const QUALITY_CONFIG: Record<
   QualityLevel,
   { label: string; badgeCls: string; textCls: string; pulse: boolean }
 > = {
-  faible:        { label: 'Faible',       badgeCls: 'bg-gray-500 text-white',           textCls: 'text-gray-500',   pulse: false },
-  moyenne:       { label: 'Moyenne',      badgeCls: 'bg-gold-500 text-navy-900',         textCls: 'text-ink-700',    pulse: false },
-  bonne:         { label: 'Bonne',        badgeCls: 'bg-lime-700 text-white',            textCls: 'text-lime-700',   pulse: false },
-  tres_bonne:    { label: 'Très Bonne',   badgeCls: 'bg-teal-700 text-white',            textCls: 'text-teal-700',   pulse: false },
-  exceptionnelle:{ label: 'Exceptionnelle', badgeCls: 'bg-emerald-700 text-white',       textCls: 'text-emerald-700',pulse: true  },
+  faible:        { label: QUALITY_LABELS.faible,         badgeCls: QUALITY_BADGE_CLS.faible,         textCls: QUALITY_TEXT_CLS.faible,         pulse: false },
+  moyenne:       { label: QUALITY_LABELS.moyenne,        badgeCls: QUALITY_BADGE_CLS.moyenne,        textCls: QUALITY_TEXT_CLS.moyenne,        pulse: false },
+  bonne:         { label: QUALITY_LABELS.bonne,          badgeCls: QUALITY_BADGE_CLS.bonne,          textCls: QUALITY_TEXT_CLS.bonne,          pulse: false },
+  tres_bonne:    { label: QUALITY_LABELS.tres_bonne,     badgeCls: QUALITY_BADGE_CLS.tres_bonne,     textCls: QUALITY_TEXT_CLS.tres_bonne,     pulse: false },
+  exceptionnelle:{ label: QUALITY_LABELS.exceptionnelle, badgeCls: QUALITY_BADGE_CLS.exceptionnelle, textCls: QUALITY_TEXT_CLS.exceptionnelle, pulse: true  },
 }
 
 // ─── BestMomentCard ───────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ export function BestMomentCard({ window: w, isCurrent = false }: BestMomentCardP
         {/* Badge score rond 40×40 */}
         <div className="relative shrink-0">
           {cfg.pulse && (
-            <span className="absolute inset-0 rounded-full bg-emerald-600/40 motion-safe:animate-pulse" />
+            <span className="absolute inset-0 rounded-full bg-[#FEE838]/60 motion-safe:animate-pulse" />
           )}
           <div
             className={[

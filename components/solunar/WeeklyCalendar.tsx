@@ -4,16 +4,17 @@ import { useRef, useState, useCallback, useEffect, type ElementType, type Keyboa
 import { Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudRain, CloudSnow, Zap } from 'lucide-react'
 import type { DailyForecast, QualityLevel } from '@/lib/solunar/types'
 import { wmoIconName, type WeatherIconName } from '@/lib/conditions/weather-codes'
+import { QUALITY_LABELS, QUALITY_BADGE_CLS, QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 
 // ─── Config qualité ───────────────────────────────────────────────────────────
 
-// Teintes -500/-700 : contraste ≥ 4.5:1 (texte blanc sur badge, label sur fond clair)
+// Couleurs CIVIDIS colorblind-safe — source unique : lib/solunar/quality-style.
 const QUALITY_CONFIG: Record<QualityLevel, { label: string; badgeCls: string; textCls: string }> = {
-  faible:         { label: 'Faible',         badgeCls: 'bg-gray-500 text-white',    textCls: 'text-gray-500'    },
-  moyenne:        { label: 'Moyenne',        badgeCls: 'bg-amber-700 text-white',   textCls: 'text-amber-700'   },
-  bonne:          { label: 'Bonne',          badgeCls: 'bg-lime-700 text-white',    textCls: 'text-lime-700'    },
-  tres_bonne:     { label: 'Très Bonne',     badgeCls: 'bg-teal-700 text-white',    textCls: 'text-teal-700'    },
-  exceptionnelle: { label: 'Exceptionnelle', badgeCls: 'bg-emerald-700 text-white', textCls: 'text-emerald-700' },
+  faible:         { label: QUALITY_LABELS.faible,         badgeCls: QUALITY_BADGE_CLS.faible,         textCls: QUALITY_TEXT_CLS.faible },
+  moyenne:        { label: QUALITY_LABELS.moyenne,        badgeCls: QUALITY_BADGE_CLS.moyenne,        textCls: QUALITY_TEXT_CLS.moyenne },
+  bonne:          { label: QUALITY_LABELS.bonne,          badgeCls: QUALITY_BADGE_CLS.bonne,          textCls: QUALITY_TEXT_CLS.bonne },
+  tres_bonne:     { label: QUALITY_LABELS.tres_bonne,     badgeCls: QUALITY_BADGE_CLS.tres_bonne,     textCls: QUALITY_TEXT_CLS.tres_bonne },
+  exceptionnelle: { label: QUALITY_LABELS.exceptionnelle, badgeCls: QUALITY_BADGE_CLS.exceptionnelle, textCls: QUALITY_TEXT_CLS.exceptionnelle },
 }
 
 const WEATHER_ICON_MAP: Record<WeatherIconName, ElementType> = {
