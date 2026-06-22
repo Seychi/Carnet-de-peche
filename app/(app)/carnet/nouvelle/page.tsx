@@ -51,7 +51,7 @@ export default async function NouvellePrisePage({
           <Link
             href="/carnet"
             aria-label="Fermer et revenir au carnet"
-            className="flex size-11 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex size-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X size={20} />
           </Link>

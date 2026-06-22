@@ -391,6 +391,7 @@ export const PostCard = memo(function PostCard({
 // nombre (1 = grand, 2 = côte à côte, 3 = 1 large + 2, 4 = grille 2×2). Au-delà
 // de 4 (sécurité — le composer plafonne à 4), « +N » sur la dernière tuile.
 function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number) => void }) {
+  const [failedIdx, setFailedIdx] = useState<Set<number>>(new Set())
   const shown = urls.slice(0, 4)
   const extra = urls.length - shown.length
   const n = shown.length
@@ -399,6 +400,7 @@ function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number)
     <div className={cn('grid gap-1.5 overflow-hidden rounded-[12px]', n === 1 ? 'grid-cols-1' : 'grid-cols-2')}>
       {shown.map((url, i) => {
         const wide = n === 3 && i === 0
+        if (failedIdx.has(i)) return null
         return (
           <button
             key={url}
@@ -411,7 +413,13 @@ function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number)
             )}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={`Photo ${i + 1}`} loading="lazy" className="size-full object-cover" />
+            <img
+              src={url}
+              alt={`Photo ${i + 1}`}
+              loading="lazy"
+              className="size-full object-cover"
+              onError={() => setFailedIdx((prev) => new Set(prev).add(i))}
+            />
             {extra > 0 && i === shown.length - 1 && (
               <span className="absolute inset-0 flex items-center justify-center bg-black/55 font-mono text-xl font-semibold text-white">
                 +{extra}
@@ -425,6 +433,7 @@ function PostGallery({ urls, onOpen }: { urls: string[]; onOpen: (index: number)
 }
 
 function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | null }) {
+  const [photoFailed, setPhotoFailed] = useState(false)
   const species = SPECIES_LABELS[post.catch_species ?? ''] ?? post.catch_species ?? 'Prise'
   const dataLine = [
     species.toUpperCase(),
@@ -437,25 +446,8 @@ function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | nu
     .filter(Boolean)
     .join(' · ')
 
-  // Photo en grand + bandeau données mono par-dessus (réf mobile.html 04) ;
-  // sans photo : encart compact dégradé navy.
-  const inner = photoUrl ? (
-    <div className="relative overflow-hidden rounded-[12px]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photoUrl} alt={species} className="max-h-72 w-full object-cover" />
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/85 to-transparent px-3 pt-8 pb-2.5">
-        <p className="font-mono text-[10.5px] font-medium tracking-[0.08em] text-teal-300">
-          {dataLine}
-        </p>
-        {post.catch_spot_name && (
-          <p className="mt-0.5 flex items-center gap-1 truncate font-mono text-[9.5px] tracking-[0.06em] text-white/55 uppercase">
-            <MapPin size={10} className="shrink-0" aria-hidden="true" />
-            <span className="truncate">{post.catch_spot_name}</span>
-          </p>
-        )}
-      </div>
-    </div>
-  ) : (
+  // Encart compact navy (fallback sans photo ou URL brisée).
+  const compactEncart = (
     <div className="relative overflow-hidden rounded-[12px] bg-gradient-to-br from-navy-800 to-navy-950 p-3">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(94,234,212,.2),transparent_60%)]" />
       <div className="relative flex items-center gap-2.5">
@@ -473,6 +465,33 @@ function CatchEmbed({ post, photoUrl }: { post: FeedPost; photoUrl?: string | nu
         </div>
       </div>
     </div>
+  )
+
+  // Photo en grand + bandeau données mono par-dessus (réf mobile.html 04) ;
+  // sans photo ou URL expirée : encart compact dégradé navy.
+  const inner = photoUrl && !photoFailed ? (
+    <div className="relative overflow-hidden rounded-[12px]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photoUrl}
+        alt={species}
+        className="max-h-72 w-full object-cover"
+        onError={() => setPhotoFailed(true)}
+      />
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/85 to-transparent px-3 pt-8 pb-2.5">
+        <p className="font-mono text-[10.5px] font-medium tracking-[0.08em] text-teal-300">
+          {dataLine}
+        </p>
+        {post.catch_spot_name && (
+          <p className="mt-0.5 flex items-center gap-1 truncate font-mono text-[9.5px] tracking-[0.06em] text-white/55 uppercase">
+            <MapPin size={10} className="shrink-0" aria-hidden="true" />
+            <span className="truncate">{post.catch_spot_name}</span>
+          </p>
+        )}
+      </div>
+    </div>
+  ) : (
+    compactEncart
   )
 
   return post.catch_spot_slug ? (

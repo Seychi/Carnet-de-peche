@@ -54,12 +54,12 @@ export function SpotFilters() {
   )
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
       {/* Filtre département */}
       <select
         value={currentDept}
         onChange={(e) => updateParam('dept', e.target.value)}
-        className="px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+        className="w-full px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent sm:w-auto"
         aria-label="Filtrer par département"
       >
         <option value="">Tous les départements</option>

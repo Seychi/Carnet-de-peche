@@ -957,7 +957,7 @@ function SectionTitle({
   required?: boolean
 }) {
   return (
-    <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
+    <p className="font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400 sm:text-[12px]">
       {children}
       {required && <span className="text-coral-500 ml-0.5">*</span>}
     </p>

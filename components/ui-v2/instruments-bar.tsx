@@ -44,10 +44,12 @@ export function InstrumentsBar({ data, className }: { data: InstrumentsData; cla
     <div
       data-slot="instruments-bar"
       className={cn(
-        'bg-navy-950 font-mono text-[11px] tracking-[0.05em] text-white sm:text-[12px]',
+        'relative bg-navy-950 font-mono text-[11px] tracking-[0.05em] text-white sm:text-[12px]',
         className,
       )}
     >
+      {/* Fondu droit : affordance scroll horizontal sur mobile */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-navy-950 to-transparent sm:hidden" aria-hidden="true" />
       <div className="mx-auto flex h-9 max-w-[1180px] items-center gap-4 overflow-x-auto px-4 whitespace-nowrap sm:gap-7 sm:px-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <span className="uppercase">
           <span className="hidden sm:inline">{data.deptLabel ? `${data.deptLabel} · ` : ''}</span>

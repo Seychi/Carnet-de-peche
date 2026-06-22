@@ -45,6 +45,11 @@ export async function attachPostMedia<T extends FeedPost>(
   if (photoPaths.length > 0) {
     const { data } = await signer.storage.from('feed-photos').createSignedUrls(photoPaths, 3600)
     for (const s of data ?? []) if (s.path && s.signedUrl) photoSigned.set(s.path, s.signedUrl)
+    // Paths orphelins (fichier supprimé du bucket) : on les log pour détecter
+    // des incohérences Storage sans faire crasher le rendu côté client.
+    if (process.env.VERCEL_ENV !== 'production' && (data?.length ?? 0) < photoPaths.length) {
+      console.warn('[attachPostMedia] feed-photos orphans:', photoPaths.length - (data?.length ?? 0))
+    }
   }
 
   return posts.map((p) => ({

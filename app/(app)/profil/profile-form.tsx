@@ -215,7 +215,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
                     name="techniques"
                     value={t.value}
                     defaultChecked={profile.techniques?.includes(t.value)}
-                    className="w-4 h-4 rounded border-ink-300 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 rounded border-ink-300 accent-teal-600 focus:ring-teal-500"
                   />
                   <span className="text-sm text-ink-700">{t.label}</span>
                 </label>
@@ -234,7 +234,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
                     name="favorite_species"
                     value={s.value}
                     defaultChecked={profile.favorite_species?.includes(s.value)}
-                    className="w-4 h-4 rounded border-ink-300 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 rounded border-ink-300 accent-teal-600 focus:ring-teal-500"
                   />
                   <span className="text-sm text-ink-700">{s.label}</span>
                 </label>
@@ -257,7 +257,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
                     name="level"
                     value={l.value}
                     defaultChecked={profile.level === l.value}
-                    className="w-4 h-4 border-ink-300 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 border-ink-300 accent-teal-600 focus:ring-teal-500"
                   />
                   <span className="text-sm text-ink-700">{l.label}</span>
                 </label>
