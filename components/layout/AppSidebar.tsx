@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, NotebookText, Map, MessageCircle, User } from 'lucide-react'
+import { Home, NotebookText, Map, MessageCircle, User, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const ITEMS = [
@@ -10,6 +10,7 @@ const ITEMS = [
   { label: 'Mon carnet', href: '/carnet', match: '/carnet', Icon: NotebookText },
   { label: 'Carte', href: '/carte', match: '/carte', Icon: Map },
   { label: 'Fil', href: '/fil', match: '/fil', Icon: MessageCircle },
+  { label: 'Mes pêcheurs', href: '/follows', match: '/follows', Icon: Users },
   { label: 'Profil', href: '/profil', match: '/profil', Icon: User },
 ] as const
 

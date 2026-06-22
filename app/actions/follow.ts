@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createNotification } from '@/lib/notifications/create'
 import { z } from 'zod'
 
 export type ActionResult<T = undefined> =
@@ -66,12 +67,29 @@ export async function toggleFollow(
     console.error('[toggleFollow:insert]', error.message)
     return fail('Impossible de suivre ce pêcheur. Réessaie.')
   }
+
+  // Notif in-app (best-effort, non bloquant ; anti-auto-notif géré dans le helper).
+  // Modèle social = abonnés (unilatéral) : on notifie la personne suivie, point.
+  await createNotification({
+    userId: targetUserId,
+    type: 'new_follower',
+    actorId: user.id,
+    targetType: null,
+    targetId: null,
+  })
+
   revalidatePath('/follows')
   return ok({ following: true })
 }
 
 // ---------------------------------------------------------------------------
-// getFollowSuggestions — 5 pêcheurs du même département, pas encore suivis
+// getFollowSuggestions — pêcheurs suggérés, triés par activité récente.
+// Stratégie :
+//   1. Si home_department connu → profils du même département (priorité locale).
+//   2. Fallback gracieux si pas de département → tous les profils récemment actifs.
+// Dans les deux cas on exclut l'utilisateur courant et les déjà-suivis.
+// Tri : updated_at DESC (proxy d'activité récente disponible sans sous-requête
+// coûteuse sur feed_posts/catches — assez fidèle pour des suggestions).
 // ---------------------------------------------------------------------------
 export async function getFollowSuggestions(): Promise<ActionResult<UserSummary[]>> {
   const supabase = await createClient()
@@ -85,7 +103,6 @@ export async function getFollowSuggestions(): Promise<ActionResult<UserSummary[]
     .select('home_department')
     .eq('id', user.id)
     .maybeSingle()
-  if (!me?.home_department) return ok([])
 
   const { data: following } = await supabase
     .from('follows')
@@ -93,13 +110,22 @@ export async function getFollowSuggestions(): Promise<ActionResult<UserSummary[]
     .eq('follower_id', user.id)
   const followedIds = new Set((following ?? []).map((f) => f.following_id))
 
-  const { data: candidates, error } = await supabase
+  // Requête de base : profils onboardés sauf soi-même, triés par activité récente.
+  let query = supabase
     .from('profiles')
     .select(PROFILE_COLS)
-    .eq('home_department', me.home_department)
+    .eq('onboarded', true)
     .neq('id', user.id)
     .not('username', 'is', null)
-    .limit(20)
+    .order('updated_at', { ascending: false })
+    .limit(30)
+
+  // Affiner au département si disponible (suggestions locales plus pertinentes).
+  if (me?.home_department) {
+    query = query.eq('home_department', me.home_department)
+  }
+
+  const { data: candidates, error } = await query
 
   if (error) {
     console.error('[getFollowSuggestions]', error.message)
@@ -170,4 +196,38 @@ export async function listFollowers(userId: string): Promise<ActionResult<UserSu
   }
 
   return listProfilesByIds(supabase, (rows ?? []).map((r) => r.follower_id))
+}
+
+// ---------------------------------------------------------------------------
+// searchUsers — recherche de pêcheurs par pseudo (ILIKE, index trigram 037)
+// Utilisable uniquement par un utilisateur connecté (RLS profiles_select_all).
+// username est citext → pas besoin de toLowerCase, ILIKE est case-insensitive.
+// ---------------------------------------------------------------------------
+const SEARCH_TERM_RE = /[^\p{L}\p{N}_\-]/gu
+
+export async function searchUsers(term: string): Promise<ActionResult<UserSummary[]>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  // Sanitisation : on retire tout sauf lettres, chiffres, underscore, tiret.
+  const sanitized = term.replace(SEARCH_TERM_RE, '').trim()
+  if (sanitized.length < 2) return ok([])
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_COLS)
+    .ilike('username', `%${sanitized}%`)
+    .eq('onboarded', true)
+    .order('username')
+    .limit(10)
+
+  if (error) {
+    console.error('[searchUsers]', error.message)
+    return fail('Impossible de rechercher des pêcheurs.')
+  }
+
+  return ok((data ?? []) as UserSummary[])
 }

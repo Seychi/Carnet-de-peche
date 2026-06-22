@@ -1,0 +1,143 @@
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { Bell, Heart, MessageCircle, UserPlus } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { createClient } from '@/lib/supabase/server'
+import { getNotifications, type AppNotification } from '@/app/actions/notifications'
+import { MarkAllRead } from './MarkAllRead'
+
+export const metadata = {
+  title: 'Notifications · Carnet de Pêche',
+}
+
+export const dynamic = 'force-dynamic'
+
+// Libellé + icône par type de notif.
+function describe(n: AppNotification): { icon: typeof Bell; label: string } {
+  const who = n.actor_username ?? 'Un pêcheur'
+  switch (n.type) {
+    case 'new_follower':
+      return { icon: UserPlus, label: `${who} s’est abonné à toi` }
+    case 'post_liked':
+      return { icon: Heart, label: `${who} a aimé ton post` }
+    case 'post_commented':
+      return { icon: MessageCircle, label: `${who} a commenté ton post` }
+    case 'catch_commented':
+      return { icon: MessageCircle, label: `${who} a commenté ta prise` }
+    case 'mention':
+      return { icon: MessageCircle, label: `${who} t’a mentionné` }
+    default:
+      return { icon: Bell, label: `${who} a interagi avec toi` }
+  }
+}
+
+export default async function NotificationsPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/login')
+
+  const res = await getNotifications(50)
+  const notifications = res.ok ? res.data : []
+  const hasUnread = notifications.some((n) => !n.read_at)
+
+  // Résolution des liens : pour les notifs liées à un post/prise, on retrouve
+  // le département du post (route /fil/<dept>). Le post appartient au viewer
+  // (destinataire) → RLS feed_posts_select_approved (author_id = auth.uid()) OK.
+  // On ne lit que id + region de SES posts (aucun GPS, aucune vue contournée).
+  const postTargetIds = [
+    ...new Set(
+      notifications
+        .filter((n) => n.target_type === 'post')
+        .map((n) => n.target_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ]
+  const regionByPostId = new Map<string, string>()
+  if (postTargetIds.length > 0) {
+    const { data: posts } = await supabase
+      .from('feed_posts')
+      .select('id, region')
+      .in('id', postTargetIds)
+    for (const p of posts ?? []) {
+      if (p.region) regionByPostId.set(p.id, p.region)
+    }
+  }
+
+  function hrefFor(n: AppNotification): string {
+    if (n.type === 'new_follower') {
+      return n.actor_username ? `/u/${n.actor_username}` : '/follows'
+    }
+    if (n.target_type === 'post' && n.target_id) {
+      const region = regionByPostId.get(n.target_id)
+      if (region) return `/fil/${region}`
+    }
+    return '/fil'
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[680px] px-4 py-6 sm:px-6">
+      <MarkAllRead hasUnread={hasUnread} />
+
+      <h1 className="mb-5 font-display text-2xl font-bold text-navy-900">Notifications</h1>
+
+      {notifications.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 rounded-[14px] border border-sand-200 bg-white px-6 py-12 text-center">
+          <Bell size={28} strokeWidth={1.6} className="text-ink-300" aria-hidden="true" />
+          <p className="text-sm text-ink-500">
+            Pas encore de notification. Like, commentaire ou nouvel abonné : tout
+            arrivera ici.
+          </p>
+        </div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {notifications.map((n) => {
+            const { icon: Icon, label } = describe(n)
+            const unread = !n.read_at
+            return (
+              <li key={n.id}>
+                <Link
+                  href={hrefFor(n)}
+                  className={`flex items-start gap-3 rounded-[14px] border px-4 py-3 transition-colors hover:bg-sand-100 ${
+                    unread
+                      ? 'border-teal-300 bg-teal-50'
+                      : 'border-sand-200 bg-white'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-sand-100 text-navy-900"
+                  >
+                    <Icon size={16} strokeWidth={1.9} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-navy-900">{label}</p>
+                    {n.preview_text && (
+                      <p className="mt-0.5 truncate text-xs text-ink-500">
+                        « {n.preview_text} »
+                      </p>
+                    )}
+                    <p className="mt-1 text-[11px] text-ink-400">
+                      {formatDistanceToNow(new Date(n.created_at), {
+                        addSuffix: true,
+                        locale: fr,
+                      })}
+                    </p>
+                  </div>
+                  {unread && (
+                    <span
+                      aria-hidden="true"
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-coral-500"
+                    />
+                  )}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}

@@ -3,14 +3,15 @@
 import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
-import { LogOut, User, BookOpen, CreditCard, ChevronDown } from 'lucide-react'
+import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users } from 'lucide-react'
 
 interface UserMenuProps {
   username: string | null
   avatarUrl: string | null
+  isModerator?: boolean
 }
 
-export function UserMenu({ username, avatarUrl }: UserMenuProps) {
+export function UserMenu({ username, avatarUrl, isModerator = false }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -79,6 +80,22 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
               Mon carnet
             </Link>
             <Link
+              href="/fil"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <MessageCircle size={15} className="text-ink-400" />
+              Fil régional
+            </Link>
+            <Link
+              href="/follows"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <Users size={15} className="text-ink-400" />
+              Mes pêcheurs
+            </Link>
+            <Link
               href="/compte/abonnement"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
@@ -86,6 +103,16 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
               <CreditCard size={15} className="text-ink-400" />
               Mon abonnement
             </Link>
+            {isModerator && (
+              <Link
+                href="/moderation"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+              >
+                <Shield size={15} className="text-ink-400" />
+                Modération
+              </Link>
+            )}
           </nav>
           <div className="py-1.5 border-t border-ink-100">
             <button

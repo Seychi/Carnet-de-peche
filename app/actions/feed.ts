@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isCoastalDepartment } from '@/lib/geo/departments'
 import { attachPostMedia } from '@/lib/feed/media'
+import { createNotification } from '@/lib/notifications/create'
 import type { FeedPost, FeedTab } from '@/lib/feed/types'
 import '@/lib/zod-config'
 import { z } from 'zod'
@@ -201,7 +202,7 @@ export async function toggleLike(postId: string): Promise<ActionResult<{ liked: 
 
   const { data: post } = await supabase
     .from('feed_posts')
-    .select('region')
+    .select('region, author_id')
     .eq('id', postId)
     .maybeSingle()
   if (!post) return fail('Post introuvable.')
@@ -234,6 +235,18 @@ export async function toggleLike(postId: string): Promise<ActionResult<{ liked: 
     console.error('[toggleLike:insert]', error.message)
     return fail('Impossible d’aimer ce post. Réessaie.')
   }
+
+  // Notif in-app (best-effort, non bloquant ; anti-auto-notif géré dans le helper).
+  if (post.author_id) {
+    await createNotification({
+      userId: post.author_id,
+      type: 'post_liked',
+      actorId: user.id,
+      targetType: 'post',
+      targetId: postId,
+    })
+  }
+
   revalidateFeed(post.region)
   return ok({ liked: true })
 }
@@ -266,7 +279,7 @@ export async function addComment(
 
   const { data: post } = await supabase
     .from('feed_posts')
-    .select('region')
+    .select('region, author_id, catch_id')
     .eq('id', postId)
     .maybeSingle()
   if (!post) return fail('Post introuvable.')
@@ -286,6 +299,19 @@ export async function addComment(
     if (error?.message.includes('rate_limit_comments')) return fail(COMMENT_LIMIT_MSG)
     console.error('[addComment]', error?.message)
     return fail('Impossible d’envoyer ton commentaire. Réessaie.')
+  }
+
+  // Notif in-app (best-effort, non bloquant ; anti-auto-notif géré dans le helper).
+  // Un post qui partage une prise → catch_commented, sinon post_commented.
+  if (post.author_id) {
+    await createNotification({
+      userId: post.author_id,
+      type: post.catch_id ? 'catch_commented' : 'post_commented',
+      actorId: user.id,
+      targetType: 'post',
+      targetId: postId,
+      previewText: parsedText.data,
+    })
   }
 
   revalidateFeed(post.region)
@@ -463,6 +489,7 @@ export async function moderatorDeletePost(
 
   await resolveReportsForTarget(supabase, user.id, 'post', postId)
   revalidateFeed(deleted[0].region)
+  revalidatePath('/moderation')
   return ok({ id: postId })
 }
 
@@ -492,7 +519,42 @@ export async function moderatorDeleteComment(
 
   await resolveReportsForTarget(supabase, user.id, 'comment', commentId)
   revalidateFeed()
+  revalidatePath('/moderation')
   return ok({ id: commentId })
+}
+
+// ---------------------------------------------------------------------------
+// dismissReport — ignorer un signalement sans supprimer le contenu signalé.
+// Réservé aux modérateurs (gate serveur obligatoire).
+// ---------------------------------------------------------------------------
+export async function dismissReport(
+  reportId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  if (!z.string().uuid().safeParse(reportId).success) return fail('Signalement invalide.')
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(NOT_MODERATOR_MSG)
+
+  const now = new Date().toISOString()
+  const { data: updated, error } = await supabase
+    .from('reports')
+    .update({ status: 'dismissed', resolved_by: user.id, resolved_at: now })
+    .eq('id', reportId)
+    .eq('status', 'pending')
+    .select('id')
+
+  if (error) {
+    console.error('[dismissReport]', error.message)
+    return fail("Impossible d'ignorer ce signalement. Réessaie.")
+  }
+  if (!updated || updated.length === 0) return fail('Signalement introuvable ou déjà résolu.')
+
+  revalidatePath('/moderation')
+  return ok({ id: reportId })
 }
 
 // ---------------------------------------------------------------------------

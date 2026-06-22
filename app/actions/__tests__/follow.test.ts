@@ -50,9 +50,22 @@ describe('getFollowSuggestions', () => {
     expect((await getFollowSuggestions()).ok).toBe(false)
   })
 
-  it('renvoie une liste vide si pas de département', async () => {
-    mock({ user: USER, tables: { profiles: { data: { home_department: null } } } })
-    expect(await getFollowSuggestions()).toEqual({ ok: true, data: [] })
+  it('sans département, renvoie quand même des suggestions générales (fallback sprint 17 D.5)', async () => {
+    // Comportement voulu depuis le sprint 17 : sans home_department, on ne renvoie
+    // plus une liste vide mais des suggestions générales (profils onboardés récents).
+    const candidates = [
+      { id: 'id-1', username: 'user1', display_name: 'User 1', avatar_url: null, home_department: '56' },
+    ]
+    mock({
+      user: USER,
+      tables: {
+        profiles: [{ data: { home_department: null } }, { data: candidates, error: null }],
+        follows: { data: [] },
+      },
+    })
+    const r = await getFollowSuggestions()
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.data.map((u) => u.id)).toContain('id-1')
   })
 
   it('exclut les pêcheurs déjà suivis et se limite à 5', async () => {

@@ -3,9 +3,12 @@ import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Logo } from '@/components/ui-v2/Logo'
 import { UserMenu } from './UserMenu'
+import { NotificationBell } from './NotificationBell'
+import { SearchModal } from './SearchModal'
+import { getUnreadCount } from '@/app/actions/notifications'
 
 /**
- * Header app allégé DA v2 : logo + « + Loguer » + avatar.
+ * Header app allégé DA v2 : logo + « + Loguer » + loupe + cloche + avatar.
  * La nav vit dans la sidebar (desktop) et la tab bar (mobile).
  */
 export async function AppHeader() {
@@ -14,14 +17,19 @@ export async function AppHeader() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let profile: { username: string | null; avatar_url: string | null } | null = null
+  let profile: { username: string | null; avatar_url: string | null; is_moderator: boolean } | null = null
+  let unreadCount = 0
   if (user) {
     const { data } = await supabase
       .from('profiles')
-      .select('username, avatar_url')
+      .select('username, avatar_url, is_moderator')
       .eq('id', user.id)
       .single()
     profile = data
+
+    // Compteur de notifications non lues (RLS notifications_select_own : ne
+    // renvoie que les notifs du viewer). Sert de valeur SSR à la cloche.
+    unreadCount = await getUnreadCount()
   }
 
   return (
@@ -43,7 +51,16 @@ export async function AppHeader() {
             <Plus size={16} strokeWidth={2.2} aria-hidden="true" />
             Loguer
           </Link>
-          {profile && <UserMenu username={profile.username} avatarUrl={profile.avatar_url} />}
+          {/* Recherche de pêcheurs — uniquement pour les utilisateurs connectés */}
+          {user && <SearchModal />}
+          {user && <NotificationBell userId={user.id} initialCount={unreadCount} />}
+          {profile && (
+            <UserMenu
+              username={profile.username}
+              avatarUrl={profile.avatar_url}
+              isModerator={profile.is_moderator ?? false}
+            />
+          )}
         </div>
       </div>
     </header>
