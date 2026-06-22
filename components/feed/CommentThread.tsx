@@ -144,7 +144,7 @@ export function CommentThread({
                   type="button"
                   onClick={() => handleDelete(c.id)}
                   aria-label="Supprimer mon commentaire"
-                  className="shrink-0 text-ink-300 hover:text-red-500 transition-colors p-1"
+                  className="shrink-0 text-ink-300 hover:text-coral-500 transition-colors active:opacity-70 p-1"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -177,14 +177,14 @@ export function CommentThread({
             }}
             maxLength={1000}
             placeholder="Ton commentaire…"
-            className="flex-1 min-h-11 rounded-full border border-slate-200 px-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-teal-500/40"
+            className="flex-1 min-h-11 rounded-full border border-ink-200 px-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-teal-500/40"
           />
           <button
             type="button"
             onClick={handleAdd}
             disabled={submitting || !text.trim()}
             aria-label="Envoyer"
-            className="flex items-center justify-center size-11 rounded-full bg-teal-500 text-navy-950 disabled:opacity-40 hover:bg-teal-400 transition-colors"
+            className="flex items-center justify-center size-11 rounded-full bg-teal-500 text-navy-950 disabled:opacity-40 hover:bg-teal-400 transition-colors active:scale-95"
           >
             {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>
