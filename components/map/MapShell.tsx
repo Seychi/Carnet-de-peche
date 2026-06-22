@@ -22,6 +22,7 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import type { NearbySpot } from '@/lib/spots/nearby'
+import BathyLayerControl from '@/components/map/BathyLayerControl'
 
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
@@ -515,6 +516,13 @@ export default function MapShell({
 
         {/* Marqueur position utilisateur — affiché après géolocalisation */}
         <UserLocationMarker map={mapInstance} position={userPosition} />
+
+        {/* Couche « Fond marin » (profondeur + nature du fond) — Carte-v2 / C3a.
+            Contrôle autonome, à fondre dans le sélecteur de couches de C1 au merge.
+            Top-right sous le stack géoloc (libre sur mobile : ce stack est md+). */}
+        <div className="absolute right-3 top-16 md:top-[7.5rem] z-20">
+          <BathyLayerControl map={mapInstance} userTier={userTier} />
+        </div>
 
         {/* Popup spot actif */}
         {activeSpot && (

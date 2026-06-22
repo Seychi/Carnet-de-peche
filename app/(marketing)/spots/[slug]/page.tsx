@@ -13,7 +13,7 @@ import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
-import { fetchSpotDepth } from '@/lib/conditions/bathymetry'
+import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
@@ -244,13 +244,14 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions, forecastWeek, allGuides, depth] = await Promise.all([
+  const [catches, catchCount, conditions, forecastWeek, allGuides, depth, substrate] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
     fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
     getAllGuides().catch(() => []),
     fetchSpotDepth(spot.lat, spot.lng).catch(() => null),
+    fetchSeabedSubstrate(spot.lat, spot.lng).catch(() => null),
   ])
 
   // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
@@ -549,22 +550,32 @@ export default async function SpotPage({
               </dl>
             </div>
 
-            {/* Profondeur (bathymétrie réelle EMODnet) */}
-            {depth && (
+            {/* Fond + profondeur (bathymétrie + nature du fond, EMODnet open data) */}
+            {(depth || substrate) && (
               <div className="bg-white rounded-[18px] border border-sand-200 p-6">
                 <h3 className="mb-3 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-500">
-                  Profondeur du spot
+                  Fond &amp; profondeur
                 </h3>
-                <p className="font-mono text-3xl font-bold leading-none text-navy-900">
-                  ≈ {depth.depth_m} m
-                </p>
-                {depth.deep_m > depth.shallow_m && (
+                {depth && (
+                  <p className="font-mono text-3xl font-bold leading-none text-navy-900">
+                    ≈ {depth.depth_m} m
+                  </p>
+                )}
+                {depth && depth.deep_m > depth.shallow_m && (
                   <p className="mt-2 text-sm text-ink-500">
                     Entre <span className="font-mono text-navy-900">{depth.shallow_m}</span> et{' '}
                     <span className="font-mono text-navy-900">{depth.deep_m}</span> m sur la zone
                   </p>
                 )}
-                <p className="mt-2 text-[11px] text-ink-400">Source {depth.source}</p>
+                {substrate && (
+                  <p className={depth ? 'mt-3 text-sm text-ink-700' : 'text-sm text-ink-700'}>
+                    Nature du fond :{' '}
+                    <span className="font-medium text-navy-900">{substrate.label}</span>
+                  </p>
+                )}
+                <p className="mt-2 text-[11px] text-ink-400">
+                  Source {[depth?.source, substrate?.source].filter(Boolean).join(' · ')}
+                </p>
               </div>
             )}
 
