@@ -41,7 +41,11 @@ export function ScrollReveal({
           obs.disconnect()
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      // Déclenche ~120 px AVANT que l'élément atteigne le bord bas du viewport
+      // (rootMargin positif = étend la zone de détection vers le bas).
+      // threshold: 0 = déclenche dès le 1er pixel visible.
+      // Ceci élimine le flash blanc/crème dû au déclenchement tardif.
+      { threshold: 0, rootMargin: '0px 0px 120px 0px' },
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -51,7 +55,9 @@ export function ScrollReveal({
     <div
       ref={ref}
       className={cn(
-        armed && 'transition-all duration-700 ease-out will-change-[opacity,transform]',
+        // duration-300 (was duration-700) : même un reveal légèrement tardif
+        // ne laisse pas de bande crème visible.
+        armed && 'transition-all duration-300 ease-out will-change-[opacity,transform]',
         armed && (shown ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'),
         className,
       )}

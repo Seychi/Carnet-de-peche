@@ -55,7 +55,8 @@ export function AnimatedCounter({
           obs.disconnect()
         }
       },
-      { threshold: 0.5 },
+      // Déclenche 80 px avant le bord bas (plus tôt qu'avant, threshold réduit).
+      { threshold: 0.1, rootMargin: '0px 0px 80px 0px' },
     )
     obs.observe(el)
     return () => {

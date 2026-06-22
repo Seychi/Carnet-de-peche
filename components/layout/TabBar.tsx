@@ -49,7 +49,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 flex items-end justify-around border-t border-sand-200 bg-white px-2 pt-1.5 desk:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex items-end justify-around border-t border-sand-200 bg-white px-2 pt-1.5 desk:hidden will-change-transform"
       style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))' }}
     >
       {TABS.slice(0, 2).map((t) => (

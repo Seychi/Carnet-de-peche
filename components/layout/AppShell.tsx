@@ -38,7 +38,9 @@ export function AppShell({
   return (
     <div className="flex min-h-dvh flex-col bg-sand-50">
       {banner}
-      <div className="sticky top-0 z-40">
+      {/* will-change-transform promeut ce bloc en couche GPU séparée → évite
+          le repaint plein écran header/bandeau au scroll (flash blanc 1-frame). */}
+      <div className="sticky top-0 z-40 will-change-transform">
         {header}
         {instruments}
       </div>
