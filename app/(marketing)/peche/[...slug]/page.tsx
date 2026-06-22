@@ -321,7 +321,7 @@ export default async function ProgrammaticPageView({
               ))}
             </div>
             <p className="mt-3 text-[13px] text-ink-600">
-              Coordonnées floutées à 1 km en accès gratuit —{' '}
+              Coordonnées floutées de plusieurs centaines de mètres en accès gratuit —{' '}
               <Link href="/carte" className="font-medium text-teal-700 hover:underline">
                 explore la carte complète
               </Link>

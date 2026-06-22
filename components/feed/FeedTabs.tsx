@@ -7,7 +7,7 @@ import type { FeedTab } from '@/lib/feed/types'
 const TABS: { key: FeedTab; label: string }[] = [
   { key: 'dept', label: 'Ton département' },
   { key: 'follows', label: 'Tes follows' },
-  { key: 'all', label: 'Tous les départements côtiers' },
+  { key: 'all', label: 'Toute la côte' },
 ]
 
 export function FeedTabs({ current }: { current: FeedTab }) {

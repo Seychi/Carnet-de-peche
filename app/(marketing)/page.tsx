@@ -441,7 +441,7 @@ export default async function HomePage() {
               <SecNum>03 — La communauté</SecNum>
               <h2 className="mt-4">Le savoir se partage. Les coins restent secrets.</h2>
               <p className="mt-4 text-[16px] leading-relaxed text-ink-600 sm:text-[17px]">
-                Toute prise publique est floutée à 1 km, systématiquement. Tu partages la technique,
+                Toute prise publique est floutée de plusieurs centaines de mètres, systématiquement. Tu partages la technique,
                 les conditions, la fierté — jamais le GPS exact. Et le fil est{" "}
                 <strong className="text-navy-900">100% gratuit</strong>, dans tous les départements
                 côtiers.

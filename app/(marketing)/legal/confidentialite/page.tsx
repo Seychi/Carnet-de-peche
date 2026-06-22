@@ -117,7 +117,7 @@ export default function ConfidentialitePage() {
           <tr><td>Création et gestion du compte</td><td>Inscription, profil</td><td>Exécution du contrat (CGU)</td></tr>
           <tr><td>Affichage du carnet personnel</td><td>Prises, photos, conditions</td><td>Exécution du contrat</td></tr>
           <tr><td>Calcul du scoring personnalisé</td><td>Prises, historique</td><td>Intérêt légitime + exécution du contrat</td></tr>
-          <tr><td>Affichage des prises publiques (fil régional)</td><td>Prises publiques, géolocalisation floutée à 1 km</td><td>Consentement</td></tr>
+          <tr><td>Affichage des prises publiques (fil régional)</td><td>Prises publiques, géolocalisation floutée de plusieurs centaines de mètres</td><td>Consentement</td></tr>
           <tr><td>Communication par email (confirmation, reset, notifications)</td><td>Email</td><td>Exécution du contrat</td></tr>
           <tr><td>Facturation et gestion de l’abonnement</td><td>Données paiement (via Stripe)</td><td>Exécution du contrat</td></tr>
           <tr><td>Modération et signalement</td><td>Tous types de contenus</td><td>Intérêt légitime</td></tr>
@@ -148,7 +148,7 @@ export default function ConfidentialitePage() {
       <h3>5.3 Visibilité par les autres utilisateurs</h3>
       <ul>
         <li><strong>Données toujours publiques</strong> : pseudo, avatar, bio, ville/département (sur ton profil public)</li>
-        <li><strong>Données dépendantes de tes choix</strong> : prises (privée / abonnés / publique), géolocalisation (précise / floutée 1 km)</li>
+        <li><strong>Données dépendantes de tes choix</strong> : prises (privée / abonnés / publique), géolocalisation (précise / floutée de plusieurs centaines de mètres)</li>
       </ul>
 
       <h2 id="transferts">6. Transferts hors Union Européenne</h2>

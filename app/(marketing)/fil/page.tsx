@@ -31,7 +31,7 @@ const STEPS = [
   {
     icon: <MessageCircle size={22} />,
     title: 'Partage le savoir, pas les spots',
-    body: 'Poste tes prises, échange tes montages et tes techniques, pose tes questions. Toute prise publique est floutée dans un rayon d’1 km : anti spot-burning par défaut.',
+    body: "Poste tes prises, échange tes montages et tes techniques, pose tes questions. Toute prise publique est floutée de plusieurs centaines de mètres : anti spot-burning par défaut.",
   },
   {
     icon: <UserPlus size={22} />,

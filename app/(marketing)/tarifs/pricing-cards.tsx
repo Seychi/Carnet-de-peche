@@ -22,7 +22,7 @@ const plans = {
     annualTotal: 0,
     features: [
       { text: 'Carnet de pêche illimité avec photos', strong: true },
-      { text: '3 spots populaires par département (coords floutées 1 km)' },
+      { text: '3 spots populaires par département (coords floutées de plusieurs centaines de mètres)' },
       { text: 'Marées + météo pour ta ville' },
       { text: 'Tous les guides éditoriaux' },
       { text: 'Fil régional complet : poste, commente, like, suis' },
@@ -41,7 +41,7 @@ const plans = {
       { text: 'Coordonnées GPS précises de tous les spots' },
       { text: "Score d'activité 0-100 par spot" },
       { text: 'Filtres espèces, techniques, marées' },
-      { text: 'Notifications créneaux optimaux' },
+      { text: 'Notifications likes, commentaires, follows' },
       { text: 'Photos HD illimitées' },
     ],
   },

@@ -47,7 +47,7 @@ export default async function NouvellePrisePage({
       {/* Header modal navy (réf mobile.html 05) — le flow Loguer est plein écran */}
       <header className="sticky top-0 z-40 bg-navy-950 text-white">
         <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
-          <h1 className="font-display text-[17px] font-semibold">Nouvelle prise</h1>
+          <h1 className="font-display text-[17px] font-semibold text-white">Nouvelle prise</h1>
           <Link
             href="/carnet"
             aria-label="Fermer et revenir au carnet"
