@@ -1287,6 +1287,24 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_catch_heatmap: {
+        Args: {
+          max_lat: number
+          max_lng: number
+          min_lat: number
+          min_lng: number
+          p_days?: number
+          p_zoom?: number
+          species_filter?: string[]
+          technique_filter?: string[]
+        }
+        Returns: {
+          catch_count: number
+          fishers_count: number
+          lat: number
+          lng: number
+        }[]
+      }
       get_feed_unread_counts: {
         Args: never
         Returns: {

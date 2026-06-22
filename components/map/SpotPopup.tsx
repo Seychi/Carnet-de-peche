@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import SpotActivityBadge from '@/components/map/SpotActivityBadge'
 import Link from 'next/link'
 import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, type LucideIcon } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
@@ -323,6 +324,9 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           </div>
         </>
       )}
+
+      {/* Signal social — activité récente du spot (Carte v2 / C1, Bloc D) */}
+      <SpotActivityBadge spotId={spot.id} />
 
       {/* Prochain créneau */}
       {isPaid && (

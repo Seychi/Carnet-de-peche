@@ -7,7 +7,7 @@
 
 **Préalable (manuel John)** :
 1. Sprints 16 (perf) + 17 (cohérence) + correctifs = **faits** (✅ John 2026-06-22). Créer **quelques prises de test publiques** pour valider l'activation de la couche.
-2. **Décision tier** (Bloc E) : la heatmap communautaire est-elle **gratuite (teaser)** ou réservée payant ? Le score perso reste payant (Local/Itinérant). `⚠️ DEMANDER À JOHN AVANT` de gater.
+2. **Décisions tranchées (John 2026-06-22)** : **K = 3** (k-anonymat) · **heatmap communautaire = teaser GRATUIT (tous tiers)** · **« ton score » = payant** (Local/Itinérant).
 3. Prochain numéro de migration libre confirmé.
 
 ---
@@ -38,7 +38,7 @@ La carte montre **où ça mord** (heatmap des prises publiques floutées), se me
 ---
 
 ## Bloc A — Migration : agrégation + RPC heatmap (sécurité d'abord)
-**Garde-fou central** : on agrège des prises **publiques** sur `geom_public` (déjà flouté 1 km), jamais `geom`. Et on impose un **seuil k-anonymat** : une cellule ne s'affiche que si elle contient **≥ K prises de ≥ K pêcheurs distincts** (proposer K=3, à valider) — sinon une cellule à 1 prise = on déduit le spot d'un user. C'est la règle anti-désanonymisation.
+**Garde-fou central** : on agrège des prises **publiques** sur `geom_public` (déjà flouté 1 km), jamais `geom`. Et on impose un **seuil k-anonymat** : une cellule ne s'affiche que si elle contient **≥ K prises de ≥ K pêcheurs distincts** (**K = 3**, décision John 2026-06-22) — sinon une cellule à 1 prise = on déduit le spot d'un user. C'est la règle anti-désanonymisation.
 
 ### Tâches
 1. Migration `0NN_catch_heatmap.sql` : RPC `get_catch_heatmap(bbox, zoom, species[]?, technique[]?, days int default 30)` → agrège `catches` **publiques** par cellule (ST_SnapToGrid adapté au zoom, ou H3 si l'extension dispo) sur `geom_public`, renvoie `{cell_geom, count}` **uniquement** pour `count >= K` ET `distinct user_id >= K`. `security definer` minimal + `search_path` fixé.
@@ -51,7 +51,7 @@ La carte montre **où ça mord** (heatmap des prises publiques floutées), se me
 - Filtrable par espèce/technique/fenêtre temps.
 
 ### Garde-fous
-- ⚠️ `geom_public` only. K-anonymat strict. `⚠️ DEMANDER À JOHN` sur la valeur de K.
+- ⚠️ `geom_public` only. K-anonymat strict, **K = 3** (décision John 2026-06-22).
 
 ## Bloc B — Couche heatmap MapLibre + filtres
 ### Tâches
@@ -85,7 +85,7 @@ La carte montre **où ça mord** (heatmap des prises publiques floutées), se me
 ## Bloc E — Sélecteur de couches + tier
 ### Tâches
 1. UI sélecteur de couches dans `MapView` (Spots / Heatmap communautaire / Ton score / [Bathy plus tard]).
-2. **Gating** selon la décision John : heatmap communautaire = teaser gratuit OU payant ; « ton score » = payant (Local/Itinérant). Réutiliser la RPC `current_tier`.
+2. **Gating (décision John 2026-06-22)** : **heatmap communautaire = teaser GRATUIT (tous tiers)** ; **« ton score » = payant (Local/Itinérant)** via la RPC `current_tier`.
 
 ### Critères d'acceptation
 - Un compte gratuit voit ce qui est décidé gratuit, et un upsell propre sur le reste.
@@ -99,4 +99,4 @@ La carte montre **où ça mord** (heatmap des prises publiques floutées), se me
 5. `docs/carte-v2/RECAP-C1.md`.
 
 ## Reste manuel John
-- Valeur de K (k-anonymat), décision tier, application migration + régénération types, QA avec de vraies prises beta.
+- Application migration + régénération types ; QA avec de vraies prises (test « 1ʳᵉ prise »). (K=3 et tier déjà tranchés.)
