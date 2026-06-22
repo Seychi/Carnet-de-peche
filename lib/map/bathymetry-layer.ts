@@ -30,9 +30,10 @@ export const BATHY_SUBSTRATE_LAYER = 'bathy-subs'
 export const BATHY_MIN_ZOOM = 9
 
 // Couches de spots à ignorer pour le clic « fond » (évite le double-popup avec la
-// fiche spot). Mêmes ids que MapView ; si C1 les renomme, la garde devient un no-op
-// inoffensif (le seul cas de conflit = mode cluster à z≥9, rare).
-export const SPOT_LAYER_IDS = ['clusters', 'unclustered-spots', 'cluster-count'] as const
+// fiche spot). Couvre les DEUX modes de rendu de MapView : disques floutés Discovery
+// (`fuzzy-fill`, mode HTML < 200 spots) ET clusters (`clusters`/`unclustered-spots`/
+// `cluster-count`, mode cluster). Si C1 les renomme, la garde devient un no-op inoffensif.
+export const SPOT_LAYER_IDS = ['fuzzy-fill', 'clusters', 'unclustered-spots', 'cluster-count'] as const
 
 const ATTRIBUTION =
   '<a href="https://emodnet.ec.europa.eu/en/bathymetry" target="_blank" rel="noopener noreferrer">EMODnet Bathymetry</a> · ' +
