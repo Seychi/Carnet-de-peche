@@ -96,10 +96,10 @@ export default async function CartePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  // Q1 + Q2 en parallèle : auth.getUser() partage le même round-trip JWT via
-  // React cache() (lib/auth/tier.ts), current_tier est le seul vrai aller-retour
-  // supplémentaire. Q3 (profile) est lancé immédiatement pour les connectés —
-  // home_department n'est pas sensible et permet d'éliminer un aller-retour série.
+  // Q1 + Q2 en parallèle : le vrai aller-retour parallélisé est la RPC
+  // current_tier (dans getUserTier). auth.getUser() lancé en // se résout depuis
+  // le cache de session du SDK @supabase/ssr (pas un 2e aller-retour réseau).
+  // Q3 (profile) suit, conditionnée par tier+user (donc pas parallélisable avec Q1/Q2).
   const supabase = await createClient()
   const [{ data: { user } }, tier] = await Promise.all([
     supabase.auth.getUser(),
