@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
 import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
@@ -172,9 +173,10 @@ export default async function OnboardingFiniPage() {
         <div className="mt-auto pt-8">
           <Link
             href="/home"
-            className="flex min-h-[52px] w-full items-center justify-center rounded-lg bg-teal-500 text-[15.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-300"
+            className="flex min-h-[52px] w-full items-center justify-center rounded-lg bg-teal-500 text-[15.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 gap-2"
           >
-            Ouvrir mon carnet →
+            Ouvrir mon carnet
+            <ArrowRight size={16} aria-hidden />
           </Link>
           <Link
             href="/carnet/nouvelle"

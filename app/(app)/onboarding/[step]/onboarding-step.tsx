@@ -145,7 +145,7 @@ function UsernameStatus({
     );
   if (status === "taken")
     return (
-      <p className="text-[12px] text-destructive font-medium mt-1">
+      <p className="text-[12px] text-coral-500 font-medium mt-1">
         Ce pseudo est déjà pris.
       </p>
     );
@@ -328,7 +328,7 @@ export function OnboardingStep({
             ÉTAPE {String(step).padStart(2, "0")}/{String(totalSteps).padStart(2, "0")}
           </span>
           <span className="font-mono text-[11.5px] font-medium tracking-[0.08em] text-teal-600">
-            {Math.round((step / totalSteps) * 100)}%
+            <span className="font-mono">{Math.round((step / totalSteps) * 100)}%</span>
           </span>
         </div>
         <div
@@ -573,7 +573,7 @@ export function OnboardingStep({
                     })}
                   </div>
                   {form6.formState.errors.fishing_frequency && (
-                    <p className="text-[12px] text-destructive mt-1">
+                    <p className="text-[12px] text-coral-500 mt-1">
                       {form6.formState.errors.fishing_frequency.message}
                     </p>
                   )}
@@ -593,7 +593,7 @@ export function OnboardingStep({
                           min={0}
                           max={70}
                           placeholder="ex. 5"
-                          className="min-h-[52px] rounded-[12px] text-[16px] w-28"
+                          className="min-h-[52px] rounded-[12px] text-[16px] w-28 font-mono"
                           value={field.value as number}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value, 10) || 0)
@@ -615,7 +615,7 @@ export function OnboardingStep({
                   style={{
                     background: "linear-gradient(135deg, var(--navy-900), var(--teal-600))",
                     color: "#fff",
-                    boxShadow: "0 6px 24px rgba(10,47,61,.18)",
+                    boxShadow: "var(--shadow-lg)",
                   }}
                 >
                   {loading ? (
@@ -673,7 +673,7 @@ function SubmitButton({
       style={{
         background: disabled ? "var(--ink-200)" : "var(--navy-900)",
         color: disabled ? "var(--ink-500)" : "#fff",
-        boxShadow: disabled ? "none" : "0 6px 24px rgba(10,47,61,.14)",
+        boxShadow: disabled ? "none" : "var(--shadow-sm)",
       }}
     >
       {loading ? (
