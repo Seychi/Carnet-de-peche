@@ -22,7 +22,7 @@ function SubmitButton() {
       style={{
         background: "var(--navy-900)",
         color: "#fff",
-        boxShadow: "0 6px 24px rgba(10,47,61,.14)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       {pending ? (
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
 
       <div
         className="bg-white rounded-[22px] p-6 sm:p-8 border border-ink-100"
-        style={{ boxShadow: "0 4px 24px rgba(10,47,61,.06)" }}
+        style={{ boxShadow: "var(--shadow-sm)" }}
       >
         <form action={action} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
           </div>
 
           {state.error && (
-            <p className="text-[13px] text-red-600 -mt-2" role="alert">
+            <p className="text-[13px] text-coral-500 -mt-2" role="alert">
               {state.error}
             </p>
           )}

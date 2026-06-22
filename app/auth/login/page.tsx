@@ -19,6 +19,7 @@ import {
   Mail,
   MailCheck,
   KeyRound,
+  ChevronLeft,
   type LucideIcon,
 } from "lucide-react";
 import type { z } from "zod";
@@ -85,7 +86,7 @@ function gateBlur(
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p className="text-[13px] text-red-600" role="alert">
+    <p className="text-[13px] text-coral-500" role="alert">
       {message}
     </p>
   );
@@ -120,7 +121,7 @@ function SubmitButton({
       style={{
         background: "var(--navy-900)",
         color: "#fff",
-        boxShadow: "0 6px 24px rgba(10,47,61,.14)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       {pending ? (
@@ -344,7 +345,7 @@ export default function LoginPage() {
 
       <div
         className="bg-white rounded-[22px] p-6 sm:p-8 border border-ink-100"
-        style={{ boxShadow: "0 4px 24px rgba(10,47,61,.06)" }}
+        style={{ boxShadow: "var(--shadow-sm)" }}
       >
         {/* ── Tabs ── */}
         <div className="flex gap-1 bg-ink-100/60 rounded-[12px] p-1 mb-6">
@@ -377,7 +378,8 @@ export default function LoginPage() {
               onClick={() => setShowReset(false)}
               className="flex items-center gap-1.5 text-[13px] text-ink-500 hover:text-ink-700 -mt-1 mb-1 transition-colors self-start"
             >
-              ← Retour à la connexion
+              <ChevronLeft size={16} aria-hidden="true" />
+              Retour à la connexion
             </button>
             <p className="text-[14px] text-ink-700">
               Saisis ton email, on t&apos;envoie un lien pour réinitialiser ton
@@ -405,7 +407,7 @@ export default function LoginPage() {
               />
               <FieldError message={resetErrors.email} />
               {resetState.error && (
-                <p className="text-[13px] text-red-600" role="alert">
+                <p className="text-[13px] text-coral-500" role="alert">
                   {resetState.error}
                 </p>
               )}
@@ -489,7 +491,7 @@ export default function LoginPage() {
               </button>
             </div>
             {signinState.error && (
-              <p className="text-[13px] text-red-600 -mt-2" role="alert">
+              <p className="text-[13px] text-coral-500 -mt-2" role="alert">
                 {signinState.error}
               </p>
             )}
@@ -572,7 +574,7 @@ export default function LoginPage() {
               <FieldError message={signupErrors.password_confirm} />
             </div>
             {signupState.error && (
-              <p className="text-[13px] text-red-600 -mt-2" role="alert">
+              <p className="text-[13px] text-coral-500 -mt-2" role="alert">
                 {signupState.error}
               </p>
             )}
@@ -594,7 +596,7 @@ export default function LoginPage() {
         <div className="flex flex-col gap-3">
           {/* Erreur OAuth */}
           {oauthError && (
-            <p className="text-[13px] text-red-600 text-center" role="alert">
+            <p className="text-[13px] text-coral-500 text-center" role="alert">
               La connexion Google a échoué. Réessaie.
             </p>
           )}
@@ -662,7 +664,7 @@ export default function LoginPage() {
                 />
                 <FieldError message={magicErrors.email} />
                 {magicState.error && (
-                  <p className="text-[13px] text-red-600" role="alert">
+                  <p className="text-[13px] text-coral-500" role="alert">
                     {magicState.error}
                   </p>
                 )}
