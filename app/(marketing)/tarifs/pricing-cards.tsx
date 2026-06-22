@@ -41,9 +41,8 @@ const plans = {
       { text: 'Coordonnées GPS précises de tous les spots' },
       { text: "Score d'activité 0-100 par spot" },
       { text: 'Filtres espèces, techniques, marées' },
-      { text: 'Mode hors ligne (carte + marées 7 jours)' },
-      { text: 'Notifications push créneaux optimaux' },
-      { text: 'Stats avancées + photos HD illimitées' },
+      { text: 'Notifications créneaux optimaux' },
+      { text: 'Photos HD illimitées' },
     ],
   },
   itinerant: {
@@ -55,8 +54,8 @@ const plans = {
     features: [
       { text: 'Tous les départements côtiers FR', strong: true },
       { text: 'Tout ce qui est dans Local · partout' },
-      { text: 'Bathymétrie SHOM premium' },
-      { text: 'Itinéraires GPS multi-spots' },
+      { text: 'Bathymétrie détaillée (EMODnet)' },
+      { text: 'Itinéraire GPS vers chaque spot' },
       { text: 'Stats inter-départements' },
       { text: 'Accès anticipé nouvelles fonctionnalités' },
       { text: 'Support prioritaire' },

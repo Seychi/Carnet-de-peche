@@ -518,8 +518,8 @@ export default async function HomePage() {
               <br className="hidden sm:block" /> Payant pour la précision.
             </h2>
             <p className="mx-auto mt-5 max-w-[560px] text-[16px] leading-relaxed text-ink-600 sm:text-[17px]">
-              Carnet illimité, fil complet et guides : gratuits pour toujours. La carte précise, le
-              score et le hors-ligne : à partir de 4,90 €/mois.
+              Carnet illimité, fil complet et guides : gratuits pour toujours. La carte précise et
+              le score : à partir de 4,90 €/mois.
             </p>
 
             <div className="mt-12 grid grid-cols-1 gap-5 text-left md:grid-cols-3">
@@ -534,13 +534,13 @@ export default async function HomePage() {
                   name: "Local",
                   price: "4,90 €",
                   per: "/ mois",
-                  desc: "La carte complète de ton département : coords précises, score 0-100, filtres, hors-ligne.",
+                  desc: "La carte complète de ton département : coords précises, score 0-100, filtres.",
                 },
                 {
                   name: "Itinérant",
                   price: "9,90 €",
                   per: "/ mois",
-                  desc: "Tous les départements côtiers, bathymétrie premium, itinéraires GPS multi-spots.",
+                  desc: "Tous les départements côtiers, bathymétrie détaillée (EMODnet), itinéraire GPS vers chaque spot.",
                 },
               ].map((p) => (
                 <Link

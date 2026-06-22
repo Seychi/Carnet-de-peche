@@ -87,8 +87,8 @@ const faqItems = [
     a: "Quand tu veux, en ligne, depuis ton compte — sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.",
   },
   {
-    q: "L'app fonctionne-t-elle hors ligne ?",
-    a: 'Oui, à partir du plan Local. Tu télécharges ton département : carte vectorielle, marées 7 jours, fiches espèces. Aucune donnée mobile nécessaire au pied de la falaise.',
+    q: "L'app fonctionne-t-elle sans connexion ?",
+    a: "Le mode hors ligne est en cours de développement. Pour l'instant, l'app se souvient des pages et fiches spots récemment visitées — pratique dans les zones à faible réseau.",
   },
   {
     q: 'Vous couvrez toute la France ?',
@@ -121,7 +121,7 @@ export default async function TarifsPage() {
           </h1>
           <p className="mt-5 text-base sm:text-lg text-ink-600 leading-relaxed max-w-xl mx-auto">
             Logue sans limite, poste sans limite. Tu paies uniquement pour ce qui se voit
-            au mètre près : la carte complète, le score, le hors-ligne.
+            au mètre près : la carte complète et le score.
           </p>
         </div>
 
