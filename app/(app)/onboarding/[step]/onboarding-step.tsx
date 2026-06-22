@@ -139,8 +139,9 @@ function UsernameStatus({
     return <p className="text-[12px] text-ink-500 mt-1">Vérification…</p>;
   if (status === "available")
     return (
-      <p className="text-[12px] text-teal-600 font-medium mt-1">
-        ✓ Pseudo disponible
+      <p className="inline-flex items-center gap-1 text-[12px] text-teal-600 font-medium mt-1">
+        <Check size={13} aria-hidden />
+        Pseudo disponible
       </p>
     );
   if (status === "taken")
@@ -328,7 +329,7 @@ export function OnboardingStep({
             ÉTAPE {String(step).padStart(2, "0")}/{String(totalSteps).padStart(2, "0")}
           </span>
           <span className="font-mono text-[11.5px] font-medium tracking-[0.08em] text-teal-600">
-            <span className="font-mono">{Math.round((step / totalSteps) * 100)}%</span>
+            {Math.round((step / totalSteps) * 100)}%
           </span>
         </div>
         <div
