@@ -80,7 +80,7 @@ export function PostList({
           type="button"
           onClick={loadMore}
           disabled={loading}
-          className="self-center inline-flex items-center gap-2 min-h-11 px-5 rounded-full border border-slate-200 text-[14px] font-semibold text-ink-600 hover:bg-white disabled:opacity-50"
+          className="self-center inline-flex items-center gap-2 min-h-11 px-5 rounded-full border border-ink-200 text-[14px] font-semibold text-ink-600 hover:bg-white disabled:opacity-50"
         >
           {loading && <Loader2 size={15} className="animate-spin" />}
           Voir plus

@@ -81,7 +81,7 @@ export function ReportDialog({
           maxLength={1000}
           rows={3}
           placeholder="Précise (optionnel)…"
-          className="w-full rounded-[14px] border border-slate-200 p-3 text-[14px] resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/40"
+          className="w-full rounded-[14px] border border-ink-200 p-3 text-[14px] resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/40"
         />
 
         <DialogFooter>

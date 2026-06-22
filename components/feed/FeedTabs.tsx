@@ -14,7 +14,7 @@ export function FeedTabs({ current }: { current: FeedTab }) {
   const pathname = usePathname()
 
   return (
-    <nav className="flex gap-1 border-b border-slate-100 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav className="flex gap-1 border-b border-ink-100 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {TABS.map((t) => {
         const active = t.key === current
         const href = t.key === 'dept' ? pathname : `${pathname}?tab=${t.key}`

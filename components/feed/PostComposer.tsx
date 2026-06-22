@@ -386,7 +386,7 @@ export function PostComposer({
                         setAttached(c)
                         setPickerOpen(false)
                       }}
-                      className="flex min-h-12 items-center gap-3 rounded-[10px] px-2 text-left hover:bg-slate-50"
+                      className="flex min-h-12 items-center gap-3 rounded-[10px] px-2 text-left hover:bg-ink-50"
                     >
                       <Fish size={16} className="shrink-0 text-teal-500" />
                       <span className="text-[14px] text-navy-900">

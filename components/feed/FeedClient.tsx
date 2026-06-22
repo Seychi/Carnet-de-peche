@@ -159,7 +159,7 @@ export function FeedClient({
                 type="button"
                 onClick={loadMore}
                 disabled={loading}
-                className="inline-flex min-h-11 items-center gap-2 self-center rounded-full border border-slate-200 px-5 text-[14px] font-semibold text-ink-600 hover:bg-white disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-2 self-center rounded-full border border-ink-200 px-5 text-[14px] font-semibold text-ink-600 hover:bg-white disabled:opacity-50"
               >
                 {loading && <Loader2 size={15} className="animate-spin" />}
                 Voir plus

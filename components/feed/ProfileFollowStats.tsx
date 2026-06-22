@@ -89,7 +89,7 @@ export function ProfileFollowStats({
               </div>
             )}
             {error && (
-              <p className="py-4 text-[14px] text-red-600" role="alert">{error}</p>
+              <p className="py-4 text-[14px] text-coral-500" role="alert">{error}</p>
             )}
             {!loading && !error && users.length === 0 && (
               <p className="py-4 text-[14px] text-ink-400">
