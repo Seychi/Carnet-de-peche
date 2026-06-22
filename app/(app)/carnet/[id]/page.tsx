@@ -8,6 +8,11 @@ import { PhotoViewer } from '@/components/catches/PhotoViewer'
 import { CatchActionsMenu } from '@/components/catches/CatchActionsMenu'
 import CatchMiniMap from '@/components/catches/CatchMiniMap'
 
+// Sûreté-cache (sprint 16) : page GPS-dépendante — la geom affichée est adaptée
+// au viewer (catches_for_viewer). Jamais de cache CDN/ISR partagé sinon un autre
+// utilisateur verrait la position précise. Rendu dynamique par requête.
+export const dynamic = 'force-dynamic'
+
 // ─── Dictionnaires ────────────────────────────────────────────────────────────
 
 const SPECIES_LABELS: Record<string, string> = {
