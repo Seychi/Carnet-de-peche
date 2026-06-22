@@ -11,6 +11,11 @@ import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url.server'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 import type { QualityLevel } from '@/lib/solunar/types'
 
+// Page dépendante du tier utilisateur + cookies GPS → jamais mise en cache partagée.
+// cookies() opte déjà la page en dynamique, mais on l'explicite pour éviter une
+// régression silencieuse si cookies() était un jour retiré.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
   description:
@@ -91,13 +96,19 @@ export default async function CartePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // Q1 + Q2 en parallèle : auth.getUser() partage le même round-trip JWT via
+  // React cache() (lib/auth/tier.ts), current_tier est le seul vrai aller-retour
+  // supplémentaire. Q3 (profile) est lancé immédiatement pour les connectés —
+  // home_department n'est pas sensible et permet d'éliminer un aller-retour série.
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, tier] = await Promise.all([
+    supabase.auth.getUser(),
+    getUserTier(),
+  ])
 
-  const tier = await getUserTier()
-
+  // Q3 lancé immédiatement après Q1+Q2 résolus. On a maintenant tier ET user.id
+  // sans aller-retour supplémentaire. INVARIANT : getUserTier() reste appelé
+  // AVANT fetchSpots (Q4). home_department n'est pas sensible.
   const profile = tier !== 'anonymous' && user ? await fetchProfile(user.id) : null
   const homeDept = profile?.home_department ?? null
 

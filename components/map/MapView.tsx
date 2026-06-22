@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification } from 'maplibre-gl'
 import { type SpotMarker, createFuzzyCircle, markerColorForQuality } from '@/lib/map/utils'
 import { scheduleReliableResize, resizeIfSized } from '@/lib/map/resize'
+import MapSkeleton from '@/components/map/MapSkeleton'
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -296,6 +297,37 @@ function addClusteredSpotsToMap(
   })
 }
 
+// ── Prefetch de tuiles pour accélérer le premier affichage ───────────────────
+// Envoie des fetch() low-priority sur la grille 3x3 autour du centre initial
+// afin de peupler le cache HTTP avant que MapLibre ne réclame les mêmes URLs.
+// MapTiler vector v3 → max-age=86400 → cache garanti. Silencieux (best-effort).
+function prefetchTilesAround(
+  center: [number, number],
+  zoom: number,
+  maptilerKey: string,
+): void {
+  const [lng, lat] = center
+  const z = Math.floor(zoom)
+  const x = Math.floor(((lng + 180) / 360) * 2 ** z)
+  const y = Math.floor(
+    ((1 -
+      Math.log(
+        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
+      ) /
+        Math.PI) /
+      2) *
+      2 ** z,
+  )
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      fetch(
+        `https://api.maptiler.com/tiles/v3/${z}/${x + dx}/${y + dy}.pbf?key=${maptilerKey}`,
+        { priority: 'low' } as RequestInit,
+      ).catch(() => {/* prefetch best-effort */})
+    }
+  }
+}
+
 // ── Composant ─────────────────────────────────────────────────────────────────
 
 export default function MapView({
@@ -348,6 +380,21 @@ export default function MapView({
     // Mode figé au mount : HTML markers sous le seuil, clustering au-dessus.
     useClusterRef.current = spots.length >= MAX_HTML_MARKERS
 
+    // ── Préchauffage WebWorkers MapLibre (avant import dynamique) ──────────────
+    // prewarm() initialise les workers partagés de parsing de tuiles dès maintenant,
+    // avant que new Map() ne les réclame — réduit la latence du premier rendu.
+    // Appelé AVANT setWorkerUrl/Count si besoin (requis par l'API).
+    if (typeof window !== 'undefined') {
+      import('maplibre-gl').then(({ prewarm }) => prewarm()).catch(() => {/* best-effort */})
+    }
+
+    // ── Préfetch des tuiles autour du centre initial (grille 3x3) ──────────────
+    // Les tuiles MapTiler vector v3 ont max-age=86400 → elles seront dans le
+    // cache HTTP quand MapLibre les demandera. Best-effort, silencieux.
+    if (typeof window !== 'undefined' && maptilerKey) {
+      prefetchTilesAround(initialCenter, initialZoom, maptilerKey)
+    }
+
     let mounted = true
     let attribObserver: MutationObserver | null = null
     let revealTimer: ReturnType<typeof setTimeout> | undefined
@@ -374,15 +421,28 @@ export default function MapView({
 
       if (!mounted || !containerRef.current) return
 
+      // Style allégé sur mobile (basic-v2 = moins de POI/labels → moins de symbol
+      // layers, moins de glyphs, rendu plus rapide). streets-v2 sur desktop.
+      const isMobile =
+        typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)
+      const styleUrl = isMobile
+        ? `https://api.maptiler.com/maps/basic-v2/style.json?key=${maptilerKey}`
+        : `https://api.maptiler.com/maps/streets-v2/style.json?key=${maptilerKey}`
+
       let map: MapLibreMap
       try {
         map = new maplibre.Map({
           container: containerRef.current,
-          style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${maptilerKey}`,
+          style: styleUrl,
           center: initialCenter,
           zoom: initialZoom,
           attributionControl: {},
           interactive,
+          // Perf : supprime le fade-in des labels (300ms de repaints), réduit le
+          // cache tuiles RAM, évite de rendre les copies du monde (inutile pour FR).
+          fadeDuration: 0,
+          maxTileCacheSize: 20,
+          renderWorldCopies: false,
         })
       } catch {
         console.warn('[MapView] WebGL non supporté ou erreur MapLibre init')
@@ -632,13 +692,7 @@ export default function MapView({
           className="pointer-events-none absolute bottom-2 left-2 z-10 hidden rounded-md bg-navy-950/80 px-2.5 py-1 font-mono text-[10.5px] tracking-[0.05em] text-teal-300 sm:block"
         />
       )}
-      {!loaded && (
-        <div
-          aria-hidden
-          className="absolute inset-0 motion-safe:animate-pulse pointer-events-none"
-          style={{ background: 'linear-gradient(180deg, #0A2F3D 0%, #103E50 55%, #14B8A6 170%)' }}
-        />
-      )}
+      {!loaded && <MapSkeleton />}
     </div>
   )
 }
