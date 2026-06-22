@@ -309,7 +309,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
             {spot.currentScore != null ? (
               <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100">
-                <b className={`font-semibold ${spot.currentQuality ? QUALITY_COLORS[spot.currentQuality] : 'text-ink-700'}`}>
+                <b className="font-semibold text-ink-900">
                   {spot.currentScore}
                 </b>
                 <span className="text-ink-400"> / 100</span>

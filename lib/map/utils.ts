@@ -31,14 +31,16 @@ export type SpotMarker = {
   currentScore?: number
 }
 
-// Couleur de marker par qualité (markers carte + légende).
-// Sémantique DA v2 : haut = teal, milieu = gold, bas = ink (cf. DA.md §3).
+// Couleur de marker par qualité (markers carte + légende + cercles flous).
+// Rampe VIRIDIS colorblind-safe : l'info passe par la LUMINOSITÉ croissante
+// (foncé → clair), pas par la teinte → 5 niveaux distincts pour tous les
+// daltonismes (deutéran / protan / tritan). Perceptuellement uniforme.
 export const QUALITY_MARKER_COLORS: Record<QualityLevel, string> = {
-  faible:         '#7E8C95', // ink-400 (score-low)
-  moyenne:        '#D9A53C', // gold-500 (score-mid)
-  bonne:          '#D9A53C', // gold-500 (score-mid)
-  tres_bonne:     '#0E9488', // teal-600 (score-high)
-  exceptionnelle: '#14B8A6', // teal-500 (score-high)
+  faible:         '#440154', // viridis 0.00 — violet foncé
+  moyenne:        '#3B528B', // viridis 0.25 — bleu
+  bonne:          '#21908C', // viridis 0.50 — teal
+  tres_bonne:     '#5DC863', // viridis 0.75 — vert
+  exceptionnelle: '#FDE725', // viridis 1.00 — jaune vif
 }
 
 export const QUALITY_NEUTRAL_COLOR = '#B7C2C9' // ink-300 (pas encore de score)

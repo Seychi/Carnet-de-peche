@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification } from 'maplibre-gl'
-import { type SpotMarker, createFuzzyCircle, markerColorForQuality } from '@/lib/map/utils'
+import { type SpotMarker, createFuzzyCircle, markerColorForQuality, QUALITY_MARKER_COLORS, QUALITY_NEUTRAL_COLOR } from '@/lib/map/utils'
 import { scheduleReliableResize, resizeIfSized } from '@/lib/map/resize'
 import MapSkeleton from '@/components/map/MapSkeleton'
 
@@ -16,22 +16,20 @@ const TEAL_500 = '#14B8A6'
 const TEAL_600 = '#0E9488'
 const TEAL_700 = '#0F766E'
 const GOLD_500 = '#D9A53C'
-const INK_400 = '#7E8C95'
-const INK_300 = '#B7C2C9'
 const FRANCE_CENTER: [number, number] = [-2.5, 47.0]
 
 // Couleur data-driven d'un feature GeoJSON selon sa propriété `quality`.
-// Sémantique DA v2 (haut teal · milieu gold · bas ink) — alignée sur
-// QUALITY_MARKER_COLORS de lib/map/utils.
+// Rampe viridis colorblind-safe — source unique : QUALITY_MARKER_COLORS de
+// lib/map/utils (l'info passe par la luminosité, pas par la teinte).
 const QUALITY_COLOR_EXPR: ExpressionSpecification = [
   'match',
   ['get', 'quality'],
-  'faible', INK_400,
-  'moyenne', GOLD_500,
-  'bonne', GOLD_500,
-  'tres_bonne', TEAL_600,
-  'exceptionnelle', TEAL_500,
-  INK_300,
+  'faible', QUALITY_MARKER_COLORS.faible,
+  'moyenne', QUALITY_MARKER_COLORS.moyenne,
+  'bonne', QUALITY_MARKER_COLORS.bonne,
+  'tres_bonne', QUALITY_MARKER_COLORS.tres_bonne,
+  'exceptionnelle', QUALITY_MARKER_COLORS.exceptionnelle,
+  QUALITY_NEUTRAL_COLOR,
 ]
 
 // Layers mode HTML (spots < MAX_HTML_MARKERS)
