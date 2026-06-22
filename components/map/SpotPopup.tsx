@@ -10,6 +10,7 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { getSpotNextWindow } from '@/app/actions/solunar'
 import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/solunar/types'
+import { QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 
 // ─── Solunar helpers ─────────────────────────────────────────────────────────
 
@@ -19,14 +20,6 @@ const QUALITY_LABELS: Record<QualityLevel, string> = {
   bonne: 'Bonne',
   tres_bonne: 'Très bonne',
   exceptionnelle: 'Exceptionnelle',
-}
-
-const QUALITY_COLORS: Record<QualityLevel, string> = {
-  faible: 'text-ink-400',
-  moyenne: 'text-gold-500',
-  bonne: 'text-lime-600',
-  tres_bonne: 'text-teal-500',
-  exceptionnelle: 'text-emerald-600',
 }
 
 const EVENT_LABELS: Record<SolunarEventType, string> = {
@@ -66,7 +59,7 @@ function NextWindowDisplay({ window: w }: { window: FishingWindow }) {
       <p className="text-sm font-semibold text-ink-900">
         {relativeDay(w.startTimeISO)} {w.startLocal} – {w.endLocal}
       </p>
-      <p className={`text-xs font-medium mt-0.5 ${QUALITY_COLORS[w.quality]}`}>
+      <p className={`text-xs font-medium mt-0.5 ${QUALITY_TEXT_CLS[w.quality]}`}>
         {QUALITY_LABELS[w.quality]} · {EVENT_LABELS[w.centerEvent.type]}
       </p>
     </div>

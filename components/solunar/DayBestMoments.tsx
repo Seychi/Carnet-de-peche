@@ -1,27 +1,10 @@
 'use client'
 
 import { CalendarX, Moon, Sun } from 'lucide-react'
-import type { DailyForecast, FishingWindow, QualityLevel } from '@/lib/solunar/types'
+import type { DailyForecast, FishingWindow } from '@/lib/solunar/types'
 import { BestMomentCard } from './BestMomentCard'
 import { ScoreBreakdown } from '@/components/scoring/ScoreBreakdown'
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const QUALITY_LABEL: Record<QualityLevel, string> = {
-  faible: 'Faible',
-  moyenne: 'Moyenne',
-  bonne: 'Bonne',
-  tres_bonne: 'Très Bonne',
-  exceptionnelle: 'Exceptionnelle',
-}
-
-const QUALITY_BADGE_CLS: Record<QualityLevel, string> = {
-  faible:         'bg-gray-100 text-gray-600', // gray-500 sur gray-100 = 4.39:1 < 4.5
-  moyenne:        'bg-gold-500/10 text-ink-700',
-  bonne:          'bg-lime-100 text-lime-700',
-  tres_bonne:     'bg-teal-100 text-teal-700',
-  exceptionnelle: 'bg-emerald-100 text-emerald-700',
-}
+import { QUALITY_LABELS as QUALITY_LABEL, QUALITY_BADGE_CLS } from '@/lib/solunar/quality-style'
 
 function formatDayHeader(dateStr: string): string {
   // dateStr = "2026-05-19" → "Mardi 19 mai"
