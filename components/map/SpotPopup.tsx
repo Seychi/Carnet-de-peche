@@ -307,17 +307,26 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
 
           <div className="flex items-center gap-2">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
-            <div className="relative group">
-              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100 text-ink-400">
-                — / 100
+            {spot.currentScore != null ? (
+              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100">
+                <b className={`font-semibold ${spot.currentQuality ? QUALITY_COLORS[spot.currentQuality] : 'text-ink-700'}`}>
+                  {spot.currentScore}
+                </b>
+                <span className="text-ink-400"> / 100</span>
               </span>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 pointer-events-none">
-                <div className="bg-ink-900 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-lg">
-                  Calibrage en cours — disponible dans la prochaine version
+            ) : (
+              <div className="relative group">
+                <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100 text-ink-400">
+                  — / 100
+                </span>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 pointer-events-none">
+                  <div className="bg-ink-900 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-lg">
+                    Score en cours de calcul
+                  </div>
+                  <div className="w-2 h-2 bg-ink-900 rotate-45 mx-auto -mt-1" />
                 </div>
-                <div className="w-2 h-2 bg-ink-900 rotate-45 mx-auto -mt-1" />
               </div>
-            </div>
+            )}
           </div>
         </>
       )}

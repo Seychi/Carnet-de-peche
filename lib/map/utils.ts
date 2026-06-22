@@ -26,6 +26,9 @@ export type SpotMarker = {
   // Qualité actuelle pré-calculée par le cron (spot_scores). undefined si pas
   // encore de score (cron pas passé / spot récent) → marker gris neutre.
   currentQuality?: QualityLevel
+  // Score numérique 0-100 (spot_scores.current_score) associé à currentQuality.
+  // Affiché dans le panneau spot ; undefined si pas encore scoré.
+  currentScore?: number
 }
 
 // Couleur de marker par qualité (markers carte + légende).

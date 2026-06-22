@@ -73,20 +73,26 @@ async function fetchSpots(
 }
 
 // Scores pré-calculés par le cron (spot_scores). On ne garde que les scores
-// frais (valid_until > now). Renvoie une Map spot_id → qualité actuelle.
-async function fetchFreshScores(spotIds: string[]): Promise<Map<string, QualityLevel>> {
-  const map = new Map<string, QualityLevel>()
+// frais (valid_until > now). Renvoie une Map spot_id → { qualité, score } actuels.
+async function fetchFreshScores(
+  spotIds: string[],
+): Promise<Map<string, { quality: QualityLevel; score: number }>> {
+  const map = new Map<string, { quality: QualityLevel; score: number }>()
   if (spotIds.length === 0) return map
 
   const supabase = await createClient()
   const { data } = await supabase
     .from('spot_scores')
-    .select('spot_id, current_quality, valid_until')
+    .select('spot_id, current_quality, current_score, valid_until')
     .gt('valid_until', new Date().toISOString())
     .in('spot_id', spotIds)
 
-  for (const row of (data ?? []) as { spot_id: string; current_quality: QualityLevel }[]) {
-    map.set(row.spot_id, row.current_quality)
+  for (const row of (data ?? []) as {
+    spot_id: string
+    current_quality: QualityLevel
+    current_score: number
+  }[]) {
+    map.set(row.spot_id, { quality: row.current_quality, score: row.current_score })
   }
   return map
 }
@@ -131,7 +137,10 @@ export default async function CartePage({
 
   // Merge des scores de qualité pré-calculés (markers colorisés)
   const scores = await fetchFreshScores(spotsRaw.map((s) => s.id))
-  const spots = spotsRaw.map((s) => ({ ...s, currentQuality: scores.get(s.id) }))
+  const spots = spotsRaw.map((s) => {
+    const sc = scores.get(s.id)
+    return { ...s, currentQuality: sc?.quality, currentScore: sc?.score }
+  })
 
   // Départements disponibles pour le sélecteur itinérant
   const availableDepartments = [...new Set(spots.map((s) => s.department))].sort()

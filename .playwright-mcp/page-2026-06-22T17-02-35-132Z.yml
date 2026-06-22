@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Carnet de Pêche" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e11]: Carnet de Pêche
+        - navigation [ref=e12]:
+          - link "Carte" [ref=e13] [cursor=pointer]:
+            - /url: /carte
+          - link "Spots" [ref=e14] [cursor=pointer]:
+            - /url: /spots
+          - link "Guides" [ref=e15] [cursor=pointer]:
+            - /url: /guides
+          - link "Tarifs" [ref=e16] [cursor=pointer]:
+            - /url: /tarifs
+        - generic [ref=e17]:
+          - link "Connexion" [ref=e18] [cursor=pointer]:
+            - /url: /auth/login
+          - link "Créer mon carnet" [ref=e19] [cursor=pointer]:
+            - /url: /auth/register
+    - main [ref=e20]:
+      - heading "Carte des spots de pêche" [level=1] [ref=e21]
+      - generic [ref=e23]:
+        - complementary [ref=e24]:
+          - heading "Filtres" [level=2] [ref=e26]
+        - generic [ref=e41]:
+          - generic [ref=e44]:
+            - button "Me géolocaliser" [ref=e45]:
+              - img [ref=e46]
+              - generic [ref=e48]: Me géolocaliser
+            - button "Spots autour de moi" [ref=e49]:
+              - img [ref=e50]
+              - generic [ref=e52]: Spots autour de moi
+          - generic [ref=e53]:
+            - generic [ref=e54]: Exceptionnelle
+            - generic [ref=e56]: Très Bonne
+            - generic [ref=e58]: Bonne
+            - generic [ref=e60]: Moyenne
+            - generic [ref=e62]: Faible
+          - generic [ref=e64]:
+            - paragraph [ref=e65]: 3 spots gratuits par département. Crée ton carnet pour voir tous les spots.
+            - link "C'est gratuit" [ref=e66] [cursor=pointer]:
+              - /url: /auth/login?tab=register
+  - region "Notifications alt+T"
