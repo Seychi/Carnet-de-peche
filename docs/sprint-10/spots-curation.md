@@ -136,6 +136,10 @@ Les façades Manche/Méditerranée passent après : loin des zones que John peut
 
 ## 7. Prochaines étapes
 
+> ✅ **Lots 1 + 2 + 3 insérés en prod (2026-06-21) → 83 spots** : lot 1 (28, Bretagne 29/22/35/56), lot 2 (24, 44/85), lot 3 (21, 17/33/40/64). Tous `verified=false`.
+>
+> ✅ **Lot 4 (Manche) INSÉRÉ EN PROD le 2026-06-22 → 109 spots** — 26 spots (50=8, 76=6, 14=4, 62=5, 59=3), **2ᵉ façade ouverte** (Manche → Hauts-de-France ; Somme 80 exclue). SQL : `supabase/seed-spots-lot-4.sql` (joué via MCP execute_sql, OK John). Vérif : `docs/sprint-10/lot-4-verification.md`. Confirmation satellite : **22 coords OK** (dont 5 spots de port `*` = pin sur bassin, normal) + **4 coords corrigées au satellite et validées John** (#9 Sainte-Adresse, #10 Étretat, #16 Port-en-Bessin = ~800 m dans les terres à l'origine, #19 Cap Gris-Nez). Floutage GPS vérifié 503-877 m, `verified=false`. Danger marée/falaise/courant explicite pour les postes exposés. **Reste : revue `/carte` + passage `verified=true` par John.**
+
 > ✅ **Lot 1 inséré en prod le 2026-06-21** — 28 spots (prod 10 → 38 : 29=18, 22=8, 35=5, 56=7). Vérif réel/public/département + **confirmation satellite de chaque coordonnée** faites (cf `docs/sprint-10/lot-1-verification.md`). Reste : revue `/carte` + `verified=true` par John. Décisions appliquées : Cap Fréhel (bar + mention interdiction), Port-Navalo (+lieu_jaune, diff. 4), Roselier (conservé).
 
 1. **John** : valider/corriger le lot 1 (§5) ligne par ligne — coords sur satellite, accès, retraits, ajouts de spots que tu connais.
