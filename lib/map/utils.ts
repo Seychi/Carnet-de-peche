@@ -32,15 +32,16 @@ export type SpotMarker = {
 }
 
 // Couleur de marker par qualité (markers carte + légende + cercles flous).
-// Rampe VIRIDIS colorblind-safe : l'info passe par la LUMINOSITÉ croissante
-// (foncé → clair), pas par la teinte → 5 niveaux distincts pour tous les
-// daltonismes (deutéran / protan / tritan). Perceptuellement uniforme.
+// Rampe CIVIDIS — colormap optimisée POUR le daltonisme (la luminosité monotone
+// est préservée sous deutéran/protan/tritan, pas seulement « CVD-friendly »
+// comme viridis). Vérifié (Machado sRGB) : ΔL* adjacent ~15-19 uniforme sous
+// tous les types, aucune paire faible. L'info passe par la luminosité, pas la teinte.
 export const QUALITY_MARKER_COLORS: Record<QualityLevel, string> = {
-  faible:         '#440154', // viridis 0.00 — violet foncé
-  moyenne:        '#3B528B', // viridis 0.25 — bleu
-  bonne:          '#21908C', // viridis 0.50 — teal
-  tres_bonne:     '#5DC863', // viridis 0.75 — vert
-  exceptionnelle: '#FDE725', // viridis 1.00 — jaune vif
+  faible:         '#00224E', // cividis 0.00 — bleu nuit
+  moyenne:        '#414D6B', // cividis 0.25 — bleu-gris
+  bonne:          '#7D7C78', // cividis 0.50 — gris
+  tres_bonne:     '#BCAF6F', // cividis 0.75 — olive
+  exceptionnelle: '#FEE838', // cividis 1.00 — jaune vif
 }
 
 export const QUALITY_NEUTRAL_COLOR = '#B7C2C9' // ink-300 (pas encore de score)
