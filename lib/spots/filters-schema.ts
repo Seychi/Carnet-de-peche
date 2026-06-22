@@ -12,6 +12,8 @@ export const spotFiltersSchema = z.object({
     .enum(['digue', 'plage', 'pointe_rocheuse', 'estuaire', 'cale', 'passe', 'cassure'])
     .optional(),
   difficulty: z.coerce.number().int().min(1).max(5).optional(),
+  // Provenance (sprint Carte-v2 / C2) — filtre d'affichage par source du spot.
+  source: z.array(z.enum(['curated', 'community', 'imported'])).optional(),
 })
 
 export type SpotFilters = z.infer<typeof spotFiltersSchema>

@@ -111,6 +111,19 @@ function createPinElement(spot: SpotMarker): HTMLElement {
     `position: absolute; inset: 0; border-radius: 50%; background: ${color}; ` +
     'border: 2px solid #fff; box-shadow: 0 2px 8px rgba(4,20,28,.3);'
   wrapper.appendChild(dot)
+
+  // ⟢ MERGE C2 (sprint Carte-v2) — badge « Vérifié » (garantie éditoriale)
+  // UNIQUEMENT pour les spots curés (source==='curated'). L'icône ✓ porte
+  // l'info par sa FORME, pas seulement la couleur (daltonisme). Les spots
+  // communautaires / importés (OSM) n'ont PAS ce badge.
+  if (spot.source === 'curated') {
+    const badge = document.createElement('div')
+    badge.className = 'marker-verified-badge'
+    badge.setAttribute('aria-hidden', 'true')
+    badge.textContent = '✓'
+    wrapper.appendChild(badge)
+  }
+
   return wrapper
 }
 
@@ -191,7 +204,8 @@ function buildClusterData(spots: SpotMarker[]) {
     features: spots.map((s) => ({
       type: 'Feature' as const,
       geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] as [number, number] },
-      properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '' },
+      // ⟢ MERGE C2 : `source` ajouté aux properties (transparent pour C1/heatmap).
+      properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '', source: s.source },
     })),
   }
 }

@@ -40,6 +40,7 @@ type SpotDetail = {
   hazards: string[] | null
   visibility: string
   verified: boolean
+  source: string
   created_at: string
 }
 
@@ -344,9 +345,21 @@ export default async function SpotPage({
           </nav>
 
           <div className="mb-3 flex flex-wrap items-start gap-2">
-            {spot.verified && (
+            {/* Provenance (C2) : « Vérifié » réservé aux curés ; communautaire /
+                importé portent leur propre badge (label + couleur distincte). */}
+            {spot.source === 'curated' && (
               <span className="rounded-full border border-teal-500/30 bg-teal-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
                 ✓ Vérifié
+              </span>
+            )}
+            {spot.source === 'community' && (
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-white/65">
+                Communautaire
+              </span>
+            )}
+            {spot.source === 'imported' && (
+              <span className="rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-500/90">
+                OpenStreetMap
               </span>
             )}
             {spot.visibility === 'subscriber' && (

@@ -4,7 +4,7 @@ import { useRef, useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
-import { Navigation, Locate, SlidersHorizontal, X, Star } from 'lucide-react'
+import { Navigation, Locate, SlidersHorizontal, X, Star, MapPinPlus } from 'lucide-react'
 import Link from 'next/link'
 import { BackButton } from '@/components/layout/BackButton'
 import type { Map as MapLibreMap } from 'maplibre-gl'
@@ -22,7 +22,11 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import type { NearbySpot } from '@/lib/spots/nearby'
-import BathyLayerControl from '@/components/map/BathyLayerControl'
+import MapLayerSelector from '@/components/map/MapLayerSelector'
+import { useCatchHeatmap } from '@/lib/map/useCatchHeatmap'
+import { useCatchHeatRealtime } from '@/lib/map/useCatchHeatRealtime'
+import type { HeatFilters } from '@/lib/map/heatmap'
+import { useBathyLayer } from '@/lib/map/useBathyLayer'
 
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
@@ -68,6 +72,9 @@ const NearbyPanel = dynamic(() => import('@/components/map/NearbyPanel'), {
 const loadSpotPopup = () => import('@/components/map/SpotPopup')
 const SpotPopup = dynamic(loadSpotPopup, { ssr: false })
 
+// Panneau « ton score » (perso, payant) — lazy, hors First Load JS de /carte.
+const ScorePanel = dynamic(() => import('@/components/map/ScorePanel'), { ssr: false })
+
 type MapShellProps = {
   spots: SpotMarker[]
   userTier: UserTier
@@ -101,6 +108,7 @@ function filterSpots(spots: SpotMarker[], filters: SpotFilters): SpotMarker[] {
     if (filters.department !== undefined && spot.department !== filters.department) return false
     if (filters.structure !== undefined && spot.structure !== filters.structure) return false
     if (filters.difficulty !== undefined && (spot.difficulty ?? 0) > filters.difficulty) return false
+    if (filters.source?.length && (!spot.source || !(filters.source as string[]).includes(spot.source))) return false
     return true
   })
 }
@@ -187,6 +195,51 @@ export default function MapShell({
         : undefined,
     [nearby.isOpen, nearby.results],
   )
+
+  // ── Carte vivante (Carte v2 / C1) ───────────────────────────────────────────
+  const [heatmapOn, setHeatmapOn] = useState(true)   // heatmap communautaire = teaser gratuit (tous tiers)
+  const [scoreOn, setScoreOn] = useState(false)      // « ton score » perso = payant (Local/Itinérant)
+  const [heatmapDays, setHeatmapDays] = useState(30)
+  const [heatVersion, setHeatVersion] = useState(0)
+  // Couche « Fond marin » (profondeur + nature du fond) — payant Itinérant (Carte v2 / C3a)
+  const [bathyOn, setBathyOn] = useState(false)
+  const [bathyOpacity, setBathyOpacity] = useState(0.7)
+  const [livePulse, setLivePulse] = useState<{ id: number; dept: string } | null>(null)
+  const pingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  // Filtres heatmap : espèce/technique (si posés par un abonné) + fenêtre temporelle.
+  const heatFilters: HeatFilters = useMemo(
+    () => ({ species: filters.species ?? null, techniques: filters.techniques ?? null, days: heatmapDays }),
+    [filters.species, filters.techniques, heatmapDays],
+  )
+
+  const { cellCount, loading: heatLoading } = useCatchHeatmap({
+    map: mapInstance,
+    enabled: heatmapOn,
+    filters: heatFilters,
+    version: heatVersion,
+  })
+
+  // Couche fond marin : ajout/retrait lazy + popup « Fond/Profondeur » au clic.
+  // Gating Itinérant (la donnée précise = payant) ; hors Itinérant, rien n'est branché.
+  useBathyLayer({
+    map: mapInstance,
+    active: bathyOn,
+    opacity: bathyOpacity,
+    enabled: userTier === 'itinerant',
+  })
+
+  // Prise publique loguée (broadcast geom-free, migration 042) → coalesce un refetch
+  // de la heatmap k-anonyme + pastille « +1 prise » discrète. Aucune coord reçue.
+  useCatchHeatRealtime((dept) => {
+    clearTimeout(pingTimerRef.current)
+    pingTimerRef.current = setTimeout(() => setHeatVersion((v) => v + 1), 1200)
+    const id = Date.now()
+    setLivePulse({ id, dept })
+    clearTimeout(pulseTimerRef.current)
+    pulseTimerRef.current = setTimeout(() => setLivePulse((p) => (p?.id === id ? null : p)), 3500)
+  })
 
   const handleFiltersChange = useCallback((f: SpotFilters) => setFilters(f), [])
 
@@ -380,6 +433,16 @@ export default function MapShell({
             </span>
           )}
         </div>
+        {/* ⟢ C2 — entrée « Proposer un spot » (utilisateurs connectés). */}
+        {!isAnonymous && (
+          <Link
+            href="/spots/proposer"
+            className="mx-4 mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-3 py-2 text-[13px] font-semibold text-teal-700 transition-colors hover:bg-teal-500/20"
+          >
+            <MapPinPlus size={15} aria-hidden="true" />
+            Proposer un spot
+          </Link>
+        )}
         <div className="flex-1 min-h-0 overflow-hidden">
           <MapFilters
             initialFilters={initialFilters}
@@ -434,6 +497,34 @@ export default function MapShell({
             void loadSpotPopup()
           }}
         />
+
+        {/* Sélecteur de couches — heatmap communautaire (gratuit) + ton score (payant) */}
+        <MapLayerSelector
+          userTier={userTier}
+          heatmapOn={heatmapOn}
+          onHeatmapToggle={setHeatmapOn}
+          heatmapDays={heatmapDays}
+          onDaysChange={setHeatmapDays}
+          heatmapEmpty={heatmapOn && cellCount === 0 && !heatLoading}
+          heatmapLoading={heatLoading}
+          scoreOn={scoreOn}
+          onScoreToggle={setScoreOn}
+          bathyOn={bathyOn}
+          onBathyToggle={setBathyOn}
+          bathyOpacity={bathyOpacity}
+          onBathyOpacityChange={setBathyOpacity}
+        />
+
+        {/* Pastille « +1 prise » — carte vivante (broadcast realtime, geom-free) */}
+        {livePulse && (
+          <div
+            key={livePulse.id}
+            className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 rounded-full bg-navy-900/90 px-3 py-1.5 text-[12px] font-medium text-white shadow-lg backdrop-blur-sm"
+          >
+            <span className="h-2 w-2 rounded-full bg-coral-500 animate-pulse" aria-hidden />
+            Nouvelle prise loguée{livePulse.dept ? ` · ${livePulse.dept}` : ''}
+          </div>
+        )}
 
         {/* Stack boutons — top-right — tablet/desktop uniquement (FAB stack gère mobile) */}
         <div className="hidden md:flex absolute top-3 right-3 z-10 flex-col gap-2">
@@ -514,15 +605,11 @@ export default function MapShell({
         {/* Légende qualité — desktop uniquement */}
         <MapLegend />
 
+        {/* Couche « ton score » — tendances perso descriptives (payant, gating serveur) */}
+        {scoreOn && <ScorePanel onClose={() => setScoreOn(false)} />}
+
         {/* Marqueur position utilisateur — affiché après géolocalisation */}
         <UserLocationMarker map={mapInstance} position={userPosition} />
-
-        {/* Couche « Fond marin » (profondeur + nature du fond) — Carte-v2 / C3a.
-            Contrôle autonome, à fondre dans le sélecteur de couches de C1 au merge.
-            Top-right sous le stack géoloc (libre sur mobile : ce stack est md+). */}
-        <div className="absolute right-3 top-16 md:top-[7.5rem] z-20">
-          <BathyLayerControl map={mapInstance} userTier={userTier} />
-        </div>
 
         {/* Popup spot actif */}
         {activeSpot && (
@@ -641,6 +728,17 @@ export default function MapShell({
             </button>
           </div>
 
+          {/* ⟢ C2 — entrée « Proposer un spot » (mobile, utilisateurs connectés). */}
+          {!isAnonymous && (
+            <Link
+              href="/spots/proposer"
+              onClick={() => setSheetOpen(false)}
+              className="mx-4 mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-3 py-2.5 text-[13px] font-semibold text-teal-700"
+            >
+              <MapPinPlus size={15} aria-hidden="true" />
+              Proposer un spot
+            </Link>
+          )}
           <div className="flex-1 min-h-0 overflow-hidden">
             <MapFilters
               key={sheetOpenCount}

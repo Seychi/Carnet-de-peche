@@ -1,15 +1,17 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import SpotActivityBadge from '@/components/map/SpotActivityBadge'
 import Link from 'next/link'
-import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, type LucideIcon } from 'lucide-react'
-import type { SpotMarker } from '@/lib/map/utils'
+import { X, MapPin, Navigation, Lock, Fish, Clock, Mountain, Umbrella, BrickWall, Waves, Anchor, Star, ShieldCheck, Users, Globe, type LucideIcon } from 'lucide-react'
+import type { SpotMarker, SpotSource } from '@/lib/map/utils'
 import type { UserTier } from '@/lib/auth/tier'
-import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
+import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS, SOURCE_LABELS } from '@/lib/labels'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { getSpotNextWindow } from '@/app/actions/solunar'
 import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/solunar/types'
+import { QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 
 // ─── Solunar helpers ─────────────────────────────────────────────────────────
 
@@ -19,14 +21,6 @@ const QUALITY_LABELS: Record<QualityLevel, string> = {
   bonne: 'Bonne',
   tres_bonne: 'Très bonne',
   exceptionnelle: 'Exceptionnelle',
-}
-
-const QUALITY_COLORS: Record<QualityLevel, string> = {
-  faible: 'text-ink-400',
-  moyenne: 'text-gold-500',
-  bonne: 'text-lime-600',
-  tres_bonne: 'text-teal-500',
-  exceptionnelle: 'text-emerald-600',
 }
 
 const EVENT_LABELS: Record<SolunarEventType, string> = {
@@ -66,7 +60,7 @@ function NextWindowDisplay({ window: w }: { window: FishingWindow }) {
       <p className="text-sm font-semibold text-ink-900">
         {relativeDay(w.startTimeISO)} {w.startLocal} – {w.endLocal}
       </p>
-      <p className={`text-xs font-medium mt-0.5 ${QUALITY_COLORS[w.quality]}`}>
+      <p className={`text-xs font-medium mt-0.5 ${QUALITY_TEXT_CLS[w.quality]}`}>
         {QUALITY_LABELS[w.quality]} · {EVENT_LABELS[w.centerEvent.type]}
       </p>
     </div>
@@ -145,6 +139,26 @@ function BadgeList({
         </span>
       )}
     </div>
+  )
+}
+
+// Badge de provenance — label + icône (forme), pas seulement la couleur
+// (daltonisme). « Vérifié » = garantie éditoriale, réservé aux spots curés.
+const SOURCE_BADGE: Record<SpotSource, { Icon: LucideIcon; cls: string }> = {
+  curated: { Icon: ShieldCheck, cls: 'bg-teal-500/10 text-teal-700' },
+  community: { Icon: Users, cls: 'bg-navy-900/10 text-navy-900' },
+  imported: { Icon: Globe, cls: 'bg-gold-500/15 text-ink-700' },
+}
+
+function SourceChip({ source }: { source: SpotSource }) {
+  const { Icon, cls } = SOURCE_BADGE[source] ?? SOURCE_BADGE.community
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] ${cls}`}
+    >
+      <Icon size={11} aria-hidden="true" />
+      {SOURCE_LABELS[source] ?? source}
+    </span>
   )
 }
 
@@ -253,6 +267,11 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
               : spot.department}
           </p>
+          {spot.source && (
+            <div className="mt-1.5">
+              <SourceChip source={spot.source} />
+            </div>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -330,6 +349,9 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           </div>
         </>
       )}
+
+      {/* Signal social — activité récente du spot (Carte v2 / C1, Bloc D) */}
+      <SpotActivityBadge spotId={spot.id} />
 
       {/* Prochain créneau */}
       {isPaid && (

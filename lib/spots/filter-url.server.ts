@@ -59,5 +59,11 @@ export function parseFiltersFromSearchParams(params: RawParams): SpotFilters {
     filters.difficulty = difficultyResult.data
   }
 
+  const sourceRaw = getArray(params, 'source')
+  const sourceResult = spotFiltersSchema.shape.source.safeParse(sourceRaw)
+  if (sourceResult.success && sourceResult.data && sourceResult.data.length > 0) {
+    filters.source = sourceResult.data
+  }
+
   return filters
 }

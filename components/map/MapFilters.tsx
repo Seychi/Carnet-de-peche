@@ -20,6 +20,7 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 type Species = NonNullable<SpotFilters['species']>[number]
 type Technique = NonNullable<SpotFilters['techniques']>[number]
 type StructureValue = NonNullable<SpotFilters['structure']>
+type SourceValue = NonNullable<SpotFilters['source']>[number]
 
 const ALL_SPECIES = Object.keys(SPECIES_LABELS) as Species[]
 const ALL_TECHNIQUES = Object.keys(TECHNIQUE_LABELS) as Technique[]
@@ -31,6 +32,12 @@ const ALL_STRUCTURES: StructureValue[] = [
   'cale',
   'passe',
   'cassure',
+]
+// Provenance (sprint Carte-v2 / C2) — libellés au pluriel (toggle d'affichage).
+const SOURCE_FILTER: { value: SourceValue; label: string }[] = [
+  { value: 'curated', label: 'Vérifiés' },
+  { value: 'community', label: 'Communautaires' },
+  { value: 'imported', label: 'Importés (OSM)' },
 ]
 
 export type MapFiltersProps = {
@@ -222,6 +229,15 @@ export default function MapFilters({
     setFilters((prev): SpotFilters => ({ ...prev, difficulty: v }))
   }
 
+  function toggleSource(s: SourceValue) {
+    setFilters((prev): SpotFilters => ({
+      ...prev,
+      source: prev.source?.includes(s)
+        ? prev.source.filter((x) => x !== s)
+        : [...(prev.source ?? []), s],
+    }))
+  }
+
   function resetFilters() {
     setFilters({})
     try { localStorage.removeItem(LS_KEY) } catch { /* ignore */ }
@@ -371,6 +387,21 @@ export default function MapFilters({
         <div>
           <SectionLabel>Difficulté max</SectionLabel>
           <DifficultyPicker value={filters.difficulty} onChange={setDifficulty} />
+        </div>
+
+        {/* Provenance */}
+        <div>
+          <SectionLabel>Provenance</SectionLabel>
+          <div className="grid grid-cols-3 gap-1.5 md:flex md:flex-wrap">
+            {SOURCE_FILTER.map(({ value, label }) => (
+              <FilterChip
+                key={value}
+                label={label}
+                active={filters.source?.includes(value) ?? false}
+                onClick={() => toggleSource(value)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
