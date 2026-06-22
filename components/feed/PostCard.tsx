@@ -82,6 +82,7 @@ export const PostCard = memo(function PostCard({
   const [liked, setLiked] = useState(Boolean(post.liked_by_me))
   const [likeCount, setLikeCount] = useState(post.likes_count ?? 0)
   const [commentCount, setCommentCount] = useState(post.comments_count ?? 0)
+  const [likePop, setLikePop] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   // Le dialog (lazy) n'est monté qu'au premier clic « Signaler », puis reste
@@ -156,6 +157,11 @@ export const PostCard = memo(function PostCard({
       return
     }
     const next = !liked
+    if (next) {
+      setLikePop(false)
+      // double rAF : garantit un reflow pour que l'animation rejoue à chaque like
+      requestAnimationFrame(() => requestAnimationFrame(() => setLikePop(true)))
+    }
     // Optimistic complet : cœur ET compteur (l'audit voyait « 1 » n'apparaître
     // qu'à l'écho Realtime, voire jamais). L'écho de cette action sera dédupliqué.
     setLiked(next)
@@ -239,7 +245,7 @@ export const PostCard = memo(function PostCard({
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Options du post"
-              className="flex size-11 items-center justify-center rounded-full text-ink-400 hover:bg-slate-100"
+              className="flex size-11 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 active:opacity-70"
             >
               {deleting ? <Loader2 size={18} className="animate-spin" /> : <MoreHorizontal size={18} />}
             </DropdownMenuTrigger>
@@ -298,20 +304,32 @@ export const PostCard = memo(function PostCard({
           onClick={handleLike}
           aria-pressed={liked}
           aria-label="Aimer"
-          className="flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-[13px] hover:bg-slate-50"
+          className="flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-[13px] transition-colors hover:bg-ink-50 active:scale-95 motion-reduce:active:scale-100"
         >
-          <Heart size={18} className={liked ? 'fill-red-500 text-red-500' : ''} />
-          {likeCount > 0 && <span>{likeCount}</span>}
+          <span className="relative inline-flex">
+            <Heart
+              size={18}
+              className={cn(
+                liked && 'fill-coral-500 text-coral-500',
+                likePop && 'animate-like-pop',
+              )}
+              onAnimationEnd={() => setLikePop(false)}
+            />
+            {likePop && (
+              <span aria-hidden className="animate-like-halo pointer-events-none absolute inset-0 rounded-full" />
+            )}
+          </span>
+          {likeCount > 0 && <span className="font-mono">{likeCount}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setShowComments((s) => !s)}
           aria-label="Commentaires"
-          className="flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-[13px] hover:bg-slate-50"
+          className="flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-[13px] transition-colors hover:bg-ink-50 active:scale-95 motion-reduce:active:scale-100"
         >
           <MessageCircle size={18} />
-          {commentCount > 0 && <span>{commentCount}</span>}
+          {commentCount > 0 && <span className="font-mono">{commentCount}</span>}
         </button>
 
         <button
@@ -321,7 +339,7 @@ export const PostCard = memo(function PostCard({
             setReportOpen(true)
           }}
           aria-label="Signaler"
-          className="flex size-11 items-center justify-center rounded-full hover:bg-slate-50"
+          className="flex size-11 items-center justify-center rounded-full transition-colors hover:bg-ink-50 active:opacity-70"
         >
           <Flag size={17} />
         </button>
@@ -330,7 +348,7 @@ export const PostCard = memo(function PostCard({
           type="button"
           onClick={handleShare}
           aria-label="Partager"
-          className="ml-auto flex size-11 items-center justify-center rounded-full hover:bg-slate-50"
+          className="ml-auto flex size-11 items-center justify-center rounded-full transition-colors hover:bg-ink-50 active:opacity-70"
         >
           <Share2 size={17} />
         </button>
