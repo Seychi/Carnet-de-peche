@@ -209,8 +209,8 @@ export default async function SpotsPage({ searchParams }: Props) {
       {/* ── Filtres — form HTML GET, server-side ────────────────────────── */}
       <section className="bg-white border-b border-ink-100 py-5 sticky top-0 z-10">
         <div className="max-w-[1280px] mx-auto px-6">
-          <form method="GET" action="/spots" className="flex flex-col sm:flex-row gap-3 items-end flex-wrap">
-            <div className="flex flex-col gap-1">
+          <form method="GET" action="/spots" className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end flex-wrap">
+            <div className="flex flex-col gap-1 w-full sm:w-auto">
               <label
                 htmlFor="filter-dept"
                 className="text-xs font-medium text-ink-500 uppercase tracking-wide"
@@ -221,7 +221,7 @@ export default async function SpotsPage({ searchParams }: Props) {
                 id="filter-dept"
                 name="dept"
                 defaultValue={dept ?? ''}
-                className="px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">Tous les départements</option>
                 {COASTAL_DEPARTMENTS.map((code) => (
@@ -232,7 +232,7 @@ export default async function SpotsPage({ searchParams }: Props) {
               </select>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 w-full sm:w-auto">
               <label
                 htmlFor="filter-species"
                 className="text-xs font-medium text-ink-500 uppercase tracking-wide"
@@ -243,7 +243,7 @@ export default async function SpotsPage({ searchParams }: Props) {
                 id="filter-species"
                 name="species"
                 defaultValue={species ?? ''}
-                className="px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-[10px] border border-ink-200 bg-white text-sm text-ink-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">Toutes les espèces</option>
                 {Object.entries(SPECIES_LABELS).map(([value, label]) => (
@@ -256,7 +256,7 @@ export default async function SpotsPage({ searchParams }: Props) {
 
             <button
               type="submit"
-              className="px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold rounded-[10px] transition-colors whitespace-nowrap"
+              className="w-full sm:w-auto px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold rounded-[10px] transition-colors whitespace-nowrap"
             >
               Filtrer
             </button>
