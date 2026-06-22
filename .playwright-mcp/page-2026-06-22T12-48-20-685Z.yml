@@ -1,0 +1,296 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e5]
+      - generic [ref=e9]:
+        - link "Créer mon carnet" [ref=e10] [cursor=pointer]:
+          - /url: /auth/register
+        - button "Ouvrir le menu" [ref=e11]:
+          - img [ref=e12]
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic:
+          - img:
+            - generic: — 5 m
+            - generic: — 10 m
+            - generic: — 15 m
+        - generic [ref=e16]:
+          - navigation "Fil d'ariane" [ref=e17]:
+            - link "Espèces" [ref=e18] [cursor=pointer]:
+              - /url: /especes
+            - img [ref=e19]
+            - generic [ref=e21]: BAR
+          - heading "Le bar Dicentrarchus labrax" [level=1] [ref=e22]
+          - paragraph [ref=e23]: "Le bar est LE poisson du bord en France : présent de Dunkerque à Menton, il chasse dans 50 cm d'eau comme le long des digues. Assez accessible pour ton premier poisson au leurre, assez malin pour t'obséder vingt ans — c'est lui qui remplit les carnets des pêcheurs du bord."
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - generic [ref=e26]: TAILLE COURANTE
+              - paragraph [ref=e27]: 35-55 cm du bord, 70 cm+ pour les beaux sujets
+            - generic [ref=e28]:
+              - generic [ref=e29]: TAILLE MAX
+              - paragraph [ref=e30]: Environ 1 m pour 10-12 kg, rarissime du bord
+            - generic [ref=e31]:
+              - generic [ref=e32]: HABITAT
+              - paragraph [ref=e33]: Pointes rocheuses, plages, estuaires, ports — de 0,5 à 15 m d'eau
+            - generic [ref=e34]:
+              - generic [ref=e35]: RÉGIME
+              - paragraph [ref=e36]: "Chasseur opportuniste : lançons, sardines, crabes, crevettes, vers"
+          - generic [ref=e37]: ● 1 PRISE LOGUÉE CES 30 DERNIERS JOURS SUR LA CARTE
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: "Quatre techniques le prennent du bord, et aucune autre de nos espèces n'offre ça : leurre souple raclé sur une pointe battue, arénicole posée dans une baïne à 2 h du matin, lançon vivant dérivé dans la veine de courant, crevette sous un flotteur le long d'un quai. Un 45 cm te semblera énorme la première année ; un 70 cm+ reste un événement qu'on raconte encore dix ans après. En Méditerranée on l'appelle loup — même poisson, mais éduqué par l'eau claire et la pression de pêche."
+            - paragraph [ref=e43]: "Le bar ne se donne pas : il impose de lire la marée, le vent et la lumière, puis de revenir au bon créneau. C'est aussi l'espèce la plus encadrée de nos côtes — maille, quota, fermeture hivernale, marquage — alors lis la réglementation ci-dessous avant de garder ton premier poisson."
+          - generic [ref=e44]:
+            - heading "Taille légale et réglementation" [level=2] [ref=e45]
+            - complementary [ref=e46]:
+              - generic [ref=e48]:
+                - img [ref=e49]
+                - text: Bar · pêche de loisir
+              - generic [ref=e52]:
+                - generic [ref=e53]: Maille 42 cm (Manche/Atl.) · 30 cm (Médit.)
+                - generic [ref=e54]: · vérifié le 21/06/2026 · Légifrance
+                - generic [ref=e55]: Marquage obligatoire
+              - list [ref=e56]:
+                - listitem [ref=e57]:
+                  - generic [ref=e59]:
+                    - strong [ref=e60]: "Maille : 42 cm"
+                    - text: en Manche, mer du Nord et Atlantique —
+                    - strong [ref=e61]: 30 cm
+                    - text: en Méditerranée (42 cm dans le Parc naturel marin du Golfe du Lion).
+                - listitem [ref=e62]:
+                  - generic [ref=e64]:
+                    - strong [ref=e65]: "Quota : 3 bars/jour/pêcheur au nord du 48e parallèle"
+                    - text: (≈ Audierne),
+                    - strong [ref=e66]: 2 bars/jour au sud
+                    - text: du 48e parallèle.
+                - listitem [ref=e67]:
+                  - generic [ref=e69]:
+                    - strong [ref=e70]: "Février et mars : pêcher-relâcher obligatoire au nord du 48e parallèle"
+                    - text: — aucun prélèvement ; au sud du 48e, la pêche reste autorisée toute l'année (2/jour).
+                - listitem [ref=e71]:
+                  - generic [ref=e73]:
+                    - strong [ref=e74]: Marquage obligatoire
+                    - text: "de tout bar conservé : ablation de la partie inférieure de la nageoire caudale."
+              - paragraph [ref=e75]: "Source : Arrêté du 1er avril 2026 (pêche de loisir du bar européen) ; arrêté du 26 octobre 2012 modifié (tailles minimales) ; arrêté du 17 mai 2011 modifié (marquage). La réglementation évolue — vérifie l'arrêté en vigueur de ta façade avant de prélever."
+          - generic [ref=e76]:
+            - heading "Les saisons, façade par façade" [level=2] [ref=e77]
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic [ref=e80]: MANCHE · ATLANTIQUE
+                - table [ref=e81]:
+                  - rowgroup [ref=e82]:
+                    - row "Printemps ●●● Pleine saison Les bars reviennent du large dès avril ; mai-juin est le premier grand pic de l'année, leurres souples sur les pointes et plateaux qui se réchauffent." [ref=e83]:
+                      - cell "Printemps" [ref=e84]
+                      - cell "●●● Pleine saison" [ref=e85]:
+                        - generic [ref=e86]: ●●● Pleine saison
+                      - cell "Les bars reviennent du large dès avril ; mai-juin est le premier grand pic de l'année, leurres souples sur les pointes et plateaux qui se réchauffent." [ref=e87]
+                    - 'row "Été ●●○ Bonne Poissons présents mais méfiants : aube et coup du soir aux leurres de surface, nuit au surfcasting — laisse tomber le plein soleil de midi." [ref=e88]':
+                      - cell "Été" [ref=e89]
+                      - cell "●●○ Bonne" [ref=e90]:
+                        - generic [ref=e91]: ●●○ Bonne
+                      - 'cell "Poissons présents mais méfiants : aube et coup du soir aux leurres de surface, nuit au surfcasting — laisse tomber le plein soleil de midi." [ref=e92]'
+                    - 'row "Automne ●●● Pleine saison Septembre-octobre, le second pic : les bars se gavent avant l''hiver, chasses en pleine journée, gros sujets au surfcasting de nuit sur mer formée." [ref=e93]':
+                      - cell "Automne" [ref=e94]
+                      - cell "●●● Pleine saison" [ref=e95]:
+                        - generic [ref=e96]: ●●● Pleine saison
+                      - 'cell "Septembre-octobre, le second pic : les bars se gavent avant l''hiver, chasses en pleine journée, gros sujets au surfcasting de nuit sur mer formée." [ref=e97]'
+                    - row "Hiver ●○○ Calme La majorité des poissons regagne le large ; il reste quelques bars dans les ports et les estuaires tempérés, à chercher à la crevette." [ref=e98]:
+                      - cell "Hiver" [ref=e99]
+                      - cell "●○○ Calme" [ref=e100]:
+                        - generic [ref=e101]: ●○○ Calme
+                      - cell "La majorité des poissons regagne le large ; il reste quelques bars dans les ports et les estuaires tempérés, à chercher à la crevette." [ref=e102]
+              - generic [ref=e103]:
+                - generic [ref=e104]: MÉDITERRANÉE
+                - table [ref=e105]:
+                  - rowgroup [ref=e106]:
+                    - row "Printemps ●●○ Bonne Activité correcte sur les graus et les étangs à la sortie de l'hiver ; pêche fine à l'aube, les loups restent méfiants en eau claire." [ref=e107]:
+                      - cell "Printemps" [ref=e108]
+                      - cell "●●○ Bonne" [ref=e109]:
+                        - generic [ref=e110]: ●●○ Bonne
+                      - cell "Activité correcte sur les graus et les étangs à la sortie de l'hiver ; pêche fine à l'aube, les loups restent méfiants en eau claire." [ref=e111]
+                    - 'row "Été ●○○ Calme La période la plus dure : eau chaude, pression de pêche maximale. Seule la première heure du jour donne régulièrement quelques loups le long des digues." [ref=e112]':
+                      - cell "Été" [ref=e113]
+                      - cell "●○○ Calme" [ref=e114]:
+                        - generic [ref=e115]: ●○○ Calme
+                      - 'cell "La période la plus dure : eau chaude, pression de pêche maximale. Seule la première heure du jour donne régulièrement quelques loups le long des digues." [ref=e116]'
+                    - 'row "Automne ●●● Pleine saison LA saison du loup : les coups d''est brassent digues et embouchures, les gros sujets chassent à portée de lancer pendant 48 h après le vent." [ref=e117]':
+                      - cell "Automne" [ref=e118]
+                      - cell "●●● Pleine saison" [ref=e119]:
+                        - generic [ref=e120]: ●●● Pleine saison
+                      - 'cell "LA saison du loup : les coups d''est brassent digues et embouchures, les gros sujets chassent à portée de lancer pendant 48 h après le vent." [ref=e121]'
+                    - 'row "Hiver ●●● Pleine saison Les loups se regroupent près du bord pour frayer : digues, ports et sorties d''eau douce donnent les plus beaux poissons de l''année." [ref=e122]':
+                      - cell "Hiver" [ref=e123]
+                      - cell "●●● Pleine saison" [ref=e124]:
+                        - generic [ref=e125]: ●●● Pleine saison
+                      - 'cell "Les loups se regroupent près du bord pour frayer : digues, ports et sorties d''eau douce donnent les plus beaux poissons de l''année." [ref=e126]'
+          - generic [ref=e127]:
+            - heading "Comment le pêcher du bord" [level=2] [ref=e128]
+            - generic [ref=e129]:
+              - 'link "Aux leurres La technique reine : un shad de 10-12 cm raclé sur une pointe battue ou un stickbait sur les chasses prennent des bars d''avril à novembre." [ref=e130] [cursor=pointer]':
+                - /url: /peche/bar/leurres
+                - generic [ref=e131]: Aux leurres
+                - generic [ref=e132]: "La technique reine : un shad de 10-12 cm raclé sur une pointe battue ou un stickbait sur les chasses prennent des bars d'avril à novembre."
+                - img [ref=e133]
+              - 'link "Au surfcasting L''arme des plages océanes la nuit : arénicole ou couteau dans la première baïne, à la remontante, sur une mer formée de 1 à 1,5 m." [ref=e135] [cursor=pointer]':
+                - /url: /peche/bar/surfcasting
+                - generic [ref=e136]: Au surfcasting
+                - generic [ref=e137]: "L'arme des plages océanes la nuit : arénicole ou couteau dans la première baïne, à la remontante, sur une mer formée de 1 à 1,5 m."
+                - img [ref=e138]
+              - 'link "Au vif Le filon des gros sujets : un lançon vivant dérivé sous une pointe rocheuse à la reprise du courant après l''étale." [ref=e140] [cursor=pointer]':
+                - /url: /peche/bar/vif
+                - generic [ref=e141]: Au vif
+                - generic [ref=e142]: "Le filon des gros sujets : un lançon vivant dérivé sous une pointe rocheuse à la reprise du courant après l'étale."
+                - img [ref=e143]
+              - 'link "À la flottante La pêche fine des ports et estuaires : crevette vivante sous flotteur le long des quais, redoutable quand tout le reste échoue." [ref=e145] [cursor=pointer]':
+                - /url: /peche/bar/flottante
+                - generic [ref=e146]: À la flottante
+                - generic [ref=e147]: "La pêche fine des ports et estuaires : crevette vivante sous flotteur le long des quais, redoutable quand tout le reste échoue."
+                - img [ref=e148]
+          - generic [ref=e150]:
+            - heading "Où se poster selon les conditions" [level=2] [ref=e151]
+            - paragraph [ref=e152]: "Le bar aime l'eau qui bouge. Sur la façade Manche-Atlantique, cale ta session sur la marée de TON spot, pas sur ta montre : les deux dernières heures de montante et la première de descendante concentrent l'essentiel des touches, surtout quand le courant se rétablit après l'étale. Les coefficients moyens à forts (70-95) brassent juste ce qu'il faut ; au-delà de 100, courant et turbidité compliquent la présentation. La courbe de marée et les horaires de pleine et basse mer de chaque spot sont dans l'app — croise-les avec tes propres prises."
+            - paragraph [ref=e153]: "Côté météo, fuis la mer d'huile sous grand soleil. Un vent de mer de 15 à 25 km/h qui teinte l'eau et forme un peu d'écume met les bars en confiance ; pour le surfcasting, une houle de 1 à 1,5 m qui creuse les baïnes vaut dix sessions sur mer plate. Le créneau en or : 24 à 48 h après un coup de vent, quand l'eau commence à clarifier et que les embouchures regorgent de nourriture déterrée."
+            - paragraph [ref=e154]: "Les postes qui paient : pointes rocheuses battues où la veine de courant accélère, sorties de parcs ostréicoles, baïnes et sorties d'eau des plages océanes la nuit, quais et pontons à l'ombre des coques dans les ports. En Méditerranée, vise les digues, les graus et les sorties d'eau douce, surtout pendant et juste après un coup d'est. Partout, la même règle : l'aube et le crépuscule écrasent le reste de la journée."
+            - paragraph [ref=e155]:
+              - text: Chaque fiche spot de
+              - link "la carte" [ref=e156] [cursor=pointer]:
+                - /url: /carte
+              - text: affiche la courbe de marée du jour, le vent et la houle — de quoi choisir ton poste avant de charger la voiture.
+          - generic [ref=e157]:
+            - heading "Questions fréquentes" [level=2] [ref=e158]
+            - generic [ref=e159]:
+              - group [ref=e160]:
+                - generic "Quelle est la taille minimale du bar en 2026 ?" [ref=e161] [cursor=pointer]
+              - group [ref=e162]:
+                - generic "Combien de bars peut-on garder par jour ?" [ref=e163] [cursor=pointer]
+              - group [ref=e164]:
+                - generic "Quel est le meilleur moment de marée pour pêcher le bar ?" [ref=e165] [cursor=pointer]
+              - group [ref=e166]:
+                - generic "Quel leurre choisir pour le bar du bord ?" [ref=e167] [cursor=pointer]
+        - complementary [ref=e168]:
+          - generic [ref=e169]:
+            - generic [ref=e170]:
+              - generic [ref=e171]: SPOTS À BAR
+              - list [ref=e172]:
+                - listitem [ref=e173]:
+                  - link "Le Diben (Brest) 29 · DIGUE" [ref=e174] [cursor=pointer]:
+                    - /url: /spots/le-diben-brest
+                    - img [ref=e175]
+                    - generic [ref=e178]:
+                      - generic [ref=e179]: Le Diben (Brest)
+                      - generic [ref=e180]: 29 · DIGUE
+                - listitem [ref=e181]:
+                  - link "Pointe du Raz 29 · POINTE ROCHEUSE" [ref=e182] [cursor=pointer]:
+                    - /url: /spots/pointe-du-raz
+                    - img [ref=e183]
+                    - generic [ref=e186]:
+                      - generic [ref=e187]: Pointe du Raz
+                      - generic [ref=e188]: 29 · POINTE ROCHEUSE
+                - listitem [ref=e189]:
+                  - link "Cap Sizun 29 · POINTE ROCHEUSE" [ref=e190] [cursor=pointer]:
+                    - /url: /spots/cap-sizun
+                    - img [ref=e191]
+                    - generic [ref=e194]:
+                      - generic [ref=e195]: Cap Sizun
+                      - generic [ref=e196]: 29 · POINTE ROCHEUSE
+                - listitem [ref=e197]:
+                  - link "Anse de Térénez 29 · ESTUAIRE" [ref=e198] [cursor=pointer]:
+                    - /url: /spots/anse-de-terenez
+                    - img [ref=e199]
+                    - generic [ref=e202]:
+                      - generic [ref=e203]: Anse de Térénez
+                      - generic [ref=e204]: 29 · ESTUAIRE
+            - generic [ref=e205]:
+              - generic [ref=e206]: GUIDES LIÉS
+              - list [ref=e207]:
+                - listitem [ref=e208]:
+                  - link "Comment lire une courbe de marée pour pêcher du bord →" [ref=e209] [cursor=pointer]:
+                    - /url: /guides/comment-lire-une-courbe-de-maree
+                - listitem [ref=e210]:
+                  - link "Les meilleurs coefficients de marée pour pêcher le bar →" [ref=e211] [cursor=pointer]:
+                    - /url: /guides/les-meilleurs-coefficients-pour-pecher-le-bar
+                - listitem [ref=e212]:
+                  - link "Les meilleurs spots de pêche en Bretagne →" [ref=e213] [cursor=pointer]:
+                    - /url: /guides/les-meilleurs-spots-de-peche-en-bretagne
+            - generic [ref=e214]:
+              - generic:
+                - img
+              - generic [ref=e215]:
+                - paragraph [ref=e216]: Tes prises du bar, tes patterns
+                - paragraph [ref=e217]: "Logue tes sorties : le carnet apprend quand et où TU le prends."
+                - link "Créer mon carnet gratuit" [ref=e218] [cursor=pointer]:
+                  - /url: /auth/register
+  - contentinfo [ref=e219]:
+    - generic:
+      - img
+    - generic [ref=e220]:
+      - generic [ref=e221]:
+        - generic [ref=e222]:
+          - link "Carnet de Pêche" [ref=e223] [cursor=pointer]:
+            - /url: /
+            - img [ref=e224]
+            - generic [ref=e228]: Carnet de Pêche
+          - paragraph [ref=e229]: Logue. Partage. Progresse.
+          - paragraph [ref=e230]: Le réseau social des pêcheurs à la canne du bord en France.
+          - generic [ref=e231]: FR · Atlantique · Manche · Méditerranée
+        - generic [ref=e232]:
+          - heading "Produit" [level=3] [ref=e233]
+          - list [ref=e234]:
+            - listitem [ref=e235]:
+              - link "Carte" [ref=e236] [cursor=pointer]:
+                - /url: /carte
+            - listitem [ref=e237]:
+              - link "Spots populaires" [ref=e238] [cursor=pointer]:
+                - /url: /spots
+            - listitem [ref=e239]:
+              - link "Guides" [ref=e240] [cursor=pointer]:
+                - /url: /guides
+            - listitem [ref=e241]:
+              - link "Tarifs" [ref=e242] [cursor=pointer]:
+                - /url: /tarifs
+        - generic [ref=e243]:
+          - heading "Communauté" [level=3] [ref=e244]
+          - list [ref=e245]:
+            - listitem [ref=e246]:
+              - link "Fil régional" [ref=e247] [cursor=pointer]:
+                - /url: /fil
+            - listitem [ref=e248]:
+              - link "Espèces" [ref=e249] [cursor=pointer]:
+                - /url: /especes
+            - listitem [ref=e250]:
+              - link "Techniques" [ref=e251] [cursor=pointer]:
+                - /url: /techniques
+        - generic [ref=e252]:
+          - heading "Légal" [level=3] [ref=e253]
+          - list [ref=e254]:
+            - listitem [ref=e255]:
+              - link "Mentions légales" [ref=e256] [cursor=pointer]:
+                - /url: /legal/mentions-legales
+            - listitem [ref=e257]:
+              - link "Confidentialité" [ref=e258] [cursor=pointer]:
+                - /url: /legal/confidentialite
+            - listitem [ref=e259]:
+              - link "CGU" [ref=e260] [cursor=pointer]:
+                - /url: /legal/cgu
+            - listitem [ref=e261]:
+              - link "Contact" [ref=e262] [cursor=pointer]:
+                - /url: /contact
+      - generic [ref=e263]:
+        - paragraph [ref=e264]: © 2026 Carnet de Pêche · Tous droits réservés
+        - generic [ref=e265]:
+          - link "Carnet de Pêche sur Instagram" [ref=e266] [cursor=pointer]:
+            - /url: https://instagram.com/carnetdepeche
+            - img [ref=e267]
+          - link "Carnet de Pêche sur TikTok" [ref=e270] [cursor=pointer]:
+            - /url: https://tiktok.com/@carnetdepeche
+            - img [ref=e271]
+          - link "Carnet de Pêche sur YouTube" [ref=e273] [cursor=pointer]:
+            - /url: https://youtube.com/@carnetdepeche
+            - img [ref=e274]
+          - generic [ref=e277]: 47.8709°N · 4.3741°O
+  - region "Notifications alt+T"
+  - alert [ref=e278]

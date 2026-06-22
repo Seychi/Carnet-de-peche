@@ -17,7 +17,10 @@ coverage/
 .nyc_output/
 *.tsbuildinfo
 .turbo/
-.claude/
+
+# .claude/ : la config PARTAGÉE est versionnée (settings.json, agents/, commands/, hooks/)
+# pour que le dispositif connecteurs soit « dans le repo ». Seul le local reste ignoré.
+.claude/settings.local.json
 
 # Sentry Config File
 .env.sentry-build-plugin
@@ -31,3 +34,4 @@ e2e/.auth/
 # Supabase local (Docker)
 supabase/.temp/
 supabase/.branches/
+.superpowers/

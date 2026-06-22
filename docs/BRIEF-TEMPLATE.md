@@ -14,6 +14,7 @@ Fable en mode `ultracode` + effort `xhigh` découpe le travail en **workstreams 
 3. **Donne des critères d'acceptation vérifiables par un agent** : « le 11e post en 24h renvoie une erreur propre » ✅ — « le fil est agréable » ❌.
 4. **Pré-arbitre les décisions** : chaque choix ouvert est soit tranché dans le brief, soit marqué `⚠️ DEMANDER À JOHN AVANT` (l'agent s'arrête là, il n'invente pas).
 5. **Termine par un workstream de vérification dédié** : un agent indépendant qui n'a pas écrit le code relit les critères, lance tests + build, et fait une passe de revue (sécurité RLS, régressions gating, copy FR).
+6. **Exploite les connecteurs (cf `CLAUDE.md` §20)** : on ne code ni de mémoire ni sur des hypothèses figées. Chaque bloc dit quel sous-agent / connecteur utiliser — **docs-researcher** (Context7) avant toute lib externe, **supabase-guard** (Supabase RO) pour tout ce qui touche la base, **qa-chrome** pour la QA réelle, **deploy-watch** (Vercel+Sentry) après déploiement, **`/verif-sprint`** en clôture. C'est ce qui rend un brief « intelligent » : il s'ancre sur le schéma live, la doc à jour et les vrais logs, au lieu de figer des suppositions qui périment.
 
 ---
 
@@ -39,6 +40,18 @@ Fable en mode `ultracode` + effort `xhigh` découpe le travail en **workstreams 
 
 ---
 
+## 🧠 Connecteurs & sous-agents (usage systématique — cf `CLAUDE.md` §20)
+
+> Pour chaque workstream, le sous-agent/connecteur à utiliser et pourquoi. Ancre les faits sensibles (numéros de migration, policies, colonnes) en LECTURE avant de coder.
+
+| Quand | Sous-agent → connecteur | Pourquoi |
+|---|---|---|
+| Avant toute lib externe (Next, @supabase/ssr, Tailwind, MapLibre, Stripe SDK…) | **docs-researcher** → Context7 | API version-correcte (pas de code de mémoire). |
+| Schéma / migration / RLS / types | **supabase-guard** → Supabase (RO) | Lire le schéma live AVANT ; migration = fichier numéroté ; regen `lib/types.ts` ; `get_advisors`. |
+| QA d'un écran (preview/device) | **qa-chrome** → Claude in Chrome + Playwright | Captures, console, réseau, anti-régression. |
+| Après déploiement | **deploy-watch** → Vercel + Sentry | Zéro régression runtime. |
+| Clôture | **`/verif-sprint`** | Tests + build + lint + types + revue indépendante + anti-régression. |
+
 ## Objectif du sprint en une phrase
 
 <une phrase, mesurable.>
@@ -57,6 +70,8 @@ Fable en mode `ultracode` + effort `xhigh` découpe le travail en **workstreams 
 
 <2-3 phrases de contexte : pourquoi, et ce qu'il ne faut PAS toucher.>
 
+> **Connecteurs** : <quel sous-agent/connecteur pour ce bloc, et pour vérifier/ancrer quoi en lecture avant de coder>.
+
 ### Tâches
 1. <tâche avec chemins de fichiers exacts (`app/actions/feed.ts`, `supabase/migrations/0NN_*.sql`)>
 2. <…>
@@ -71,7 +86,7 @@ Fable en mode `ultracode` + effort `xhigh` découpe le travail en **workstreams 
 
 ## Workstream VERIF (obligatoire, agent indépendant)
 
-1. `pnpm test` (suite complète verte) + `pnpm build` (OK).
+1. Lance `/verif-sprint` (`pnpm test` + `pnpm build` + `pnpm typecheck` + `pnpm lint` + revue croisée indépendante + passe anti-régression). Puis **deploy-watch** après déploiement.
 2. Relire chaque critère d'acceptation du brief et cocher ✅/❌ avec preuve.
 3. Passe sécurité : nouvelles tables → RLS d'abord ; aucune écriture qui contourne `*_for_viewer` ; pas de secret commité.
 4. Passe copy : tutoiement partout, zod en français, pas de promesse produit mensongère.
@@ -91,5 +106,7 @@ Fable en mode `ultracode` + effort `xhigh` découpe le travail en **workstreams 
 - [ ] Le tableau workstreams maximise le parallèle jour 1.
 - [ ] Chaque critère d'acceptation est vérifiable par un agent (commande / URL / requête).
 - [ ] Toute décision ouverte est tranchée ou marquée `⚠️ DEMANDER À JOHN AVANT`.
-- [ ] Workstream VERIF présent et en dernier.
+- [ ] Workstream VERIF présent et en dernier (lance `/verif-sprint`).
+- [ ] **Connecteurs câblés** : section « Connecteurs & sous-agents » en tête + une ligne `> **Connecteurs**` par bloc (cf `CLAUDE.md` §20).
+- [ ] Faits sensibles (numéros de migration, policies, colonnes) **ancrés via supabase-guard** au lieu d'être supposés.
 - [ ] Rappels invariants : pas de push sans validation, RLS jamais désactivé, migrations = nouveaux fichiers, régénérer `lib/types.ts` après migration.

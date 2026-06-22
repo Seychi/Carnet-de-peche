@@ -588,9 +588,73 @@ Si tu bloques sur une erreur technique :
 - **Mots-clés d'invocation** : John inclut `ultracode` (active l'orchestration multi-agents / workflows) et demande l'effort `xhigh` dans son message de lancement. Ces mots-clés agissent **par message** — ils doivent figurer dans le prompt de John, pas seulement dans un fichier. Si le message contient `ultracode`, découpe le travail en workstreams parallèles confiés à des agents (exploration, implémentation par bloc, QA), au lieu de tout faire séquentiellement.
 - **Briefs de sprint** : tout nouveau brief doit être écrit pour exploiter ce mode. Suivre `docs/BRIEF-TEMPLATE.md` : ligne de lancement prête à copier-coller (avec les mots-clés), blocs découpés en workstreams avec dépendances explicites (ce qui est parallélisable doit l'être), critères d'acceptation vérifiables par un agent, et un workstream final de vérification dédié (tests + build + revue croisée par un agent indépendant).
 - **Vérification systématique** : chaque sprint exécuté dans ce mode se termine par un agent de vérification (suite Vitest verte, build OK, relecture des critères d'acceptation du brief). Pas de « code-complet » déclaré sans cette passe.
+- **Docker (optionnel — décision John 2026-06-21)** : John a Docker en local. À utiliser **seulement si nécessaire** (jouer une migration sensible en local avant la prod, reproduire un bug dur), **pas un passage obligé**. `supabase start` lance le stack Supabase local.
+- **Posture d'exécution (exigence John 2026-06-21)** : effort maximal + **très attentif et critique**. Le brief est un guide, pas une vérité — vérifier chaque hypothèse contre le vrai code, **remettre en cause le brief** s'il se trompe, faire une passe adversariale anti-régression (gating de tier, floutage GPS, RLS, perf, SEO), et préférer `⚠️ DEMANDER À JOHN` à l'invention. Rappelé dans chaque brief (cf `docs/BRIEF-TEMPLATE.md`).
 
 ---
 
-*Dernière mise à jour : 2026-06-21 (sprint 11.5 — durcissement post-audit 2026-06-21 : sécurité GPS, lint, SEO, tests, perf). À tenir à jour à chaque décision majeure.*
+## 20. Connecteurs MCP & usage systématique (le « plein potentiel »)
+
+> Mis en place le 2026-06-22 (décision John : brancher large, gourmand assumé, mais usage discipliné). Tout le dispositif est **versionné dans le repo** (`.mcp.json`, `.claude/`).
+
+**Philosophie.** Trois couches distinctes, ne pas les confondre :
+- **superpowers = la méthode** (comment on bosse : clarify → design → plan → code → verify, TDD, debug, code review). On ne la duplique pas.
+- **Les connecteurs = la portée** (ce que Claude peut toucher : la vraie base, les vrais logs, la doc à jour).
+- **Cette section = le protocole** (quand dégainer quoi). C'est ça qui rend l'usage *systématique*.
+
+**Note honnête sur le « gourmand ».** Sur MCP, brancher beaucoup coûte du contexte en permanence — celui-là même dont Claude a besoin pour raisonner sur le code. On assume le choix de tout brancher, MAIS on garde deux garde-fous : (1) on **isole les appels connecteurs dans des sous-agents** (le gros des tool-calls se fait dans LEUR contexte, le principal reste propre) ; (2) en session pur front, on **coupe les serveurs inutiles** via `/mcp`.
+
+### 20.1 Deux surfaces — ne pas confondre
+
+| Surface | Où | Connecteurs |
+|---|---|---|
+| **DEV** (ce repo, via `.mcp.json`) | Claude Code | `supabase` (read-only), `vercel`, `sentry`, `github`, `context7`, `stripe` (read-only), `microsoft-learn` + plugins projet : **superpowers** (méthode), **playwright** (E2E/QA) |
+| **CONTENU** (hors repo) | Cowork / app desktop | Canva, ElevenLabs, HeyGen, Gmail, Agenda, Drive — pour le marketing & le skill `video-courte-peche` (côté César). **PAS pour coder.** Ne pas les attendre dans Claude Code. |
+
+### 20.2 Protocole — quel connecteur, quand (réflexes systématiques)
+
+| Moment | Connecteur → sous-agent | Réflexe |
+|---|---|---|
+| **Avant de coder contre une lib externe** (Next 15, @supabase/ssr, Tailwind v4, MapLibre, suncalc, Stripe SDK, zod…) | `context7` → **docs-researcher** | Doc version-correcte d'abord. Évite le bug « API périmée » (cf. finding Stripe 22.x du sprint 9). |
+| **Schéma / migration / RLS / perf / types** | `supabase` (RO) → **supabase-guard** | Inspecter en lecture AVANT (`list_tables`, `get_advisors`, `get_logs`). Migration = fichier numéroté + CLI. Regen `lib/types.ts`. |
+| **Après un déploiement / bug prod** | `vercel` + `sentry` → **deploy-watch** | Corréler build/runtime logs + issues Sentry + advisors Supabase → cause racine. |
+| **QA d'un écran live ou preview** | Claude in Chrome + `playwright` → **qa-chrome** | Captures desk+mobile, console, réseau, passe anti-régression (GPS, gating, perf, SEO). |
+| **PR / issues / branches / historique** | `github` | Contexte repo sans quitter Claude Code. |
+| **Inspecter Stripe** (customers, subs, prix en test) | `stripe` (RO) | Lecture seule sur un compte LIVE — jamais d'écriture. |
+| **Doc Microsoft / Azure** | `microsoft-learn` | Rare ici, mais branché. |
+
+### 20.3 Où ça se branche dans la méthode superpowers
+
+- **design** → lance **docs-researcher** (context7) pour verrouiller les signatures d'API.
+- **code** → **supabase-guard** en lecture pendant tout changement DB.
+- **verify** → la commande **`/verif-sprint`** (tests + build + lint + types + revue croisée indépendante + passe anti-régression), puis **deploy-watch** et **qa-chrome** si pertinent. Pas de « code-complet » sans cette passe (§19).
+
+### 20.4 Sécurité des connecteurs (aligne §11)
+
+- `supabase` et `stripe` sont en **read-only par défaut** dans `.mcp.json`. **Jamais** de write SQL via MCP en prod sans validation ; les migrations passent par un **fichier numéroté + CLI**, pas par `apply_migration` sauvage.
+- **Zéro secret dans `.mcp.json`** : OAuth navigateur (`supabase`/`vercel`/`sentry`/`stripe` au 1er appel) ou `${ENV}` (`github`, `stripe`). Les tokens vivent dans l'env Windows (`setx`), jamais commités.
+- **Hooks** (`.claude/settings.json`) : `guard-git` **bloque** tout commit de secret (`.env*`, clés) et **demande confirmation** avant un `git push` (§13) ; `lint-changed` relance ESLint sur chaque fichier TS modifié.
+
+### 20.5 Setup one-time (à faire par John)
+
+```powershell
+setx GITHUB_PAT "github_pat_xxx"     # fine-grained, repo Seychi/Carnet-de-peche : contents RO + issues + PR
+setx STRIPE_MCP_KEY "rk_live_xxx"    # clé Stripe RESTREINTE read-only (pas STRIPE_SECRET_KEY)
+# setx CONTEXT7_API_KEY "xxx"        # optionnel (rate-limit). Context7 marche sans.
+```
+Puis : relancer le terminal + Claude Code → `/mcp` (déclenche les OAuth supabase/vercel/sentry/stripe) → vérifier avec `claude mcp list`.
+
+### 20.6 Garder la tête claire même « à fond »
+
+- `/mcp` pour activer/couper un serveur **par session**. Session pur front (Tailwind/React) → coupe `supabase`/`stripe`/`sentry`, garde `context7`.
+- Les sous-agents existent pour ça : ils encaissent les gros tool-calls, le contexte principal reste pour le code.
+
+### 20.7 Les fichiers du dispositif
+
+`.mcp.json` (serveurs) · `.claude/settings.json` (hooks + plugins + permissions) · `.claude/hooks/*.mjs` (Node, cross-platform Windows) · `.claude/agents/` (docs-researcher, supabase-guard, qa-chrome, deploy-watch) · `.claude/commands/verif-sprint.md`. **`.claude/` est désormais versionné** (seul `settings.local.json` reste local).
+
+---
+
+*Dernière mise à jour : 2026-06-22 (§20 ajouté : connecteurs MCP & usage systématique — dev pack supabase/vercel/sentry/github/context7/stripe, sous-agents connecteurs, hooks guard-git/lint, commande /verif-sprint ; `.claude/` versionné). Précédent : 2026-06-21 (§19 enrichi : Docker optionnel + posture effort max/esprit critique ; track Excellence UX+social = briefs sprints 12-15 + 12.5 rédigés, cf `docs/excellence/ROADMAP.md` ; sprint 11.5 — sécurité GPS, lint, SEO, tests, perf). À tenir à jour à chaque décision majeure.*
 
 **Maintenant, attends que John te dise « vas-y » et exécute la section 10 dans l'ordre.**

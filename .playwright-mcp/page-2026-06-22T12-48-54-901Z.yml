@@ -1,0 +1,485 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e5]
+      - generic [ref=e9]:
+        - link "Créer mon carnet" [ref=e10] [cursor=pointer]:
+          - /url: /auth/register
+        - button "Ouvrir le menu" [ref=e11]:
+          - img [ref=e12]
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic:
+          - img
+        - generic [ref=e16]:
+          - navigation "Fil d'ariane" [ref=e17]:
+            - link "Spots" [ref=e18] [cursor=pointer]:
+              - /url: /spots
+              - img [ref=e19]
+              - text: Spots
+            - img [ref=e21]
+            - generic [ref=e23]: nouvelle-aquitaine
+            - img [ref=e24]
+            - generic [ref=e26]: CHARENTE-MARITIME · 17
+          - heading "Estacade de Châtelaillon-Plage" [level=1] [ref=e27]
+          - generic [ref=e28]: ZONE APPROCHÉE · DIGUE
+          - generic [ref=e29]:
+            - generic [ref=e30]: Digue
+            - img "Difficulté 2 sur 5" [ref=e31]:
+              - generic [ref=e32]: ★
+              - generic [ref=e33]: ★
+              - generic [ref=e34]: ★
+              - generic [ref=e35]: ★
+              - generic [ref=e36]: ★
+            - generic [ref=e37]: Bar
+            - generic [ref=e38]: Dorade royale
+            - generic [ref=e39]: Maquereau
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e47]:
+              - paragraph [ref=e48]:
+                - img [ref=e49]
+                - text: Itinéraire GPS
+              - generic [ref=e51]:
+                - link "Google Maps" [ref=e52] [cursor=pointer]:
+                  - /url: https://www.google.com/maps/dir/?api=1&destination=46.0728472301468,-1.08339733051225
+                - link "Plans" [ref=e53] [cursor=pointer]:
+                  - /url: https://maps.apple.com/?daddr=46.0728472301468,-1.08339733051225
+                - link "Waze" [ref=e54] [cursor=pointer]:
+                  - /url: https://waze.com/ul?ll=46.0728472301468,-1.08339733051225&navigate=yes
+            - paragraph [ref=e55]: Coordonnées approchées — abonne-toi pour le GPS précis
+          - generic [ref=e56]:
+            - generic [ref=e57]:
+              - heading "Meilleurs moments à Estacade de Châtelaillon-Plage" [level=2] [ref=e58]
+              - button "Comment le score est calculé" [ref=e59] [cursor=pointer]:
+                - img [ref=e60]
+            - generic [ref=e62]:
+              - list "Calendrier 7 jours" [ref=e63]:
+                - listitem [ref=e64]:
+                  - button "lun. 22 juin, score 94, Très Bonne" [pressed] [ref=e65]:
+                    - generic [ref=e66]: lun.
+                    - generic [ref=e67]: "22"
+                    - generic [ref=e68]: juin
+                    - img [ref=e69]
+                    - generic [ref=e75]: "94"
+                    - generic [ref=e76]: Très Bonne
+                    - generic [ref=e77]:
+                      - generic [ref=e78]: ↑ 11h
+                      - generic [ref=e79]: ↓ 4h
+                - listitem [ref=e80]:
+                  - button "mar. 23 juin, score 94, Très Bonne" [ref=e81]:
+                    - generic [ref=e82]: mar.
+                    - generic [ref=e83]: "23"
+                    - generic [ref=e84]: juin
+                    - img [ref=e85]
+                    - generic [ref=e91]: "94"
+                    - generic [ref=e92]: Très Bonne
+                    - generic [ref=e93]:
+                      - generic [ref=e94]: ↑ 12h
+                      - generic [ref=e95]: ↓ 5h
+                - listitem [ref=e96]:
+                  - button "mer. 24 juin, score 89, Très Bonne" [ref=e97]:
+                    - generic [ref=e98]: mer.
+                    - generic [ref=e99]: "24"
+                    - generic [ref=e100]: juin
+                    - img [ref=e101]
+                    - generic [ref=e107]: "89"
+                    - generic [ref=e108]: Très Bonne
+                    - generic [ref=e109]:
+                      - generic [ref=e110]: ↑ 13h
+                      - generic [ref=e111]: ↓ 6h
+                - listitem [ref=e112]:
+                  - button "jeu. 25 juin, score 79, Bonne" [ref=e113]:
+                    - generic [ref=e114]: jeu.
+                    - generic [ref=e115]: "25"
+                    - generic [ref=e116]: juin
+                    - img [ref=e117]
+                    - generic [ref=e122]: "79"
+                    - generic [ref=e123]: Bonne
+                    - generic [ref=e124]:
+                      - generic [ref=e125]: ↑ 1h
+                      - generic [ref=e126]: ↓ 7h
+                - listitem [ref=e127]:
+                  - button "ven. 26 juin, score 94, Très Bonne" [ref=e128]:
+                    - generic [ref=e129]: ven.
+                    - generic [ref=e130]: "26"
+                    - generic [ref=e131]: juin
+                    - img [ref=e132]
+                    - generic [ref=e137]: "94"
+                    - generic [ref=e138]: Très Bonne
+                    - generic [ref=e139]:
+                      - generic [ref=e140]: ↑ 4h
+                      - generic [ref=e141]: ↓ 8h
+                - listitem [ref=e142]:
+                  - button "sam. 27 juin, score 94, Très Bonne" [ref=e143]:
+                    - generic [ref=e144]: sam.
+                    - generic [ref=e145]: "27"
+                    - generic [ref=e146]: juin
+                    - img [ref=e147]
+                    - generic [ref=e152]: "94"
+                    - generic [ref=e153]: Très Bonne
+                    - generic [ref=e154]:
+                      - generic [ref=e155]: ↑ 15h
+                      - generic [ref=e156]: ↓ 9h
+                - listitem [ref=e157]:
+                  - button "dim. 28 juin, score 100, Exceptionnelle" [ref=e158]:
+                    - generic [ref=e159]: dim.
+                    - generic [ref=e160]: "28"
+                    - generic [ref=e161]: juin
+                    - img [ref=e162]
+                    - generic [ref=e167]: "100"
+                    - generic [ref=e168]: Exceptionnelle
+                    - generic [ref=e169]:
+                      - generic [ref=e170]: ↑ 4h
+                      - generic [ref=e171]: ↓ 10h
+              - generic [ref=e172]:
+                - button [ref=e173]
+                - button [ref=e174]
+                - button [ref=e175]
+                - button [ref=e176]
+                - button [ref=e177]
+                - button [ref=e178]
+                - button [ref=e179]
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - heading "lundi 22 juin" [level=3] [ref=e182]
+                - generic [ref=e183]: Très Bonne
+              - paragraph [ref=e184]:
+                - generic [ref=e185]:
+                  - img [ref=e186]
+                  - text: Premier quartier
+                - generic [ref=e188]: ·
+                - generic [ref=e189]:
+                  - generic [ref=e190]: 56%
+                  - text: illuminée
+                - generic [ref=e191]: ·
+                - generic [ref=e192]: Lever 14:47
+                - generic [ref=e193]: ·
+                - generic [ref=e194]:
+                  - img [ref=e195]
+                  - generic [ref=e201]: 06:14 – 22:00
+              - list [ref=e202]:
+                - listitem [ref=e203]:
+                  - article "Fenêtre de pêche de 05:14 à 07:14, qualité Bonne, score 75 sur 100" [ref=e204]:
+                    - generic [ref=e205]:
+                      - paragraph [ref=e206]: 05:14 – 07:14
+                      - generic [ref=e208]: "75"
+                    - paragraph [ref=e210]: Bonne
+                    - paragraph [ref=e211]:
+                      - img [ref=e212]
+                      - text: Lever de soleil · Marée favorable · Vent idéal
+                - listitem [ref=e214]:
+                  - article "Fenêtre de pêche de 07:30 à 09:30, qualité Très Bonne, score 87 sur 100" [ref=e215]:
+                    - generic [ref=e216]:
+                      - paragraph [ref=e217]: 07:30 – 09:30
+                      - generic [ref=e219]: "87"
+                    - paragraph [ref=e221]: Très Bonne
+                    - paragraph [ref=e222]:
+                      - img [ref=e223]
+                      - text: Lune au nadir · Marée favorable · Vent idéal
+                - listitem [ref=e225]:
+                  - article "Fenêtre de pêche de 13:47 à 15:47, qualité Très Bonne, score 81 sur 100" [ref=e226]:
+                    - generic [ref=e227]: Maintenant
+                    - generic [ref=e228]:
+                      - paragraph [ref=e229]: 13:47 – 15:47
+                      - generic [ref=e231]: "81"
+                    - paragraph [ref=e233]: Très Bonne
+                    - paragraph [ref=e234]:
+                      - img [ref=e235]
+                      - text: Lever de lune · Marée favorable · Vent idéal
+                - listitem [ref=e237]:
+                  - article "Fenêtre de pêche de 19:30 à 21:30, qualité Très Bonne, score 94 sur 100" [ref=e238]:
+                    - generic [ref=e239]:
+                      - paragraph [ref=e240]: 19:30 – 21:30
+                      - generic [ref=e242]: "94"
+                    - paragraph [ref=e244]: Très Bonne
+                    - paragraph [ref=e245]:
+                      - img [ref=e246]
+                      - text: Lune au zénith · Marée favorable · Vent idéal
+                - listitem [ref=e248]:
+                  - article "Fenêtre de pêche de 21:00 à 23:00, qualité Bonne, score 75 sur 100" [ref=e249]:
+                    - generic [ref=e250]:
+                      - paragraph [ref=e251]: 21:00 – 23:00
+                      - generic [ref=e253]: "75"
+                    - paragraph [ref=e255]: Bonne
+                    - paragraph [ref=e256]:
+                      - img [ref=e257]
+                      - text: Coucher de soleil · Marée favorable · Vent idéal
+              - generic [ref=e259]:
+                - generic [ref=e260]:
+                  - img "Score 94 sur 100" [ref=e261]:
+                    - img [ref=e262]
+                    - generic [ref=e265]: "94"
+                  - generic [ref=e266]:
+                    - paragraph [ref=e267]: Décomposition du meilleur créneau
+                    - list [ref=e268]:
+                      - listitem [ref=e269]:
+                        - img [ref=e270]
+                        - generic [ref=e272]: Astro
+                        - generic [ref=e275]:
+                          - text: "34"
+                          - generic [ref=e276]: /40
+                      - listitem [ref=e277]:
+                        - img [ref=e278]
+                        - generic [ref=e282]: Marée
+                        - generic [ref=e285]:
+                          - text: "35"
+                          - generic [ref=e286]: /35
+                      - listitem [ref=e287]:
+                        - img [ref=e288]
+                        - generic [ref=e292]: Vent
+                        - generic [ref=e295]:
+                          - text: "25"
+                          - generic [ref=e296]: /25
+                - paragraph [ref=e297]: Score générique (astro 40 % · marée 35 % · vent 25 %) — identique pour tous. Tes tendances personnelles (où et quand tombent tes prises) vivent dans ton carnet.
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - generic [ref=e300]:
+                - heading "Conditions à Estacade de Châtelaillon-Plage" [level=2] [ref=e301]
+                - paragraph [ref=e302]: lundi 22 juin
+              - link "Windy" [ref=e303] [cursor=pointer]:
+                - /url: https://www.windy.com/?46.0728,-1.0834,10
+                - img [ref=e304]
+                - text: Windy
+            - generic [ref=e314]:
+              - generic [ref=e315]:
+                - heading "Force des marées · 7 jours" [level=3] [ref=e316]
+                - generic [ref=e317]: Marnage
+              - generic [ref=e318]:
+                - generic [ref=e319]:
+                  - generic "Fort — 2.97 m" [ref=e321]
+                  - generic [ref=e322]: "3.0"
+                  - generic [ref=e323]: lun
+                - generic [ref=e324]:
+                  - generic "Moyen — 2.69 m" [ref=e326]
+                  - generic [ref=e327]: "2.7"
+                  - generic [ref=e328]: mar
+                - generic [ref=e329]:
+                  - generic "Moyen — 2.40 m" [ref=e331]
+                  - generic [ref=e332]: "2.4"
+                  - generic [ref=e333]: mer
+                - generic [ref=e334]:
+                  - generic "Moyen — 2.40 m" [ref=e336]
+                  - generic [ref=e337]: "2.4"
+                  - generic [ref=e338]: jeu
+                - generic [ref=e339]:
+                  - generic "Moyen — 2.59 m" [ref=e341]
+                  - generic [ref=e342]: "2.6"
+                  - generic [ref=e343]: ven
+                - generic [ref=e344]:
+                  - generic "Fort — 2.84 m" [ref=e346]
+                  - generic [ref=e347]: "2.8"
+                  - generic [ref=e348]: sam
+                - generic [ref=e349]:
+                  - generic "Fort — 3.21 m" [ref=e351]
+                  - generic [ref=e352]: "3.2"
+                  - generic [ref=e353]: dim
+              - paragraph [ref=e354]: Marnage = amplitude mesurée entre basse et pleine mer (m). Plus il est fort (vives-eaux), plus le courant porte ; faible (mortes-eaux), l'eau bouge moins.
+            - generic [ref=e355]:
+              - generic [ref=e356]:
+                - generic [ref=e357]:
+                  - img [ref=e359]
+                  - paragraph [ref=e365]: Météo
+                  - paragraph [ref=e366]: 39°C
+                  - paragraph [ref=e367]: Ciel dégagé · ↓ 25° ↑ 39°
+                - generic [ref=e368]:
+                  - img [ref=e370]
+                  - paragraph [ref=e374]: Vent
+                  - paragraph [ref=e375]: 5 km/h
+                  - paragraph [ref=e376]: S · Légère brise
+                - generic [ref=e377]:
+                  - img [ref=e379]
+                  - paragraph [ref=e382]: Précipitations
+                  - paragraph [ref=e383]: 0.0 mm
+                  - paragraph [ref=e384]: 0 % de risque
+                - generic [ref=e385]:
+                  - img [ref=e387]
+                  - paragraph [ref=e390]: Pression
+                  - paragraph [ref=e391]: 1019 hPa
+                  - paragraph [ref=e392]: 0 % de nébulosité
+                - generic [ref=e393]:
+                  - img [ref=e395]
+                  - paragraph [ref=e397]: Température
+                  - paragraph [ref=e398]: 39°C
+                  - paragraph [ref=e399]: Humidité 28 %
+                - generic [ref=e400]:
+                  - img [ref=e402]
+                  - paragraph [ref=e408]: Ensoleillement
+                  - paragraph [ref=e409]: Lever 06:13
+                  - paragraph [ref=e410]: Coucher 21:59
+              - generic [ref=e411]:
+                - generic [ref=e412]:
+                  - img [ref=e413]
+                  - generic [ref=e417]: Vagues
+                - generic [ref=e418]:
+                  - generic [ref=e419]: "0.1"
+                  - generic [ref=e420]: m
+                - paragraph [ref=e421]: Ridée
+                - generic [ref=e422]:
+                  - generic [ref=e423]:
+                    - term [ref=e424]: Direction
+                    - definition [ref=e425]: O (270°)
+                  - generic [ref=e426]:
+                    - term [ref=e427]: Période
+                    - definition [ref=e428]: 6 s
+                  - generic [ref=e429]:
+                    - term [ref=e430]: Temp. eau
+                    - definition [ref=e431]: 25°C
+                - generic [ref=e432]:
+                  - paragraph [ref=e433]: Houle
+                  - generic [ref=e434]:
+                    - generic [ref=e435]:
+                      - term [ref=e436]: Hauteur
+                      - definition [ref=e437]: 0.1 m
+                    - generic [ref=e438]:
+                      - term [ref=e439]: Période
+                      - definition [ref=e440]: 6 s
+            - generic [ref=e441]:
+              - generic [ref=e442]:
+                - img [ref=e443]
+                - generic [ref=e448]:
+                  - paragraph [ref=e449]: Lever
+                  - paragraph [ref=e450]: 06:13
+              - generic [ref=e451]:
+                - img [ref=e452]
+                - generic [ref=e457]:
+                  - paragraph [ref=e458]: Coucher
+                  - paragraph [ref=e459]: 21:59
+            - paragraph [ref=e460]: Mis à jour à 14:48 · Source Open-Meteo
+          - generic [ref=e461]:
+            - heading "Prises récentes" [level=2] [ref=e463]
+            - generic [ref=e464]:
+              - paragraph [ref=e465]: Sois le premier à loguer une prise ici
+              - link "Loguer ma prise" [ref=e466] [cursor=pointer]:
+                - /url: /auth/login?redirect=%2Fspots%2Festacade-de-chatelaillon
+          - generic [ref=e467]:
+            - heading "Description" [level=2] [ref=e468]
+            - paragraph [ref=e469]: "L'estacade de Châtelaillon, c'est la jetée du front de mer qui s'avance sur l'estran sableux au centre de la station, en contrebas du casino. Tu pêches depuis la structure ou sur le sable autour : au surfcasting sur le coup de marée montante pour le bar et la dorade royale (la baie de Châtelaillon est un bon coin à dorade en été), à la flottante ou au flotteur coulissant pour l'orphie quand l'eau remonte le long des pieux. Les maquereaux et les orphies passent par bancs de mai à septembre ; le bar mord bien à la tombée du jour et de nuit, l'estacade restant éclairée. Joue les marées de coefficient moyen à fort : ici l'estran se découvre sur 200 à 300 m aux grandes marées."
+          - generic [ref=e470]:
+            - heading "Accès" [level=2] [ref=e471]
+            - paragraph [ref=e472]: "Accès à pied direct depuis la promenade du front de mer, centre-ville de Châtelaillon (parkings le long de l'avenue de la falaise et près du casino, gratuits hors saison). Le meilleur poste est l'extrémité de la jetée à mi-marée montante, ou le sable juste au sud de la structure. Attention : en été, respecte les zones de baignade balisées par bouées jaunes (amende 135 €) et reste à l'écart des bouchots à coquillages au sud (interdiction de pêche à moins de 50 m des concessions). Aux grandes marées (coef > 100, marnage 5 m+) la mer remonte vite sur l'estran plat — surveille le retour d'eau pour ne pas te faire piéger. Sol vaseux et pieux glissants : chaussures qui accrochent recommandées."
+          - generic [ref=e473]:
+            - heading "Guides liés" [level=2] [ref=e474]
+            - generic [ref=e475]:
+              - link "Comment lire une courbe de marée pour pêcher du bord MARÉES · 10 MIN" [ref=e476] [cursor=pointer]:
+                - /url: /guides/comment-lire-une-courbe-de-maree
+                - paragraph [ref=e477]: Comment lire une courbe de marée pour pêcher du bord
+                - generic [ref=e478]: MARÉES · 10 MIN
+              - link "Les meilleurs coefficients de marée pour pêcher le bar MARÉES · 11 MIN" [ref=e479] [cursor=pointer]:
+                - /url: /guides/les-meilleurs-coefficients-pour-pecher-le-bar
+                - paragraph [ref=e480]: Les meilleurs coefficients de marée pour pêcher le bar
+                - generic [ref=e481]: MARÉES · 11 MIN
+              - link "Les meilleurs spots de pêche en Bretagne SPOTS · 12 MIN" [ref=e482] [cursor=pointer]:
+                - /url: /guides/les-meilleurs-spots-de-peche-en-bretagne
+                - paragraph [ref=e483]: Les meilleurs spots de pêche en Bretagne
+                - generic [ref=e484]: SPOTS · 12 MIN
+        - complementary [ref=e485]:
+          - generic [ref=e486]:
+            - heading "Infos pratiques" [level=3] [ref=e487]
+            - generic [ref=e488]:
+              - generic [ref=e489]:
+                - term [ref=e490]: Structure
+                - definition [ref=e491]: Digue
+              - generic [ref=e492]:
+                - term [ref=e493]: Difficulté
+                - definition [ref=e494]:
+                  - generic [ref=e495]: ★
+                  - generic [ref=e496]: ★
+                  - generic [ref=e497]: ★
+                  - generic [ref=e498]: ★
+                  - generic [ref=e499]: ★
+              - generic [ref=e500]:
+                - term [ref=e501]: Techniques
+                - definition [ref=e502]: Flottante, Surfcasting
+              - generic [ref=e503]:
+                - term [ref=e504]: Espèces
+                - definition [ref=e505]: Bar, Dorade royale, Maquereau, Orphie, Mulet
+          - generic [ref=e506]:
+            - heading "Dangers" [level=3] [ref=e507]:
+              - img [ref=e508]
+              - text: Dangers
+            - list [ref=e510]:
+              - listitem [ref=e511]: submersion maree
+              - listitem [ref=e512]: rochers glissants
+              - listitem [ref=e513]: vagues
+          - generic [ref=e514]:
+            - img [ref=e515]
+            - paragraph [ref=e518]: Coordonnées précises
+            - paragraph [ref=e519]: Score d'activité, GPS exact, filtres avancés.
+            - link "Voir les formules" [ref=e520] [cursor=pointer]:
+              - /url: /tarifs
+      - link "+ Loguer une prise ici" [ref=e522] [cursor=pointer]:
+        - /url: /auth/login?redirect=%2Fspots%2Festacade-de-chatelaillon
+  - contentinfo [ref=e523]:
+    - generic:
+      - img
+    - generic [ref=e524]:
+      - generic [ref=e525]:
+        - generic [ref=e526]:
+          - link "Carnet de Pêche" [ref=e527] [cursor=pointer]:
+            - /url: /
+            - img [ref=e528]
+            - generic [ref=e532]: Carnet de Pêche
+          - paragraph [ref=e533]: Logue. Partage. Progresse.
+          - paragraph [ref=e534]: Le réseau social des pêcheurs à la canne du bord en France.
+          - generic [ref=e535]: FR · Atlantique · Manche · Méditerranée
+        - generic [ref=e536]:
+          - heading "Produit" [level=3] [ref=e537]
+          - list [ref=e538]:
+            - listitem [ref=e539]:
+              - link "Carte" [ref=e540] [cursor=pointer]:
+                - /url: /carte
+            - listitem [ref=e541]:
+              - link "Spots populaires" [ref=e542] [cursor=pointer]:
+                - /url: /spots
+            - listitem [ref=e543]:
+              - link "Guides" [ref=e544] [cursor=pointer]:
+                - /url: /guides
+            - listitem [ref=e545]:
+              - link "Tarifs" [ref=e546] [cursor=pointer]:
+                - /url: /tarifs
+        - generic [ref=e547]:
+          - heading "Communauté" [level=3] [ref=e548]
+          - list [ref=e549]:
+            - listitem [ref=e550]:
+              - link "Fil régional" [ref=e551] [cursor=pointer]:
+                - /url: /fil
+            - listitem [ref=e552]:
+              - link "Espèces" [ref=e553] [cursor=pointer]:
+                - /url: /especes
+            - listitem [ref=e554]:
+              - link "Techniques" [ref=e555] [cursor=pointer]:
+                - /url: /techniques
+        - generic [ref=e556]:
+          - heading "Légal" [level=3] [ref=e557]
+          - list [ref=e558]:
+            - listitem [ref=e559]:
+              - link "Mentions légales" [ref=e560] [cursor=pointer]:
+                - /url: /legal/mentions-legales
+            - listitem [ref=e561]:
+              - link "Confidentialité" [ref=e562] [cursor=pointer]:
+                - /url: /legal/confidentialite
+            - listitem [ref=e563]:
+              - link "CGU" [ref=e564] [cursor=pointer]:
+                - /url: /legal/cgu
+            - listitem [ref=e565]:
+              - link "Contact" [ref=e566] [cursor=pointer]:
+                - /url: /contact
+      - generic [ref=e567]:
+        - paragraph [ref=e568]: © 2026 Carnet de Pêche · Tous droits réservés
+        - generic [ref=e569]:
+          - link "Carnet de Pêche sur Instagram" [ref=e570] [cursor=pointer]:
+            - /url: https://instagram.com/carnetdepeche
+            - img [ref=e571]
+          - link "Carnet de Pêche sur TikTok" [ref=e574] [cursor=pointer]:
+            - /url: https://tiktok.com/@carnetdepeche
+            - img [ref=e575]
+          - link "Carnet de Pêche sur YouTube" [ref=e577] [cursor=pointer]:
+            - /url: https://youtube.com/@carnetdepeche
+            - img [ref=e578]
+          - generic [ref=e581]: 47.8709°N · 4.3741°O
+  - region "Notifications alt+T"

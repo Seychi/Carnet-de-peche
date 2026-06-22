@@ -94,16 +94,18 @@ export default async function CatchDetailPage({ params }: Props) {
           >
             ← Carnet
           </Link>
-          <div className="flex items-center gap-1">
-            <Link
-              href={`/carnet/${id}/modifier`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-medium text-ink-600 hover:bg-slate-100 transition-colors"
-            >
-              <Pencil size={13} />
-              Modifier
-            </Link>
-            <CatchActionsMenu catchId={id} />
-          </div>
+          {isOwner && (
+            <div className="flex items-center gap-1">
+              <Link
+                href={`/carnet/${id}/modifier`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-medium text-ink-600 hover:bg-slate-100 transition-colors"
+              >
+                <Pencil size={13} />
+                Modifier
+              </Link>
+              <CatchActionsMenu catchId={id} />
+            </div>
+          )}
         </div>
 
         {/* ── Photo (clic = zoom) ── */}

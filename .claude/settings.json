@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(pnpm typecheck 2>&1)",
+      "PowerShell(pnpm lint 2>&1)",
+      "PowerShell(pnpm test 2>&1)",
+      "PowerShell(pnpm build 2>&1)"
+    ]
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [{ "type": "command", "command": "node .claude/hooks/guard-git.mjs" }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": "node .claude/hooks/lint-changed.mjs" }]
+      }
+    ]
+  }
+}

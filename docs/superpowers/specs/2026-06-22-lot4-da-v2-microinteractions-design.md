@@ -97,3 +97,4 @@ Pas d'hydration mismatch : la donnée traverse la frontière client en prop pure
 - `app/(app)/onboarding/[step]/onboarding-step.tsx`, `app/(app)/onboarding/fini/page.tsx`
 - `components/feed/PostCard.tsx`, `components/feed/CommentThread.tsx`, `components/feed/FollowButton.tsx`, `components/feed/FeedClient.tsx`, `components/feed/PostList.tsx`
 - Points secondaires rendant `PostCard` (ex. `app/(app)/u/[username]/page.tsx`) pour propager `currentUser`.
+    
