@@ -65,22 +65,34 @@ export function scoreTide(
 
 // ─── Scoring vent ─────────────────────────────────────────────────────────────
 
+// Courbe vent CONTINUE à pic unique (recalibrage sprint 19). Plus aucun palier plat :
+//   null            → UNKNOWN_SCORE (neutre)
+//   ≤ CALM_KMH      → CALM_SCORE (mer d'huile, léger retrait — pas de pénalité forte)
+//   CALM..IDEAL     → montée linéaire CALM_SCORE → 1.0 (pic à IDEAL_KMH)
+//   IDEAL..ACCEPT   → décroissance linéaire 1.0 → ACCEPTABLE_MIN_SCORE
+//   ACCEPT..STRONG  → décroissance linéaire ACCEPTABLE_MIN_SCORE → 0
+//   ≥ STRONG        → 0
+// Continue à chaque borne (CALM, IDEAL, ACCEPTABLE_MAX, STRONG_MAX) → discrimine
+// dans toute la bande commune 5–20 km/h (fini le 25/25 figé).
 export function scoreWind(windSpeed_kmh: number | null): number {
-  const { CALM_MAX_KMH, CALM_SCORE, IDEAL_MAX_KMH, ACCEPTABLE_MAX_KMH, ACCEPTABLE_MIN_SCORE, STRONG_MAX_KMH, UNKNOWN_SCORE } =
+  const { CALM_KMH, CALM_SCORE, IDEAL_KMH, ACCEPTABLE_MAX_KMH, ACCEPTABLE_MIN_SCORE, STRONG_MAX_KMH, UNKNOWN_SCORE } =
     SOLUNAR_CONFIG.WIND
 
   if (windSpeed_kmh === null) return UNKNOWN_SCORE // neutre si inconnu
 
-  const v = windSpeed_kmh
+  const v = Math.max(0, windSpeed_kmh)
 
-  if (v < CALM_MAX_KMH) return CALM_SCORE
-  if (v <= IDEAL_MAX_KMH) return 1.0
+  if (v <= CALM_KMH) return CALM_SCORE
+  if (v <= IDEAL_KMH) {
+    // Montée CALM_SCORE → 1.0 (le vent qui se lève réveille l'activité)
+    return CALM_SCORE + ((v - CALM_KMH) / (IDEAL_KMH - CALM_KMH)) * (1.0 - CALM_SCORE)
+  }
   if (v <= ACCEPTABLE_MAX_KMH) {
-    // Décroissance linéaire 1.0 → 0.5
-    return 1.0 - ((v - IDEAL_MAX_KMH) / (ACCEPTABLE_MAX_KMH - IDEAL_MAX_KMH)) * (1.0 - ACCEPTABLE_MIN_SCORE)
+    // Décroissance 1.0 → ACCEPTABLE_MIN_SCORE
+    return 1.0 - ((v - IDEAL_KMH) / (ACCEPTABLE_MAX_KMH - IDEAL_KMH)) * (1.0 - ACCEPTABLE_MIN_SCORE)
   }
   if (v < STRONG_MAX_KMH) {
-    // Décroissance linéaire 0.5 → 0 : plus de plancher, un vent fort écrase la composante
+    // Décroissance ACCEPTABLE_MIN_SCORE → 0 : un vent fort écrase la composante
     return ACCEPTABLE_MIN_SCORE * (1 - (v - ACCEPTABLE_MAX_KMH) / (STRONG_MAX_KMH - ACCEPTABLE_MAX_KMH))
   }
   return 0

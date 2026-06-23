@@ -28,6 +28,12 @@ export type SpotConditions = {
     min_temp_c: number | null
     max_temp_c: number | null
     wind_speed_kmh: number | null
+    // Vent horaire (km/h) indexé par heure LOCALE 0-23 (sprint 19 / WS-B). Permet
+    // d'échantillonner le vent à l'heure de chaque fenêtre de pêche au lieu d'un
+    // scalaire unique (le vent de midi) propagé à toutes les fenêtres → fin du
+    // « 25/25 figé ». Optionnel : un payload de cache antérieur au sprint 19 ne le
+    // contient pas → le scoring retombe proprement sur le scalaire `wind_speed_kmh`.
+    wind_speed_by_hour?: (number | null)[]
     wind_direction_deg: number | null
     precipitation_mm: number | null
     precipitation_probability: number | null
@@ -89,6 +95,29 @@ function computeExtrema(points: TidePoint[]): TideExtremum[] {
     }
   }
   return extrema
+}
+
+// Construit le tableau du vent horaire (km/h) indexé par heure LOCALE 0-23, à
+// partir des tableaux `time`/`wind_speed_10m` d'Open-Meteo. On indexe par l'heure
+// d'horloge lue dans `time` (et non par la position) : robuste aux jours de
+// changement d'heure (23 ou 25 entrées), cf. piège DST Open-Meteo.
+function buildWindByHour(
+  times: string[] | undefined,
+  winds: (number | null)[] | undefined,
+  globalIndices?: number[],
+): (number | null)[] {
+  const out: (number | null)[] = new Array(24).fill(null)
+  if (!times || !winds) return out
+  const idxs = globalIndices ?? times.map((_, i) => i)
+  for (const gi of idxs) {
+    const t = times[gi]
+    if (typeof t !== 'string' || t.length < 13) continue
+    const clockHour = parseInt(t.slice(11, 13), 10) // "...T14:00" → 14
+    if (Number.isFinite(clockHour) && clockHour >= 0 && clockHour < 24) {
+      out[clockHour] = typeof winds[gi] === 'number' ? winds[gi] : null
+    }
+  }
+  return out
 }
 
 // ─── Cache Supabase ───────────────────────────────────────────────────────────
@@ -239,6 +268,7 @@ export async function fetchSpotConditions(
     min_temp_c:              forecast?.daily.temperature_2m_min?.[0] ?? null,
     max_temp_c:              forecast?.daily.temperature_2m_max?.[0] ?? null,
     wind_speed_kmh:          forecast?.hourly.wind_speed_10m?.[fIdx] ?? null,
+    wind_speed_by_hour:      buildWindByHour(forecast?.hourly.time, forecast?.hourly.wind_speed_10m),
     wind_direction_deg:      forecast?.hourly.wind_direction_10m?.[fIdx] ?? null,
     precipitation_mm:        forecast?.hourly.precipitation?.[fIdx] ?? null,
     precipitation_probability: forecast?.hourly.precipitation_probability?.[fIdx] ?? null,
@@ -327,7 +357,7 @@ function buildEmptyConditions(dateStr: string): SpotConditions {
     tide: { points: [], extrema: [], current_height_m: null },
     weather: {
       code: null, air_temp_c: null, min_temp_c: null, max_temp_c: null,
-      wind_speed_kmh: null, wind_direction_deg: null, precipitation_mm: null,
+      wind_speed_kmh: null, wind_speed_by_hour: new Array(24).fill(null), wind_direction_deg: null, precipitation_mm: null,
       precipitation_probability: null, pressure_hpa: null, cloud_cover_pct: null,
       humidity_pct: null, sunrise: null, sunset: null,
     },
@@ -365,6 +395,8 @@ function buildDayConditions(
     min_temp_c:                forecast.daily.temperature_2m_min?.[dayIdx] ?? null,
     max_temp_c:                forecast.daily.temperature_2m_max?.[dayIdx] ?? null,
     wind_speed_kmh:            forecast.hourly.wind_speed_10m?.[refGlobalIdx] ?? null,
+    // Vent horaire de CE jour : indexé par heure locale via les indices globaux du jour.
+    wind_speed_by_hour:        buildWindByHour(forecast.hourly.time, forecast.hourly.wind_speed_10m, hourIndices),
     wind_direction_deg:        forecast.hourly.wind_direction_10m?.[refGlobalIdx] ?? null,
     precipitation_mm:          forecast.hourly.precipitation?.[refGlobalIdx] ?? null,
     precipitation_probability: forecast.hourly.precipitation_probability?.[refGlobalIdx] ?? null,

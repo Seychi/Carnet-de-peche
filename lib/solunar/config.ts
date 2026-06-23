@@ -47,13 +47,19 @@ export const SOLUNAR_CONFIG = {
     NO_DATA_SCORE: 0.35, // marée inconnue : plafonnée sous le neutre (avant : 0.5)
   },
 
+  // Recalibré sprint 19 : courbe CONTINUE à pic unique (avant : plateau plat à 1.0
+  // sur toute la bande 5–15 km/h → composante figée à 25/25 dès que le vent y tombait,
+  // ce qui est fréquent à midi sur le littoral). Désormais le vent DISCRIMINE :
+  // pic à ~10 km/h, décroissance dès 10, plus aucun palier large.
+  // D1 (décision John — défaut appliqué) : pas de pénalité FORTE du calme (mer d'huile
+  // reste « correcte » à 0.85, pas pénalisée comme un coup de vent).
   WIND: {
-    CALM_MAX_KMH: 5,
-    CALM_SCORE: 0.9,
-    IDEAL_MAX_KMH: 15,
-    ACCEPTABLE_MAX_KMH: 25,
-    ACCEPTABLE_MIN_SCORE: 0.5,
-    STRONG_MAX_KMH: 40, // au-delà : composante à 0 (plus de plancher 0.2)
-    UNKNOWN_SCORE: 0.7,
+    CALM_KMH: 3,            // ≤ 3 km/h : mer d'huile, léger retrait (CALM_SCORE), pas de pénalité forte
+    CALM_SCORE: 0.85,
+    IDEAL_KMH: 10,          // pic unique (montée 3→10, décroissance 10→25)
+    ACCEPTABLE_MAX_KMH: 25, // à 25 km/h : composante tombée à ACCEPTABLE_MIN_SCORE
+    ACCEPTABLE_MIN_SCORE: 0.45,
+    STRONG_MAX_KMH: 40,     // au-delà : composante à 0 (pas de plancher)
+    UNKNOWN_SCORE: 0.7,     // vent inconnu (null) : neutre
   },
 } as const

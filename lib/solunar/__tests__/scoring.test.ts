@@ -87,25 +87,55 @@ describe('scoreTide', () => {
   })
 })
 
-describe('scoreWind', () => {
-  it('10 km/h = 1.0 (idéal)', () => {
+// Courbe recalibrée sprint 19 : pic unique à 10 km/h, continue, plus de plateau plat.
+describe('scoreWind (courbe continue sprint 19)', () => {
+  it('10 km/h = 1.0 (pic idéal)', () => {
     expect(scoreWind(10)).toBe(1.0)
   })
-  it('< 5 km/h = 0.9', () => {
-    expect(scoreWind(3)).toBe(0.9)
+  it('≤ 3 km/h = 0.85 (calme, léger retrait, pas de pénalité forte — D1)', () => {
+    expect(scoreWind(3)).toBe(0.85)
+    expect(scoreWind(0)).toBe(0.85)
+    expect(scoreWind(-2)).toBe(0.85) // valeur aberrante clampée à 0
   })
-  it('20 km/h = 0.75', () => {
-    expect(scoreWind(20)).toBe(0.75)
+  it('20 km/h ≈ 0.633 (décroissance 1.0 → 0.45 entre 10 et 25)', () => {
+    expect(scoreWind(20)).toBeCloseTo(0.6333, 3)
   })
-  it('30 km/h ≈ 0.33 (décroissance 0.5 → 0 entre 25 et 40)', () => {
-    expect(scoreWind(30)).toBeCloseTo(1 / 3, 5)
+  it('25 km/h = 0.45 (borne basse de la bande acceptable)', () => {
+    expect(scoreWind(25)).toBeCloseTo(0.45, 5)
   })
-  it('40 km/h et plus = 0 (plus de plancher, recalibrage 10.6)', () => {
+  it('30 km/h = 0.30 (décroissance 0.45 → 0 entre 25 et 40)', () => {
+    expect(scoreWind(30)).toBeCloseTo(0.30, 5)
+  })
+  it('40 km/h et plus = 0 (plus de plancher)', () => {
     expect(scoreWind(40)).toBe(0)
     expect(scoreWind(50)).toBe(0)
   })
   it('null = 0.7 (neutre)', () => {
     expect(scoreWind(null)).toBe(0.7)
+  })
+
+  // ── Anti-saturation (le cœur du sprint 19) ──────────────────────────────────
+  it('ANTI-SATURATION : 18 km/h ne sature PLUS (< 1.0 → contrib < 25/25)', () => {
+    expect(scoreWind(18)).toBeLessThan(1.0)
+    // contrib affichée = round(factor × 0.25 × 100) doit être strictement < 25
+    expect(Math.round(scoreWind(18) * 0.25 * 100)).toBeLessThan(25)
+  })
+  it('13 km/h ne donne plus 25/25 (fin du plateau plat 5–15)', () => {
+    expect(scoreWind(13)).toBeLessThan(1.0)
+    expect(Math.round(scoreWind(13) * 0.25 * 100)).toBeLessThan(25)
+  })
+  it('le vent DISCRIMINE : 6, 10, 15, 20 km/h donnent 4 contribs distinctes', () => {
+    const contribs = [6, 10, 15, 20].map((v) => Math.round(scoreWind(v) * 0.25 * 100))
+    expect(new Set(contribs).size).toBe(4)
+  })
+  it('pic unique à 10 : décroît de part et d’autre', () => {
+    expect(scoreWind(10)).toBeGreaterThan(scoreWind(6))
+    expect(scoreWind(10)).toBeGreaterThan(scoreWind(16))
+  })
+  it('courbe monotone décroissante au-delà du pic (10 < 15 < 20 < 30)', () => {
+    expect(scoreWind(10)).toBeGreaterThan(scoreWind(15))
+    expect(scoreWind(15)).toBeGreaterThan(scoreWind(20))
+    expect(scoreWind(20)).toBeGreaterThan(scoreWind(30))
   })
 })
 

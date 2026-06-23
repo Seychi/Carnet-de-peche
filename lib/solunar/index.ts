@@ -36,13 +36,24 @@ function buildWindow(
   const startISO = startDate.toISOString()
   const endISO = endDate.toISOString()
 
+  // Vent À L'HEURE de la fenêtre (sprint 19 / WS-B) : on échantillonne le tableau
+  // horaire à l'heure centrale locale, au lieu de réutiliser le scalaire de midi
+  // pour toutes les fenêtres (cause du « 25/25 figé »). Fallback propre : scalaire
+  // du jour, puis null, si le tableau est absent (cache antérieur) ou troué (DST/null).
+  const centerHour = getParisHour(new Date(centerEvent.timeISO))
+  const byHour = conditions.weather.wind_speed_by_hour
+  const windAtCenter =
+    byHour && centerHour >= 0 && centerHour < byHour.length && byHour[centerHour] != null
+      ? byHour[centerHour]
+      : conditions.weather.wind_speed_kmh
+
   const { score, factors } = scoreWindow(
     centerEvent,
     startISO,
     endISO,
     conditions.tide.points,
     conditions.tide.extrema,
-    conditions.weather.wind_speed_kmh,
+    windAtCenter,
     personalMultiplier
   )
 
