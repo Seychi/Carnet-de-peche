@@ -125,24 +125,6 @@ export type Database = {
           },
         ]
       }
-      weather_cache: {
-        Row: {
-          cache_key: string
-          fetched_at: string
-          payload: Json
-        }
-        Insert: {
-          cache_key: string
-          fetched_at?: string
-          payload: Json
-        }
-        Update: {
-          cache_key?: string
-          fetched_at?: string
-          payload?: Json
-        }
-        Relationships: []
-      }
       feed_comments: {
         Row: {
           author_id: string
@@ -744,6 +726,24 @@ export type Database = {
         }
         Relationships: []
       }
+      weather_cache: {
+        Row: {
+          cache_key: string
+          fetched_at: string
+          payload: Json
+        }
+        Insert: {
+          cache_key: string
+          fetched_at?: string
+          payload: Json
+        }
+        Update: {
+          cache_key?: string
+          fetched_at?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       catches_for_viewer: {
@@ -1292,6 +1292,24 @@ export type Database = {
           lng: number
         }[]
       }
+      get_catches_for_tide_backfill: {
+        Args: never
+        Returns: {
+          caught_at: string
+          id: string
+          lat: number
+          lng: number
+        }[]
+      }
+      get_feed_unread_counts: {
+        Args: never
+        Returns: {
+          nb_posts_24h: number
+          region: string
+        }[]
+      }
+      get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
+      get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_quality_cells: {
         Args: {
           max_lat: number
@@ -1316,15 +1334,6 @@ export type Database = {
           score: number
         }[]
       }
-      get_feed_unread_counts: {
-        Args: never
-        Returns: {
-          nb_posts_24h: number
-          region: string
-        }[]
-      }
-      get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
-      get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_spot_activity: {
         Args: { p_days?: number; p_spot_id: string }
         Returns: {

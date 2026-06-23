@@ -15,8 +15,9 @@
  * RÉSERVE : l'API forecast/marine standard d'Open-Meteo ne couvre l'historique que
  * ~3 mois ; au-delà, tide_state restera NULL (acceptable — réservoir pré-lancement).
  */
-import { createServiceRoleClient } from '../lib/supabase/service-role'
+import { createClient } from '@supabase/supabase-js'
 import { tideTrendAt } from '../lib/conditions/tide'
+import type { Database } from '../lib/types'
 
 type Row = { id: string; lng: number; lat: number; caught_at: string }
 
@@ -55,13 +56,19 @@ async function deriveTideState(row: Row): Promise<'rising' | 'falling' | 'slack'
 }
 
 async function main() {
-  const admin = createServiceRoleClient()
-  // La RPC (migration 048) n'est pas encore dans lib/types.ts tant que John ne l'a
-  // pas appliquée + régénéré les types → cast typé (pas de `any`) pour l'instant.
-  const rpc = admin.rpc as unknown as (
-    fn: 'get_catches_for_tide_backfill',
-  ) => Promise<{ data: Row[] | null; error: { message: string } | null }>
-  const { data, error } = await rpc('get_catches_for_tide_backfill')
+  // Client service-role construit directement (PAS lib/supabase/service-role, qui est
+  // `server-only` et casse hors d'un Server Component). Lancer avec les vars en env :
+  //   dotenv -e .env.local -- pnpm tsx scripts/backfill-tide.ts   (ou export manuel)
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    console.error(
+      '[backfill-tide] NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY requis dans l’env.',
+    )
+    process.exit(1)
+  }
+  const admin = createClient<Database>(url, key, { auth: { persistSession: false } })
+  const { data, error } = await admin.rpc('get_catches_for_tide_backfill')
   if (error) {
     console.error('[backfill-tide] RPC get_catches_for_tide_backfill échec :', error.message)
     process.exit(1)
