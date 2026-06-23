@@ -1325,6 +1325,30 @@ export type Database = {
           lng: number
         }[]
       }
+      get_quality_cells: {
+        Args: {
+          max_lat: number
+          max_lng: number
+          min_lat: number
+          min_lng: number
+          p_days?: number
+          p_species?: string
+          p_technique?: string
+          p_zoom?: number
+        }
+        Returns: {
+          cell_size: number
+          community_count: number
+          community_norm: number
+          fishers_count: number
+          lat: number
+          lng: number
+          perso_count: number
+          perso_norm: number
+          quality: string
+          score: number
+        }[]
+      }
       get_feed_unread_counts: {
         Args: never
         Returns: {

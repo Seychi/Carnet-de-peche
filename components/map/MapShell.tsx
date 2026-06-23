@@ -27,6 +27,8 @@ import { useCatchHeatmap } from '@/lib/map/useCatchHeatmap'
 import { useCatchHeatRealtime } from '@/lib/map/useCatchHeatRealtime'
 import type { HeatFilters } from '@/lib/map/heatmap'
 import { useBathyLayer } from '@/lib/map/useBathyLayer'
+import { useQualityLayer } from '@/lib/map/useQualityLayer'
+import type { QualityFilters } from '@/lib/map/quality'
 
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
@@ -204,6 +206,9 @@ export default function MapShell({
   // Couche « Fond marin » (profondeur + nature du fond) — payant Itinérant (Carte v2 / C3a)
   const [bathyOn, setBathyOn] = useState(false)
   const [bathyOpacity, setBathyOpacity] = useState(0.7)
+  // Couche « Qualité » par espèce (Carte v2 / C3b) — aperçu tous tiers, détail complet Itinérant
+  const [qualityOn, setQualityOn] = useState(false)
+  const [qualitySpecies, setQualitySpecies] = useState<string | null>(null)
   const [livePulse, setLivePulse] = useState<{ id: number; dept: string } | null>(null)
   const pingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -212,6 +217,13 @@ export default function MapShell({
   const heatFilters: HeatFilters = useMemo(
     () => ({ species: filters.species ?? null, techniques: filters.techniques ?? null, days: heatmapDays }),
     [filters.species, filters.techniques, heatmapDays],
+  )
+
+  // Filtres de la couche Qualité : espèce DÉDIÉE (sélecteur propre à la couche) +
+  // même fenêtre temporelle que la heatmap. Technique non exposée (qualité = par espèce).
+  const qualityFilters: QualityFilters = useMemo(
+    () => ({ species: qualitySpecies, technique: null, days: heatmapDays }),
+    [qualitySpecies, heatmapDays],
   )
 
   const { cellCount, loading: heatLoading } = useCatchHeatmap({
@@ -228,6 +240,18 @@ export default function MapShell({
     active: bathyOn,
     opacity: bathyOpacity,
     enabled: userTier === 'itinerant',
+  })
+
+  // Couche « Qualité » (score décomposé par espèce) — aperçu communautaire pour tous,
+  // détail complet (fond + perso) gated Itinérant côté RPC (perso) + popup (fond). La
+  // liste `spots` sert à relier une cellule au spot curé qu'elle contient.
+  const { cellCount: qualityCellCount, loading: qualityLoading } = useQualityLayer({
+    map: mapInstance,
+    enabled: qualityOn,
+    filters: qualityFilters,
+    version: heatVersion,
+    tier: userTier,
+    spots,
   })
 
   // Prise publique loguée (broadcast geom-free, migration 042) → coalesce un refetch
@@ -513,6 +537,12 @@ export default function MapShell({
           onBathyToggle={setBathyOn}
           bathyOpacity={bathyOpacity}
           onBathyOpacityChange={setBathyOpacity}
+          qualityOn={qualityOn}
+          onQualityToggle={setQualityOn}
+          qualitySpecies={qualitySpecies}
+          onQualitySpeciesChange={setQualitySpecies}
+          qualityEmpty={qualityOn && qualityCellCount === 0 && !qualityLoading}
+          qualityLoading={qualityLoading}
         />
 
         {/* Pastille « +1 prise » — carte vivante (broadcast realtime, geom-free) */}

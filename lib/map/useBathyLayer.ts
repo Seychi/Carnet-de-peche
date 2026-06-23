@@ -11,6 +11,10 @@ import {
   BATHY_DEPTH_LAYER,
   SPOT_LAYER_IDS,
 } from '@/lib/map/bathymetry-layer'
+// ⟢ MERGE C3b — la couche Qualité (si active) porte déjà un popup « fond » décomposé.
+// On l'ajoute à la garde anti-double-popup pour que le popup fond marin lui cède la
+// place sur une cellule de qualité (sinon clic = 2 popups empilés pour un Itinérant).
+import { QUALITY_FILL_LAYER } from '@/lib/map/quality'
 
 const LOADING_HTML =
   '<div style="font:13px system-ui;color:#64748b;min-width:150px">Analyse du fond…</div>'
@@ -59,10 +63,11 @@ export function useBathyLayer({
     let reqId = 0
 
     const handler = async (e: MapMouseEvent) => {
-      // Ne pas voler le clic d'un spot (évite le double-popup avec la fiche spot).
-      const spotLayers = SPOT_LAYER_IDS.filter((id) => map.getLayer(id))
-      if (spotLayers.length) {
-        const hits = map.queryRenderedFeatures(e.point, { layers: spotLayers })
+      // Ne pas voler le clic d'un spot (fiche) ni d'une cellule de qualité (popup
+      // fond décomposé) → évite le double-popup.
+      const guardLayers = [...SPOT_LAYER_IDS, QUALITY_FILL_LAYER].filter((id) => map.getLayer(id))
+      if (guardLayers.length) {
+        const hits = map.queryRenderedFeatures(e.point, { layers: guardLayers })
         if (hits.length) return
       }
 

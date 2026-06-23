@@ -2,9 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves } from 'lucide-react'
+import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves, Grid3x3 } from 'lucide-react'
 import type { UserTier } from '@/lib/auth/tier'
 import { HEAT_LEGEND_STOPS } from '@/lib/map/heatmap'
+import { QUALITY_LEGEND } from '@/lib/map/quality'
+import { SPECIES_LABELS } from '@/lib/labels'
+
+// Espèces proposées par le sélecteur dédié de la couche Qualité (les 6 cœur).
+const QUALITY_SPECIES = ['bar', 'dorade_royale', 'lieu_jaune', 'maquereau', 'sar', 'orphie'] as const
 
 type Props = {
   userTier: UserTier
@@ -20,6 +25,12 @@ type Props = {
   onBathyToggle: (on: boolean) => void
   bathyOpacity: number
   onBathyOpacityChange: (o: number) => void
+  qualityOn: boolean
+  onQualityToggle: (on: boolean) => void
+  qualitySpecies: string | null
+  onQualitySpeciesChange: (s: string | null) => void
+  qualityEmpty: boolean
+  qualityLoading: boolean
 }
 
 function Switch({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
@@ -60,6 +71,12 @@ export default function MapLayerSelector({
   onBathyToggle,
   bathyOpacity,
   onBathyOpacityChange,
+  qualityOn,
+  onQualityToggle,
+  qualitySpecies,
+  onQualitySpeciesChange,
+  qualityEmpty,
+  qualityLoading,
 }: Props) {
   const [open, setOpen] = useState(false)
   const isPaid = userTier === 'local' || userTier === 'itinerant'
@@ -225,6 +242,76 @@ export default function MapLayerSelector({
                     className="flex-1 accent-teal-500"
                     aria-label="Opacité de la couche fond marin"
                   />
+                </div>
+              )}
+            </div>
+
+            {/* Qualité — score décomposé par espèce (Carte v2 / C3b). Aperçu tous tiers ;
+                détail complet (fond adapté + ton historique) au clic = Itinérant. */}
+            <div className="px-3.5 py-3">
+              <div className="flex items-center gap-2.5">
+                <Grid3x3 size={16} className="text-teal-600 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13.5px] font-medium text-ink-900">Qualité</p>
+                  <p className="text-[11px] text-ink-400">Par espèce · décomposée</p>
+                </div>
+                <Switch on={qualityOn} onClick={() => onQualityToggle(!qualityOn)} label="Afficher la couche qualité" />
+              </div>
+
+              {qualityOn && (
+                <div className="mt-3 pl-[26px] flex flex-col gap-2.5">
+                  {/* Sélecteur d'espèce dédié (la qualité est PAR espèce) */}
+                  <label className="flex items-center gap-2 text-[11px] text-ink-500">
+                    <span className="shrink-0">Espèce</span>
+                    <select
+                      value={qualitySpecies ?? ''}
+                      onChange={(e) => onQualitySpeciesChange(e.target.value || null)}
+                      className="flex-1 rounded-lg border border-ink-200 bg-white px-2 py-1 text-[12px] text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      aria-label="Espèce de la couche qualité"
+                    >
+                      <option value="">Toutes</option>
+                      {QUALITY_SPECIES.map((s) => (
+                        <option key={s} value={s}>{SPECIES_LABELS[s] ?? s}</option>
+                      ))}
+                    </select>
+                    {qualityLoading && <Loader2 size={12} className="animate-spin text-ink-400 shrink-0" />}
+                  </label>
+
+                  {/* Légende cividis (colorblind-safe) — le chiffre du score double l'info */}
+                  <div className="flex flex-col gap-1">
+                    {QUALITY_LEGEND.map((l) => (
+                      <div key={l.quality} className="flex items-center gap-2">
+                        <span
+                          className="h-3 w-3 rounded-[3px] border border-navy-950/40 shrink-0"
+                          style={{ background: l.color }}
+                          aria-hidden
+                        />
+                        <span className="text-[11px] text-ink-500">{l.label}</span>
+                      </div>
+                    ))}
+                    <p className="text-[10px] text-ink-400 leading-snug mt-0.5">
+                      Le score (0-100) est inscrit sur chaque case — lisible quel que soit le daltonisme.
+                    </p>
+                  </div>
+
+                  {/* État vide honnête */}
+                  {qualityEmpty && (
+                    <p className="text-[11px] leading-snug text-ink-400">
+                      Pas encore assez de prises partagées pour afficher la qualité ici. Elle apparaît
+                      dès que plusieurs pêcheurs y loguent publiquement{isItinerant ? ' — ou sur tes propres spots' : ''}.
+                    </p>
+                  )}
+
+                  {/* Note tier — aperçu vs complet */}
+                  {!isItinerant && (
+                    <p className="text-[11px] leading-snug text-ink-400">
+                      Aperçu communautaire. Le détail complet (fond adapté à l&apos;espèce + ton historique)
+                      au clic est{' '}
+                      <Link href="/tarifs" className="text-gold-600 font-semibold hover:underline">
+                        Itinérant
+                      </Link>.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
