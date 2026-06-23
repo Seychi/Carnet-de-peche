@@ -8,6 +8,7 @@ import { signOut } from '@/app/actions/auth'
 const NAV_ITEMS = [
   { label: 'Carte', href: '/carte' },
   { label: 'Spots', href: '/spots' },
+  { label: 'Espèces', href: '/especes' },
   { label: 'Guides', href: '/guides' },
   { label: 'Tarifs', href: '/tarifs' },
 ]
