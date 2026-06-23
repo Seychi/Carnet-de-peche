@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,10 +123,12 @@ function buildWindByHour(
 
 // ─── Cache Supabase ───────────────────────────────────────────────────────────
 
+// Lecture via le client de session (policy RLS SELECT weather_cache ouverte → la
+// fiche spot publique, même visiteur anonyme, profite du cache hit).
 async function readCache(key: string): Promise<SpotConditions | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('conditions_cache')
+    .from('weather_cache')
     .select('payload')
     .eq('cache_key', key)
     .gt('fetched_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
@@ -134,12 +137,19 @@ async function readCache(key: string): Promise<SpotConditions | null> {
   return data.payload as SpotConditions
 }
 
+// Écriture via service-role (weather_cache sans policy write → bypass RLS, serveur
+// uniquement). onConflict:'cache_key' = PK non partielle. Best-effort : un échec ne
+// casse jamais le forecast (cache opportuniste).
 async function writeCache(key: string, payload: SpotConditions): Promise<void> {
-  const supabase = await createClient()
-  await supabase.from('conditions_cache').upsert(
-    { cache_key: key, payload, fetched_at: new Date().toISOString() },
-    { onConflict: 'cache_key' }
-  )
+  try {
+    const admin = createServiceRoleClient()
+    await admin.from('weather_cache').upsert(
+      { cache_key: key, payload, fetched_at: new Date().toISOString() },
+      { onConflict: 'cache_key' }
+    )
+  } catch (err) {
+    console.warn('[spot-forecast] writeCache weather_cache échec (non bloquant) :', err)
+  }
 }
 
 // ─── API calls ────────────────────────────────────────────────────────────────

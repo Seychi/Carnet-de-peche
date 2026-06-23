@@ -19,8 +19,11 @@ export async function resizeImageToWebp(
     fileType: 'image/webp',
     initialQuality: quality,
     useWebWorker: true,
-    // Pas de contrainte de taille en sortie — on pilote via qualité + dimensions
-    maxSizeMB: Infinity,
+    // Plafond de taille de sortie (sprint 20) : la lib réduit qualité PUIS dimension
+    // de façon itérative jusqu'à passer sous ~0,9 Mo. Sans ça, un WebP 1920 px pouvait
+    // dépasser 1 Mo → mur du body des Server Actions Next (rejet AVANT l'action = 500).
+    // Best-effort (pas une garantie dure) → défense en profondeur côté client + serveur.
+    maxSizeMB: 0.9,
   })
 
   const baseName = file.name.replace(/\.[^/.]+$/, '')

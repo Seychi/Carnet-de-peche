@@ -2,6 +2,16 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  // Limite de body des Server Actions (sprint 20). Défaut Next = 1 Mo : un WebP de
+  // prise pouvait le dépasser → « Body exceeded 1 MB limit » (500 framework AVANT
+  // que l'action ne s'exécute). On porte à 2 Mo pour : (1) de la marge sur l'overhead
+  // multipart, (2) laisser le garde interne de l'action (toast FR ~1,8 Mo) se déclencher
+  // au lieu d'un 500. En Next 15.5 la clé est sous `experimental.serverActions`.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
   // Lint BLOQUANT au build (sprint 11.5) : eslint-config-next réaligné sur la
   // ligne 15 via FlatCompat (cf eslint.config.mjs) + dette lint soldée → plus
   // de bug "circular JSON" v16, `next build` lint sans crash. Ne PAS réintroduire

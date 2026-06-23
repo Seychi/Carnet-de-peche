@@ -5,6 +5,11 @@ import { toast } from 'sonner'
 import { resizeImageToWebp } from '@/lib/storage/image-resize'
 
 const MAX_INPUT_BYTES = 20 * 1024 * 1024 // 20 MB — seuil de rejet avant resize
+// Plafond de sortie APRÈS resize (sprint 20, défense en profondeur). resizeImageToWebp
+// vise ~0,9 Mo mais c'est best-effort : sur une image pathologique le WebP peut rester
+// au-dessus. On refuse alors côté client (toast + onChange(null)) plutôt que d'envoyer
+// un fichier qui ferait sauter le Server Action. 1,8 Mo = aligné sur le garde serveur.
+const MAX_OUTPUT_BYTES = 1.8 * 1024 * 1024 // 1.8 MB
 
 interface PhotoInputProps {
   onChange: (file: File | null) => void
@@ -34,6 +39,15 @@ export function PhotoInput({ onChange, className, initialUrl }: PhotoInputProps)
 
     try {
       const webp = await resizeImageToWebp(raw)
+
+      // Défense en profondeur : si malgré le resize le WebP reste trop lourd (image
+      // pathologique), on refuse côté client plutôt que de faire sauter le Server Action.
+      if (webp.size > MAX_OUTPUT_BYTES) {
+        toast.error('Photo trop détaillée pour être optimisée sous 2 Mo. Choisis une image plus simple ou plus légère.')
+        onChange(null)
+        e.target.value = ''
+        return
+      }
 
       const objectUrl = URL.createObjectURL(webp)
       setPreview(objectUrl)

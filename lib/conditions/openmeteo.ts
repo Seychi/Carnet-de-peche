@@ -1,5 +1,6 @@
 import ngeohash from 'ngeohash'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,10 +116,12 @@ async function fetchForecast(
 
 // ─── Cache Supabase ───────────────────────────────────────────────────────────
 
+// Lecture via le client de session : la policy RLS SELECT de weather_cache est
+// ouverte (anon + authenticated) → un visiteur anonyme bénéficie aussi du cache hit.
 async function readCache(key: string): Promise<ConditionsSnapshot | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('conditions_cache')
+    .from('weather_cache')
     .select('payload')
     .eq('cache_key', key)
     .gt('fetched_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
@@ -128,12 +131,21 @@ async function readCache(key: string): Promise<ConditionsSnapshot | null> {
   return data.payload as ConditionsSnapshot
 }
 
+// Écriture via le client SERVICE-ROLE (bypass RLS) : weather_cache n'a aucune policy
+// INSERT/UPDATE → seul le service-role écrit (pas d'empoisonnement de cache client).
+// onConflict:'cache_key' = la PK (non partielle) → l'upsert matche enfin une contrainte.
+// Best-effort : un échec d'écriture (clé service manquante, réseau) ne doit JAMAIS
+// casser le fetch conditions → on avale l'erreur (le cache est opportuniste).
 async function writeCache(key: string, snapshot: ConditionsSnapshot): Promise<void> {
-  const supabase = await createClient()
-  await supabase.from('conditions_cache').upsert(
-    { cache_key: key, payload: snapshot, fetched_at: new Date().toISOString() },
-    { onConflict: 'cache_key' }
-  )
+  try {
+    const admin = createServiceRoleClient()
+    await admin.from('weather_cache').upsert(
+      { cache_key: key, payload: snapshot, fetched_at: new Date().toISOString() },
+      { onConflict: 'cache_key' }
+    )
+  } catch (err) {
+    console.warn('[conditions] writeCache weather_cache échec (non bloquant) :', err)
+  }
 }
 
 // ─── Fonction principale ──────────────────────────────────────────────────────

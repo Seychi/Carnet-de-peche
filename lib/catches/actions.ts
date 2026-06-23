@@ -265,7 +265,10 @@ export async function deleteCatch(id: string): Promise<{ ok: true } | { error: s
 
 // ─── uploadCatchPhoto ─────────────────────────────────────────────────────────
 
-const MAX_SIZE_BYTES = 1.5 * 1024 * 1024 // 1.5 MB
+// Aligné SOUS la limite framework (experimental.serverActions.bodySizeLimit = 2 Mo,
+// cf next.config.ts). Ainsi ce garde se déclenche AVANT le mur Next : un fichier
+// 1,8–2 Mo renvoie ce message FR propre (toast) au lieu d'un 500 « Body exceeded ».
+const MAX_SIZE_BYTES = 1.8 * 1024 * 1024 // 1.8 MB
 
 export async function uploadCatchPhoto(
   formData: FormData
@@ -274,7 +277,7 @@ export async function uploadCatchPhoto(
   if (!(file instanceof File)) return { error: 'Fichier manquant.' }
 
   if (file.size > MAX_SIZE_BYTES) {
-    return { error: 'La photo dépasse 1,5 Mo. Redimensionne-la avant l\'envoi.' }
+    return { error: 'La photo dépasse 1,8 Mo. Redimensionne-la avant l\'envoi.' }
   }
   if (file.type !== 'image/webp') {
     return { error: 'Format invalide. Seul le format WebP est accepté.' }

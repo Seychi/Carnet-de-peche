@@ -35,18 +35,24 @@ const FORECAST_RESPONSE = {
 // vi.mock est hoisté en haut du fichier par Vitest, donc les variables doivent
 // l'être aussi via vi.hoisted pour être accessibles dans la factory.
 
-const { mockMaybeSingle, mockUpsert, mockFrom } = vi.hoisted(() => {
+// Lecture = client de session (RLS SELECT weather_cache ouverte). Écriture = client
+// service-role (weather_cache sans policy write). On mocke donc les deux clients.
+const { mockMaybeSingle, mockSessionFrom, mockServiceUpsert, mockServiceFrom } = vi.hoisted(() => {
   const mockMaybeSingle = vi.fn()
-  const mockUpsert = vi.fn().mockResolvedValue({ error: null })
   const mockGt = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
   const mockEq = vi.fn().mockReturnValue({ gt: mockGt })
   const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
-  const mockFrom = vi.fn().mockReturnValue({ select: mockSelect, upsert: mockUpsert })
-  return { mockMaybeSingle, mockUpsert, mockFrom }
+  const mockSessionFrom = vi.fn().mockReturnValue({ select: mockSelect })
+  const mockServiceUpsert = vi.fn().mockResolvedValue({ error: null })
+  const mockServiceFrom = vi.fn().mockReturnValue({ upsert: mockServiceUpsert })
+  return { mockMaybeSingle, mockSessionFrom, mockServiceUpsert, mockServiceFrom }
 })
 
 vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn().mockResolvedValue({ from: mockFrom }),
+  createClient: vi.fn().mockResolvedValue({ from: mockSessionFrom }),
+}))
+vi.mock('@/lib/supabase/service-role', () => ({
+  createServiceRoleClient: vi.fn().mockReturnValue({ from: mockServiceFrom }),
 }))
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -58,8 +64,9 @@ describe('fetchConditionsAt', () => {
     const mockGt = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
     const mockEq = vi.fn().mockReturnValue({ gt: mockGt })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
-    mockFrom.mockReturnValue({ select: mockSelect, upsert: mockUpsert })
-    mockUpsert.mockResolvedValue({ error: null })
+    mockSessionFrom.mockReturnValue({ select: mockSelect })
+    mockServiceFrom.mockReturnValue({ upsert: mockServiceUpsert })
+    mockServiceUpsert.mockResolvedValue({ error: null })
   })
 
   it('fusionne correctement les réponses Marine et Forecast', async () => {
@@ -92,6 +99,15 @@ describe('fetchConditionsAt', () => {
     expect(result.wave_height_m).toBe(1.2)
     expect(result.wave_period_s).toBe(8.5)
     expect(result.wave_direction_deg).toBe(270)
+
+    // Cache (sprint 20) : lecture sur weather_cache (session), écriture via
+    // service-role avec onConflict ciblant la PK non partielle `cache_key`.
+    expect(mockSessionFrom).toHaveBeenCalledWith('weather_cache')
+    expect(mockServiceFrom).toHaveBeenCalledWith('weather_cache')
+    expect(mockServiceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ cache_key: expect.any(String) }),
+      { onConflict: 'cache_key' },
+    )
   })
 
   it('retourne null pour les 4 champs tide_*', async () => {
@@ -142,6 +158,8 @@ describe('fetchConditionsAt', () => {
 
     expect(result.air_temperature_c).toBe(99)
     expect(fetchMock).not.toHaveBeenCalled()
+    // Cache hit → aucune écriture (pas de re-upsert inutile)
+    expect(mockServiceUpsert).not.toHaveBeenCalled()
   })
 
   it('retourne des champs Marine null si l\'API marine échoue', async () => {

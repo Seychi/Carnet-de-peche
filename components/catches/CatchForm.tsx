@@ -345,7 +345,18 @@ export function CatchForm(props: CatchFormProps) {
     if (photoFile) {
       const fd = new FormData()
       fd.append('file', photoFile)
-      const uploadResult = await uploadCatchPhoto(fd)
+      let uploadResult: Awaited<ReturnType<typeof uploadCatchPhoto>>
+      try {
+        uploadResult = await uploadCatchPhoto(fd)
+      } catch (err) {
+        // Filet de sécurité : une erreur framework résiduelle (ex. mur body des Server
+        // Actions) ne doit jamais remonter en exception non gérée → toast FR propre.
+        console.error('[CatchForm] uploadCatchPhoto a levé :', err)
+        clearTimeout(conditionsTimer)
+        toast.error('Photo trop lourde ou envoi interrompu. Réessaie avec une autre image.')
+        setSubmitPhase('idle')
+        return
+      }
       if ('error' in uploadResult) {
         clearTimeout(conditionsTimer)
         if (uploadResult.error === 'Non authentifié') {
