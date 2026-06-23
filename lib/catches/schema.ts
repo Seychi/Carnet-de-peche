@@ -1,5 +1,6 @@
 import '@/lib/zod-config'
 import { z } from 'zod'
+import { isCoastalDepartment } from '@/lib/geo/departments'
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -133,3 +134,26 @@ export const catchFiltersSchema = z.object({
 export type CreateCatchInput = z.infer<typeof createCatchSchema>
 export type UpdateCatchInput = z.infer<typeof updateCatchSchema>
 export type CatchFilters = z.infer<typeof catchFiltersSchema>
+
+// ─── Import groupé de prises passées (WS-C, sprint 22) ───────────────────────
+// Saisie rapide multi-prises pour amorcer un carnet rétroactivement. Localisation
+// approximative = un département côtier (→ point de mer de référence pour
+// l'enrichissement météo). `technique` volontairement OMISE (nullable en DB) : pour
+// de l'historique on ne s'en souvient pas forcément. `caught_at` accepte n'importe
+// quelle date passée (aucune borne max).
+export const bulkCatchRowSchema = z.object({
+  species: catchSpeciesEnum,
+  caught_at: z.string().datetime(),
+  size_cm: z.number().min(10).max(200).optional(),
+  department: z.string().refine((d) => isCoastalDepartment(d), {
+    error: 'Choisis un département côtier pour chaque prise',
+  }),
+})
+
+export const bulkCatchSchema = z
+  .array(bulkCatchRowSchema)
+  .min(1, { error: 'Ajoute au moins une prise' })
+  .max(50, { error: 'Maximum 50 prises par import' })
+
+export type BulkCatchRowInput = z.infer<typeof bulkCatchRowSchema>
+export type BulkCatchInput = z.infer<typeof bulkCatchSchema>

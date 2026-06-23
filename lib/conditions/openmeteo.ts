@@ -1,6 +1,7 @@
 import ngeohash from 'ngeohash'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { tideTrendAt, dailyMarnage } from './tide'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,8 +18,11 @@ export type ConditionsSnapshot = {
   wave_height_m: number | null
   wave_period_s: number | null
   wave_direction_deg: number | null
-  // Marées reportées au sprint 7 (WorldTides) — toujours null en sprint 3
-  tide_state: 'rising' | 'falling' | 'high' | 'low' | null
+  // Marée dérivée des hauteurs horaires Open-Meteo (sea_level_height_msl) au log
+  // (sprint 22). tide_coefficient reste null : on n'invente AUCUN coef SHOM —
+  // l'info honnête est le MARNAGE mesuré (tide_range_m, amplitude PM-BM en mètres).
+  tide_state: 'rising' | 'falling' | 'slack' | null
+  tide_range_m: number | null
   tide_coefficient: number | null
   next_high_tide_at: string | null
   next_low_tide_at: string | null
@@ -60,6 +64,7 @@ type MarineHourly = {
   wave_direction: (number | null)[]
   wave_period: (number | null)[]
   sea_surface_temperature: (number | null)[]
+  sea_level_height_msl: (number | null)[]
 }
 
 type ForecastHourly = {
@@ -80,7 +85,7 @@ async function fetchMarine(
   const url =
     `https://marine-api.open-meteo.com/v1/marine` +
     `?latitude=${lat}&longitude=${lng}` +
-    `&hourly=wave_height,wave_direction,wave_period,sea_surface_temperature` +
+    `&hourly=wave_height,wave_direction,wave_period,sea_surface_temperature,sea_level_height_msl` +
     `&timezone=Europe%2FParis&start_date=${date}&end_date=${date}`
 
   try {
@@ -171,12 +176,38 @@ export async function fetchConditionsAt(
   let wavePeriod: number | null = null
   let waterTemp: number | null = null
 
+  let tideState: 'rising' | 'falling' | 'slack' | null = null
+  let tideRangeM: number | null = null
+
   if (marine) {
     const idx = closestHourIndex(marine.time, datetime)
     waveHeight = marine.wave_height[idx] ?? null
     waveDirection = marine.wave_direction[idx] ?? null
     wavePeriod = marine.wave_period[idx] ?? null
     waterTemp = marine.sea_surface_temperature[idx] ?? null
+
+    // Marée dérivée des hauteurs horaires (sprint 22) : points indexés par heure
+    // LOCALE (API appelée en timezone=Europe/Paris) → tendance à l'heure locale de
+    // la prise + marnage du jour. Aucun coefficient inventé.
+    const heights = marine.sea_level_height_msl
+    if (heights) {
+      const tidePoints = marine.time
+        .map((t, i) => ({ hour: parseInt(t.slice(11, 13), 10), height_m: heights[i] }))
+        .filter((p): p is { hour: number; height_m: number } => Number.isFinite(p.height_m))
+      if (tidePoints.length >= 2) {
+        const localHour =
+          parseInt(
+            new Intl.DateTimeFormat('en-GB', {
+              timeZone: 'Europe/Paris',
+              hour: '2-digit',
+              hour12: false,
+            }).format(datetime),
+            10,
+          ) % 24
+        tideState = tideTrendAt(tidePoints, localHour)
+        tideRangeM = dailyMarnage(tidePoints)
+      }
+    }
   }
 
   let airTemp: number | null = null
@@ -209,7 +240,8 @@ export async function fetchConditionsAt(
     wave_height_m: waveHeight,
     wave_period_s: wavePeriod,
     wave_direction_deg: waveDirection,
-    tide_state: null,
+    tide_state: tideState,
+    tide_range_m: tideRangeM,
     tide_coefficient: null,
     next_high_tide_at: null,
     next_low_tide_at: null,

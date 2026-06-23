@@ -11,7 +11,7 @@ vi.mock('@/lib/conditions/openmeteo', () => ({ fetchConditionsAt: vi.fn(async ()
 
 import { createClient } from '@/lib/supabase/server'
 import { fetchConditionsAt } from '@/lib/conditions/openmeteo'
-import { createCatch, updateCatch, deleteCatch, uploadCatchPhoto } from '../actions'
+import { createCatch, updateCatch, deleteCatch, uploadCatchPhoto, bulkCreateCatches } from '../actions'
 import type { CreateCatchInput, UpdateCatchInput } from '../schema'
 
 // ─── Faux client Supabase (capture les payloads insert/update/delete) ─────────
@@ -366,5 +366,66 @@ describe('uploadCatchPhoto', () => {
     const ok = new File([new Uint8Array(1024)], 'photo.webp', { type: 'image/webp' })
     const res = await uploadCatchPhoto(fd(ok))
     expect(res).toEqual({ error: 'Non authentifié' })
+  })
+})
+
+// ─── bulkCreateCatches (import de prises passées, WS-C) ────────────────────────
+
+type BulkArg = Parameters<typeof bulkCreateCatches>[0]
+
+describe('bulkCreateCatches', () => {
+  it('importe plusieurs prises passées (coords dépt + defaults privacy)', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [{ data: [{ id: 'a' }, { id: 'b' }], error: null }],
+    })
+    inject(client)
+
+    const rows = [
+      { species: 'bar', caught_at: '2026-06-20T12:00:00.000Z', department: '29' },
+      { species: 'dorade_royale', caught_at: '2026-05-01T12:00:00.000Z', size_cm: 35, department: '13' },
+    ] as unknown as BulkArg
+
+    const res = await bulkCreateCatches(rows)
+
+    expect(res).toEqual({ inserted: 2 })
+    const insert = ops.find((o) => o.op === 'insert')!
+    const payload = insert.payload as Array<Record<string, unknown>>
+    expect(payload).toHaveLength(2)
+    expect(payload[0].user_id).toBe(USER.id)
+    expect(payload[0].location_method).toBe('manual')
+    expect(payload[0].privacy).toBe('private')
+    expect(payload[0].precise_for_friends).toBe(true)
+    expect(payload[0].technique).toBeNull()
+    expect(payload[0].geom).toContain('SRID=4326;POINT(')
+    expect(payload[1].size_cm).toBe(35)
+  })
+
+  it('rejette un département non côtier (message zod FR, aucun insert)', async () => {
+    const { client, ops } = makeClient({ user: USER })
+    inject(client)
+    const rows = [
+      { species: 'bar', caught_at: '2026-06-20T12:00:00.000Z', department: '75' },
+    ] as unknown as BulkArg
+    const res = await bulkCreateCatches(rows)
+    expect(res).toEqual({ error: expect.stringContaining('côtier') })
+    expect(ops.some((o) => o.op === 'insert')).toBe(false)
+  })
+
+  it('refuse un utilisateur non authentifié', async () => {
+    const { client } = makeClient({ user: null })
+    inject(client)
+    const rows = [
+      { species: 'bar', caught_at: '2026-06-20T12:00:00.000Z', department: '29' },
+    ] as unknown as BulkArg
+    const res = await bulkCreateCatches(rows)
+    expect(res).toEqual({ error: 'Non authentifié' })
+  })
+
+  it('rejette une liste vide', async () => {
+    const { client } = makeClient({ user: USER })
+    inject(client)
+    const res = await bulkCreateCatches([] as unknown as BulkArg)
+    expect('error' in res).toBe(true)
   })
 })

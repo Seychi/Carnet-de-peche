@@ -1,9 +1,10 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { createCatchSchema, updateCatchSchema, isInFranceMetro } from './schema'
-import type { CreateCatchInput, UpdateCatchInput } from './schema'
+import { createCatchSchema, updateCatchSchema, bulkCatchSchema, isInFranceMetro } from './schema'
+import type { CreateCatchInput, UpdateCatchInput, BulkCatchInput } from './schema'
+import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
 import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -92,9 +93,7 @@ export async function createCatch(
       location_label: data.location_label ?? null,
       wind_speed_kmh: snapshot?.wind_speed_kmh ?? null,
       wind_direction_deg: snapshot?.wind_direction_deg ?? null,
-      tide_state: snapshot?.tide_state === 'rising' || snapshot?.tide_state === 'falling'
-        ? snapshot.tide_state
-        : null,
+      tide_state: snapshot?.tide_state ?? null,
     })
     .select('id')
     .single()
@@ -105,7 +104,6 @@ export async function createCatch(
   }
 
   revalidatePath('/carnet')
-  revalidateTag(`personal-profile-${user.id}`)
   return { id: row.id }
 }
 
@@ -176,9 +174,7 @@ export async function updateCatch(
     const c = conditions && !('out_of_coverage' in conditions) ? conditions : null
     payload.wind_speed_kmh = c?.wind_speed_kmh ?? null
     payload.wind_direction_deg = c?.wind_direction_deg ?? null
-    payload.tide_state = c?.tide_state === 'rising' || c?.tide_state === 'falling'
-      ? c.tide_state
-      : null
+    payload.tide_state = c?.tide_state ?? null
   }
   if (data.photo_path !== undefined) payload.photo_path = data.photo_path
 
@@ -308,4 +304,67 @@ export async function uploadCatchPhoto(
   }
 
   return { path: storagePath }
+}
+
+// ─── bulkCreateCatches (import de prises passées, WS-C) ────────────────────────
+
+export async function bulkCreateCatches(
+  rows: BulkCatchInput
+): Promise<{ inserted: number } | { error: string }> {
+  const parsed = bulkCatchSchema.safeParse(rows)
+  if (!parsed.success) {
+    const msg = parsed.error.issues.map((issue) => issue.message).join(', ')
+    return { error: msg }
+  }
+  const data = parsed.data
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié' }
+
+  // Enrichissement météo best-effort par prise (jamais bloquant), en parallèle.
+  // Localisation approximative = point de mer du département → marée/vent du jour
+  // (la marée est dérivée au passage, sprint 22). Le département est garanti côtier
+  // par le schéma → coords toujours définies.
+  const payloads = await Promise.all(
+    data.map(async (row) => {
+      const coords = DEPARTMENT_SEA_COORDS[row.department]!
+      const caughtAt = new Date(row.caught_at)
+      const conditions = await safeConditions(coords.lat, coords.lng, caughtAt)
+      const snapshot = conditions && !('out_of_coverage' in conditions) ? conditions : null
+      return {
+        user_id: user.id,
+        species: row.species,
+        caught_at: row.caught_at,
+        size_cm: row.size_cm ?? null,
+        technique: null,
+        released: false,
+        location_method: 'manual' as const,
+        geom: toEwkt(coords.lat, coords.lng) as unknown,
+        privacy: 'private' as const,
+        precise_for_friends: true,
+        reveal_precise_to_public: false,
+        conditions: conditions as unknown,
+        wind_speed_kmh: snapshot?.wind_speed_kmh ?? null,
+        wind_direction_deg: snapshot?.wind_direction_deg ?? null,
+        tide_state: snapshot?.tide_state ?? null,
+        location_label: `${coords.place} (≈ dépt ${row.department})`,
+      }
+    })
+  )
+
+  const { data: insertedRows, error } = await supabase
+    .from('catches')
+    .insert(payloads)
+    .select('id')
+
+  if (error) {
+    console.error('[catches/actions] bulkCreateCatches insert error :', error)
+    return { error: "Impossible d'importer les prises. Réessaie." }
+  }
+
+  revalidatePath('/carnet')
+  return { inserted: insertedRows?.length ?? 0 }
 }

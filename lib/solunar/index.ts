@@ -1,7 +1,6 @@
 import SunCalc from 'suncalc'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 import type { DailyForecast, FishingWindow, SolunarEvent } from './types'
-import type { PersonalMultiplier } from '@/lib/scoring/types'
 import { getSolunarEvents, getMoonPhaseLabel } from './astronomy'
 import { scoreWindow, qualityFromScore } from './scoring'
 import { formatLocalTime, formatLocalDate, getParisHour } from './format'
@@ -11,8 +10,7 @@ import { SOLUNAR_CONFIG } from './config'
 
 function buildWindow(
   centerEvent: SolunarEvent,
-  conditions: SpotConditions,
-  personalMultiplier?: PersonalMultiplier
+  conditions: SpotConditions
 ): FishingWindow | null {
   const centerMs = new Date(centerEvent.timeISO).getTime()
   const halfDuration = (SOLUNAR_CONFIG.WINDOW_DURATION_HOURS / 2) * 60 * 60 * 1000
@@ -53,8 +51,7 @@ function buildWindow(
     endISO,
     conditions.tide.points,
     conditions.tide.extrema,
-    windAtCenter,
-    personalMultiplier
+    windAtCenter
   )
 
   return {
@@ -109,8 +106,7 @@ export async function computeDailyForecast(
   date: Date,
   lat: number,
   lng: number,
-  conditions: SpotConditions,
-  personalMultiplier?: PersonalMultiplier
+  conditions: SpotConditions
 ): Promise<DailyForecast> {
   const events = getSolunarEvents(date, lat, lng)
   const illum = SunCalc.getMoonIllumination(date)
@@ -119,7 +115,7 @@ export async function computeDailyForecast(
   const rawWindows: FishingWindow[] = []
 
   for (const event of events) {
-    const w = buildWindow(event, conditions, personalMultiplier)
+    const w = buildWindow(event, conditions)
     if (w) rawWindows.push(w)
   }
 
@@ -153,14 +149,13 @@ export async function computeWeeklyForecast(
   startDate: Date,
   lat: number,
   lng: number,
-  conditions: SpotConditions[],
-  personalMultiplier?: PersonalMultiplier
+  conditions: SpotConditions[]
 ): Promise<DailyForecast[]> {
   const results: DailyForecast[] = []
 
   for (let i = 0; i < conditions.length; i++) {
     const day = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
-    const daily = await computeDailyForecast(day, lat, lng, conditions[i], personalMultiplier)
+    const daily = await computeDailyForecast(day, lat, lng, conditions[i])
     results.push(daily)
   }
 

@@ -76,6 +76,16 @@ export function CatchGrid({
         >
           Loguer ma première prise
         </Link>
+        <p className="mt-4 text-[13px] text-ink-400">
+          ou{' '}
+          <Link
+            href="/carnet/import"
+            className="font-semibold text-teal-700 underline-offset-2 hover:underline"
+          >
+            ajoute tes prises passées
+          </Link>{' '}
+          pour amorcer tes tendances
+        </p>
       </div>
     )
   }

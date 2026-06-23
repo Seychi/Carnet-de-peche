@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown } from '@/lib/catches/queries'
-import { getMyCatchInsights } from '@/lib/catches/insights'
+import { getPersonalTendencies } from '@/lib/scoring/personal'
 import { catchFiltersSchema } from '@/lib/catches/schema'
 import { CatchStatsRow } from '@/components/catches/CatchStatsRow'
 import { CatchStatsDetailed } from '@/components/catches/CatchStatsDetailed'
-import { PersonalInsights } from '@/components/catches/PersonalInsights'
+import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
 import { NextWindowInsight } from '@/components/catches/NextWindowInsight'
@@ -57,11 +57,11 @@ export default async function CarnetPage({ searchParams }: Props) {
 
   // ── Fetch parallèle : prises + stats + dépt du profil (insight) ──────────
 
-  const [{ catches, totalCount }, stats, breakdown, insights, { data: profile }] = await Promise.all([
+  const [{ catches, totalCount }, stats, breakdown, personalTendencies, { data: profile }] = await Promise.all([
     getMyCatches(filters),
     getMyCatchStats().catch(() => null),
     getMyCatchesBreakdown().catch(() => null),
-    getMyCatchInsights().catch(() => null),
+    getPersonalTendencies().catch(() => null),
     supabase.from('profiles').select('home_department').eq('id', user.id).maybeSingle(),
   ])
 
@@ -116,7 +116,7 @@ export default async function CarnetPage({ searchParams }: Props) {
         {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-5" />}
 
         {/* Tes tendances perso (calculées depuis tes prises réelles) */}
-        {insights && <PersonalInsights data={insights} className="mb-5" />}
+        {personalTendencies && <PersonalTendencies data={personalTendencies} className="mb-5" />}
 
         {/* Insight : prochain bon créneau du département (card live) */}
         {dept && <NextWindowInsight dept={dept} />}

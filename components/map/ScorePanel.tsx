@@ -3,15 +3,15 @@
 import { useEffect, useState } from 'react'
 import { X, Sparkles, Loader2, Lock } from 'lucide-react'
 import Link from 'next/link'
-import { PersonalInsights } from '@/components/catches/PersonalInsights'
+import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { getMapScoreInsights, type MapScoreResult } from '@/app/actions/map-insights'
 
 /**
- * Couche « Ton score » (Carte v2 / C1, Bloc D). Affiche les TENDANCES perso
- * descriptives réelles (lib/catches/insights) — distinct de la heatmap
- * communautaire (couleur inferno) et du score spot générique (cividis). Honnête :
- * pas de score fabriqué ; si l'historique ne suffit pas → invite à loguer.
- * Le gating est porté côté SERVEUR par getMapScoreInsights (current_tier).
+ * Couche « Ton score » (Carte v2 / C1). Affiche les TENDANCES perso descriptives
+ * réelles (lib/scoring/personal) — distinct de la heatmap communautaire (inferno)
+ * et du score spot générique (cividis). Honnête : pas de score fabriqué ; si
+ * l'historique ne suffit pas → le composant invite à loguer (état dégradé/vide).
+ * Le gating Local/Itinérant est porté côté SERVEUR par getMapScoreInsights.
  */
 export default function ScorePanel({ onClose }: { onClose: () => void }) {
   const [state, setState] = useState<MapScoreResult | null>(null)
@@ -21,12 +21,10 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
     let alive = true
     getMapScoreInsights()
       .then((r) => { if (alive) setState(r) })
-      .catch(() => { if (alive) setState({ gated: false, insights: null }) })
+      .catch(() => { if (alive) setState(null) })
       .finally(() => { if (alive) setLoading(false) })
     return () => { alive = false }
   }, [])
-
-  const enoughData = state && !state.gated && state.insights && state.insights.totalCount > 0
 
   // Position : bas-gauche en mobile (légende + readout masqués < md) ; bas-DROITE en
   // desktop pour ne pas recouvrir la légende couleurs ni les coords GPS (bas-gauche).
@@ -67,21 +65,13 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {!loading && state && !state.gated && enoughData && (
+        {!loading && state && !state.gated && (
           <>
             <p className="mb-2.5 text-[12px] leading-snug text-ink-500">
               Tes tendances, calculées sur TES prises (pas une moyenne générique) :
             </p>
-            <PersonalInsights data={state.insights!} />
+            <PersonalTendencies data={state.tendencies} compact />
           </>
-        )}
-
-        {!loading && state && !state.gated && !enoughData && (
-          <p className="text-[13px] leading-relaxed text-ink-500">
-            Continue à loguer tes prises (espèce, taille, heure) : dès que ton historique
-            le permet, ton score perso s&apos;affichera ici — basé sur <strong>tes</strong> patterns,
-            pas une moyenne générique.
-          </p>
         )}
       </div>
     </div>

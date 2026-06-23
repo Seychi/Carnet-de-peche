@@ -15,6 +15,8 @@ import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
+import { getPersonalTendencies } from '@/lib/scoring/personal'
+import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
@@ -269,6 +271,12 @@ export default async function SpotPage({
     ? await computeWeeklyForecast(new Date(), spot.lat, spot.lng, forecastWeek)
     : []
 
+  // Tendances perso « à ce spot » — D-A1 : GRATUIT pour tout user connecté.
+  // Descriptif uniquement (où/quand tombent TES prises ici), jamais prédictif.
+  const personalTendencies = user
+    ? await getPersonalTendencies({ spotId: spot.id }).catch(() => null)
+    : null
+
   // WMO code par date pour les icônes météo du calendrier
   const weatherCodes: Record<string, number> = {}
   // PM/BM par date (1re pleine et 1re basse mer du jour) pour le calendrier 7j.
@@ -458,6 +466,13 @@ export default async function SpotPage({
                 weatherCodes={weatherCodes}
                 tidesByDate={tidesByDate}
               />
+            )}
+
+            {/* Tes tendances perso à ce spot (D-A1 : gratuit, descriptif) */}
+            {user && personalTendencies && (
+              <section className="mt-6">
+                <PersonalTendencies data={personalTendencies} scopeLabel="à ce spot" />
+              </section>
             )}
 
             {/* Conditions */}

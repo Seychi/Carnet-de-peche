@@ -129,6 +129,38 @@ describe('fetchConditionsAt', () => {
     expect(result.next_low_tide_at).toBeNull()
   })
 
+  it('dérive tide_state (montante) + marnage depuis sea_level_height_msl (sprint 22)', async () => {
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null }) // pas de cache
+
+    const hours = Array.from({ length: 24 }, (_, h) => `2026-05-13T${String(h).padStart(2, '0')}:00`)
+    const MARINE_TIDE = {
+      hourly: {
+        time: hours,
+        wave_height: hours.map(() => 1.0),
+        wave_direction: hours.map(() => 270),
+        wave_period: hours.map(() => 8.0),
+        sea_surface_temperature: hours.map(() => 14.0),
+        // Hauteur strictement montante sur la journée → tendance « rising » partout,
+        // marnage = 4.6 m (amplitude mesurée, jamais un coef inventé).
+        sea_level_height_msl: hours.map((_, h) => Number((h * 0.2).toFixed(2))),
+      },
+    }
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        const body = url.includes('marine-api') ? MARINE_TIDE : FORECAST_RESPONSE
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(body) })
+      }),
+    )
+
+    const result = await fetchConditionsAt(LAT, LNG, DATETIME)
+    expect(result.tide_state).toBe('rising')
+    expect(result.tide_range_m).toBeCloseTo(4.6, 5)
+    // On n'invente AUCUN coefficient SHOM.
+    expect(result.tide_coefficient).toBeNull()
+  })
+
   it('retourne le cache sans re-fetch si entrée valide', async () => {
     const cached = {
       fetched_at: new Date().toISOString(),

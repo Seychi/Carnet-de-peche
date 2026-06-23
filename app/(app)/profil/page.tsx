@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getCachedPersonalProfile } from '@/lib/scoring/personal-fetcher'
-import { PersonalScoreSection } from '@/components/scoring/PersonalScoreSection'
+import { getPersonalTendencies } from '@/lib/scoring/personal'
+import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { ProfileForm } from './profile-form'
 
 type Profile = {
@@ -24,13 +24,13 @@ export default async function ProfilPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, personalProfile] = await Promise.all([
+  const [{ data: profile }, personalTendencies] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
       .eq('id', user.id)
       .single(),
-    getCachedPersonalProfile(user.id).catch(() => null),
+    getPersonalTendencies().catch(() => null),
   ])
 
   if (!profile) redirect('/auth/login')
@@ -49,9 +49,9 @@ export default async function ProfilPage() {
             Modifie tes informations de pêcheur. Ton email ne peut pas être changé ici.
           </p>
         </div>
-        {personalProfile && (
+        {personalTendencies && (
           <div className="mb-8">
-            <PersonalScoreSection profile={personalProfile} />
+            <PersonalTendencies data={personalTendencies} />
           </div>
         )}
 
