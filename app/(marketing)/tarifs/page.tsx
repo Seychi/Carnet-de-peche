@@ -92,7 +92,7 @@ const faqItems = [
   },
   {
     q: 'Vous couvrez toute la France ?',
-    a: "On démarre en Bretagne (Finistère, Morbihan, Côtes-d'Armor, Ille-et-Vilaine), avec une extension sur la façade Atlantique en cours. Vérifie la carte de ton département avant de t'abonner — un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
+    a: "On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec 157 spots curés et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner — un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
   },
   {
     q: 'Et mes données ?',

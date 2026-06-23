@@ -29,9 +29,11 @@ export const SPECIES: Record<
     article: string
     /** « de » + défini : « du », « de la », « de l' ». Espace final SAUF élision. Toujours coller : `${articleDe}${labelLower}`. */
     articleDe: string
+    /** Genre grammatical, pour les accords (« le/la pêcher »…). */
+    gender: 'm' | 'f'
   }
 > = {
-  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax', article: 'Le ', articleDe: 'du ' },
+  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax', article: 'Le ', articleDe: 'du ', gender: 'm' },
   'dorade-royale': {
     label: 'Dorade royale',
     labelLower: 'dorade royale',
@@ -39,6 +41,7 @@ export const SPECIES: Record<
     latin: 'Sparus aurata',
     article: 'La ',
     articleDe: 'de la ',
+    gender: 'f',
   },
   'lieu-jaune': {
     label: 'Lieu jaune',
@@ -47,10 +50,11 @@ export const SPECIES: Record<
     latin: 'Pollachius pollachius',
     article: 'Le ',
     articleDe: 'du ',
+    gender: 'm',
   },
-  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus', article: 'Le ', articleDe: 'du ' },
-  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus', article: 'Le ', articleDe: 'du ' },
-  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone', article: "L'", articleDe: "de l'" },
+  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus', article: 'Le ', articleDe: 'du ', gender: 'm' },
+  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus', article: 'Le ', articleDe: 'du ', gender: 'm' },
+  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone', article: "L'", articleDe: "de l'", gender: 'f' },
 }
 
 // ─── Techniques ───────────────────────────────────────────────────────────────

@@ -77,7 +77,16 @@ function buildJsonLd(guide: Guide): object[] {
     inLanguage: 'fr',
     ...(guide.cover_image ? { image: guide.cover_image } : {}),
   }
-  if (!guide.howto) return [article]
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: `${BASE_URL}/guides` },
+      { '@type': 'ListItem', position: 3, name: guide.title, item: `${BASE_URL}/guides/${guide.slug}` },
+    ],
+  }
+  if (!guide.howto) return [article, breadcrumb]
   // Guides « comment faire » : HowTo en plus (étapes = les h2 du contenu).
   const steps = [...guide.content.matchAll(/^##\s+(.+)$/gm)]
     .map((m) => m[1].trim())
@@ -91,7 +100,7 @@ function buildJsonLd(guide: Guide): object[] {
     inLanguage: 'fr',
     ...(steps.length > 0 ? { step: steps } : {}),
   }
-  return [article, howto]
+  return [article, howto, breadcrumb]
 }
 
 export default async function GuidePage({

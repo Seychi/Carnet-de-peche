@@ -162,10 +162,10 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <div className="font-display text-[26px] font-bold leading-none text-white sm:text-[28px]">
-                    {spotsCount ? <AnimatedCounter value={spotsCount} /> : "Bretagne"}
+                    {spotsCount ? <AnimatedCounter value={spotsCount} /> : <AnimatedCounter value={157} />}
                   </div>
                   <div className="mt-1.5 text-[12.5px] text-white/45">
-                    {spotsCount ? "spots curés et vérifiés" : "spots curés — extension Atlantique en cours"}
+                    {spotsCount ? "spots curés et vérifiés" : "spots curés · 24 départements côtiers"}
                   </div>
                 </div>
                 <div>
@@ -294,10 +294,10 @@ export default async function HomePage() {
                     {spotsCount ? (
                       <AnimatedCounter value={spotsCount} suffix=" spots" />
                     ) : (
-                      "Bretagne"
+                      <AnimatedCounter value={157} suffix=" spots" />
                     )}
                   </div>
-                  <div className="text-[13px] text-ink-600">curés — extension Atlantique en cours</div>
+                  <div className="text-[13px] text-ink-600">curés · de la Manche à la Méditerranée</div>
                 </div>
                 <div className="rounded-[14px] border border-sand-200 bg-white p-4 sm:p-5">
                   <TagData className="block text-[10.5px]">Score d&apos;activité</TagData>

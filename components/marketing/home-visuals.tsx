@@ -16,12 +16,12 @@ function markerStyle(score: number) {
 
 // ─── Carte · score d'activité (vraie côte bretonne, traitement « nuit ») ────
 export function HomeVisualMap({ spotsCount }: { spotsCount: number | null }) {
-  const sub = spotsCount ? `${spotsCount} SPOTS CURÉS · BRETAGNE` : 'SPOTS CURÉS · BRETAGNE'
+  const sub = spotsCount ? `${spotsCount} SPOTS CURÉS · 24 DÉPTS CÔTIERS` : 'SPOTS CURÉS · 24 DÉPTS CÔTIERS'
   const m0 = BRITTANY_MARKERS[0]
   return (
     <figure
       role="img"
-      aria-label={`Carte de Bretagne : ${spotsCount ?? 'des dizaines de'} spots curés avec leur score d'activité`}
+      aria-label={`Carte des spots curés : ${spotsCount ?? 'des dizaines de'} spots avec leur score d'activité`}
       className="relative m-0 aspect-[4/3] w-full overflow-hidden rounded-[22px] border border-white/10 shadow-lg"
       style={{ background: SEA_NIGHT }}
     >

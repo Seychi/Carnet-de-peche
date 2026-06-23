@@ -47,11 +47,42 @@ function GuideCardPlaceholder() {
   )
 }
 
+const BASE_URL = 'https://www.carnet-de-peche.com'
+
 export default async function GuidesPage() {
   const guides = await getAllGuides()
 
+  const jsonLd: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Guides de pêche à la canne du bord',
+      itemListElement: guides.map((guide, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${BASE_URL}/guides/${guide.slug}`,
+        name: guide.title,
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Guides', item: `${BASE_URL}/guides` },
+      ],
+    },
+  ]
+
   return (
     <div>
+      {jsonLd.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       {/* Hero navy-950 + isobathes (DA v2) */}
       <section className="relative overflow-hidden bg-navy-950 pt-16 pb-14">
         <Bathy opacity={0.35} withLabels />

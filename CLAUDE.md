@@ -29,7 +29,19 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ---
 
-## 2. État actuel du projet (à jour 2026-06-13 : sprints 10.6 + 11 mergés sur main et déployés, migrations 023+024 en prod, fil réparé)
+## 2. État actuel du projet
+
+> ✅ **État réel — vérifié le 2026-06-23** (audit transverse `docs/audits/AUDIT-2026-06-23.md` ; mis à jour au sprint 21). Cette synthèse FAIT FOI. Le détail « sprints 1 → 11.6 » plus bas est conservé comme **annexe généalogique** (historique des décisions), PAS comme état courant.
+
+**Où on en est : fin du sprint 20 + épique carte v2 (C1→C3b) livrée et DÉPLOYÉE.**
+
+- **Prod = HEAD de `main`** (`5a17509`), `main == origin/main`, déployée sur Vercel. **Aucun backlog de merge** (toutes les branches sprint/carte-v2 sont mergées — le « backlog de déploiement » est un mythe). Migrations sur disque jusqu'à **046** (047 = sprint 21, non appliquée). ⚠️ Dérive d'historique : 025/026/027/044 appliquées en prod mais absentes de `supabase_migrations` → `migration repair` à faire avant tout `db push`.
+- **Livré ET en prod** : carnet (CRUD prises + photos WebP resize client + conditions auto-loggées + stats + privacy/floutage) ; **fiches espèces** (`/especes` + 6 fiches profondes sourcées/datées, sprint 15) ; **carte v2** (C1 vivante/heatmap k-anon · C2 multi-source curé+communauté+OSM · C3a bathy EMODnet · C3b **qualité par espèce** `get_quality_cells`) ; **fil social** (posts/likes/commentaires/follows, Realtime, **100 % gratuit**) ; **notifications** in-app Realtime ; **photos** (prises/posts/avatars) ; **modération** (`/moderation`, sprint 17) ; **Stripe** (Checkout + Portal + webhooks + essai 7j + Tax FR, QA LIVE OK) ; **RGPD** (pages légales + suppression de compte RPC) ; **PWA** (manifest + SW + offline).
+- **Catalogue** : **157 spots curés sur 24 départements côtiers** (Bretagne, Manche, Atlantique, Méditerranée, Corse) — objectif sprint 10 (100-120) **dépassé**.
+- **Sécurité** : floutage GPS verrouillé sur **3 couches** (grants colonne `geom` 028b/041 → anon/authenticated SANS SELECT ; vues `*_for_viewer` ; RPC gatées tier renvoyant `ST_Centroid(geom_public)` ≈ 500-900 m). **389+ tests Vitest** ; catch CRUD + RLS désormais testés (sprint 21).
+- **Le vrai chantier n'est PAS technique** : (1) le **moat « scoring perso » n'est pas encore réel** (score affiché = solunar **générique** `spot_scores` ; perso neutralisé depuis 7.5) ; (2) **réservoir vide** (~5 prises publiques, 15 profils → pré-lancement de fait) ; (3) **éditorial en retard** (6 espèces/~20, ~5-6 guides/~20). → Roadmap H2 : `docs/ROADMAP-2026-H2.md` (résumé §9).
+
+> 🧬 **Annexe généalogique (historique daté, NON l'état courant).** Le détail ci-dessous trace l'évolution sprint par sprint jusqu'au sprint 11.6 — utile pour comprendre POURQUOI une décision a été prise (chaque « État au … » était vrai à sa date). Pour l'état réel, voir la synthèse ci-dessus + l'audit 2026-06-23.
 
 ✅ **Fait (sprints 1 à 7.5)**
 - Décisions stratégiques validées (nom, périmètre, stack, tarifs)
@@ -288,6 +300,15 @@ Charte v1 définie dans la maquette HTML (`docs/maquette/assets/style.css`) :
 - **`feed_posts`** : mur communautaire. `moderation_status` default `approved` (modération libre au lancement).
 - **`subscriptions`** : source de vérité = Stripe webhook. Plans `discovery` / `local` / `itinerant`.
 
+> ⚠️ **L'intro « 4 fichiers » ci-dessus est HISTORIQUE.** Il y a aujourd'hui **47 migrations** numérotées (`001`→`047`, voir `supabase/migrations/`). `conditions_cache` **n'existe plus** (droppée en 046). `has_active_subscription` est remplacé par la RPC **`current_tier`** (source = webhook Stripe).
+
+**Tables / objets ajoutés depuis (migrations 023→046) :**
+
+- **Social** : `feed_comments`, `feed_likes`, `follows`, `feed_post_photos` (galeries de posts ; FK `user_id` indexée en 047), `reports` (modération), `notifications` (in-app + Realtime).
+- **Météo** : `weather_cache` (045, cache Open-Meteo écrit en **service-role**, lu en session) — remplace `conditions_cache`.
+- **Scoring / carte v2** : `spot_scores` (014, cron quotidien — solunar **générique**, pas perso) ; multi-source spots (043, `source` curated/community/osm) ; RPC `get_catch_heatmap` (040, k-anon K=3), `get_quality_cells` (044, qualité par espèce **décomposable** communauté k-anon + perso Itinérant + fond).
+- **Sécurité GPS** : `spots.geom` / `catches.geom` **verrouillées au niveau colonne** (028b/041 → `anon`/`authenticated` sans SELECT) ; floutage spots = jitter recentré **~500-900 m** (028, plus « 1 km » fixe) ; vues `*_for_viewer` en `security_invoker` SAUF `catches_for_viewer` + `spots_for_viewer` (`security_definer` **assumé** — cf migration 047 §3 pour le pourquoi).
+
 ### Helpers SQL utiles (à utiliser depuis le frontend)
 
 ```ts
@@ -386,23 +407,20 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 
 ## 9. Roadmap par sprint
 
-Chaque sprint = 2 semaines. **Roadmap révisée mai 2026 après analyse concurrentielle approfondie** : spot-de-peche.com est plus fort que prévu (cf. section 1), donc fusion des ex-sprints 5+6+7 dans le sprint 4 pour ne pas paraître squelettique au lancement. Le scoring (ex-sprint 8) reste séparé mais avec un angle "personnalisé" qui devient le vrai différenciateur. La numérotation décale de 3 sprints à partir de l'ex-sprint 9.
+> 🟥 **La roadmap d'origine (sprints 1→23) est ATTEINTE et DÉPASSÉE.** Le découpage par sprint historique a été retiré d'ici (sprints 1→20 livrés/déployés, cf §2). La roadmap **COURANTE**, issue de l'audit 2026-06-23, s'organise en **chantiers** + **phases** et FAIT FOI dans **`docs/ROADMAP-2026-H2.md`**.
 
-| Sprint | Période | Livrable |
-|---|---|---|
-| **1-2** | S1-S2 | **Foundations** ✅ : Next.js + Supabase + auth + page d'accueil + onboarding + design system |
-| **3** | S3 | **Carnet de pêche** ✅ : CRUD prises, photo upload Storage, conditions auto-loggées, page profil + stats |
-| **3.5** | — | **Polish hors sprint** ✅ : bug fix form carnet (reset champs au changement de technique), flèche retour mobile, refonte auth (email/password + Google OAuth, magic link en option) |
-| **4** | S4-S5 | **Carte + spots + données environnementales** (gros sprint, ~3 semaines, fusion ex-5/6/7) : MapLibre intégré, freemium gating (3 spots/dépt vs tout), filtres espèces/techniques/dépt, fiches spots avec marées 24h + météo complète + vagues/houle (Open-Meteo Marine), RPC nearby_spots, SEO programmatique (sitemap, JSON-LD), mobile UX polish |
-| **6** | S6 | **"Meilleurs moments" solunar** : library suncalc, calcul des fenêtres optimales par jour/spot (lever/coucher lune + marée + vent), calendrier 7 jours par spot, badges qualitatifs (Faible/Bonne/Très Bonne/Exceptionnelle) avec justifications astronomiques. Match au minimum la feature équivalente de spot-de-peche. |
-| **7** | S7 | **Scoring personnalisé** (notre vrai différenciateur) : overlay sur les conditions = "Tu pêches mieux quand…" basé sur l'historique des catches du user. Algorithme côté Edge Function. Affiché sur fiche spot + sur la carte sous forme de "ton score" en plus du "score global". |
-| **8** | S8 | **Fil communautaire** : feed_posts, Realtime, profils sociaux, follows + signal social local ("X prises ici aujourd'hui à Y heure") qui exploite le carnet pour créer de la valeur communautaire. |
-| **9** | S9 | **Paiements** : Stripe Checkout + Customer Portal + webhooks + essai 7j + gating réel des tiers Local/Itinérant (remplace les inserts DB manuels du sprint 4). |
-| **10** | S10 | **Guides + SEO + riposte Fishing Grid** : Blocs 0 (social gratuit, migration 022) + 4 (vérif marées SHOM) ✅ déployés 2026-06-11. Restent : MDX + 20 guides phares + SEO programmatique + 6 fiches espèces profondes. **Élargi** : curation 100+ spots (`docs/sprint-10/spots-curation.md`) + extension ~20 fiches espèces mer du bord. Brief : `docs/sprint-10/BRIEF.md`. |
-| **10.5** | — | **Refonte UI** ✅ **mergé + déployé 2026-06-11** (`docs/sprint-10.5/RECAP.md`) : DA v2 sur les 7 écrans app + onboarding (+ écran final « carnet prêt ») + home/tarifs/OG/footer. Les guides naîtront directement en v2. |
-| **11** | S11 | **Polish + PWA + Beta privée** : PWA installable (manifest + service worker, pont vers Expo), emails transactionnels (Resend), optimisations perf, monitoring Sentry, 50 testeurs invités. WorldTides si le rapport marées du sprint 10 est mauvais. |
-| **12-19** | S12-S19 | **Mobile iOS/Android** : Expo + mode hors ligne (carte + marées 7 jours) + push notifications (créneaux optimaux, grandes marées) + IAP Apple. |
-| **20-23** | S20-S23 | **Lancement public** : App Store + Play Store + campagne acquisition (organique + partenariats fédérations + presse pêche). |
+**Chantiers H2 2026 (résumé — détail, critères d'acceptation et décisions John dans `docs/ROADMAP-2026-H2.md`)**
+
+- **Chantier 0 — Vérité & Solidité** (socle) : tests catch CRUD + RLS, hygiène pré-lancement (og:image, copy, JSON-LD), DB (index FK, `migration repair`, D-2 `catches_for_viewer`), réécriture doc. ← **C'est le sprint 21 (Phase P1).**
+- ★ **Chantier A — « Le carnet qui parle »** : rendre le **scoring perso** RÉEL et visible (le vrai moat ; aujourd'hui le score est un solunar générique).
+- ★ **Chantier B — « Pôle Espèces »** : 6 → ~20 espèces + **score par espèce sur la fiche** + maillage croisé.
+- ★ **Chantier C — « Conformité & Confiance »** : moteur réglementation FR + RecFishing + IA espèces (Fishial.AI) + **audit/correctif marées** (cf `docs/sprint-21/marees-med.md`).
+- ★ **Chantier D — « Amorçage & Lancement »** : remplir le réservoir (beta « fondateurs », seed honnête ?) + **log de la bredouille** + time-to-value à froid.
+- **Chantier E — « Croissance SEO + contenu »** (parallèle) : 5-6 → 20+ guides phares + pages programmatiques deep.
+- **Chantier F — « Monétisation »** : faire du scoring perso l'argument de conversion (après A/B).
+- ★ **Chantier G — « Communauté vivante & prises vérifiées »** : mesure taille/poids par photo, co-pêchage, gamification anti-comparaison.
+
+**Séquencement (phases) :** **P1** Socle (sprint 21 = Chantier 0) → **P2** Le moat réel (A puis B) → **P3** Conformité (C + G1) → **P4** Lancement (D + G2) → **P5** Monétisation (F + G3) → puis **Mobile** (Expo iOS/Android, IAP — la PWA fait le pont). Le Chantier **E** (SEO/contenu, lane éditoriale + César) tourne **en parallèle** de P1→P5.
 
 ---
 

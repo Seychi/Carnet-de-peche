@@ -298,7 +298,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             {/* ── Techniques ──────────────────────────────────────────── */}
             <section className="mt-10">
               <h2 className="font-display text-xl text-navy-900">
-                Comment le pêcher du bord
+                Comment {species.gender === 'f' ? 'la' : 'le'} pêcher du bord
               </h2>
               <div className="mt-4 flex flex-col gap-2.5">
                 {content.techniques.map((t) => (
