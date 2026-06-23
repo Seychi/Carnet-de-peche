@@ -10,23 +10,14 @@ export const FREQUENCY_LABELS: { value: string; label: string }[] = [
   { value: 'daily',    label: 'Plusieurs fois par semaine' },
 ]
 
-export const SPECIES_LABELS: Record<string, string> = {
-  // 6 espèces cœur (carnet + onboarding — voir catchSpeciesEnum, liste séparée)
-  bar: 'Bar',
-  dorade_royale: 'Dorade royale',
-  lieu_jaune: 'Lieu jaune',
-  maquereau: 'Maquereau',
-  sar: 'Sar',
-  orphie: 'Orphie',
-  // Espèces additionnelles portées par les spots curés — AFFICHAGE uniquement
-  // (fiches spots, carte, filtres). Le carnet/onboarding restent sur les 6 ci-dessus.
-  vieille: 'Vieille',
-  mulet: 'Mulet',
-  sole: 'Sole',
-  congre: 'Congre',
-  maigre: 'Maigre',
-  chinchard: 'Chinchard',
-}
+// Libellés d'espèces (clé DB snake_case → label). DÉRIVÉ du référentiel unique
+// `SPECIES` (lib/seo/programmatic.ts) depuis le sprint 23 — fini la liste parallèle.
+// Couvre les 20 espèces (carnet + carte + filtres + fiches).
+import { SPECIES } from '@/lib/seo/programmatic'
+
+export const SPECIES_LABELS: Record<string, string> = Object.fromEntries(
+  Object.values(SPECIES).map((s) => [s.dbKey, s.label]),
+)
 
 export const TECHNIQUE_LABELS: Record<string, string> = {
   leurres: 'Leurres',

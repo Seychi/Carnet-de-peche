@@ -1,17 +1,19 @@
 import '@/lib/zod-config'
 import { z } from 'zod'
 import { isCoastalDepartment } from '@/lib/geo/departments'
+import { CARNET_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export const catchSpeciesEnum = z.enum([
-  'bar',
-  'dorade_royale',
-  'lieu_jaune',
-  'maquereau',
-  'sar',
-  'orphie',
-], { error: () => 'Choisis une espèce pour continuer' })
+// Espèces loguables au carnet — DÉRIVÉ du référentiel unique `SPECIES`
+// (lib/seo/programmatic.ts) depuis le sprint 23 (D-B2 : 20 espèces). Rétro-compatible :
+// `catches.species` est `text` en DB (aucune contrainte CHECK), donc l'extension
+// n'impacte aucune donnée existante. La cohérence référentiel ↔ enum est testée
+// (lib/catches/__tests__).
+export const catchSpeciesEnum = z.enum(
+  CARNET_SPECIES_DB_KEYS as [string, ...string[]],
+  { error: () => 'Choisis une espèce pour continuer' },
+)
 
 export const catchTechniqueEnum = z.enum([
   'leurres',

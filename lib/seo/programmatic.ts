@@ -10,6 +10,13 @@ import { COASTAL_DEPARTMENTS, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 // ─── Espèces ──────────────────────────────────────────────────────────────────
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// RÉFÉRENTIEL ESPÈCES — SOURCE UNIQUE (sprint 23, Chantier B).
+// Toutes les autres listes (SPECIES_LABELS, SPECIES_HABITAT, catchSpeciesEnum, les
+// filtres carte, l'onboarding) DÉRIVENT d'ici. Ne plus maintenir de liste parallèle.
+// La réglementation (mailles + sources + dates) reste dans EspeceContent.regulation
+// (lib/especes/content/*) — un seul endroit sourcé et daté, pas dupliqué ici.
+// ═══════════════════════════════════════════════════════════════════════════════
 export type SpeciesSlug =
   | 'bar'
   | 'dorade-royale'
@@ -17,45 +24,81 @@ export type SpeciesSlug =
   | 'maquereau'
   | 'sar'
   | 'orphie'
+  | 'seiche'
+  | 'mulet'
+  | 'sole'
+  | 'calmar'
+  | 'congre'
+  | 'vieille'
+  | 'rouget'
+  | 'dorade-grise'
+  | 'pageot'
+  | 'oblade'
+  | 'maigre'
+  | 'tacaud'
+  | 'chinchard'
+  | 'plie'
 
-export const SPECIES: Record<
-  SpeciesSlug,
-  {
-    label: string
-    labelLower: string
-    dbKey: string
-    latin: string
-    /** Article défini majuscule, élision incluse : « Le », « La », « L' ». Espace final SAUF élision. Toujours coller : `${article}${labelLower}`. */
-    article: string
-    /** « de » + défini : « du », « de la », « de l' ». Espace final SAUF élision. Toujours coller : `${articleDe}${labelLower}`. */
-    articleDe: string
-    /** Genre grammatical, pour les accords (« le/la pêcher »…). */
-    gender: 'm' | 'f'
-  }
-> = {
-  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax', article: 'Le ', articleDe: 'du ', gender: 'm' },
-  'dorade-royale': {
-    label: 'Dorade royale',
-    labelLower: 'dorade royale',
-    dbKey: 'dorade_royale',
-    latin: 'Sparus aurata',
-    article: 'La ',
-    articleDe: 'de la ',
-    gender: 'f',
-  },
-  'lieu-jaune': {
-    label: 'Lieu jaune',
-    labelLower: 'lieu jaune',
-    dbKey: 'lieu_jaune',
-    latin: 'Pollachius pollachius',
-    article: 'Le ',
-    articleDe: 'du ',
-    gender: 'm',
-  },
-  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus', article: 'Le ', articleDe: 'du ', gender: 'm' },
-  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus', article: 'Le ', articleDe: 'du ', gender: 'm' },
-  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone', article: "L'", articleDe: "de l'", gender: 'f' },
+export type SpeciesMeta = {
+  label: string
+  labelLower: string
+  dbKey: string
+  latin: string
+  /** Article défini majuscule, élision incluse : « Le », « La », « L' ». Espace final SAUF élision. Toujours coller : `${article}${labelLower}`. */
+  article: string
+  /** « de » + défini : « du », « de la », « de l' ». Espace final SAUF élision. Toujours coller : `${articleDe}${labelLower}`. */
+  articleDe: string
+  /** Genre grammatical, pour les accords (« le/la pêcher »…). */
+  gender: 'm' | 'f'
+  /** Loggable au carnet → source unique de `catchSpeciesEnum` (D-B2, sprint 23). */
+  inCarnet: boolean
+  /** Possède une fiche profonde /especes/<slug> (les 20 au sprint 23). */
+  hasDeepSheet: boolean
+  /** Génère des pages programmatiques /peche/… — requiert un `SpeciesContent` (anti thin content). */
+  hasProgrammatic: boolean
 }
+
+export const SPECIES: Record<SpeciesSlug, SpeciesMeta> = {
+  bar: { label: 'Bar', labelLower: 'bar', dbKey: 'bar', latin: 'Dicentrarchus labrax', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  'dorade-royale': { label: 'Dorade royale', labelLower: 'dorade royale', dbKey: 'dorade_royale', latin: 'Sparus aurata', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  'lieu-jaune': { label: 'Lieu jaune', labelLower: 'lieu jaune', dbKey: 'lieu_jaune', latin: 'Pollachius pollachius', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  maquereau: { label: 'Maquereau', labelLower: 'maquereau', dbKey: 'maquereau', latin: 'Scomber scombrus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  sar: { label: 'Sar', labelLower: 'sar', dbKey: 'sar', latin: 'Diplodus sargus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  orphie: { label: 'Orphie', labelLower: 'orphie', dbKey: 'orphie', latin: 'Belone belone', article: "L'", articleDe: "de l'", gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  // ── Sprint 23 : extension à 20 espèces du bord (fiches profondes + carnet) ──
+  // hasProgrammatic=false : pas (encore) de SpeciesContent → aucune page /peche/… générée
+  // pour elles (garde-fou anti thin content, cf WS-C).
+  seiche: { label: 'Seiche', labelLower: 'seiche', dbKey: 'seiche', latin: 'Sepia officinalis', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  mulet: { label: 'Mulet', labelLower: 'mulet', dbKey: 'mulet', latin: 'Chelon labrosus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  sole: { label: 'Sole', labelLower: 'sole', dbKey: 'sole', latin: 'Solea solea', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  calmar: { label: 'Calmar', labelLower: 'calmar', dbKey: 'calmar', latin: 'Loligo vulgaris', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  congre: { label: 'Congre', labelLower: 'congre', dbKey: 'congre', latin: 'Conger conger', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  vieille: { label: 'Vieille', labelLower: 'vieille', dbKey: 'vieille', latin: 'Labrus bergylta', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  rouget: { label: 'Rouget', labelLower: 'rouget', dbKey: 'rouget', latin: 'Mullus surmuletus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  'dorade-grise': { label: 'Dorade grise', labelLower: 'dorade grise', dbKey: 'dorade_grise', latin: 'Spondyliosoma cantharus', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  pageot: { label: 'Pageot', labelLower: 'pageot', dbKey: 'pageot', latin: 'Pagellus erythrinus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  oblade: { label: 'Oblade', labelLower: 'oblade', dbKey: 'oblade', latin: 'Oblada melanura', article: "L'", articleDe: "de l'", gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  maigre: { label: 'Maigre', labelLower: 'maigre', dbKey: 'maigre', latin: 'Argyrosomus regius', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  tacaud: { label: 'Tacaud', labelLower: 'tacaud', dbKey: 'tacaud', latin: 'Trisopterus luscus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  chinchard: { label: 'Chinchard', labelLower: 'chinchard', dbKey: 'chinchard', latin: 'Trachurus trachurus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  plie: { label: 'Plie', labelLower: 'plie', dbKey: 'plie', latin: 'Pleuronectes platessa', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+}
+
+// ── Dérivés du référentiel (ne pas dupliquer ces listes ailleurs) ──────────────
+export const SPECIES_SLUGS = Object.keys(SPECIES) as SpeciesSlug[]
+
+/** dbKey (snake_case) → slug (kebab) : pont label DB ↔ référentiel (maillage spot↔espèce). */
+export const SPECIES_BY_DB_KEY: Record<string, SpeciesSlug> = Object.fromEntries(
+  (Object.entries(SPECIES) as [SpeciesSlug, SpeciesMeta][]).map(([slug, m]) => [m.dbKey, slug]),
+)
+
+/** Toutes les clés DB du référentiel — filtres carte (les spots portent un text[] libre). */
+export const ALL_SPECIES_DB_KEYS: string[] = Object.values(SPECIES).map((m) => m.dbKey)
+
+/** Clés DB loggables au carnet — source unique de `catchSpeciesEnum` (D-B2, sprint 23). */
+export const CARNET_SPECIES_DB_KEYS: string[] = Object.values(SPECIES)
+  .filter((m) => m.inCarnet)
+  .map((m) => m.dbKey)
 
 // ─── Techniques ───────────────────────────────────────────────────────────────
 
@@ -117,8 +160,14 @@ export function facadeOf(deptCode: string): Facade {
 
 // ─── La matrice (le cœur du filtrage anti-absurde) ───────────────────────────
 
-/** Techniques pertinentes du bord par espèce. */
-const SPECIES_TECHNIQUES: Record<SpeciesSlug, TechniqueSlug[]> = {
+/**
+ * Techniques pertinentes du bord par espèce — PARTIAL : seules les espèces présentes
+ * ici génèrent des pages programmatiques /peche/… (elles doivent avoir un
+ * `SpeciesContent` dans lib/seo/content/). Les espèces sprint 23 sans contenu
+ * programmatique sont volontairement absentes → aucune page creuse (garde-fou WS-C).
+ * Doit rester cohérent avec `SPECIES[slug].hasProgrammatic`.
+ */
+const SPECIES_TECHNIQUES: Partial<Record<SpeciesSlug, TechniqueSlug[]>> = {
   bar: ['leurres', 'surfcasting', 'vif', 'flottante'],
   'dorade-royale': ['surfcasting', 'flottante', 'leurres'],
   'lieu-jaune': ['leurres', 'vif'],
@@ -148,12 +197,15 @@ export type ProgrammaticPage = {
   deptCode: string | null
 }
 
-/** Toutes les pages valides (nationales + départementales). */
+/** Toutes les pages valides (nationales + départementales) — uniquement les espèces avec contenu programmatique. */
 export function getAllProgrammaticPages(): ProgrammaticPage[] {
   const pages: ProgrammaticPage[] = []
-  for (const species of Object.keys(SPECIES) as SpeciesSlug[]) {
+  for (const [species, techniques] of Object.entries(SPECIES_TECHNIQUES) as [
+    SpeciesSlug,
+    TechniqueSlug[],
+  ][]) {
     const depts = speciesDepartments(species)
-    for (const technique of SPECIES_TECHNIQUES[species]) {
+    for (const technique of techniques) {
       pages.push({ species, technique, deptCode: null })
       for (const deptCode of depts) {
         pages.push({ species, technique, deptCode })
@@ -171,9 +223,13 @@ export function resolveProgrammaticSlug(segments: string[]): ProgrammaticPage | 
   if (!(speciesSlug in SPECIES)) return null
   const species = speciesSlug as SpeciesSlug
 
+  // Espèce sans contenu programmatique (sprint 23) → pas de page /peche/… (anti thin content).
+  const techniques = SPECIES_TECHNIQUES[species]
+  if (!techniques) return null
+
   if (!(techniqueSlug in TECHNIQUES)) return null
   const technique = techniqueSlug as TechniqueSlug
-  if (!SPECIES_TECHNIQUES[species].includes(technique)) return null
+  if (!techniques.includes(technique)) return null
 
   if (!deptSlug) return { species, technique, deptCode: null }
 

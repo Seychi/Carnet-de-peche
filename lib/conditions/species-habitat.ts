@@ -59,6 +59,15 @@ export const SPECIES_HABITAT: Record<string, SpeciesHabitat> = {
   congre:        { pelagic: false, goodSubstrates: ['rock', 'coarse'],          depthRange: [3, 40], note: 'se cache dans la roche, les épaves et les enrochements' },
   maigre:        { pelagic: false, goodSubstrates: ['sand', 'mud'],             depthRange: [3, 40], note: 'estuaires et grands fonds sableux' },
   chinchard:     { pelagic: true,  goodSubstrates: [],                          note: 'chasse en pleine eau, en banc' },
+  // Sprint 23 — espèces ajoutées au référentiel (habitat indicatif, halieutique courante).
+  seiche:        { pelagic: false, goodSubstrates: ['sand', 'seagrass', 'coarse', 'mixed'], depthRange: [1, 30], note: 'chasse sur le sable et les herbiers, le long de la roche' },
+  calmar:        { pelagic: false, goodSubstrates: ['sand', 'coarse', 'mixed', 'seagrass'], depthRange: [3, 40], note: 'rôde au-dessus du sable et des structures, surtout de nuit' },
+  rouget:        { pelagic: false, goodSubstrates: ['sand', 'coarse', 'mud', 'mixed'], depthRange: [2, 35], note: 'fouille le sable et le gravier de ses barbillons' },
+  dorade_grise:  { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed', 'seagrass'], depthRange: [3, 35], note: 'tient les fonds rocheux et coquilliers, souvent en banc' },
+  pageot:        { pelagic: false, goodSubstrates: ['sand', 'coarse', 'mixed'], depthRange: [5, 40], note: 'fréquente le sable, le gravier et le coralligène' },
+  oblade:        { pelagic: false, goodSubstrates: ['rock', 'coarse', 'seagrass'], depthRange: [1, 20], note: 'longe la roche et les herbiers, souvent entre deux eaux' },
+  tacaud:        { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed', 'sand'], depthRange: [3, 40], note: 'se serre près des structures, épaves et roche, en banc' },
+  plie:          { pelagic: false, goodSubstrates: ['sand', 'mud', 'mixed'],    depthRange: [2, 40], note: 'poisson plat des fonds de sable et de vase' },
 }
 
 export type SuitabilityVerdict = 'favorable' | 'moyen' | 'peu' | 'pelagique' | 'inconnu'
@@ -174,6 +183,8 @@ function speciesShort(species: string): string {
     bar: 'bar', dorade_royale: 'dorade royale', lieu_jaune: 'lieu jaune',
     maquereau: 'maquereau', sar: 'sar', orphie: 'orphie', vieille: 'vieille',
     mulet: 'mulet', sole: 'sole', congre: 'congre', maigre: 'maigre', chinchard: 'chinchard',
+    seiche: 'seiche', calmar: 'calmar', rouget: 'rouget', dorade_grise: 'dorade grise',
+    pageot: 'pageot', oblade: 'oblade', tacaud: 'tacaud', plie: 'plie',
   }
   return map[species] ?? species
 }

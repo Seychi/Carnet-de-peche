@@ -1411,6 +1411,27 @@ export type Database = {
           lng: number
         }[]
       }
+      get_top_spots_for_species: {
+        Args: {
+          p_days?: number
+          p_dept?: string
+          p_limit?: number
+          p_species: string
+        }
+        Returns: {
+          department: string
+          fishers: number
+          id: string
+          is_precise: boolean
+          lat: number
+          lng: number
+          name: string
+          perso_catches: number
+          slug: string
+          species_catches: number
+          structure: string
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
       is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }

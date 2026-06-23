@@ -1,7 +1,7 @@
 import 'server-only'
 import { z } from 'zod'
-import { catchSpeciesEnum, catchTechniqueEnum } from '@/lib/catches/schema'
-import { spotFiltersSchema } from '@/lib/spots/filters-schema'
+import { catchTechniqueEnum } from '@/lib/catches/schema'
+import { spotFiltersSchema, spotSpeciesEnum } from '@/lib/spots/filters-schema'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 
 // Parse + validation zod des filtres URL — SERVEUR UNIQUEMENT.
@@ -30,7 +30,7 @@ export function parseFiltersFromSearchParams(params: RawParams): SpotFilters {
   const filters: SpotFilters = {}
 
   const speciesRaw = getArray(params, 'species')
-  const speciesResult = z.array(catchSpeciesEnum).safeParse(speciesRaw)
+  const speciesResult = z.array(spotSpeciesEnum).safeParse(speciesRaw)
   if (speciesResult.success && speciesResult.data.length > 0) {
     filters.species = speciesResult.data
   }

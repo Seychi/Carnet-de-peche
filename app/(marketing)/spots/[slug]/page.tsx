@@ -20,6 +20,7 @@ import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
+import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -391,11 +392,23 @@ export default async function SpotPage({
               </span>
             )}
             <DifficultyStars difficulty={spot.difficulty} />
-            {spot.species.slice(0, 3).map((s) => (
-              <span key={s} className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300">
-                {SPECIES_LABELS[s] ?? s}
-              </span>
-            ))}
+            {spot.species.slice(0, 3).map((s) => {
+              const sl = SPECIES_BY_DB_KEY[s]
+              const label = SPECIES_LABELS[s] ?? s
+              return sl ? (
+                <Link
+                  key={s}
+                  href={`/especes/${sl}`}
+                  className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300 transition-colors hover:bg-teal-500/20"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <span key={s} className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300">
+                  {label}
+                </span>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -571,7 +584,22 @@ export default async function SpotPage({
                   <div className="flex justify-between text-sm gap-4">
                     <dt className="text-ink-500 shrink-0">Espèces</dt>
                     <dd className="font-medium text-navy-900 text-right">
-                      {spot.species.map((s) => SPECIES_LABELS[s] ?? s).join(', ')}
+                      {spot.species.map((s, i) => {
+                        const sl = SPECIES_BY_DB_KEY[s]
+                        const label = SPECIES_LABELS[s] ?? s
+                        return (
+                          <span key={s}>
+                            {i > 0 ? ', ' : ''}
+                            {sl ? (
+                              <Link href={`/especes/${sl}`} className="hover:text-teal-700 hover:underline">
+                                {label}
+                              </Link>
+                            ) : (
+                              label
+                            )}
+                          </span>
+                        )
+                      })}
                     </dd>
                   </div>
                 )}

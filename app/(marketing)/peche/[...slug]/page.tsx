@@ -125,6 +125,10 @@ export default async function ProgrammaticPageView({
   const species = SPECIES[page.species]
   const technique = TECHNIQUES[page.technique]
   const content = SPECIES_CONTENT[page.species]
+  // resolveProgrammaticSlug ne renvoie une page que pour les espèces à contenu
+  // programmatique (SPECIES_TECHNIQUES) → content est toujours présent ici. Garde
+  // défensive depuis le passage en Partial (sprint 23).
+  if (!content) notFound()
   const techContent = content.techniques[page.technique]
   const deptLabel = page.deptCode ? DEPARTMENT_LABELS[page.deptCode] : null
   const title = programmaticTitle(page)

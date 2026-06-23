@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { saveOnboardingStep, checkUsernameAvailable, completeOnboarding } from "../actions";
 import { DEPARTMENT_OPTIONS } from "@/lib/geo/departments";
 import { FREQUENCY_LABELS, USERNAME_REGEX } from "@/lib/labels";
+import { SPECIES } from "@/lib/seo/programmatic";
 
 /* ─── Constantes ─────────────────────────────────────────────────────────── */
 
@@ -25,14 +26,11 @@ const TECHNIQUES = [
   { value: "vif", label: "Vif" },
 ];
 
-const SPECIES = [
-  { value: "bar", label: "Bar" },
-  { value: "dorade_royale", label: "Dorade royale" },
-  { value: "lieu_jaune", label: "Lieu jaune" },
-  { value: "maquereau", label: "Maquereau" },
-  { value: "sar", label: "Sar" },
-  { value: "orphie", label: "Orphie" },
-];
+// Espèces favorites (D-B2 sprint 23) — DÉRIVÉ du référentiel unique `SPECIES` :
+// toutes les espèces loguables au carnet (cœur d'abord). Fini la liste codée en dur.
+const SPECIES_OPTIONS = Object.values(SPECIES)
+  .filter((s) => s.inCarnet)
+  .map((s) => ({ value: s.dbKey, label: s.label }));
 
 const LEVELS = [
   { value: "debutant", label: "Débutant", desc: "Je découvre la pêche du bord" },
@@ -463,7 +461,7 @@ export function OnboardingStep({
           >
             <div className="flex flex-col gap-6">
               <ChipSelect
-                options={SPECIES}
+                options={SPECIES_OPTIONS}
                 selected={species}
                 onChange={setSpecies}
                 label="Tes espèces cibles"

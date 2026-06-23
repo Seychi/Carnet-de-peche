@@ -59,11 +59,11 @@ export default function EspecesIndexPage() {
         <div className="relative mx-auto max-w-[1100px] px-5">
           <span className="mb-5 inline-flex items-center gap-2.5 font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-teal-300">
             <span className="inline-block h-px w-7 bg-teal-500" aria-hidden="true" />
-            6 espèces, zéro remplissage
+            <span className="font-mono">{especes.length}</span> espèces, zéro remplissage
           </span>
           <h1 className="max-w-2xl font-display text-white">Les espèces de la canne du bord</h1>
           <p className="mt-4 max-w-xl text-lg text-white/60">
-            Pas un catalogue de 266 poissons : les 6 espèces qu&apos;on pêche vraiment du bord en
+            Pas un catalogue de 266 poissons : les espèces qu&apos;on pêche vraiment du bord en
             France, traitées à fond — tailles légales vérifiées et datées, saisons par façade,
             techniques et postes.
           </p>

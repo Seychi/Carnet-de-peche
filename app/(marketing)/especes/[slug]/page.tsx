@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, ChevronRight, MapPin, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ChevronRight, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import {
   SPECIES,
@@ -12,11 +13,14 @@ import {
 } from '@/lib/seo/programmatic'
 import { ESPECES_CONTENT } from '@/lib/especes/content'
 import { getAllGuides } from '@/lib/guides/loader'
-import { STRUCTURE_LABELS } from '@/lib/labels'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { SpeciesScore, SpeciesScoreSkeleton } from '@/components/especes/species-score'
+import { SpeciesTopSpots, SpeciesTopSpotsSkeleton } from '@/components/especes/species-top-spots'
+import { SpeciesPersonal, SpeciesPersonalSkeleton } from '@/components/especes/species-personal'
+import { SpeciesSeasonNow } from '@/components/especes/species-season-now'
 
 export const revalidate = 86400
 export const dynamicParams = false
@@ -63,29 +67,19 @@ export async function generateMetadata({
   }
 }
 
-async function fetchLive(slug: SpeciesSlug) {
+// Compteur national de prises publiques de l'espèce (30 j) — signal « carte vivante »
+// du hero. Les « meilleurs spots » et le score régional décomposé sont chargés par
+// leurs propres composants (Suspense), gating et k-anon inclus.
+async function fetchCatches30d(dbKey: string): Promise<number> {
   const supabase = await createClient()
-  const dbKey = SPECIES[slug].dbKey
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString()
-
-  const { data: spotRows } = await supabase
-    .from('spots')
-    .select('id, slug, name, structure, department')
-    .eq('visibility', 'public')
-    .contains('species', [dbKey])
-
-  const spots = (spotRows ?? []).slice(0, 4)
-  let catches30d = 0
-  if ((spotRows ?? []).length > 0) {
-    const { count } = await supabase
-      .from('catches_for_viewer')
-      .select('id', { count: 'exact', head: true })
-      .eq('privacy', 'public')
-      .eq('species', dbKey)
-      .gte('caught_at', since)
-    catches30d = count ?? 0
-  }
-  return { spots, catches30d }
+  const { count } = await supabase
+    .from('catches_for_viewer')
+    .select('id', { count: 'exact', head: true })
+    .eq('privacy', 'public')
+    .eq('species', dbKey)
+    .gte('caught_at', since)
+  return count ?? 0
 }
 
 const ACTIVITY_DOTS: Record<1 | 2 | 3, { label: string; cls: string }> = {
@@ -101,8 +95,8 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
   const species = SPECIES[speciesSlug]
   const content = ESPECES_CONTENT[speciesSlug]
 
-  const [{ spots, catches30d }, allGuides] = await Promise.all([
-    fetchLive(speciesSlug),
+  const [catches30d, allGuides] = await Promise.all([
+    fetchCatches30d(species.dbKey),
     getAllGuides().catch(() => []),
   ])
   const relatedGuides = allGuides
@@ -210,6 +204,17 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       <div className="mx-auto max-w-[980px] px-5 py-10">
         <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-12">
           <div className="min-w-0">
+            {/* ── Score par espèce (l'instrument vivant — sprint 23, WS-B) ─── */}
+            <div className="mb-8">
+              <Suspense fallback={<SpeciesScoreSkeleton />}>
+                <SpeciesScore
+                  dbKey={species.dbKey}
+                  article={species.article}
+                  labelLower={species.labelLower}
+                />
+              </Suspense>
+            </div>
+
             {/* ── Portrait ────────────────────────────────────────────── */}
             <section className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-navy-900 prose-p:text-ink-700 prose-strong:text-navy-900">
               {content.intro.slice(1).map((p, i) => (
@@ -233,7 +238,10 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                 {/* Badge maille (donnée structurée, mono — DA v2) */}
                 <div className="mb-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 rounded-[10px] border border-gold-500/25 bg-white/60 px-3.5 py-2.5">
                   <span className="font-mono text-xl font-bold leading-none text-navy-900">
-                    Maille {formatMaille(content.regulation.minSizeCm)}
+                    {content.regulation.minSizeCm['manche-atlantique'] == null &&
+                    content.regulation.minSizeCm.mediterranee == null
+                      ? 'Pas de maille légale'
+                      : `Maille ${formatMaille(content.regulation.minSizeCm)}`}
                   </span>
                   <span className="font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-ink-500">
                     · vérifié le {content.regulation.verifiedAt} · Légifrance
@@ -266,6 +274,17 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             {/* ── Saisons par façade ──────────────────────────────────── */}
             <section className="mt-10">
               <h2 className="font-display text-xl text-navy-900">Les saisons, façade par façade</h2>
+              {/* Créneaux PAR ESPÈCE (D-B3) : la saison en cours, dérivée des saisons. */}
+              {facades.length > 0 && (
+                <div className="mt-4">
+                  <SpeciesSeasonNow
+                    saisons={content.saisons}
+                    facades={facades}
+                    facadeLabels={FACADE_LABELS}
+                    speciesDe={`${species.articleDe}${species.labelLower}`}
+                  />
+                </div>
+              )}
               <div className={`mt-4 grid gap-4 ${facades.length > 1 ? 'md:grid-cols-2' : ''}`}>
                 {facades.map((f) => (
                   <div key={f} className="rounded-[14px] border border-sand-200 bg-white p-4">
@@ -354,39 +373,42 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                 </div>
               </section>
             )}
+
+            {/* ── Maillage : autres espèces du bord (SEO interne — WS-C) ──── */}
+            <section className="mt-10">
+              <h2 className="font-display text-xl text-navy-900">Autres espèces du bord</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(() => {
+                  // Fenêtre tournante à partir de l'espèce courante → le maillage couvre
+                  // tout le référentiel (pas toujours les 9 premières dans l'ordre).
+                  const all = Object.keys(SPECIES) as SpeciesSlug[]
+                  const i = all.indexOf(speciesSlug)
+                  return [...all.slice(i + 1), ...all.slice(0, i)].slice(0, 9)
+                })().map((s) => (
+                    <Link
+                      key={s}
+                      href={`/especes/${s}`}
+                      className="rounded-full border border-sand-200 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-ink-600 transition-colors hover:border-teal-500/40 hover:text-navy-900"
+                    >
+                      {SPECIES[s].label}
+                    </Link>
+                  ))}
+              </div>
+            </section>
           </div>
 
           {/* ── Sidebar ─────────────────────────────────────────────────── */}
           <aside className="mt-10 lg:mt-0">
             <div className="flex flex-col gap-5 lg:sticky lg:top-8">
-              {spots.length > 0 && (
-                <div className="rounded-[18px] border border-sand-200 bg-white p-5">
-                  <TagData className="mb-3 block">SPOTS À {species.label.toUpperCase()}</TagData>
-                  <ul className="flex flex-col gap-2.5">
-                    {spots.map((s) => (
-                      <li key={s.slug}>
-                        <Link
-                          href={`/spots/${s.slug}`}
-                          className="group flex items-center gap-2.5"
-                        >
-                          <MapPin size={14} className="shrink-0 text-teal-600" />
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[13.5px] font-medium text-navy-900 group-hover:text-teal-700">
-                              {s.name}
-                            </span>
-                            <TagData className="block">
-                              {String(s.department).trim()}
-                              {s.structure
-                                ? ` · ${(STRUCTURE_LABELS[s.structure] ?? s.structure).toUpperCase()}`
-                                : ''}
-                            </TagData>
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Meilleurs spots pour l'espèce (triés par signal réel — RPC 049) */}
+              <Suspense fallback={<SpeciesTopSpotsSkeleton />}>
+                <SpeciesTopSpots dbKey={species.dbKey} label={species.label} />
+              </Suspense>
+
+              {/* Tes tendances sur cette espèce (moteur perso unifié sprint 22) */}
+              <Suspense fallback={<SpeciesPersonalSkeleton />}>
+                <SpeciesPersonal dbKey={species.dbKey} labelLower={species.labelLower} />
+              </Suspense>
 
               {relatedGuides.length > 0 && (
                 <div className="rounded-[18px] border border-sand-200 bg-white p-5">

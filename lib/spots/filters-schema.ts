@@ -1,8 +1,16 @@
 import { z } from 'zod'
-import { catchSpeciesEnum, catchTechniqueEnum } from '@/lib/catches/schema'
+import { catchTechniqueEnum } from '@/lib/catches/schema'
+import { ALL_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
+
+// 🔴 FIX bug sprint 23 (§Diagnostic.3) : les filtres carte valident contre le
+// référentiel COMPLET (20 espèces, colonne `spots.species` = text[] libre), et NON
+// l'ex-`catchSpeciesEnum` à 6. Avant, les 6 espèces additionnelles affichées par
+// `MapFilters` (vieille, mulet, sole, congre, maigre, chinchard) étaient rejetées
+// silencieusement au parse SSR → filtrables visuellement mais sans effet sur la carte.
+export const spotSpeciesEnum = z.enum(ALL_SPECIES_DB_KEYS as [string, ...string[]])
 
 export const spotFiltersSchema = z.object({
-  species: z.array(catchSpeciesEnum).optional(),
+  species: z.array(spotSpeciesEnum).optional(),
   techniques: z.array(catchTechniqueEnum).optional(),
   department: z
     .string()
