@@ -631,7 +631,7 @@ Si tu bloques sur une erreur technique :
 
 ### 20.4 Sécurité des connecteurs (aligne §11)
 
-- `supabase` et `stripe` sont en **read-only par défaut** dans `.mcp.json`. **Jamais** de write SQL via MCP en prod sans validation ; les migrations passent par un **fichier numéroté + CLI**, pas par `apply_migration` sauvage.
+- `stripe` est en **read-only**. **`supabase` est passé en WRITE** dans `.mcp.json` (`read_only=false`, décision John 2026-06-23) → Claude peut appliquer les migrations directement via `apply_migration`. La discipline tient malgré tout : **toute migration s'écrit d'abord en fichier numéroté** (`supabase/migrations/NNN_*.sql`), puis on l'applique ; **jamais de SQL destructif en prod sans confirmer avec John d'abord** ; après application, regénérer `lib/types.ts`. Le connecteur ne prend le mode write qu'après **reconnexion** (`/mcp` → supabase → reconnect, ou redémarrage).
 - **Zéro secret dans `.mcp.json`** : OAuth navigateur (`supabase`/`vercel`/`sentry`/`stripe` au 1er appel) ou `${ENV}` (`github`, `stripe`). Les tokens vivent dans l'env Windows (`setx`), jamais commités.
 - **Hooks** (`.claude/settings.json`) : `guard-git` **bloque** tout commit de secret (`.env*`, clés) et **demande confirmation** avant un `git push` (§13) ; `lint-changed` relance ESLint sur chaque fichier TS modifié.
 
