@@ -30,11 +30,12 @@ export type SpotMarker = {
   // Optionnel : les mini-cartes (CatchMiniMap/SpotMiniMap) bâtissent un
   // SpotMarker sans provenance (pas de badge dans ces contextes mono-spot).
   source?: SpotSource
-  // Qualité actuelle pré-calculée par le cron (spot_scores). undefined si pas
-  // encore de score (cron pas passé / spot récent) → marker gris neutre.
+  // Qualité du MEILLEUR moment du jour (dérivée de spot_scores.day_score, pas de
+  // current_score qui est ~toujours 0 — cf fetchFreshScores). Couleur du marker.
+  // undefined si pas encore de score (cron pas passé / spot récent) → gris neutre.
   currentQuality?: QualityLevel
-  // Score numérique 0-100 (spot_scores.current_score) associé à currentQuality.
-  // Affiché dans le panneau spot ; undefined si pas encore scoré.
+  // Score numérique 0-100 du meilleur moment du jour (spot_scores.day_score),
+  // affiché dans le panneau spot. undefined si pas encore scoré.
   currentScore?: number
 }
 

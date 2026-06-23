@@ -10,6 +10,7 @@ import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url.server'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 import type { QualityLevel } from '@/lib/solunar/types'
+import { qualityFromScore } from '@/lib/solunar/scoring'
 
 // Page dépendante du tier utilisateur + cookies GPS → jamais mise en cache partagée.
 // cookies() opte déjà la page en dynamique, mais on l'explicite pour éviter une
@@ -73,7 +74,15 @@ async function fetchSpots(
 }
 
 // Scores pré-calculés par le cron (spot_scores). On ne garde que les scores
-// frais (valid_until > now). Renvoie une Map spot_id → { qualité, score } actuels.
+// frais (valid_until > now). Renvoie une Map spot_id → { qualité, score }.
+//
+// ⚠️ On affiche `day_score` (= MEILLEUR moment du jour, 0-100), PAS `current_score`.
+// `current_score` est la note de la fenêtre active à l'INSTANT où le cron tourne
+// (05:00 UTC / 07:00 Paris) : à cette heure quasi aucun spot n'a de créneau de pêche
+// actif → `current_score` vaut ~toujours 0 (d'où « 0/100 partout » sur la carte).
+// `day_score` est le bon indicateur d'aperçu (« à quel point ça vaut le coup
+// aujourd'hui »), cohérent avec « Meilleurs moments » de la fiche. La couleur du
+// marker (qualité) est dérivée du day_score via qualityFromScore.
 async function fetchFreshScores(
   spotIds: string[],
 ): Promise<Map<string, { quality: QualityLevel; score: number }>> {
@@ -83,16 +92,13 @@ async function fetchFreshScores(
   const supabase = await createClient()
   const { data } = await supabase
     .from('spot_scores')
-    .select('spot_id, current_quality, current_score, valid_until')
+    .select('spot_id, day_score, valid_until')
     .gt('valid_until', new Date().toISOString())
     .in('spot_id', spotIds)
 
-  for (const row of (data ?? []) as {
-    spot_id: string
-    current_quality: QualityLevel
-    current_score: number
-  }[]) {
-    map.set(row.spot_id, { quality: row.current_quality, score: row.current_score })
+  for (const row of (data ?? []) as { spot_id: string; day_score: number | null }[]) {
+    if (typeof row.day_score !== 'number') continue
+    map.set(row.spot_id, { quality: qualityFromScore(row.day_score), score: row.day_score })
   }
   return map
 }
