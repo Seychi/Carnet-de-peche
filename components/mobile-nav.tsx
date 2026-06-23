@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, startTransition } from 'react'
-import { Menu, X, LogOut, User, BookOpen, CreditCard } from 'lucide-react'
+import { Menu, X, LogOut, User, BookOpen, CreditCard, MessageCircle, Users } from 'lucide-react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
 
@@ -84,10 +84,26 @@ export function MobileNav({ isAuthenticated = false, username = null }: MobileNa
                   <Link
                     href="/carnet"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors border-b border-ink-100"
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors"
                   >
                     <BookOpen size={18} className="text-ink-400" />
                     Mon carnet
+                  </Link>
+                  <Link
+                    href="/fil"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors"
+                  >
+                    <MessageCircle size={18} className="text-ink-400" />
+                    Fil régional
+                  </Link>
+                  <Link
+                    href="/follows"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors border-b border-ink-100"
+                  >
+                    <Users size={18} className="text-ink-400" />
+                    Mes pêcheurs
                   </Link>
                   <Link
                     href="/compte/abonnement"

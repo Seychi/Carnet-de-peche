@@ -289,26 +289,30 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                 {facades.map((f) => (
                   <div key={f} className="rounded-[14px] border border-sand-200 bg-white p-4">
                     <TagData className="mb-3 block">{FACADE_LABELS[f].toUpperCase()}</TagData>
-                    <table className="w-full text-[13.5px]">
-                      <tbody>
-                        {content.saisons[f].map((s) => (
-                          <tr key={s.saison} className="border-t border-sand-200 first:border-t-0">
-                            <td className="py-2 pr-3 align-top font-mono text-[11.5px] font-medium uppercase tracking-[0.06em] text-ink-500 whitespace-nowrap">
+                    {/* Disposition empilée (pas de table) : l'en-tête saison + activité sur
+                        une ligne, la note EN DESSOUS en pleine largeur — évite la colonne
+                        note écrasée (un mot par ligne) dans la grille 2 façades sur desktop. */}
+                    <div className="flex flex-col">
+                      {content.saisons[f].map((s) => (
+                        <div
+                          key={s.saison}
+                          className="border-t border-sand-200 py-2.5 first:border-t-0 first:pt-0"
+                        >
+                          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                            <span className="font-mono text-[11.5px] font-medium uppercase tracking-[0.06em] text-ink-500">
                               {s.saison}
-                            </td>
-                            <td className="py-2 pr-3 align-top whitespace-nowrap">
-                              <span
-                                className={`font-mono text-[11px] font-semibold uppercase tracking-[0.04em] ${ACTIVITY_DOTS[s.activite].cls}`}
-                              >
-                                {'●'.repeat(s.activite)}
-                                {'○'.repeat(3 - s.activite)} {ACTIVITY_DOTS[s.activite].label}
-                              </span>
-                            </td>
-                            <td className="py-2 align-top leading-snug text-ink-700">{s.note}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                            </span>
+                            <span
+                              className={`font-mono text-[11px] font-semibold uppercase tracking-[0.04em] ${ACTIVITY_DOTS[s.activite].cls}`}
+                            >
+                              {'●'.repeat(s.activite)}
+                              {'○'.repeat(3 - s.activite)} {ACTIVITY_DOTS[s.activite].label}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[13.5px] leading-snug text-ink-700">{s.note}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
