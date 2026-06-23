@@ -86,12 +86,24 @@ const SUBSTRATE_FR: Record<string, string> = {
   'seabed': 'Fond indéterminé',
   'sediment': 'Sédiment',
   'no data at this level': 'Donnée indisponible',
+  // Biotopes / herbiers — fréquents en Méditerranée (Corse, Var…). EMODnet renvoie
+  // parfois ces classes entre crochets (ex. « [Posidonia oceanica] meadows »),
+  // normalisés ci-dessous. Herbiers de posidonie = habitat protégé et très poissonneux.
+  'posidonia oceanica meadows': 'Herbier de posidonie',
+  'posidonia oceanica': 'Herbier de posidonie',
+  'seagrass': 'Herbier',
+  'seagrass meadows': 'Herbier',
+  'maerl': 'Maërl',
+  'maerl beds': 'Maërl',
 }
 
 /** Mappe une classe substrat EMODnet vers un libellé FR (fallback : libellé brut). */
 export function substrateToFr(raw: string): string {
-  const key = raw.trim().toLowerCase().replace(/\s+/g, ' ')
-  return SUBSTRATE_FR[key] ?? raw.trim()
+  // Normalise : minuscules, espaces compactés, crochets retirés (EMODnet encadre
+  // parfois les biotopes, ex. « [Posidonia oceanica] meadows »).
+  const key = raw.trim().toLowerCase().replace(/[[\]]/g, '').replace(/\s+/g, ' ')
+  // Fallback honnête : le libellé brut, juste débarrassé des crochets (jamais d'invention).
+  return SUBSTRATE_FR[key] ?? raw.trim().replace(/[[\]]/g, '')
 }
 
 async function _fetchSeabedSubstrate(lat: number, lng: number): Promise<SeabedSubstrate | null> {

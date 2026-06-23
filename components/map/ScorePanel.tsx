@@ -28,8 +28,10 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
 
   const enoughData = state && !state.gated && state.insights && state.insights.totalCount > 0
 
+  // Position : bas-gauche en mobile (légende + readout masqués < md) ; bas-DROITE en
+  // desktop pour ne pas recouvrir la légende couleurs ni les coords GPS (bas-gauche).
   return (
-    <div className="absolute z-30 left-3 bottom-3 md:bottom-16 w-[min(92vw,300px)] rounded-2xl bg-white/97 backdrop-blur-sm shadow-lg border border-ink-200 overflow-hidden">
+    <div className="absolute z-30 left-3 bottom-3 md:left-auto md:right-3 w-[min(92vw,300px)] rounded-2xl bg-white/97 backdrop-blur-sm shadow-lg border border-ink-200 overflow-hidden">
       <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-ink-100">
         <span className="flex items-center gap-1.5 font-semibold text-sm text-ink-900">
           <Sparkles size={15} className="text-gold-500" /> Ton score

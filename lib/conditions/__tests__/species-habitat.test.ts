@@ -32,6 +32,12 @@ describe('substrateCategory — classe EMODnet → catégorie large', () => {
     expect(substrateCategory('')).toBe('unknown')
     expect(substrateCategory('No data at this level')).toBe('unknown')
   })
+
+  it('reconnaît les herbiers (posidonie) et le maërl', () => {
+    expect(substrateCategory('[Posidonia oceanica] meadows')).toBe('seagrass')
+    expect(substrateCategory('Seagrass')).toBe('seagrass')
+    expect(substrateCategory('Maerl beds')).toBe('coarse')
+  })
 })
 
 describe('assessSuitability — adéquation fond ↔ espèce (honnête, indicatif)', () => {
@@ -57,6 +63,12 @@ describe('assessSuitability — adéquation fond ↔ espèce (honnête, indicati
   it('dorade royale sur sable → favorable', () => {
     const a = assessSuitability('dorade_royale', seabed('Sand', 6))!
     expect(a.verdict).toBe('favorable')
+  })
+
+  it('bar sur herbier de posidonie → favorable, détail mentionne l’herbier', () => {
+    const a = assessSuitability('bar', seabed('[Posidonia oceanica] meadows', 10))!
+    expect(a.verdict).toBe('favorable')
+    expect(a.detail).toMatch(/herbier/i)
   })
 
   it('substrat favorable mais profondeur hors fourchette → tempéré en moyen', () => {

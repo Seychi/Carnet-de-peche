@@ -12,15 +12,19 @@
 
 import type { SeabedInfo } from '@/lib/conditions/bathymetry'
 
-export type SubstrateCategory = 'rock' | 'coarse' | 'sand' | 'mixed' | 'mud' | 'unknown'
+export type SubstrateCategory = 'rock' | 'coarse' | 'sand' | 'mixed' | 'mud' | 'seagrass' | 'unknown'
 
 // Mappe une classe substrat EMODnet (champ `raw`, ex. « Rock or other hard substrata »,
-// « Muddy sand », « Sandy mud », « Coarse substrate », « Mixed sediment ») vers une
-// catégorie large. Priorité roche > grossier > mixte > sable > vase. Catégories
+// « Muddy sand », « Sandy mud », « Coarse substrate », « Mixed sediment »,
+// « [Posidonia oceanica] meadows ») vers une catégorie large. Priorité herbier >
+// maërl(grossier) > roche > grossier > mixte > sable > vase. Catégories
 // VOLONTAIREMENT larges : on reste indicatif, pas de fausse précision.
 export function substrateCategory(raw: string | null | undefined): SubstrateCategory {
   if (!raw) return 'unknown'
   const s = raw.toLowerCase()
+  // Herbiers (posidonie, zostère, cymodocée…) = habitat structuré très poissonneux.
+  if (s.includes('posidonia') || s.includes('seagrass') || s.includes('zostera') || s.includes('cymodocea')) return 'seagrass'
+  if (s.includes('maerl') || s.includes('maërl')) return 'coarse' // maërl = fond grossier calcaire
   if (s.includes('rock')) return 'rock'
   if (s.includes('coarse')) return 'coarse'
   if (s.includes('mixed')) return 'mixed'
@@ -43,15 +47,15 @@ export type SpeciesHabitat = {
 // Connaissance halieutique courante (pêche du bord, France). Indicatif.
 // Couvre les 6 espèces cœur + les espèces additionnelles portées par les spots curés.
 export const SPECIES_HABITAT: Record<string, SpeciesHabitat> = {
-  bar:           { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed'], depthRange: [0, 25], note: 'chasse sur la structure, la roche et le courant' },
-  dorade_royale: { pelagic: false, goodSubstrates: ['sand', 'coarse', 'mud'],   depthRange: [2, 20], note: 'fouille le sable et les fonds coquilliers' },
+  bar:           { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed', 'seagrass'], depthRange: [0, 25], note: 'chasse sur la structure, la roche et les herbiers' },
+  dorade_royale: { pelagic: false, goodSubstrates: ['sand', 'coarse', 'mud', 'seagrass'],  depthRange: [2, 20], note: 'fouille le sable et les fonds coquilliers' },
   lieu_jaune:    { pelagic: false, goodSubstrates: ['rock', 'coarse'],          depthRange: [3, 30], note: 'tient les tombants rocheux et les épaves' },
   maquereau:     { pelagic: true,  goodSubstrates: [],                          note: 'chasse en pleine eau, en banc' },
-  sar:           { pelagic: false, goodSubstrates: ['rock', 'coarse'],          depthRange: [1, 20], note: 'fréquente les enrochements et la roche' },
+  sar:           { pelagic: false, goodSubstrates: ['rock', 'coarse', 'seagrass'], depthRange: [1, 20], note: 'fréquente les enrochements, la roche et les herbiers' },
   orphie:        { pelagic: true,  goodSubstrates: [],                          note: 'nage en surface, en pleine eau' },
   vieille:       { pelagic: false, goodSubstrates: ['rock', 'coarse'],          depthRange: [1, 25], note: 'strictement liée à la roche' },
-  mulet:         { pelagic: false, goodSubstrates: ['sand', 'mud', 'mixed'],    depthRange: [0, 12], note: 'fonds meubles des ports et estuaires' },
-  sole:          { pelagic: false, goodSubstrates: ['sand', 'mud'],             depthRange: [2, 30], note: 'poisson plat des fonds de sable et de vase' },
+  mulet:         { pelagic: false, goodSubstrates: ['sand', 'mud', 'mixed', 'seagrass'], depthRange: [0, 12], note: 'fonds meubles des ports et estuaires' },
+  sole:          { pelagic: false, goodSubstrates: ['sand', 'mud', 'seagrass'], depthRange: [2, 30], note: 'poisson plat des fonds de sable et de vase' },
   congre:        { pelagic: false, goodSubstrates: ['rock', 'coarse'],          depthRange: [3, 40], note: 'se cache dans la roche, les épaves et les enrochements' },
   maigre:        { pelagic: false, goodSubstrates: ['sand', 'mud'],             depthRange: [3, 40], note: 'estuaires et grands fonds sableux' },
   chinchard:     { pelagic: true,  goodSubstrates: [],                          note: 'chasse en pleine eau, en banc' },
@@ -70,7 +74,7 @@ export type SuitabilityAssessment = {
 
 const FR_CATEGORY: Record<SubstrateCategory, string> = {
   rock: 'roche', coarse: 'sédiment grossier', sand: 'sable',
-  mixed: 'sédiment mixte', mud: 'vase', unknown: 'fond indéterminé',
+  mixed: 'sédiment mixte', mud: 'vase', seagrass: 'herbier', unknown: 'fond indéterminé',
 }
 
 function fmtDepth(m: number): string {

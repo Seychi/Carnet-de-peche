@@ -23,4 +23,15 @@ describe('substrateToFr — classes EUSeaMap → FR', () => {
     expect(substrateToFr('Some Unknown Class')).toBe('Some Unknown Class')
     expect(substrateToFr('  Bedrock outcrop ')).toBe('Bedrock outcrop')
   })
+
+  it('mappe les biotopes / herbiers, crochets EMODnet retirés', () => {
+    expect(substrateToFr('[Posidonia oceanica] meadows')).toBe('Herbier de posidonie')
+    expect(substrateToFr('Posidonia oceanica')).toBe('Herbier de posidonie')
+    expect(substrateToFr('Seagrass meadows')).toBe('Herbier')
+    expect(substrateToFr('Maerl beds')).toBe('Maërl')
+  })
+
+  it('retire les crochets même pour une classe inconnue (fallback honnête)', () => {
+    expect(substrateToFr('[Some Biotope] meadows')).toBe('Some Biotope meadows')
+  })
 })
