@@ -125,57 +125,6 @@ export type Database = {
           },
         ]
       }
-      conditions_cache: {
-        Row: {
-          astro: Json | null
-          cache_key: string | null
-          fetched_at: string
-          hour: string
-          payload: Json
-          score: number | null
-          spot_id: string
-          tide: Json | null
-          weather: Json | null
-        }
-        Insert: {
-          astro?: Json | null
-          cache_key?: string | null
-          fetched_at?: string
-          hour: string
-          payload?: Json
-          score?: number | null
-          spot_id: string
-          tide?: Json | null
-          weather?: Json | null
-        }
-        Update: {
-          astro?: Json | null
-          cache_key?: string | null
-          fetched_at?: string
-          hour?: string
-          payload?: Json
-          score?: number | null
-          spot_id?: string
-          tide?: Json | null
-          weather?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conditions_cache_spot_id_fkey"
-            columns: ["spot_id"]
-            isOneToOne: false
-            referencedRelation: "spots"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conditions_cache_spot_id_fkey"
-            columns: ["spot_id"]
-            isOneToOne: false
-            referencedRelation: "spots_for_viewer"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       weather_cache: {
         Row: {
           cache_key: string
