@@ -21,6 +21,13 @@ import { maigreEspece } from './maigre'
 import { tacaudEspece } from './tacaud'
 import { chinchardEspece } from './chinchard'
 import { plieEspece } from './plie'
+// Sprint 29 — +6 espèces du bord (réglementation vérifiée Légifrance 24/06/2026).
+import { barracudaEspece } from './barracuda'
+import { tassergalEspece } from './tassergal'
+import { licheEspece } from './liche'
+import { marbreEspece } from './marbre'
+import { lieuNoirEspece } from './lieu-noir'
+import { merlanEspece } from './merlan'
 
 export const ESPECES_CONTENT: Record<SpeciesSlug, EspeceContent> = {
   bar: barEspece,
@@ -43,4 +50,10 @@ export const ESPECES_CONTENT: Record<SpeciesSlug, EspeceContent> = {
   tacaud: tacaudEspece,
   chinchard: chinchardEspece,
   plie: plieEspece,
+  barracuda: barracudaEspece,
+  tassergal: tassergalEspece,
+  liche: licheEspece,
+  marbre: marbreEspece,
+  'lieu-noir': lieuNoirEspece,
+  merlan: merlanEspece,
 }
