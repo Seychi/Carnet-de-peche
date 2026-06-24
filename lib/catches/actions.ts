@@ -208,6 +208,38 @@ export async function updateCatch(
   return { ok: true }
 }
 
+// ─── markCatchDeclared (RecFishing, sprint 24) ────────────────────────────────
+
+/**
+ * Marque une prise comme « déclarée sur RecFishing » (auto-déclaratif : on ne
+ * soumet RIEN à la place du pêcheur). Pose declared=true + declared_at, ce qui
+ * éteint le bandeau de rappel et empêche le cron de re-notifier.
+ */
+export async function markCatchDeclared(id: string): Promise<{ ok: true } | { error: string }> {
+  if (!id) return { error: 'ID manquant.' }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié' }
+
+  const { error } = await supabase
+    .from('catches')
+    .update({ declared: true, declared_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('[catches/actions] markCatchDeclared error :', error)
+    return { error: 'Impossible d’enregistrer la déclaration. Réessaie.' }
+  }
+
+  revalidatePath('/carnet')
+  revalidatePath('/carnet/[id]', 'page')
+  return { ok: true }
+}
+
 // ─── deleteCatch ──────────────────────────────────────────────────────────────
 
 export async function deleteCatch(id: string): Promise<{ ok: true } | { error: string }> {

@@ -4,7 +4,8 @@ import type { EspeceContent } from '../types'
  * Fiche espèce lieu jaune (Pollachius pollachius) — /especes/lieu-jaune.
  * Angle : le combattant d'eau froide des pointes profondes.
  * Façade unique : Manche + Atlantique nord (absent de Méditerranée → saisons []).
- * Réglementation vérifiée le 12/06/2026 (arrêté du 24 décembre 2024).
+ * Réglementation vérifiée le 21/06/2026 (arrêté du 24 décembre 2024 : fermeture
+ * 1er janv–30 avr + quota 2/jour ; maille 42 cm harmonisée 2024, zones CIEM 7 et 8).
  */
 export const lieuJauneEspece: EspeceContent = {
   slug: 'lieu-jaune',

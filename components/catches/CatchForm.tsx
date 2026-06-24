@@ -9,6 +9,7 @@ import { MapPin, Loader2, Fish } from 'lucide-react'
 
 import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
+import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LABELS } from '@/lib/regulation'
 import { PhotoInput } from '@/components/forms/PhotoInput'
 import { analytics } from '@/lib/analytics'
 import type { CatchRow } from '@/lib/catches/queries'
@@ -36,15 +37,6 @@ const TECHNIQUES = [
   { value: 'flottante', label: 'Flottante' },
   { value: 'vif', label: 'Vif' },
 ] as const
-
-const LEGAL_SIZES: Record<string, number> = {
-  bar: 36,
-  dorade_royale: 25,
-  lieu_jaune: 30,
-  maquereau: 20,
-  sar: 23,
-  orphie: 0,
-}
 
 const BAIT_SUGGESTIONS = [
   'Arénicole', 'Ver de vase', 'Crevette', 'Couteau', 'Moule',
@@ -219,8 +211,27 @@ export function CatchForm(props: CatchFormProps) {
   const watchedLat = watch('latitude')
   const watchedLng = watch('longitude')
 
-  const legalSize = watchedSpecies ? (LEGAL_SIZES[watchedSpecies] ?? 0) : 0
-  const isUndersize = !!watchedSizeCm && legalSize > 0 && watchedSizeCm < legalSize
+  const watchedReleased = watch('released')
+
+  // Façade de la prise : spot (département) prioritaire, sinon géoloc, sinon
+  // INCONNUE (null) → on n'affiche AUCUN verdict de maille faux (sprint 24).
+  const catchFacade = getFacadeForCatch({
+    department: spotContext?.department ?? null,
+    lat: watchedLat ?? null,
+    lng: watchedLng ?? null,
+  })
+
+  // Maille façade-aware (fini le `bar: 36` façade-aveugle). null = pas de maille
+  // connue (espèce non listée) ou façade inconnue.
+  const legalSize = watchedSpecies && catchFacade ? getMinSize(watchedSpecies, catchFacade) : null
+  const sizeVerdict =
+    watchedSpecies && catchFacade && watchedSizeCm
+      ? checkSize(watchedSpecies, catchFacade, watchedSizeCm)
+      : null
+  const isUndersize = sizeVerdict?.status === 'undersize'
+  // Maille inconnue faute de lieu : on le signale au lieu d'un verdict trompeur.
+  const facadeUnknownForSize = !!watchedSpecies && !!watchedSizeCm && !catchFacade
+  const marquageReminder = !!watchedSpecies && !watchedReleased && isMarquageRequired(watchedSpecies)
 
   const isOutOfCoverage =
     watchedLat != null && watchedLng != null && !isInFranceMetro(watchedLat, watchedLng)
@@ -237,12 +248,13 @@ export function CatchForm(props: CatchFormProps) {
     const changed = prev.size !== watchedSizeCm || prev.species !== watchedSpecies
     prevSizeSpeciesRef.current = { size: watchedSizeCm, species: watchedSpecies }
     if (!changed) return
-    if (!watchedSizeCm || !watchedSpecies) return
-    const legal = LEGAL_SIZES[watchedSpecies] ?? 0
-    if (legal > 0 && watchedSizeCm < legal) {
+    if (!watchedSizeCm || !watchedSpecies || !catchFacade) return
+    // Auto-relâché UNIQUEMENT si sous la maille façade-aware (jamais sur une façade
+    // inconnue : on ne relâche pas un poisson à tort faute de lieu).
+    if (checkSize(watchedSpecies, catchFacade, watchedSizeCm).status === 'undersize') {
       setValue('released', true, { shouldDirty: false })
     }
-  }, [watchedSizeCm, watchedSpecies, setValue])
+  }, [watchedSizeCm, watchedSpecies, catchFacade, setValue])
 
   // Reset des champs conditionnels au changement de technique
   // (sinon la marque du leurre persiste quand on passe sur surfcasting, etc.)
@@ -526,12 +538,36 @@ export function CatchForm(props: CatchFormProps) {
           />
           <div className="flex justify-between text-[11px] mt-0.5">
             <span className="text-slate-400">10 cm</span>
-            {legalSize > 0 && (
+            {legalSize != null && (
               <span className="text-amber-600 font-medium">min légal {legalSize} cm</span>
             )}
             <span className="text-slate-400">120 cm+</span>
           </div>
           <FieldError error={errors.size_cm?.message} />
+
+          {/* Verdict maille façade-aware (sprint 24) — texte + icône, jamais la teinte seule */}
+          {isUndersize && sizeVerdict?.status === 'undersize' && (
+            <p className="mt-2 flex items-start gap-1.5 rounded-[8px] border border-red-200 bg-red-50 px-2.5 py-1.5 text-[12px] font-medium text-red-700">
+              <span aria-hidden>⚠️</span>
+              <span>
+                Sous la maille de {sizeVerdict.minSizeCm} cm en{' '}
+                {catchFacade ? FACADE_LABELS[catchFacade] : ''} : à remettre à l&rsquo;eau (relâché coché).
+              </span>
+            </p>
+          )}
+          {facadeUnknownForSize && (
+            <p className="mt-2 text-[12px] text-ink-400">
+              Renseigne le lieu de la prise pour vérifier la maille (elle varie selon la façade).
+            </p>
+          )}
+          {marquageReminder && (
+            <p className="mt-2 flex items-start gap-1.5 text-[12px] text-amber-700">
+              <span aria-hidden>✂️</span>
+              <span>
+                Marquage obligatoire si tu la gardes : ablation de la partie inférieure de la nageoire caudale.
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="mt-4">

@@ -19,6 +19,7 @@ import { getPersonalTendencies } from '@/lib/scoring/personal'
 import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
+import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
@@ -605,6 +606,11 @@ export default async function SpotPage({
                 )}
               </dl>
             </div>
+
+            {/* Réglementation par espèce (sprint 24) — maille façade-aware + repères */}
+            {spot.species.length > 0 && (
+              <SpotRegulationCard department={deptKey} species={spot.species} />
+            )}
 
             {/* Fond + profondeur (bathymétrie + nature du fond, EMODnet open data) */}
             {(depth || substrate) && (

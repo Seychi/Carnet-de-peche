@@ -2,6 +2,7 @@
   "installCommand": "rm -rf node_modules && pnpm install --frozen-lockfile",
   "regions": ["dub1"],
   "crons": [
-    { "path": "/api/crons/compute-spot-scores", "schedule": "0 5 * * *" }
+    { "path": "/api/crons/compute-spot-scores", "schedule": "0 5 * * *" },
+    { "path": "/api/crons/recfishing-reminders", "schedule": "0 17 * * *" }
   ]
 }

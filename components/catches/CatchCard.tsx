@@ -6,6 +6,7 @@ import type { ElementType } from 'react'
 import type { CatchRow } from '@/lib/catches/queries'
 
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
+import { checkSize, getFacadeForCatch } from '@/lib/regulation'
 
 const PRIVACY_CONFIG: Record<
   string,
@@ -27,6 +28,16 @@ export function CatchCard({
   const { Icon: PrivacyIcon } = privacy
   const location = c.location_label ?? c.spot_name ?? null
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
+
+  // Badge réglementaire (sprint 24) : un poisson CONSERVÉ sous la maille façade-aware.
+  // Façade inconnue (ni dépt ni géoloc) → pas de badge (jamais de verdict faux).
+  const facade = getFacadeForCatch({ department: c.department, lat: c.lat, lng: c.lng })
+  const isUndersizeKept =
+    !c.released &&
+    !!facade &&
+    !!c.species &&
+    c.size_cm != null &&
+    checkSize(c.species, facade, c.size_cm).status === 'undersize'
 
   return (
     <Link
@@ -59,6 +70,13 @@ export function CatchCard({
         {c.released && (
           <div className="absolute bottom-2 left-2 bg-teal-500/90 text-navy-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
             Relâché
+          </div>
+        )}
+
+        {/* Badge réglementaire : conservé sous la maille (texte explicite, pas la teinte seule) */}
+        {isUndersizeKept && (
+          <div className="absolute bottom-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            Sous-maille
           </div>
         )}
       </div>

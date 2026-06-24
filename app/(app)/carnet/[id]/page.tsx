@@ -7,6 +7,10 @@ import type { ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import { PhotoViewer } from '@/components/catches/PhotoViewer'
 import { CatchActionsMenu } from '@/components/catches/CatchActionsMenu'
 import CatchMiniMap from '@/components/catches/CatchMiniMap'
+import { CatchRegulationSection } from '@/components/regulation/CatchRegulationSection'
+import { RecfishingNotice } from '@/components/catches/RecfishingNotice'
+import { getFacadeForCatch } from '@/lib/regulation'
+import { isDeclarable, getDeclarableInfo } from '@/lib/regulation/recfishing'
 
 // Sûreté-cache (sprint 16) : page GPS-dépendante — la geom affichée est adaptée
 // au viewer (catches_for_viewer). Jamais de cache CDN/ISR partagé sinon un autre
@@ -86,6 +90,25 @@ export default async function CatchDetailPage({ params }: Props) {
   // disque de flou. Pour autrui, précis uniquement si la prise révèle ses coords.
   const isOwner = user.id === c.user_id
   const pointIsPrecise = isOwner || (c.reveal_precise_to_public ?? false)
+
+  // ── Réglementation + RecFishing (sprint 24) ──
+  // Façade : département du spot prioritaire, sinon géoloc visible, sinon inconnue.
+  const facade = getFacadeForCatch({ department: c.department, lat: c.lat, lng: c.lng })
+  const declarableInfo = facade ? getDeclarableInfo(c.species, facade) : null
+  const showRecfishing = isOwner && !!facade && !!declarableInfo && isDeclarable(c.species, facade)
+
+  // Statut « déclaré » : lu directement sur la table (la vue catches_for_viewer
+  // n'expose pas la colonne — lecture owner gatée par user_id).
+  let declared = false
+  if (showRecfishing) {
+    const { data: decRow } = await supabase
+      .from('catches')
+      .select('declared')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    declared = Boolean(decRow?.declared)
+  }
 
   return (
     <div className="min-h-screen bg-sand-50">
@@ -191,6 +214,22 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
         </div>
 
+        {/* ── RecFishing : prise sensible à déclarer (sprint 24) ── */}
+        {showRecfishing && declarableInfo && (
+          <div className="mb-4">
+            <RecfishingNotice
+              catchId={id}
+              speciesLabel={declarableInfo.commonFr}
+              sizeCm={c.size_cm ?? null}
+              caughtAtISO={c.caught_at ?? new Date().toISOString()}
+              locationLabel={location}
+              techniqueLabel={c.technique ? (TECHNIQUE_LABELS[c.technique] ?? c.technique) : null}
+              released={c.released ?? false}
+              declared={declared}
+            />
+          </div>
+        )}
+
         {/* ── Section Méthode ── */}
         <Section title="Méthode">
           <Row label="Technique" value={TECHNIQUE_LABELS[c.technique ?? ''] ?? c.technique ?? '—'} />
@@ -202,6 +241,15 @@ export default async function CatchDetailPage({ params }: Props) {
           )}
           {c.bait_type && <Row label="Appât" value={c.bait_type} />}
         </Section>
+
+        {/* ── Section Réglementation (sprint 24) ── */}
+        <CatchRegulationSection
+          species={c.species ?? ''}
+          facade={facade}
+          sizeCm={c.size_cm ?? null}
+          released={c.released ?? false}
+          className="mt-4"
+        />
 
         {/* ── Section Conditions ── */}
         {conditions && (

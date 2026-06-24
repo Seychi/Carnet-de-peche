@@ -45,6 +45,15 @@ export const SOLUNAR_CONFIG = {
     SLACK_SCORE: 0.0, // étale plate
     EXTREMUM_BONUS: 0.2, // PM/BM dans la fenêtre (cumul plafonné à 1.0)
     NO_DATA_SCORE: 0.35, // marée inconnue : plafonnée sous le neutre (avant : 0.5)
+    // Sprint 24 (correctif Med) : sous ce marnage journalier (m), la marée est
+    // physiquement non discriminante (Méditerranée ~0,15 m). On NE l'impose plus à
+    // 0/35 : on retire son poids (0.35) et on le renormalise sur astro + vent.
+    // L'Atlantique (marnage ~3 m) reste très au-dessus → marée pleinement comptée.
+    NEUTRAL_MARNAGE_M: 0.3,
+    // Seuil d'étale (delta de hauteur sur la fenêtre) désormais RELATIF au marnage
+    // local, plafonné à 0.1 m (comportement Atlantique inchangé). Cf marees-med.md.
+    SLACK_DELTA_MAX_M: 0.1,
+    SLACK_DELTA_RATIO: 0.15,
   },
 
   // Recalibré sprint 19 : courbe CONTINUE à pic unique (avant : plateau plat à 1.0

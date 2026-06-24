@@ -1,6 +1,8 @@
 import type { SolunarEvent, ScoringFactors, QualityLevel } from './types'
 import type { TidePoint, TideExtremum } from '@/lib/conditions/spot-forecast'
 import { SOLUNAR_CONFIG } from './config'
+import { getParisHour } from './format'
+import { dailyMarnage } from '@/lib/conditions/tide'
 
 // ─── Scoring solunar ─────────────────────────────────────────────────────────
 
@@ -33,12 +35,24 @@ export function scoreTide(
   // Sans marée vérifiable, une fenêtre ne peut pas prétendre à « Exceptionnelle ».
   if (tidePoints.length === 0) return SOLUNAR_CONFIG.TIDE.NO_DATA_SCORE
 
-  // Heures couvrant la fenêtre
-  const startHour = new Date(windowStartISO).getUTCHours()
-  const endHour = new Date(windowEndISO).getUTCHours()
+  // Heures (LOCALES Paris) couvrant la fenêtre. CORRECTIF sprint 24 : les `tidePoints`
+  // sont indexés par heure LOCALE (Open-Meteo timezone=Europe/Paris) ; les bornes de
+  // fenêtre sont des instants ISO (UTC). Lire getUTCHours() décalait la sélection de
+  // 1-2 h (selon l'heure d'été) → mauvais créneau de marée. On lit l'heure de Paris.
+  const startHour = getParisHour(new Date(windowStartISO))
+  const endHour = getParisHour(new Date(windowEndISO))
+
+  // Fenêtre qui enjambe minuit (ex. centre ~23h) : endHour < startHour. On garde la
+  // portion AVANT minuit ([startHour, 23]) — les points d'après minuit appartiennent
+  // au jour suivant (absents de ce tableau horaire) ; ne PAS rabattre sur [0, endHour]
+  // (ce serait les points du petit matin du même jour → fausse direction).
+  const inWindow =
+    startHour <= endHour
+      ? (h: number) => h >= startHour && h <= endHour
+      : (h: number) => h >= startHour
 
   // Points de marée dans la fenêtre
-  const windowPoints = tidePoints.filter(p => p.hour >= startHour && p.hour <= endHour)
+  const windowPoints = tidePoints.filter((p) => inWindow(p.hour))
   if (windowPoints.length < 2) return SOLUNAR_CONFIG.TIDE.NO_DATA_SCORE
 
   // Direction : montante ou descendante
@@ -46,8 +60,15 @@ export function scoreTide(
   const last = windowPoints[windowPoints.length - 1].height_m
   const delta = last - first
 
+  // Seuil d'étale RELATIF au marnage local (plafonné à 0.1 m → Atlantique inchangé).
+  const marnageM = dailyMarnage(tidePoints)
+  const slack =
+    marnageM != null
+      ? Math.min(SOLUNAR_CONFIG.TIDE.SLACK_DELTA_MAX_M, marnageM * SOLUNAR_CONFIG.TIDE.SLACK_DELTA_RATIO)
+      : SOLUNAR_CONFIG.TIDE.SLACK_DELTA_MAX_M
+
   let tideScore: number
-  if (Math.abs(delta) < 0.1) {
+  if (Math.abs(delta) < slack) {
     tideScore = SOLUNAR_CONFIG.TIDE.SLACK_SCORE
   } else if (delta > 0) {
     tideScore = SOLUNAR_CONFIG.TIDE.RISING_SCORE // montante : 1.0 atteignable avec extremum
@@ -56,7 +77,7 @@ export function scoreTide(
   }
 
   // Bonus si un extremum (basse/haute mer) tombe dans la fenêtre
-  const hasExtremum = tideExtrema.some(e => e.hour >= startHour && e.hour <= endHour)
+  const hasExtremum = tideExtrema.some((e) => inWindow(e.hour))
   if (hasExtremum) tideScore = Math.min(1.0, tideScore + SOLUNAR_CONFIG.TIDE.EXTREMUM_BONUS)
 
   return Math.min(1.0, Math.max(0, tideScore))
@@ -124,23 +145,38 @@ export function scoreWindow(
   // AUCUN call-site. Le perso vit désormais à part, en TENDANCES descriptives
   // (lib/scoring/personal), jamais en multiplicateur prédictif.
   const solunar = scoreSolunar(centerEvent)
-  const tide = scoreTide(windowStartISO, windowEndISO, tidePoints, tideExtrema)
   const wind = scoreWind(windSpeed_kmh)
 
-  const score01 =
-    solunar * SOLUNAR_CONFIG.WEIGHTS.solunar +
-    tide * SOLUNAR_CONFIG.WEIGHTS.tide +
-    wind * SOLUNAR_CONFIG.WEIGHTS.wind
+  // Marnage journalier MESURÉ. CORRECTIF sprint 24 (Med honnête) : sous le seuil
+  // neutre, la marée est physiquement non discriminante (Méditerranée). Au lieu de
+  // l'imposer à 0/35 (faux négatif), on RETIRE son poids et on le RENORMALISE sur
+  // astro + vent — rien d'inventé, juste une répartition honnête.
+  const marnageM = dailyMarnage(tidePoints)
+  const W = SOLUNAR_CONFIG.WEIGHTS
+  const tideNonDiscriminating = marnageM != null && marnageM < SOLUNAR_CONFIG.TIDE.NEUTRAL_MARNAGE_M
 
+  let tide: number
+  let weights: { solunar: number; tide: number; wind: number }
+  if (tideNonDiscriminating) {
+    tide = 0 // non utilisé (poids 0) — la marée plate ne pèse plus dans le score
+    const renorm = W.solunar + W.wind
+    weights = { solunar: W.solunar / renorm, tide: 0, wind: W.wind / renorm }
+  } else {
+    tide = scoreTide(windowStartISO, windowEndISO, tidePoints, tideExtrema)
+    weights = { solunar: W.solunar, tide: W.tide, wind: W.wind }
+  }
+
+  const score01 = solunar * weights.solunar + tide * weights.tide + wind * weights.wind
   const score = Math.round(Math.min(100, Math.max(0, score01 * 100)))
 
   const reasons: string[] = []
   reasons.push(formatEventReason(centerEvent))
-  if (tide > 0.7 && tidePoints.length > 0) reasons.push('Marée favorable')
+  if (tideNonDiscriminating) reasons.push('Marée plate (peu déterminante)')
+  else if (tide > 0.7 && tidePoints.length > 0) reasons.push('Marée favorable')
   if (wind > 0.85) reasons.push('Vent idéal')
   else if (wind < 0.3) reasons.push('Vent fort')
 
-  return { score, factors: { solunar, tide, wind, reasons } }
+  return { score, factors: { solunar, tide, wind, reasons, weights, marnageM, tideNonDiscriminating } }
 }
 
 // ─── Qualité depuis score ─────────────────────────────────────────────────────

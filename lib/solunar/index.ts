@@ -28,7 +28,8 @@ function buildWindow(
     if (centerHour < SOLUNAR_CONFIG.EARLIEST_HOUR || centerHour > SOLUNAR_CONFIG.LATEST_HOUR) {
       return null
     }
-    // Sinon on clipe la fenêtre aux bornes
+    // Sinon on garde la fenêtre telle quelle (pas de clip des bornes ISO) : elle peut
+    // déborder un peu de [EARLIEST, LATEST]. scoreTide gère le débordement de minuit.
   }
 
   const startISO = startDate.toISOString()

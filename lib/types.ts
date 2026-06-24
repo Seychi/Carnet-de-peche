@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       catches: {
@@ -21,6 +46,8 @@ export type Database = {
           caught_at: string
           conditions: Json | null
           created_at: string
+          declared: boolean
+          declared_at: string | null
           geom: unknown
           geom_public: unknown
           id: string
@@ -32,6 +59,7 @@ export type Database = {
           photo_path: string | null
           precise_for_friends: boolean
           privacy: string
+          recfishing_reminded_at: string | null
           released: boolean
           reveal_precise_to_public: boolean
           size_cm: number | null
@@ -52,6 +80,8 @@ export type Database = {
           caught_at?: string
           conditions?: Json | null
           created_at?: string
+          declared?: boolean
+          declared_at?: string | null
           geom?: unknown
           geom_public?: unknown
           id?: string
@@ -63,6 +93,7 @@ export type Database = {
           photo_path?: string | null
           precise_for_friends?: boolean
           privacy?: string
+          recfishing_reminded_at?: string | null
           released?: boolean
           reveal_precise_to_public?: boolean
           size_cm?: number | null
@@ -83,6 +114,8 @@ export type Database = {
           caught_at?: string
           conditions?: Json | null
           created_at?: string
+          declared?: boolean
+          declared_at?: string | null
           geom?: unknown
           geom_public?: unknown
           id?: string
@@ -94,6 +127,7 @@ export type Database = {
           photo_path?: string | null
           precise_for_friends?: boolean
           privacy?: string
+          recfishing_reminded_at?: string | null
           released?: boolean
           reveal_precise_to_public?: boolean
           size_cm?: number | null
@@ -1310,6 +1344,19 @@ export type Database = {
       }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
+      get_pending_recfishing_catches: {
+        Args: { p_since: string; p_species: string[] }
+        Returns: {
+          caught_at: string
+          department: string
+          id: string
+          lat: number
+          lng: number
+          released: boolean
+          species: string
+          user_id: string
+        }[]
+      }
       get_quality_cells: {
         Args: {
           max_lat: number
@@ -2230,6 +2277,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

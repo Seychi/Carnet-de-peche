@@ -42,8 +42,12 @@ describe('scoreSolunar', () => {
 })
 
 describe('scoreTide', () => {
+  // NB sprint 24 : scoreTide lit l'heure LOCALE Paris des bornes. Les ISO ci-dessous
+  // sont en UTC ; 05:00Z–07:00Z = 07h–09h Paris (CEST), alignées sur les tidePoints
+  // (hour locale 7/8/9). Avant le fix, getUTCHours() lisait 7/9 par coïncidence ; le
+  // décalage réel (1-2 h) faussait la sélection du créneau en prod.
   it('retourne 0.35 si pas de données (plafonné sous le neutre, recalibrage 10.6)', () => {
-    expect(scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', [], [])).toBe(0.35)
+    expect(scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', [], [])).toBe(0.35)
   })
 
   it('marée montante = score élevé', () => {
@@ -52,7 +56,7 @@ describe('scoreTide', () => {
       { hour: 8, height_m: 1.5 },
       { hour: 9, height_m: 2.0 },
     ]
-    const score = scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', points, [])
+    const score = scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', points, [])
     expect(score).toBeGreaterThan(0.5)
   })
 
@@ -62,8 +66,8 @@ describe('scoreTide', () => {
       { hour: 8, height_m: 1.5 },
       { hour: 9, height_m: 2.0 },
     ]
-    const sansExtremum = scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', points, [])
-    const avecExtremum = scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', points, [
+    const sansExtremum = scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', points, [])
+    const avecExtremum = scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', points, [
       { type: 'high', hour: 8, height_m: 2.0 },
     ])
     expect(sansExtremum).toBe(0.8)
@@ -81,9 +85,20 @@ describe('scoreTide', () => {
       { hour: 8, height_m: 1.5 },
       { hour: 9, height_m: 1.0 },
     ]
-    const risingScore = scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', rising, [])
-    const fallingScore = scoreTide('2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', falling, [])
+    const risingScore = scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', rising, [])
+    const fallingScore = scoreTide('2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', falling, [])
     expect(risingScore).toBeGreaterThan(fallingScore)
+  })
+
+  it('fenêtre enjambant minuit : garde la portion avant minuit (pas de NO_DATA à tort)', () => {
+    // Fenêtre 22h–00h Paris (CEST) = 20:00Z–22:00Z → startHour=22, endHour=0 (wrap).
+    // Avant le fix, le filtre h>=22 && h<=0 était vide → 0.35 (NO_DATA) à tort.
+    const points = [
+      { hour: 22, height_m: 1.0 },
+      { hour: 23, height_m: 1.6 }, // montante
+    ]
+    const score = scoreTide('2026-05-20T20:00:00Z', '2026-05-20T22:00:00Z', points, [])
+    expect(score).toBe(0.8) // montante détectée, pas 0.35
   })
 })
 
@@ -159,11 +174,56 @@ describe('qualityFromScore', () => {
 describe('scoreWindow', () => {
   it('retourne un score 0-100 et des factors', () => {
     const event = makeEvent('moon_apex')
-    const { score, factors } = scoreWindow(event, '2026-05-20T07:00:00Z', '2026-05-20T09:00:00Z', [], [], 10)
+    const { score, factors } = scoreWindow(event, '2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', [], [], 10)
     expect(score).toBeGreaterThanOrEqual(0)
     expect(score).toBeLessThanOrEqual(100)
     expect(factors.reasons.length).toBeGreaterThan(0)
     expect(factors.reasons[0]).toBe('Lune au zénith')
+  })
+})
+
+// ─── Correctif marées Méditerranée (sprint 24) ────────────────────────────────
+// Le « 0/35 » en Med était un FAUX NÉGATIF (seuil d'étale 0.1 m pensé Atlantique).
+// Sous le marnage neutre (~0,15 m en Med), la marée devient NON DISCRIMINANTE : on
+// retire son poids et on le renormalise sur astro+vent, au lieu d'imposer tide=0.
+describe('scoreWindow — marée non discriminante en faible marnage (Med honnête)', () => {
+  const event = makeEvent('moonrise') // solunar = 0.7
+  // Marnage ~0,12 m (Méditerranée) — montante mais physiquement plate.
+  const MED_FLAT = [
+    { hour: 7, height_m: 1.0 },
+    { hour: 8, height_m: 1.07 },
+    { hour: 9, height_m: 1.12 },
+  ]
+  // Marnage 3 m (Atlantique) — montante franche.
+  const ATL_STRONG = [
+    { hour: 7, height_m: 1.0 },
+    { hour: 8, height_m: 2.5 },
+    { hour: 9, height_m: 4.0 },
+  ]
+
+  it('Med plat : tide neutralisée (poids 0), renormalisé sur astro+vent, marnage exposé', () => {
+    const { factors } = scoreWindow(event, '2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', MED_FLAT, [], 10)
+    expect(factors.tideNonDiscriminating).toBe(true)
+    expect(factors.weights.tide).toBe(0)
+    expect(factors.marnageM).toBeCloseTo(0.12, 2)
+    // poids réparti : astro + vent somment à 1, dans les bons ratios 0.40:0.25
+    expect(factors.weights.solunar + factors.weights.wind).toBeCloseTo(1, 5)
+    expect(factors.weights.solunar).toBeCloseTo(0.4 / 0.65, 4)
+    expect(factors.reasons).toContain('Marée plate (peu déterminante)')
+  })
+
+  it('Med plat : le score n’est PLUS plombé par un 0/35 (≥ un seuil correct)', () => {
+    // solunar 0.7 × (0.4/0.65) + vent(10)=1.0 × (0.25/0.65) ≈ 0.815 → ~82/100
+    const { score } = scoreWindow(event, '2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', MED_FLAT, [], 10)
+    expect(score).toBeGreaterThan(70)
+  })
+
+  it('Atlantique (marnage fort) : marée PLEINEMENT comptée (poids 0.35 inchangé)', () => {
+    const { factors } = scoreWindow(event, '2026-05-20T05:00:00Z', '2026-05-20T07:00:00Z', ATL_STRONG, [], 10)
+    expect(factors.tideNonDiscriminating).toBe(false)
+    expect(factors.weights.tide).toBeCloseTo(0.35, 5)
+    expect(factors.weights.solunar).toBeCloseTo(0.4, 5)
+    expect(factors.tide).toBeGreaterThan(0.5) // montante
   })
 })
 
@@ -218,8 +278,8 @@ describe('distribution des qualités (échantillon synthétique 7 j × 24 créne
 
         const { score } = scoreWindow(
           makeEvent(eventType, moonPhase),
+          '2026-05-20T05:00:00Z',
           '2026-05-20T07:00:00Z',
-          '2026-05-20T09:00:00Z',
           points,
           extrema,
           wind
@@ -247,8 +307,8 @@ describe('distribution des qualités (échantillon synthétique 7 j × 24 créne
     // Zénith lunaire en pleine lune + marée montante avec PM dans la fenêtre + vent idéal
     const { score } = scoreWindow(
       makeEvent('moon_apex', 0.5),
+      '2026-05-20T05:00:00Z',
       '2026-05-20T07:00:00Z',
-      '2026-05-20T09:00:00Z',
       [
         { hour: 7, height_m: 1.0 },
         { hour: 8, height_m: 1.5 },

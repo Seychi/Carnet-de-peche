@@ -18,6 +18,16 @@ export type ScoringFactors = {
   tide: number
   wind: number
   reasons: string[]
+  /**
+   * Poids RÉELLEMENT appliqués (somme = 1). Reflète la renormalisation marée :
+   * en faible marnage (Med), le poids marée (0.35) est réparti sur astro + vent
+   * → tide=0 ici. L'affichage doit lire CES poids, pas les poids fixes du barème.
+   */
+  weights: { solunar: number; tide: number; wind: number }
+  /** Marnage journalier MESURÉ (m). null = pas de données de marée. Jamais inventé. */
+  marnageM: number | null
+  /** true si la marée a été neutralisée (marnage < seuil) → « marée plate, peu déterminante ». */
+  tideNonDiscriminating: boolean
 }
 
 export type FishingWindow = {
