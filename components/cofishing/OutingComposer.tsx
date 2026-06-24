@@ -8,7 +8,7 @@ import { proposeOuting } from '@/lib/cofishing/actions'
 import { COASTAL_DEPARTMENTS, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 const inputCls =
-  'w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 bg-white'
+  'w-full min-h-11 border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 bg-white'
 
 function nowLocalPlus(hours: number): string {
   const d = new Date(Date.now() + hours * 3600 * 1000)
@@ -117,14 +117,14 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
         rows={2}
         maxLength={1000}
         placeholder="Niveau, technique, ce que tu proposes…"
-        className="w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 resize-none"
+        className="w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 resize-none"
       />
 
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 flex items-center justify-center gap-2 rounded-[10px] bg-teal-500 py-2.5 font-semibold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-60"
+          className="flex-1 flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-teal-500 py-2.5 font-semibold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-60"
         >
           {submitting && <Loader2 size={16} className="animate-spin" />}
           Publier
@@ -132,7 +132,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-[10px] border border-sand-200 px-4 py-2.5 text-[14px] text-ink-600"
+          className="min-h-11 rounded-[10px] border border-sand-200 px-4 py-2.5 text-[14px] text-ink-600"
         >
           Annuler
         </button>

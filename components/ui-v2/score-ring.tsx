@@ -69,7 +69,7 @@ export function ScoreRing({
         />
       </svg>
       <span
-        className={cn('absolute font-mono font-semibold', text)}
+        className={cn('absolute font-mono font-semibold tabular-nums', text)}
         style={{ color: onDark && clamped >= 75 ? 'var(--teal-300)' : color }}
       >
         {clamped}

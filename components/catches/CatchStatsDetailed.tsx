@@ -77,7 +77,7 @@ export function CatchStatsDetailed({
         {/* Chevron : visible sur mobile, caché sur desktop (la section est toujours ouverte via CSS) */}
         <ChevronDown
           size={16}
-          className={`text-ink-400 transition-transform duration-200 sm:hidden ${open ? 'rotate-180' : ''}`}
+          className={`text-ink-400 transition-transform duration-200 motion-reduce:transition-none sm:hidden ${open ? 'rotate-180' : ''}`}
         />
       </button>
 

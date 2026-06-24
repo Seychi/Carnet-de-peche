@@ -85,7 +85,7 @@ export function BulkCatchImport() {
               <select
                 value={row.species}
                 onChange={(e) => update(i, { species: e.target.value })}
-                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 text-[14px] text-navy-900 focus:border-teal-500 focus:outline-none"
+                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 text-[14px] text-navy-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               >
                 <option value="">—</option>
                 {SPECIES_OPTIONS.map((s) => (
@@ -100,7 +100,7 @@ export function BulkCatchImport() {
                 type="date"
                 value={row.date}
                 onChange={(e) => update(i, { date: e.target.value })}
-                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 font-mono text-[13px] text-navy-900 focus:border-teal-500 focus:outline-none"
+                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 font-mono text-[13px] text-navy-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               />
             </Field>
             <Field label="Taille (cm)">
@@ -112,14 +112,14 @@ export function BulkCatchImport() {
                 value={row.size}
                 onChange={(e) => update(i, { size: e.target.value })}
                 placeholder="—"
-                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 font-mono text-[13px] text-navy-900 focus:border-teal-500 focus:outline-none"
+                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 font-mono text-[13px] text-navy-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               />
             </Field>
             <Field label="Département">
               <select
                 value={row.department}
                 onChange={(e) => update(i, { department: e.target.value })}
-                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 text-[14px] text-navy-900 focus:border-teal-500 focus:outline-none"
+                className="w-full rounded-lg border border-sand-300 bg-white px-2.5 py-2 text-[14px] text-navy-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               >
                 <option value="">—</option>
                 {DEPARTMENT_OPTIONS.map((d) => (
@@ -134,7 +134,7 @@ export function BulkCatchImport() {
               onClick={() => removeRow(i)}
               aria-label="Supprimer cette ligne"
               disabled={rows.length <= 1}
-              className="mb-0.5 inline-flex h-9 w-9 items-center justify-center self-end rounded-lg text-ink-400 transition-colors hover:bg-sand-100 hover:text-coral-500 disabled:opacity-30"
+              className="mb-0.5 inline-flex h-11 w-11 items-center justify-center self-end rounded-lg text-ink-400 transition-colors hover:bg-sand-100 hover:text-coral-500 disabled:opacity-30"
             >
               <Trash2 size={16} />
             </button>

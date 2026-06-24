@@ -110,17 +110,17 @@ export function ProposalCard({
                   type="button"
                   disabled={pending}
                   onClick={() => run(() => respondToParticipant(p.id, r.user_id, true), () => toast.success('Participant accepté'))}
-                  className="flex items-center gap-1 rounded-full bg-teal-500 px-2.5 py-1 text-[12px] font-medium text-navy-950 disabled:opacity-60"
+                  className="flex min-h-11 items-center gap-1 rounded-full bg-teal-500 px-3.5 py-1.5 text-[12px] font-medium text-navy-950 disabled:opacity-60"
                 >
-                  <Check size={12} /> Accepter
+                  <Check size={14} /> Accepter
                 </button>
                 <button
                   type="button"
                   disabled={pending}
                   onClick={() => run(() => respondToParticipant(p.id, r.user_id, false))}
-                  className="flex items-center gap-1 rounded-full border border-sand-200 px-2.5 py-1 text-[12px] text-ink-600 disabled:opacity-60"
+                  className="flex min-h-11 items-center gap-1 rounded-full border border-sand-200 px-3.5 py-1.5 text-[12px] text-ink-600 disabled:opacity-60"
                 >
-                  <X size={12} /> Refuser
+                  <X size={14} /> Refuser
                 </button>
               </div>
             </div>
@@ -134,7 +134,7 @@ export function ProposalCard({
             type="button"
             disabled={pending}
             onClick={() => run(() => cancelOuting(p.id), () => toast.success('Sortie annulée'))}
-            className="mt-2 text-[12px] text-coral-500 hover:underline disabled:opacity-60"
+            className="mt-2 inline-flex min-h-11 items-center text-[12px] text-coral-500 hover:underline disabled:opacity-60"
           >
             Annuler la sortie
           </button>
@@ -158,7 +158,7 @@ export function ProposalCard({
                 type="button"
                 disabled={pending}
                 onClick={() => run(() => withdrawJoin(p.id), () => { setStatus(undefined); toast.success('Demande retirée') })}
-                className="text-[12px] text-ink-500 hover:underline disabled:opacity-60"
+                className="inline-flex min-h-11 items-center text-[12px] text-ink-500 hover:underline disabled:opacity-60"
               >
                 Retirer
               </button>
@@ -173,7 +173,7 @@ export function ProposalCard({
                 type="button"
                 disabled={pending}
                 onClick={() => run(() => withdrawJoin(p.id), () => { setStatus(undefined); toast.success('Tu t’es retiré') })}
-                className="text-[12px] text-ink-500 hover:underline disabled:opacity-60"
+                className="inline-flex min-h-11 items-center text-[12px] text-ink-500 hover:underline disabled:opacity-60"
               >
                 Se retirer
               </button>
