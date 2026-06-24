@@ -6,7 +6,6 @@ import { getMyCatchStats } from "@/lib/catches/queries";
 import { SPECIES_LABELS } from "@/lib/labels";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { SignOutButton } from "./sign-out-button";
 
 function speciesLabel(species: string | null): string {
   if (!species) return "—";
@@ -61,7 +60,13 @@ export default async function HomePage() {
                 : "Bienvenue à bord — il est temps de loguer ta première prise."}
             </p>
           </div>
-          <SignOutButton />
+          {/* Action utile (la déconnexion vit dans l'avatar du header, plus de doublon ici). */}
+          <Link
+            href="/carnet"
+            className="shrink-0 inline-flex min-h-11 items-center rounded-full border border-sand-200 px-4 text-[14px] font-semibold text-navy-900 transition-colors hover:bg-sand-100"
+          >
+            Voir mon carnet
+          </Link>
         </header>
 
         {total === 0 ? (
