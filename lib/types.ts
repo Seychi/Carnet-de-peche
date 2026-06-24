@@ -1775,6 +1775,12 @@ export type Database = {
           meta: Json | null
           user_id: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "user_badges"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
