@@ -19,6 +19,7 @@ import type { Facade, SpeciesSlug } from '@/lib/seo/programmatic'
 //  · Mailles locales dérogatoires du Parc naturel marin du Golfe du Lion (arrêté
 //    préfectoral R93-2024-02-12-00002 du 12/02/2024 : bar 42 cm, pageot 25 cm,
 //    rouget/oblade 20 cm, congre maille MINIMALE 120 cm, dorade royale 30 cm,
+//    barracuda 65 cm, liche ~50 cm (ajoutés sprint 29),
 //    + autorisation CatchMachine) NON modélisées par `minSizeCm` (une valeur par
 //    façade) → signalées en prose + avertissement Med (CatchRegulationSection).
 //  · Chinchard : PAS d'interdiction de pêche de loisir en zone CIEM VIIIa (vérifié
