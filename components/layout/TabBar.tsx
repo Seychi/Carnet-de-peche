@@ -46,8 +46,18 @@ function Tab({
  * (atteignable via l'avatar du header + l'onglet « Plus »). Identique en PWA
  * et en natif. « Plus » ouvre un overflow listant toutes les autres destinations.
  */
-export function TabBar({ isModerator = false }: { isModerator?: boolean }) {
+export function TabBar({
+  isModerator = false,
+  homeDepartment = null,
+}: {
+  isModerator?: boolean
+  homeDepartment?: string | null
+}) {
   const pathname = usePathname()
+
+  // « Fil » → /fil/[dept] direct si département connu (reste dans le shell app,
+  // plus de flash de footer marketing au clic — sprint 28 Bloc 1).
+  const filHref = homeDepartment ? `/fil/${homeDepartment}` : '/fil'
 
   return (
     <nav
@@ -68,7 +78,12 @@ export function TabBar({ isModerator = false }: { isModerator?: boolean }) {
       </Link>
 
       {TABS.slice(2).map((t) => (
-        <Tab key={t.href} {...t} active={pathname.startsWith(t.match)} />
+        <Tab
+          key={t.match}
+          {...t}
+          href={t.href === '/fil' ? filHref : t.href}
+          active={pathname.startsWith(t.match)}
+        />
       ))}
 
       <MoreMenu isModerator={isModerator} />

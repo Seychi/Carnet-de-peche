@@ -23,8 +23,13 @@ const DISCOVER = [
 ] as const
 
 /** Sidebar app desktop (≥ 960 px) — item actif navy plein (DA v2). */
-export function AppSidebar() {
+export function AppSidebar({ homeDepartment = null }: { homeDepartment?: string | null }) {
   const pathname = usePathname()
+
+  // « Fil » : pour un connecté avec département, pointer DIRECTEMENT vers /fil/[dept]
+  // (route du shell app) → on ne traverse plus la page /fil du shell marketing qui
+  // redirige (Header+Footer), donc plus de flash de footer au clic (sprint 28 Bloc 1).
+  const filHref = homeDepartment ? `/fil/${homeDepartment}` : '/fil'
 
   function renderItem({
     label,
@@ -41,7 +46,7 @@ export function AppSidebar() {
     return (
       <Link
         key={href}
-        href={href}
+        href={href === '/fil' ? filHref : href}
         aria-current={active ? 'page' : undefined}
         className={cn(
           'flex min-h-11 items-center gap-3 rounded-[10px] px-3.5 text-[15px] font-medium transition-colors',

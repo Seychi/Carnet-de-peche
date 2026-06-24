@@ -18,12 +18,14 @@ export function AppShell({
   banner,
   children,
   isModerator = false,
+  homeDepartment = null,
 }: {
   header: React.ReactNode
   instruments: React.ReactNode
   banner: React.ReactNode
   children: React.ReactNode
   isModerator?: boolean
+  homeDepartment?: string | null
 }) {
   const pathname = usePathname()
   const bare = BARE_PREFIXES.some((p) => pathname.startsWith(p))
@@ -47,11 +49,11 @@ export function AppShell({
         {instruments}
       </div>
       <div className="flex-1 desk:grid desk:grid-cols-[232px_1fr]">
-        <AppSidebar />
+        <AppSidebar homeDepartment={homeDepartment} />
         {/* pb mobile = hauteur tab bar + safe-area, pour ne rien masquer */}
         <main className="min-w-0 pb-[88px] desk:pb-0">{children}</main>
       </div>
-      <TabBar isModerator={isModerator} />
+      <TabBar isModerator={isModerator} homeDepartment={homeDepartment} />
     </div>
   )
 }
