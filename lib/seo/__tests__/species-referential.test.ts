@@ -14,8 +14,8 @@ import { SPECIES_HABITAT } from '@/lib/conditions/species-habitat'
 // réapparition du bug §Diagnostic.3 (filtres carte qui affichaient des espèces que le
 // parse SSR rejetait) et la dérive des ex-listes parallèles.
 describe('référentiel espèces unifié (sprint 23)', () => {
-  it('compte 20 espèces', () => {
-    expect(Object.keys(SPECIES)).toHaveLength(20)
+  it('compte 26 espèces (20 + 6 au sprint 29)', () => {
+    expect(Object.keys(SPECIES)).toHaveLength(26)
   })
 
   it('catchSpeciesEnum dérive EXACTEMENT des espèces inCarnet (D-B2)', () => {
@@ -38,7 +38,7 @@ describe('référentiel espèces unifié (sprint 23)', () => {
     for (const k of ALL_SPECIES_DB_KEYS) expect(SPECIES_HABITAT[k]).toBeDefined()
   })
 
-  it('dbKey ↔ slug bijectif sur 20 entrées', () => {
-    expect(Object.keys(SPECIES_BY_DB_KEY)).toHaveLength(20)
+  it('dbKey ↔ slug bijectif sur 26 entrées', () => {
+    expect(Object.keys(SPECIES_BY_DB_KEY)).toHaveLength(26)
   })
 })

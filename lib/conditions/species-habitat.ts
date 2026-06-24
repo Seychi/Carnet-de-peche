@@ -68,6 +68,13 @@ export const SPECIES_HABITAT: Record<string, SpeciesHabitat> = {
   oblade:        { pelagic: false, goodSubstrates: ['rock', 'coarse', 'seagrass'], depthRange: [1, 20], note: 'longe la roche et les herbiers, souvent entre deux eaux' },
   tacaud:        { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed', 'sand'], depthRange: [3, 40], note: 'se serre près des structures, épaves et roche, en banc' },
   plie:          { pelagic: false, goodSubstrates: ['sand', 'mud', 'mixed'],    depthRange: [2, 40], note: 'poisson plat des fonds de sable et de vase' },
+  // Sprint 29 — +6 espèces du bord (habitat indicatif, halieutique courante).
+  barracuda:     { pelagic: true,  goodSubstrates: [],                          note: 'chasse en surface le long des digues et des ports' },
+  tassergal:     { pelagic: true,  goodSubstrates: [],                          note: 'chasse en pleine eau et en surface, en banc' },
+  liche:         { pelagic: true,  goodSubstrates: [],                          note: 'chasse en surface près des digues, des plages et des embouchures' },
+  marbre:        { pelagic: false, goodSubstrates: ['sand', 'mixed'],           depthRange: [0, 15], note: 'fouille le sable propre des plages' },
+  lieu_noir:     { pelagic: false, goodSubstrates: ['rock', 'coarse', 'mixed'], depthRange: [5, 40], note: 'patrouille en pleine eau le long des digues profondes et de la roche' },
+  merlan:        { pelagic: false, goodSubstrates: ['sand', 'mud', 'mixed'],    depthRange: [3, 40], note: 'fréquente les plages de sable et les fonds sablo-vaseux, près des structures' },
 }
 
 export type SuitabilityVerdict = 'favorable' | 'moyen' | 'peu' | 'pelagique' | 'inconnu'
@@ -185,6 +192,8 @@ function speciesShort(species: string): string {
     mulet: 'mulet', sole: 'sole', congre: 'congre', maigre: 'maigre', chinchard: 'chinchard',
     seiche: 'seiche', calmar: 'calmar', rouget: 'rouget', dorade_grise: 'dorade grise',
     pageot: 'pageot', oblade: 'oblade', tacaud: 'tacaud', plie: 'plie',
+    barracuda: 'barracuda', tassergal: 'tassergal', liche: 'liche', marbre: 'marbré',
+    lieu_noir: 'lieu noir', merlan: 'merlan',
   }
   return map[species] ?? species
 }
