@@ -27,7 +27,7 @@ describe('cohérence réglementation : data.ts === fiches espèces', () => {
     expect(reg.marquage).toBe(fiche.marquage)
   })
 
-  it('couvre exactement les 20 espèces du référentiel', () => {
+  it('couvre exactement les espèces du référentiel (26 au sprint 29)', () => {
     expect(Object.keys(SPECIES_REGULATION).sort()).toEqual([...SPECIES_SLUGS].sort())
   })
 })

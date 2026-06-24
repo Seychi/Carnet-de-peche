@@ -38,6 +38,14 @@ export type SpeciesSlug =
   | 'tacaud'
   | 'chinchard'
   | 'plie'
+  // Sprint 29 — +6 espèces du bord. Med : barracuda / liche / marbré ; tassergal Med (+ Atl) ;
+  // Manche-Atlantique : lieu noir / merlan.
+  | 'barracuda'
+  | 'tassergal'
+  | 'liche'
+  | 'marbre'
+  | 'lieu-noir'
+  | 'merlan'
 
 export type SpeciesMeta = {
   label: string
@@ -82,6 +90,13 @@ export const SPECIES: Record<SpeciesSlug, SpeciesMeta> = {
   tacaud: { label: 'Tacaud', labelLower: 'tacaud', dbKey: 'tacaud', latin: 'Trisopterus luscus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   chinchard: { label: 'Chinchard', labelLower: 'chinchard', dbKey: 'chinchard', latin: 'Trachurus trachurus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   plie: { label: 'Plie', labelLower: 'plie', dbKey: 'plie', latin: 'Pleuronectes platessa', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  // ── Sprint 29 : +6 espèces du bord (fiches profondes ; pas de pages programmatiques) ──
+  barracuda: { label: 'Barracuda', labelLower: 'barracuda', dbKey: 'barracuda', latin: 'Sphyraena viridensis', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  tassergal: { label: 'Tassergal', labelLower: 'tassergal', dbKey: 'tassergal', latin: 'Pomatomus saltatrix', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  liche: { label: 'Liche', labelLower: 'liche', dbKey: 'liche', latin: 'Lichia amia', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  marbre: { label: 'Marbré', labelLower: 'marbré', dbKey: 'marbre', latin: 'Lithognathus mormyrus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  'lieu-noir': { label: 'Lieu noir', labelLower: 'lieu noir', dbKey: 'lieu_noir', latin: 'Pollachius virens', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  merlan: { label: 'Merlan', labelLower: 'merlan', dbKey: 'merlan', latin: 'Merlangius merlangus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
 }
 
 // ── Dérivés du référentiel (ne pas dupliquer ces listes ailleurs) ──────────────
