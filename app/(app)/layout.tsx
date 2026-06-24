@@ -34,6 +34,15 @@ export default async function AppLayout({
     redirect("/auth/login");
   }
 
+  // Statut modérateur — pour gater l'entrée « Modération » dans l'overflow « Plus »
+  // de la tab bar mobile (l'avatar/UserMenu le fait déjà côté desktop).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_moderator")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isModerator = profile?.is_moderator ?? false;
+
   // Bandeau "essai bientôt fini" si trial à J-3 ou moins.
   const { data: sub } = await supabase
     .from("subscriptions")
@@ -55,7 +64,12 @@ export default async function AppLayout({
   }
 
   return (
-    <AppShell header={<AppHeader />} instruments={<AppInstruments />} banner={banner}>
+    <AppShell
+      header={<AppHeader />}
+      instruments={<AppInstruments />}
+      banner={banner}
+      isModerator={isModerator}
+    >
       {children}
     </AppShell>
   );

@@ -2,15 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { NotebookText, Map, MessageCircle, User, Plus } from 'lucide-react'
+import { NotebookText, Map, MessageCircle, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MoreMenu } from './MoreMenu'
 
 const TABS = [
   { label: 'Carnet', href: '/carnet', match: '/carnet', Icon: NotebookText },
   { label: 'Carte', href: '/carte', match: '/carte', Icon: Map },
   // FAB central inséré entre les deux paires
   { label: 'Fil', href: '/fil', match: '/fil', Icon: MessageCircle },
-  { label: 'Profil', href: '/profil', match: '/profil', Icon: User },
+  // 4ᵉ slot = onglet « Plus » (overflow) rendu via <MoreMenu/>, pas un lien.
 ] as const
 
 function Tab({
@@ -41,9 +42,11 @@ function Tab({
 
 /**
  * Tab bar mobile DA v2 (< 960 px) : Carnet · Carte · FAB « + » central
- * (l'action n°1 du produit) · Fil · Profil. Identique en PWA et en natif.
+ * (l'action n°1 du produit) · Fil · Plus. Le Profil quitte la tab bar
+ * (atteignable via l'avatar du header + l'onglet « Plus »). Identique en PWA
+ * et en natif. « Plus » ouvre un overflow listant toutes les autres destinations.
  */
-export function TabBar() {
+export function TabBar({ isModerator = false }: { isModerator?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -67,6 +70,8 @@ export function TabBar() {
       {TABS.slice(2).map((t) => (
         <Tab key={t.href} {...t} active={pathname.startsWith(t.match)} />
       ))}
+
+      <MoreMenu isModerator={isModerator} />
     </nav>
   )
 }

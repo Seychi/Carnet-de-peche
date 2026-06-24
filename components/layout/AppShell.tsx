@@ -17,11 +17,13 @@ export function AppShell({
   instruments,
   banner,
   children,
+  isModerator = false,
 }: {
   header: React.ReactNode
   instruments: React.ReactNode
   banner: React.ReactNode
   children: React.ReactNode
+  isModerator?: boolean
 }) {
   const pathname = usePathname()
   const bare = BARE_PREFIXES.some((p) => pathname.startsWith(p))
@@ -49,7 +51,7 @@ export function AppShell({
         {/* pb mobile = hauteur tab bar + safe-area, pour ne rien masquer */}
         <main className="min-w-0 pb-[88px] desk:pb-0">{children}</main>
       </div>
-      <TabBar />
+      <TabBar isModerator={isModerator} />
     </div>
   )
 }
