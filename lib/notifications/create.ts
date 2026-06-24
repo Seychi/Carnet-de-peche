@@ -26,6 +26,10 @@ export type NotificationType =
   // Co-pêchage (sprint 25) : demande de participation (→ hôte), acceptation (→ participant).
   | 'outing_join'
   | 'outing_accepted'
+  // Notif perso proactive (sprint 26) : le créneau favorable du jour coïncide avec TES
+  // conditions. Émise par le cron en service_role (PAS via createNotification : pas
+  // d'acteur humain → le no-op actorId casserait l'envoi). Réservée Local/Itinérant.
+  | 'optimal_window'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

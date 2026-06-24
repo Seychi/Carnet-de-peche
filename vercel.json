@@ -3,6 +3,8 @@
   "regions": ["dub1"],
   "crons": [
     { "path": "/api/crons/compute-spot-scores", "schedule": "0 5 * * *" },
+    { "path": "/api/crons/personal-window", "schedule": "0 7 * * *" },
+    { "path": "/api/crons/dunning-relances", "schedule": "0 9 * * *" },
     { "path": "/api/crons/recfishing-reminders", "schedule": "0 17 * * *" }
   ]
 }

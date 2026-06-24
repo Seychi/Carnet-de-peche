@@ -39,6 +39,8 @@
     "next-mdx-remote": "^6.0.0",
     "ngeohash": "^0.6.3",
     "postcss": "^8.5.14",
+    "posthog-js": "^1.393.0",
+    "posthog-node": "^5.38.4",
     "react": "19",
     "react-dom": "19",
     "react-hook-form": "^7.75.0",

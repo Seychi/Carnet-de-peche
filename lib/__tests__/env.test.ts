@@ -43,6 +43,8 @@ const PROD_SERVER_OK = {
   CRON_SECRET: 'cron-secret-1234',
   RESEND_API_KEY: 're_xxxxxxxx',
   NEXT_PUBLIC_SENTRY_DSN: 'https://abc@o1.ingest.sentry.io/1',
+  // Analytics PostHog (sprint 26) — clé requise en prod (host a un défaut).
+  NEXT_PUBLIC_POSTHOG_KEY: 'phc_xxxxxxxx',
 }
 
 // Toutes les clés pilotées par ces tests (sauvegardées puis restaurées).

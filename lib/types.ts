@@ -598,6 +598,7 @@ export type Database = {
           city: string | null
           created_at: string
           display_name: string | null
+          email_unsub_token: string
           favorite_species: string[] | null
           fishing_frequency: string | null
           home_department: string | null
@@ -605,6 +606,7 @@ export type Database = {
           is_ambassador: boolean | null
           is_moderator: boolean
           level: string | null
+          marketing_email_optin: boolean
           onboarded: boolean
           onboarded_at: string | null
           techniques: string[] | null
@@ -619,6 +621,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           display_name?: string | null
+          email_unsub_token?: string
           favorite_species?: string[] | null
           fishing_frequency?: string | null
           home_department?: string | null
@@ -626,6 +629,7 @@ export type Database = {
           is_ambassador?: boolean | null
           is_moderator?: boolean
           level?: string | null
+          marketing_email_optin?: boolean
           onboarded?: boolean
           onboarded_at?: string | null
           techniques?: string[] | null
@@ -640,6 +644,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           display_name?: string | null
+          email_unsub_token?: string
           favorite_species?: string[] | null
           fishing_frequency?: string | null
           home_department?: string | null
@@ -647,6 +652,7 @@ export type Database = {
           is_ambassador?: boolean | null
           is_moderator?: boolean
           level?: string | null
+          marketing_email_optin?: boolean
           onboarded?: boolean
           onboarded_at?: string | null
           techniques?: string[] | null
@@ -881,11 +887,13 @@ export type Database = {
           default_payment_method: string | null
           latest_invoice_id: string | null
           plan: string
+          post_trial_winback_at: string | null
           status: string | null
           stripe_customer_id: string | null
           stripe_price_id: string | null
           stripe_subscription_id: string | null
           trial_end: string | null
+          trial_reminder_j1_at: string | null
           unlocked_departments: string[] | null
           updated_at: string
           user_id: string
@@ -898,11 +906,13 @@ export type Database = {
           default_payment_method?: string | null
           latest_invoice_id?: string | null
           plan?: string
+          post_trial_winback_at?: string | null
           status?: string | null
           stripe_customer_id?: string | null
           stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
+          trial_reminder_j1_at?: string | null
           unlocked_departments?: string[] | null
           updated_at?: string
           user_id: string
@@ -915,13 +925,39 @@ export type Database = {
           default_payment_method?: string | null
           latest_invoice_id?: string | null
           plan?: string
+          post_trial_winback_at?: string | null
           status?: string | null
           stripe_customer_id?: string | null
           stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
+          trial_reminder_j1_at?: string | null
           unlocked_departments?: string[] | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_slug: string
+          earned_at: string
+          id: string
+          meta: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_slug: string
+          earned_at?: string
+          id?: string
+          meta?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_slug?: string
+          earned_at?: string
+          id?: string
+          meta?: Json | null
           user_id?: string
         }
         Relationships: []
@@ -1530,6 +1566,7 @@ export type Database = {
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_my_outing_stats: { Args: never; Returns: Json }
+      get_my_streak: { Args: never; Returns: Json }
       get_pending_recfishing_catches: {
         Args: { p_since: string; p_species: string[] }
         Returns: {
@@ -1729,6 +1766,16 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      recompute_my_badges: {
+        Args: never
+        Returns: {
+          badge_slug: string
+          earned_at: string
+          id: string
+          meta: Json | null
+          user_id: string
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       spot_visible_geom: {

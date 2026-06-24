@@ -5,6 +5,8 @@ import { Sparkles, Plus, ArrowRight } from 'lucide-react'
 // client quand il est monté dans ScorePanel ('use client').
 import type { PersonalTendencies as Tendencies } from '@/lib/scoring/personal/types'
 import { CONFIDENCE_LABELS, FACTOR_LABELS } from '@/lib/scoring/personal/config'
+import type { UserTier } from '@/lib/auth/tier'
+import { PersonalTendenciesUpsell } from './PersonalTendenciesUpsell'
 
 // Composant UNIQUE « score global + TES tendances » (sprint 22, Chantier A).
 // Remplace PersonalScoreSection (profil) + PersonalInsights (carte). 3 états :
@@ -22,6 +24,12 @@ type Props = {
   /** Rendu compact pour le panneau carte (sinon carte pleine). */
   compact?: boolean
   className?: string
+  /**
+   * Tier de l'utilisateur (optionnel). Si fourni ET non abonné (ni local ni
+   * itinérant), on affiche un soft-upsell de la NOTIF perso proactive APRÈS la liste
+   * (état plein seulement). La TENDANCE reste gratuite : on ne vend que la proactivité.
+   */
+  tier?: UserTier
 }
 
 function pct(share: number): string {
@@ -35,7 +43,7 @@ function contextSuffix(speciesLabel?: string | null, scopeLabel?: string | null)
   return parts.length ? ` ${parts.join(' ')}` : ''
 }
 
-export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, className }: Props) {
+export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, className, tier }: Props) {
   const suffix = contextSuffix(speciesLabel, scopeLabel)
   const wrap = compact
     ? `text-left ${className ?? ''}`
@@ -120,6 +128,10 @@ export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, cl
         Ces tendances décrivent <strong className="font-medium text-ink-500">où et quand</strong>{' '}
         tombent tes prises — pas si tu pêches mieux. Calculé sur tes vraies prises.
       </p>
+      {/* Soft-upsell : on vend l'ALERTE proactive (Local+), jamais la tendance (gratuite). */}
+      {tier !== undefined && tier !== 'local' && tier !== 'itinerant' && (
+        <PersonalTendenciesUpsell />
+      )}
     </div>
   )
 }

@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { X } from 'lucide-react'
+import { analytics } from '@/lib/analytics'
 
 const COOKIE_NAME = 'upsell-dismissed-at'
 const DISMISS_DURATION_DAYS = 7
+const SURFACE = 'map_banner'
 
 export default function UpsellBanner() {
   const [visible, setVisible] = useState(true)
@@ -13,6 +15,7 @@ export default function UpsellBanner() {
 
   useEffect(() => {
     const timer = setTimeout(() => setEntered(true), 60)
+    analytics.paywallViewed({ surface: SURFACE })
     return () => clearTimeout(timer)
   }, [])
 
@@ -42,6 +45,7 @@ export default function UpsellBanner() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/tarifs"
+              onClick={() => analytics.upsellClicked({ surface: SURFACE })}
               className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
             >
               Voir les tarifs

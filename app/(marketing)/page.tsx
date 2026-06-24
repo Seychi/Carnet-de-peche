@@ -571,7 +571,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <p className="mt-7 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
-              Essai 7 jours · satisfait ou remboursé · annulation en ligne depuis ton compte
+              Essai 7 jours · satisfait ou remboursé sous 30 j · annulation en ligne depuis ton compte
             </p>
           </ScrollReveal>
         </div>

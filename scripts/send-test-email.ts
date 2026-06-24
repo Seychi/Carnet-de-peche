@@ -5,8 +5,9 @@
  *   pnpm tsx scripts/send-test-email.ts <template> <destinataire>
  *   pnpm tsx scripts/send-test-email.ts welcome redkps4@gmail.com
  *
- * Templates : welcome · welcome-trial · trial-day-5 · payment-success ·
- * payment-failed · subscription-canceled (rendus avec leurs PreviewProps).
+ * Templates : welcome · welcome-trial · trial-day-5 · trial-ending-j1 ·
+ * post-trial-winback · payment-success · payment-failed ·
+ * subscription-canceled (rendus avec leurs PreviewProps).
  * La clé est lue depuis .env.local (RESEND_API_KEY) ou l'env.
  * N'importe PAS lib/email/send.ts (marqué server-only) — même client Resend,
  * même expéditeur.
@@ -24,6 +25,11 @@ const TEMPLATES: Record<string, { file: string; subject: string }> = {
     subject: "Bienvenue dans Carnet de Pêche · Ton essai 7 jours démarre",
   },
   "trial-day-5": { file: "../emails/trial-day-5", subject: "Plus que 2 jours d'essai — toujours partant ?" },
+  "trial-ending-j1": { file: "../emails/trial-ending-j1", subject: "Ton essai se termine demain" },
+  "post-trial-winback": {
+    file: "../emails/post-trial-winback",
+    subject: "Ton essai est terminé — ton carnet t'attend",
+  },
   "payment-success": { file: "../emails/payment-success", subject: "Paiement reçu — bonne pêche 🎣" },
   "payment-failed": { file: "../emails/payment-failed", subject: "On n'a pas pu encaisser ton paiement" },
   "subscription-canceled": {

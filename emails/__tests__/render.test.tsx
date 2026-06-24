@@ -4,6 +4,8 @@ import { render } from "@react-email/components";
 import WelcomeEmail from "../welcome";
 import WelcomeTrialEmail from "../welcome-trial";
 import TrialDay5Email from "../trial-day-5";
+import TrialEndingJ1Email from "../trial-ending-j1";
+import PostTrialWinbackEmail from "../post-trial-winback";
 import PaymentFailedEmail from "../payment-failed";
 import PaymentSuccessEmail from "../payment-success";
 import SubscriptionCanceledEmail from "../subscription-canceled";
@@ -32,6 +34,26 @@ describe("templates emails (rendu HTML)", () => {
     expect(html).toContain("2 jour");
     expect(html).toContain("4,90");
     expect(html).toContain("/compte/abonnement");
+  });
+
+  it("trial-ending-j1 (transactionnel) annonce la fin d'essai sans lien de désinscription", async () => {
+    const html = await render(
+      <TrialEndingJ1Email firstName="Julien" amount="4,90 €" dateLabel="28 mai" />
+    );
+    expect(html).toContain("demain");
+    expect(html).toContain("4,90");
+    expect(html).toContain("/compte/abonnement");
+    // Transactionnel : pas de lien de désinscription marketing.
+    expect(html).not.toContain("/unsubscribe");
+  });
+
+  it("post-trial-winback (marketing) inclut un lien de désinscription tokenisé", async () => {
+    const html = await render(
+      <PostTrialWinbackEmail firstName="Julien" unsubToken="abc-123" />
+    );
+    expect(html).toContain("/tarifs");
+    expect(html).toContain("/unsubscribe?token=abc-123");
+    expect(html).toContain("désinscrire");
   });
 
   it("payment-success mentionne le montant et la date", async () => {

@@ -33,6 +33,46 @@ const toFrAmount = (cents: number, currency: string | null | undefined): string 
   }).format(cents / 100);
 
 /**
+ * Émet un event analytics serveur (PostHog) rattaché au user_id Supabase.
+ * Import dynamique (même pattern que les emails), JAMAIS bloquant, flush après :
+ * un échec d'analytics ne doit pas faire rejouer le webhook. AUCUNE PII en props.
+ */
+async function trackServer(
+  distinctId: string | null | undefined,
+  event: string,
+  properties: Record<string, unknown>
+): Promise<void> {
+  if (!distinctId) return;
+  try {
+    const { captureServer, flush } = await import("@/lib/analytics-server");
+    captureServer(distinctId, event, properties);
+    await flush();
+  } catch (err) {
+    console.error("[stripe-webhook] analytics non émis", { event, err });
+  }
+}
+
+/**
+ * Résout le user_id Supabase à partir d'un stripe_subscription_id (les events
+ * `invoice.*` ne portent pas toujours le metadata.user_id). Retourne null si
+ * introuvable — l'event analytics est alors simplement omis.
+ */
+async function resolveUserIdBySubscription(subId: string | null): Promise<string | null> {
+  if (!subId) return null;
+  try {
+    const supabase = createServiceRoleClient();
+    const { data } = await supabase
+      .from("subscriptions")
+      .select("user_id, plan")
+      .eq("stripe_subscription_id", subId)
+      .maybeSingle();
+    return data?.user_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Crée ou met à jour la subscription locale depuis un event Stripe
  * (customer.subscription.created / .updated). Idempotent via onConflict user_id.
  *
@@ -107,6 +147,10 @@ export async function handleSubscriptionUpsert(
   // Après l'update DB, et jamais bloquant : un échec d'email ne doit pas faire
   // rejouer le webhook (sendEmail ne throw pas, le reste est try/catch).
   if (opts.isCreation && sub.status === "trialing") {
+    // Analytics serveur — début d'essai (tunnel de conversion, sprint 26).
+    const interval = priceId ? priceIdToInterval(priceId) : null;
+    await trackServer(userId, "trial_started", { plan, interval, tier: plan });
+
     try {
       const { getEmailRecipient } = await import("@/lib/email/recipient");
       const recipient = await getEmailRecipient(userId);
@@ -172,6 +216,12 @@ export async function handleSubscriptionUpsert(
  */
 export async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   const supabase = createServiceRoleClient();
+
+  // Résout le user_id AVANT l'update (qui efface le stripe_subscription_id), et
+  // tente d'abord le metadata de l'event (présent en général sur .deleted).
+  const userId =
+    sub.metadata?.user_id ?? (await resolveUserIdBySubscription(sub.id));
+
   const { error } = await supabase
     .from("subscriptions")
     .update({
@@ -191,6 +241,14 @@ export async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   }
 
   console.log("[stripe-webhook] subscription supprimée → discovery", { subId: sub.id });
+
+  // Analytics serveur — churn EFFECTIF (l'abonnement est résilié et l'accès
+  // retombe en discovery). Distinct du flip cancel_at_period_end (intention),
+  // donc pas de double comptage. Le plan résilié vient du price de l'event.
+  const churnedPlan = sub.items.data[0]?.price.id
+    ? priceIdToPlan(sub.items.data[0].price.id)
+    : null;
+  await trackServer(userId, "subscription_churned", { plan: churnedPlan });
 }
 
 /**
@@ -269,7 +327,19 @@ export async function handleTrialWillEnd(sub: Stripe.Subscription) {
 export async function handleInvoicePaymentSucceeded(inv: Stripe.Invoice) {
   console.log("[stripe-webhook] paiement réussi", { invId: inv.id, amountPaid: inv.amount_paid });
 
-  if (!inv.customer_email || typeof inv.amount_paid !== "number" || inv.amount_paid <= 0) return;
+  if (typeof inv.amount_paid !== "number" || inv.amount_paid <= 0) return;
+
+  // Analytics serveur — conversion (premier vrai paiement encaissé, > 0 €).
+  // La facture à 0 € du début d'essai est exclue par le garde amount_paid > 0.
+  const subRef = inv.parent?.subscription_details?.subscription;
+  const subId = typeof subRef === "string" ? subRef : subRef?.id ?? null;
+  const convertedUserId = await resolveUserIdBySubscription(subId);
+  await trackServer(convertedUserId, "trial_converted", {
+    amount: inv.amount_paid,
+    currency: inv.currency ?? null,
+  });
+
+  if (!inv.customer_email) return;
 
   try {
     const { sendEmail } = await import("@/lib/email/send");
@@ -314,6 +384,10 @@ export async function handleInvoicePaymentFailed(inv: Stripe.Invoice) {
     console.error("[stripe-webhook] tag past_due échoué", { subId, error });
     throw error;
   }
+
+  // Analytics serveur — échec de paiement (signal de churn involontaire).
+  const failedUserId = await resolveUserIdBySubscription(subId);
+  await trackServer(failedUserId, "payment_failed", {});
 
   // Email après l'update DB. try/catch obligatoire (même pattern que tous les
   // envois de ce fichier) : un échec d'email — y compris au chargement des

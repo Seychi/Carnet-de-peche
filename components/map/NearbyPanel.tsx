@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { X, AlertCircle, RotateCcw, Fish, Star } from 'lucide-react'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS } from '@/lib/labels'
+import { analytics } from '@/lib/analytics'
+
+const UPSELL_SURFACE = 'nearby_panel'
 
 // Limite de spots affichés par tier (gating côté client)
 const TIER_LIMITS: Record<UserTier, number> = {
@@ -89,6 +92,11 @@ export default function NearbyPanel({
 
   const limit = TIER_LIMITS[userTier]
   const showUpsell = userTier === 'discovery'
+
+  // Paywall vu : l'encart upsell du panneau « spots autour de moi » est affiché.
+  useEffect(() => {
+    if (showUpsell && !isLoading) analytics.paywallViewed({ surface: UPSELL_SURFACE })
+  }, [showUpsell, isLoading])
 
   const sorted = useMemo(() => {
     const copy = [...results]
@@ -225,6 +233,7 @@ export default function NearbyPanel({
             </p>
             <Link
               href="/tarifs"
+              onClick={() => analytics.upsellClicked({ surface: UPSELL_SURFACE })}
               className="shrink-0 px-2.5 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
             >
               Voir les tarifs

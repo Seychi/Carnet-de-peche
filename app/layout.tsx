@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { PostHogProvider } from "@/components/analytics/PostHogProvider";
+import { CookieBanner } from "@/components/consent/CookieBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -69,9 +71,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning>
-        {children}
-        <Toaster position="top-center" richColors />
-        <PwaProvider />
+        <PostHogProvider>
+          {children}
+          <Toaster position="top-center" richColors />
+          <PwaProvider />
+          <CookieBanner />
+        </PostHogProvider>
       </body>
     </html>
   );

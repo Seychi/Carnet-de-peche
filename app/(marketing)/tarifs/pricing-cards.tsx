@@ -9,6 +9,7 @@ import { Chip } from '@/components/ui-v2/chip'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { UserTier } from '@/lib/auth/tier'
+import { analytics } from '@/lib/analytics'
 
 type PaidPlan = 'local' | 'itinerant'
 type Interval = 'monthly' | 'annual'
@@ -38,6 +39,7 @@ const plans = {
     badge: 'Le plus populaire',
     features: [
       { text: 'Carte complète de ton département', strong: true },
+      { text: 'Alerte quand tes conditions favorites reviennent', strong: true },
       { text: 'Coordonnées GPS précises de tous les spots' },
       { text: "Score d'activité 0-100 par spot" },
       { text: 'Filtres espèces, techniques, marées' },
@@ -75,7 +77,7 @@ function TrialBadge({ onDark = false }: { onDark?: boolean }) {
         onDark ? 'text-white/60' : 'text-ink-500'
       }`}
     >
-      Essai 7 j avec CB · Satisfait ou remboursé
+      Essai 7 j avec CB · Satisfait ou remboursé sous 30 j
     </p>
   )
 }
@@ -139,7 +141,11 @@ function PlanCta({
       <form action="/api/stripe/checkout" method="POST">
         <input type="hidden" name="plan" value={plan} />
         <input type="hidden" name="interval" value={interval} />
-        <button type="submit" className={`${buttonClass} w-full`}>
+        <button
+          type="submit"
+          onClick={() => analytics.checkoutStarted({ plan, interval })}
+          className={`${buttonClass} w-full`}
+        >
           Essayer 7 jours
         </button>
       </form>

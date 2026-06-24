@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves, Grid3x3 } from 'lucide-react'
 import type { UserTier } from '@/lib/auth/tier'
 import { HEAT_LEGEND_STOPS } from '@/lib/map/heatmap'
 import { QUALITY_LEGEND } from '@/lib/map/quality'
 import { SPECIES_LABELS } from '@/lib/labels'
+import { analytics } from '@/lib/analytics'
 
 // Espèces proposées par le sélecteur dédié de la couche Qualité (les 6 cœur).
 const QUALITY_SPECIES = ['bar', 'dorade_royale', 'lieu_jaune', 'maquereau', 'sar', 'orphie'] as const
@@ -81,6 +82,17 @@ export default function MapLayerSelector({
   const [open, setOpen] = useState(false)
   const isPaid = userTier === 'local' || userTier === 'itinerant'
   const isItinerant = userTier === 'itinerant'
+
+  // Paywall vu : à l'ouverture du panneau, on logue chaque couche verrouillée
+  // visible (score si non payant, fond marin + qualité si non itinérant).
+  useEffect(() => {
+    if (!open) return
+    if (!isPaid) analytics.paywallViewed({ surface: 'layer_score' })
+    if (!isItinerant) {
+      analytics.paywallViewed({ surface: 'layer_bathy' })
+      analytics.paywallViewed({ surface: 'layer_quality' })
+    }
+  }, [open, isPaid, isItinerant])
 
   return (
     <div className="absolute top-3 left-3 z-20">
@@ -196,6 +208,7 @@ export default function MapLayerSelector({
                 ) : (
                   <Link
                     href="/tarifs"
+                    onClick={() => analytics.upsellClicked({ surface: 'layer_score' })}
                     className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-[11px] font-semibold hover:bg-gold-500/25 transition-colors"
                   >
                     Débloquer
@@ -222,6 +235,7 @@ export default function MapLayerSelector({
                 ) : (
                   <Link
                     href="/tarifs"
+                    onClick={() => analytics.upsellClicked({ surface: 'layer_bathy' })}
                     className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-[11px] font-semibold hover:bg-gold-500/25 transition-colors"
                   >
                     Débloquer
@@ -307,7 +321,11 @@ export default function MapLayerSelector({
                     <p className="text-[11px] leading-snug text-ink-400">
                       Aperçu communautaire. Le détail complet (fond adapté à l&apos;espèce + ton historique)
                       au clic est{' '}
-                      <Link href="/tarifs" className="text-gold-600 font-semibold hover:underline">
+                      <Link
+                        href="/tarifs"
+                        onClick={() => analytics.upsellClicked({ surface: 'layer_quality' })}
+                        className="text-gold-600 font-semibold hover:underline"
+                      >
                         Itinérant
                       </Link>.
                     </p>

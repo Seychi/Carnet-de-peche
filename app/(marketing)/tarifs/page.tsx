@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Tarifs — Carnet de Pêche',
-  description: '3 formules claires pour tous les pêcheurs à la canne du bord. Découverte gratuit, Local à 4,90 €/mois, Itinérant à 9,90 €/mois. Essai 7 jours, satisfait ou remboursé.',
+  description: '3 formules claires pour tous les pêcheurs à la canne du bord. Découverte gratuit, Local à 4,90 €/mois, Itinérant à 9,90 €/mois. Essai 7 jours, satisfait ou remboursé sous 30 jours.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/tarifs' },
 }
 
@@ -53,8 +53,8 @@ const TARIFS_JSONLD = {
 const trustItems = [
   {
     icon: <Shield size={26} strokeWidth={1.7} className="text-teal-600" />,
-    title: '7 jours satisfait ou remboursé',
-    subtitle: 'Sans poser de questions.',
+    title: 'Satisfait ou remboursé',
+    subtitle: '30 jours pour changer d’avis.',
   },
   {
     icon: <Lock size={26} strokeWidth={1.7} className="text-teal-600" />,
@@ -80,11 +80,11 @@ const faqItems = [
   },
   {
     q: "Comment fonctionne l'essai 7 jours ?",
-    a: "Tu rentres ta CB, tu utilises tout pendant 7 jours. Si tu n'es pas satisfait, on rembourse intégralement, sans questions. Le plan Découverte reste gratuit et sans CB.",
+    a: "Tu rentres ta CB, tu utilises tout pendant 7 jours. Tu n'es pas convaincu ? On te rembourse intégralement ton premier paiement, dans les 30 jours suivant la facturation. Le plan Découverte, lui, reste gratuit et sans CB.",
   },
   {
     q: 'Je peux annuler quand ?',
-    a: "Quand tu veux, en ligne, depuis ton compte — sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et si t'es pas convaincu : remboursé, sans discuter.",
+    a: "Quand tu veux, en ligne, depuis ton compte — sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et dans les 30 jours qui suivent ta première facture, tu peux demander un remboursement intégral.",
   },
   {
     q: "L'app fonctionne-t-elle sans connexion ?",

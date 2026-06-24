@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -31,6 +31,8 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: MapPinCheck, label: 'Ton spot a été validé 🎣' }
     case 'spot_rejected':
       return { icon: MapPinX, label: 'Ta proposition de spot n’a pas été retenue' }
+    case 'optimal_window':
+      return { icon: Sparkles, label: 'Créneau favorable près de chez toi' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -76,6 +78,10 @@ export default async function NotificationsPage() {
     }
     if (n.type === 'spot_approved' || n.type === 'spot_rejected') {
       return '/spots/mes-propositions'
+    }
+    // Créneau favorable du jour → la carte (couche « Ton score » + spots près de chez toi).
+    if (n.type === 'optimal_window') {
+      return '/carte'
     }
     if (n.target_type === 'post' && n.target_id) {
       const region = regionByPostId.get(n.target_id)

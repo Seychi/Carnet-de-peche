@@ -10,6 +10,7 @@ import {
   type PaidPlan,
   type PlanInterval,
 } from "@/lib/stripe/pricing";
+import { EmailPrefsToggle } from "./email-prefs-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,13 @@ export default async function AbonnementPage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("marketing_email_optin")
+    .eq("id", user.id)
+    .maybeSingle();
+  const marketingOptin = profile?.marketing_email_optin ?? true;
+
   const plan = (sub?.plan === "local" || sub?.plan === "itinerant" ? sub.plan : null) as PaidPlan | null;
   const interval: PlanInterval | null = sub?.stripe_price_id
     ? priceIdToInterval(sub.stripe_price_id)
@@ -149,6 +157,26 @@ export default async function AbonnementPage() {
             </div>
           </div>
 
+          {/* Bandeau « passe à l'annuel » — uniquement si actif et mensuel.
+              Pas de dark pattern : on renvoie vers le Customer Portal (changement
+              de plan en 1 clic). */}
+          {isActive && interval === "monthly" && sub?.stripe_customer_id && (
+            <div className="mt-5 rounded-[14px] border border-teal-200 bg-teal-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+              <p className="text-sm text-navy-900">
+                <span className="font-semibold">Passe à l&rsquo;annuel</span> et économise{" "}
+                <span className="font-mono font-semibold text-teal-700">−17%</span> sur l&rsquo;année.
+              </p>
+              <form action="/api/stripe/portal" method="POST">
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
+                >
+                  Changer de plan
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Statut */}
           <div className="mt-5 border-t border-ink-100 pt-5">
             {isTrial && (
@@ -182,14 +210,42 @@ export default async function AbonnementPage() {
             {isCanceled && (
               <p className="text-sm text-ink-700">
                 <span className="font-semibold text-ink-500">Annulé</span> · ton abonnement a pris
-                fin.
+                fin. Ton carnet, lui, reste à toi.
               </p>
             )}
           </div>
 
+          {/* Win-back — abonnement annulé : on rappelle ce qui est perdu et on
+              propose de revenir (re-checkout depuis /tarifs). */}
+          {isCanceled && (
+            <div className="mt-5 rounded-[14px] border border-sand-200 bg-sand-50 p-5">
+              <p className="text-sm font-semibold text-navy-900">Voilà ce que tu rates</p>
+              <ul className="mt-3 flex flex-col gap-2 text-sm text-ink-700">
+                <li>Carte complète : tous les spots, coordonnées précises au mètre.</li>
+                <li>Score d&rsquo;activité 0-100 par spot et filtres espèces / techniques.</li>
+                <li>Notifications et stats avancées de ton carnet.</li>
+              </ul>
+              <Link
+                href="/tarifs"
+                className="mt-5 inline-block px-6 py-3 rounded-[12px] bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm transition-colors duration-200"
+              >
+                Reprendre un abonnement
+              </Link>
+            </div>
+          )}
+
           {/* CTAs */}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            {sub?.stripe_customer_id ? (
+            {isCanceled ? (
+              // Annulé : le Portal n'a plus d'objet (plus d'abonnement actif). On
+              // ne montre que la reprise (gérée par le bloc win-back ci-dessus).
+              <Link
+                href="/tarifs"
+                className="inline-block px-6 py-3 rounded-[12px] bg-white border border-ink-200 text-navy-900 hover:bg-sand-50 font-semibold text-sm transition-colors duration-200"
+              >
+                Voir les formules
+              </Link>
+            ) : sub?.stripe_customer_id ? (
               <>
                 <PortalForm label="Gérer mon abonnement" variant="primary" />
                 {(isTrial || isActive || isCancelScheduled) && (
@@ -234,6 +290,11 @@ export default async function AbonnementPage() {
           )}
         </div>
       )}
+
+      {/* Préférences email — opt-out marketing en 1 clic. Toujours visible. */}
+      <div className="mt-6 bg-white border border-sand-200 rounded-[18px] p-6">
+        <EmailPrefsToggle initial={marketingOptin} />
+      </div>
     </main>
   );
 }

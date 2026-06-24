@@ -29,6 +29,12 @@ const envSchema = z
     // Monitoring (sprint 11 Bloc D) — requis en prod (DSN public, pas un secret)
     NEXT_PUBLIC_SENTRY_DSN: isProd ? z.string().url() : z.string().optional(),
 
+    // Analytics PostHog (sprint 26 / D-F1) — mesure d'audience EU sous consentement.
+    // Clé publique (projet), pas un secret. Requise en prod ; optionnelle ailleurs
+    // (sans elle, l'instrumentation est entièrement no-op : ni capture client ni serveur).
+    NEXT_PUBLIC_POSTHOG_KEY: isProd ? z.string().min(1) : z.string().optional(),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default("https://eu.i.posthog.com"),
+
     // Stripe — LIVE (prod)
     STRIPE_SECRET_KEY: stripeStr,
     STRIPE_WEBHOOK_SECRET: stripeStr,
@@ -87,6 +93,8 @@ const _env = envSchema.safeParse({
   CRON_SECRET: process.env.CRON_SECRET,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,

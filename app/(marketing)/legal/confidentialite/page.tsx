@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
   return (
     <LegalLayout
       title="Politique de confidentialité"
-      lastUpdated="12 juin 2026"
+      lastUpdated="24 juin 2026"
       toc={toc}
     >
       <h2 id="preambule">1. Préambule</h2>
@@ -95,9 +95,13 @@ export default function ConfidentialitePage() {
         <li>Identifiants de session (cookies strictement nécessaires)</li>
       </ul>
       <p>
-        Aucun outil d’analytique tiers (Google Analytics, Plausible, PostHog) n’est actuellement
-        actif. Si nous en ajoutons à l’avenir, cette politique sera mise à jour et ton consentement
-        préalable sera demandé pour les outils non-essentiels.
+        Nous utilisons <strong>PostHog</strong> pour la <strong>mesure d’audience anonymisée</strong>
+        du site (pages vues, parcours, événements d’usage agrégés), uniquement{' '}
+        <strong>sous réserve de ton consentement</strong> recueilli via le bandeau affiché à ta
+        première visite. Tant que tu n’as pas accepté, aucune mesure n’est effectuée. L’hébergement
+        des données PostHog est situé dans l’<strong>Union européenne</strong>. Aucune donnée
+        directement identifiante (email, nom) ni position GPS n’est transmise à cet outil. Tu peux
+        retirer ton consentement à tout moment (voir section <a href="#cookies">10. Cookies</a>).
       </p>
       <h3>3.5 Données de paiement</h3>
       <p>
@@ -138,6 +142,7 @@ export default function ConfidentialitePage() {
           <tr><td><strong>Open-Meteo</strong></td><td>Conditions météo, marines, solunaires</td><td>Allemagne (UE), données anonymes</td></tr>
           <tr><td><strong>Stripe Inc.</strong></td><td>Traitement des paiements</td><td>USA + UE (SCC, PCI-DSS N1)</td></tr>
           <tr><td><strong>Resend Inc.</strong> (à venir)</td><td>Emails transactionnels</td><td>USA (SCC, DPA disponible)</td></tr>
+          <tr><td><strong>PostHog</strong></td><td>Mesure d’audience anonymisée (sous consentement)</td><td>Union européenne</td></tr>
         </tbody>
       </table>
       <h3>5.2 Pas de revente, pas de publicité</h3>
@@ -224,14 +229,20 @@ export default function ConfidentialitePage() {
         <tbody>
           <tr><td><code>sb-*</code> (Supabase Auth)</td><td>Strictement nécessaire</td><td>Maintenir ta session connectée</td><td>7 jours</td></tr>
           <tr><td>Préférences (filtres carte…)</td><td>Strictement nécessaire</td><td>Mémoriser tes choix d’interface</td><td>Session</td></tr>
+          <tr><td><code>cdp-analytics-consent</code></td><td>Strictement nécessaire</td><td>Mémoriser ton choix d’accepter ou refuser la mesure d’audience</td><td>6 mois</td></tr>
+          <tr><td><code>ph_*</code> (PostHog)</td><td>Mesure d’audience</td><td>Mesurer l’usage du site de façon anonymisée (base légale : consentement)</td><td>13 mois max</td></tr>
         </tbody>
       </table>
       <p>
-        Ces cookies sont <strong>strictement nécessaires</strong> au fonctionnement du site (article
-        82 de la loi Informatique et Libertés, dispense de consentement préalable). Aucun cookie
-        publicitaire ni de mesure d’audience tierce n’est déposé sans consentement. Tu peux les
-        supprimer via les paramètres de ton navigateur, mais la connexion à ton compte sera alors
-        interrompue.
+        Les cookies <strong>strictement nécessaires</strong> au fonctionnement du site (session,
+        préférences, mémorisation de ton choix de consentement) sont déposés sans consentement
+        préalable (article 82 de la loi Informatique et Libertés). Le cookie de{' '}
+        <strong>mesure d’audience PostHog</strong> n’est déposé <strong>qu’après ton consentement
+        explicite</strong> via le bandeau affiché à ta première visite ; si tu refuses (ou tant que
+        tu n’as pas tranché), aucune mesure n’est effectuée. Tu peux retirer ton consentement à tout
+        moment en supprimant le cookie <code>cdp-analytics-consent</code> via les paramètres de ton
+        navigateur (le bandeau réapparaîtra) ou en nous écrivant. Aucun cookie publicitaire tiers
+        n’est jamais déposé.
       </p>
 
       <h2 id="modification">11. Modification de la politique</h2>

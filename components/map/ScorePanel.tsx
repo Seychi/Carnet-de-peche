@@ -5,6 +5,9 @@ import { X, Sparkles, Loader2, Lock } from 'lucide-react'
 import Link from 'next/link'
 import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { getMapScoreInsights, type MapScoreResult } from '@/app/actions/map-insights'
+import { analytics } from '@/lib/analytics'
+
+const SURFACE = 'map_score'
 
 /**
  * Couche « Ton score » (Carte v2 / C1). Affiche les TENDANCES perso descriptives
@@ -25,6 +28,11 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
       .finally(() => { if (alive) setLoading(false) })
     return () => { alive = false }
   }, [])
+
+  // Paywall vu : quand l'état gaté est confirmé côté serveur.
+  useEffect(() => {
+    if (state?.gated) analytics.paywallViewed({ surface: SURFACE })
+  }, [state?.gated])
 
   // Position : bas-gauche en mobile (légende + readout masqués < md) ; bas-DROITE en
   // desktop pour ne pas recouvrir la légende couleurs ni les coords GPS (bas-gauche).
@@ -58,6 +66,7 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
             </p>
             <Link
               href="/tarifs"
+              onClick={() => analytics.upsellClicked({ surface: SURFACE })}
               className="self-start px-3 py-1.5 rounded-full bg-gold-500 text-navy-950 text-[12px] font-semibold hover:bg-gold-400 transition-colors"
             >
               Débloquer ton score
@@ -70,7 +79,9 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
             <p className="mb-2.5 text-[12px] leading-snug text-ink-500">
               Tes tendances, calculées sur TES prises (pas une moyenne générique) :
             </p>
-            <PersonalTendencies data={state.tendencies} compact />
+            {/* Cette couche n'est servie qu'aux abonnés (gating serveur) → tier="local"
+                neutralise le soft-upsell : un abonné a déjà l'alerte proactive. */}
+            <PersonalTendencies data={state.tendencies} tier="local" compact />
           </>
         )}
       </div>

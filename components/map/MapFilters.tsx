@@ -16,6 +16,9 @@ import type { UserTier } from '@/lib/auth/tier'
 import { serializeFiltersToSearchParams, countActiveFilters, hasActiveFilters } from '@/lib/spots/filter-url'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { analytics } from '@/lib/analytics'
+
+const UPSELL_SURFACE = 'map_filters'
 
 type Species = NonNullable<SpotFilters['species']>[number]
 type Technique = NonNullable<SpotFilters['techniques']>[number]
@@ -194,6 +197,11 @@ export default function MapFilters({
   const isGated = userTier === 'anonymous' || userTier === 'discovery'
   const activeCount = countActiveFilters(filters)
 
+  // Paywall vu : le bandeau de gating des filtres est affiché.
+  useEffect(() => {
+    if (isGated) analytics.paywallViewed({ surface: UPSELL_SURFACE })
+  }, [isGated])
+
   // ── Toggles ────────────────────────────────────────────────────────────────
 
   function toggleSpecies(sp: Species) {
@@ -259,6 +267,7 @@ export default function MapFilters({
             </p>
             <Link
               href="/tarifs"
+              onClick={() => analytics.upsellClicked({ surface: UPSELL_SURFACE })}
               className="mt-1.5 inline-block text-xs font-semibold text-navy-950 bg-teal-500 hover:bg-teal-400 px-3 py-1 rounded-lg transition-colors"
             >
               Débloquer les filtres

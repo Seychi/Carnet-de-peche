@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
+import { getUserTier } from '@/lib/auth/tier'
 import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { ProfileForm } from './profile-form'
 
@@ -24,13 +25,14 @@ export default async function ProfilPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, personalTendencies] = await Promise.all([
+  const [{ data: profile }, personalTendencies, tier] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
       .eq('id', user.id)
       .single(),
     getPersonalTendencies().catch(() => null),
+    getUserTier().catch(() => undefined),
   ])
 
   if (!profile) redirect('/auth/login')
@@ -51,7 +53,7 @@ export default async function ProfilPage() {
         </div>
         {personalTendencies && (
           <div className="mb-8">
-            <PersonalTendencies data={personalTendencies} />
+            <PersonalTendencies data={personalTendencies} tier={tier} />
           </div>
         )}
 
