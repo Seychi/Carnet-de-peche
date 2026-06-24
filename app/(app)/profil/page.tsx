@@ -1,8 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getPersonalTendencies } from '@/lib/scoring/personal'
-import { getUserTier } from '@/lib/auth/tier'
-import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { ProfileForm } from './profile-form'
 
 type Profile = {
@@ -25,15 +22,13 @@ export default async function ProfilPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, personalTendencies, tier] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
-      .eq('id', user.id)
-      .single(),
-    getPersonalTendencies().catch(() => null),
-    getUserTier().catch(() => undefined),
-  ])
+  // /profil = réglages uniquement (sprint 30). Les tendances perso (« ce que ton
+  // journal t'apprend ») vivent sur /carnet, plus ici — fin du doublon TES TENDANCES.
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
+    .eq('id', user.id)
+    .single()
 
   if (!profile) redirect('/auth/login')
 
@@ -51,12 +46,6 @@ export default async function ProfilPage() {
             Modifie tes informations de pêcheur. Ton email ne peut pas être changé ici.
           </p>
         </div>
-        {personalTendencies && (
-          <div className="mb-8">
-            <PersonalTendencies data={personalTendencies} tier={tier} />
-          </div>
-        )}
-
         <ProfileForm profile={profile as Profile} email={user.email ?? ''} />
       </div>
     </main>

@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
@@ -227,7 +228,7 @@ async function fetchForecastData(lat: number, lng: number, dateStr: string): Pro
 
 // ─── Fonction principale ──────────────────────────────────────────────────────
 
-export async function fetchSpotConditions(
+async function _fetchSpotConditions(
   lat: number,
   lng: number,
   date?: Date
@@ -301,6 +302,15 @@ export async function fetchSpotConditions(
   await writeCache(key, result)
   return result
 }
+
+/**
+ * Conditions du jour pour un point. Mémoïsé PAR REQUÊTE via React `cache()` : le
+ * bandeau instruments (layout) et le cockpit /home (page) appellent le même
+ * (lat, lng) au même rendu → une seule exécution (une seule lecture weather_cache,
+ * et en cache froid un seul fetch Open-Meteo, pas une course). Le cache 1h
+ * weather_cache reste la persistance inter-requêtes.
+ */
+export const fetchSpotConditions = cache(_fetchSpotConditions)
 
 // ─── Fetch 7 jours ───────────────────────────────────────────────────────────
 

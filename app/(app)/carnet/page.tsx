@@ -12,7 +12,6 @@ import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
 import { NextWindowInsight } from '@/components/catches/NextWindowInsight'
 import { OutingStats } from '@/components/outings/OutingStats'
-import { GamificationHub } from '@/components/gamification/GamificationHub'
 import { TagData } from '@/components/ui-v2/tag-data'
 
 export const dynamic = 'force-dynamic'
@@ -124,13 +123,12 @@ export default async function CarnetPage({ searchParams }: Props) {
         {/* Stats détaillées repliables */}
         {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-5" />}
 
-        {/* Tes tendances perso (calculées depuis tes prises réelles) */}
+        {/* Tes tendances perso (calculées depuis tes prises réelles) — « ce que ton
+            journal t'apprend ». La gamification (Pokédex/streak/badges) vit désormais
+            sur /home « Aujourd'hui » (sprint 30) : le carnet reste le passé. */}
         {personalTendencies && (
           <PersonalTendencies data={personalTendencies} tier={tier} className="mb-5" />
         )}
-
-        {/* Gamification anti-comparaison : Pokédex, régularité, badges, défis (privé, gratuit) */}
-        <GamificationHub className="mb-5" />
 
         {/* Insight : prochain bon créneau du département (card live) */}
         {dept && <NextWindowInsight dept={dept} />}
