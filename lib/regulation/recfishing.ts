@@ -37,6 +37,28 @@ export const MED_MARINE_PARKS = [
   'Parc naturel marin du Cap Corse et de l’Agriate',
 ] as const
 
+/**
+ * Avertissement parc marin PERTINENT pour un département donné (sprint 24, suite QA).
+ * Gaté par département pour rester EXACT : la maille dérogatoire « bar 42 cm » ne vaut
+ * que dans le Golfe du Lion (Aude 11 + Pyrénées-Orientales 66), pas sur tout le littoral
+ * méditerranéen. Hors département à parc → null (aucune note trompeuse). Sources :
+ * arrêté préfectoral R93-2024-02-12-00002 du 12/02/2024 (Golfe du Lion) ; parcs Calanques
+ * (13) et Cap Corse–Agriate (2B) = CatchMachine obligatoire.
+ */
+export function getMarineParkNotice(department: string | null | undefined): string | null {
+  switch (department) {
+    case '11':
+    case '66':
+      return 'Parc naturel marin du Golfe du Lion : mailles locales plus strictes (bar 42 cm, rouget/oblade 20 cm, pageot 25 cm) + autorisation via l’appli CatchMachine (pas RecFishing).'
+    case '13':
+      return 'Parc national des Calanques : déclaration des captures via l’appli CatchMachine (pas RecFishing).'
+    case '2B':
+      return 'Parc naturel marin du Cap Corse et de l’Agriate : déclaration des captures via l’appli CatchMachine (pas RecFishing).'
+    default:
+      return null
+  }
+}
+
 export type SensitiveSpecies = {
   /** Nom scientifique (référence stable). */
   latin: string

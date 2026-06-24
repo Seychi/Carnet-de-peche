@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isDeclarable, getDeclarableInfo, DECLARABLE_DB_KEYS } from '../recfishing'
+import { isDeclarable, getDeclarableInfo, DECLARABLE_DB_KEYS, getMarineParkNotice } from '../recfishing'
 
 describe('RecFishing : espèces sensibles déclarables', () => {
   it('bar/lieu jaune/maquereau déclarables en Manche/Atlantique', () => {
@@ -41,5 +41,28 @@ describe('RecFishing : espèces sensibles déclarables', () => {
   it('espèce inconnue → non déclarable, jamais d’erreur', () => {
     expect(isDeclarable('poisson_lune', 'manche-atlantique')).toBe(false)
     expect(isDeclarable(null, 'mediterranee')).toBe(false)
+  })
+})
+
+describe('getMarineParkNotice : gaté par département (exact, pas « tout Med »)', () => {
+  it('Golfe du Lion (Aude 11, Pyrénées-Orientales 66) → mentionne bar 42 cm + CatchMachine', () => {
+    expect(getMarineParkNotice('11')).toMatch(/Golfe du Lion/)
+    expect(getMarineParkNotice('11')).toMatch(/42 cm/)
+    expect(getMarineParkNotice('66')).toMatch(/CatchMachine/)
+  })
+  it('Calanques (13) et Cap Corse (2B) → CatchMachine sans maille bar 42', () => {
+    expect(getMarineParkNotice('13')).toMatch(/Calanques/)
+    expect(getMarineParkNotice('2B')).toMatch(/Cap Corse/)
+    expect(getMarineParkNotice('13')).not.toMatch(/42 cm/)
+  })
+  it('autres départements Med (Var 83, Corse-du-Sud 2A, Nice 06) → aucune note (null)', () => {
+    expect(getMarineParkNotice('83')).toBeNull()
+    expect(getMarineParkNotice('2A')).toBeNull()
+    expect(getMarineParkNotice('06')).toBeNull()
+  })
+  it('Atlantique/Manche et valeurs vides → null', () => {
+    expect(getMarineParkNotice('29')).toBeNull()
+    expect(getMarineParkNotice(null)).toBeNull()
+    expect(getMarineParkNotice(undefined)).toBeNull()
   })
 })

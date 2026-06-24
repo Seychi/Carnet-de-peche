@@ -8,7 +8,7 @@ import {
   isMarquageRequired,
   FACADE_LABELS,
 } from '@/lib/regulation'
-import { MED_MARINE_PARKS } from '@/lib/regulation/recfishing'
+import { getMarineParkNotice } from '@/lib/regulation/recfishing'
 
 // Réglementation d'UNE prise (page détail) — maille façade-aware + quota +
 // fermeture + marquage, sourcé/daté. Texte explicite, jamais la teinte seule.
@@ -16,12 +16,14 @@ import { MED_MARINE_PARKS } from '@/lib/regulation/recfishing'
 export function CatchRegulationSection({
   species,
   facade,
+  department,
   sizeCm,
   released,
   className,
 }: {
   species: string
   facade: Facade | null
+  department: string | null
   sizeCm: number | null
   released: boolean
   className?: string
@@ -112,12 +114,10 @@ export function CatchRegulationSection({
         </p>
       )}
 
-      {/* Parcs marins Méditerranée : maille parfois plus stricte + CatchMachine */}
-      {facade === 'mediterranee' && (
+      {/* Parc marin pertinent pour CE département (gaté, exact — pas « tout Med »). */}
+      {getMarineParkNotice(department) && (
         <p className="mt-3 text-[11px] leading-snug text-ink-500">
-          En parc marin ({MED_MARINE_PARKS.join(', ')}), la <strong>maille locale peut être plus
-          stricte</strong> (ex. bar 42 cm dans le Golfe du Lion) — vérifie l&rsquo;arrêté du parc. La
-          déclaration y passe par l&rsquo;appli CatchMachine, pas RecFishing.
+          {getMarineParkNotice(department)}
         </p>
       )}
 

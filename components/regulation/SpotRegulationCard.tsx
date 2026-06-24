@@ -9,6 +9,7 @@ import {
   isMarquageRequired,
   FACADE_LABELS,
 } from '@/lib/regulation'
+import { getMarineParkNotice } from '@/lib/regulation/recfishing'
 
 // Réglementation par espèce du spot (sprint 24) — maille façade-aware + repères
 // quota / fermeture / marquage. Tout en texte (jamais la teinte seule, John daltonien).
@@ -22,6 +23,7 @@ export function SpotRegulationCard({
   species: string[]
 }) {
   const facade = facadeOf(department)
+  const parkNotice = getMarineParkNotice(department)
 
   // Espèces du spot résolues vers le référentiel (ignore les clés inconnues).
   const rows = species
@@ -68,6 +70,13 @@ export function SpotRegulationCard({
           </li>
         ))}
       </ul>
+
+      {/* Avertissement parc marin — gaté par département (exact, pas « tout Med »). */}
+      {parkNotice && (
+        <p className="mt-4 border-t border-sand-200 pt-3 text-[11px] leading-snug text-ink-500">
+          {parkNotice}
+        </p>
+      )}
     </div>
   )
 }

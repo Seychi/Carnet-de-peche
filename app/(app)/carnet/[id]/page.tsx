@@ -246,6 +246,7 @@ export default async function CatchDetailPage({ params }: Props) {
         <CatchRegulationSection
           species={c.species ?? ''}
           facade={facade}
+          department={c.department ?? null}
           sizeCm={c.size_cm ?? null}
           released={c.released ?? false}
           className="mt-4"
