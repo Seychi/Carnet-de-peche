@@ -23,8 +23,11 @@ export type NotificationType =
   | 'mention'
   | 'spot_approved'
   | 'spot_rejected'
+  // Co-pêchage (sprint 25) : demande de participation (→ hôte), acceptation (→ participant).
+  | 'outing_join'
+  | 'outing_accepted'
 
-export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot'
+export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 
 export type CreateNotificationInput = {
   /** Destinataire de la notif. */

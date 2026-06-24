@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown } from '@/lib/catches/queries'
+import { getMyOutingStats } from '@/lib/outings/queries'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
 import { catchFiltersSchema } from '@/lib/catches/schema'
 import { CatchStatsRow } from '@/components/catches/CatchStatsRow'
@@ -9,6 +10,7 @@ import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
 import { NextWindowInsight } from '@/components/catches/NextWindowInsight'
+import { OutingStats } from '@/components/outings/OutingStats'
 import { TagData } from '@/components/ui-v2/tag-data'
 
 export const dynamic = 'force-dynamic'
@@ -57,11 +59,12 @@ export default async function CarnetPage({ searchParams }: Props) {
 
   // ── Fetch parallèle : prises + stats + dépt du profil (insight) ──────────
 
-  const [{ catches, totalCount }, stats, breakdown, personalTendencies, { data: profile }] = await Promise.all([
+  const [{ catches, totalCount }, stats, breakdown, personalTendencies, outingStats, { data: profile }] = await Promise.all([
     getMyCatches(filters),
     getMyCatchStats().catch(() => null),
     getMyCatchesBreakdown().catch(() => null),
     getPersonalTendencies().catch(() => null),
+    getMyOutingStats().catch(() => null),
     supabase.from('profiles').select('home_department').eq('id', user.id).maybeSingle(),
   ])
 
@@ -111,6 +114,9 @@ export default async function CarnetPage({ searchParams }: Props) {
 
         {/* Stats synthétiques */}
         {stats && <CatchStatsRow stats={stats} className="mb-3" />}
+
+        {/* Sorties (dont bredouilles) — dénominateur honnête */}
+        {outingStats && <OutingStats data={outingStats} className="mb-3" />}
 
         {/* Stats détaillées repliables */}
         {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-5" />}

@@ -56,6 +56,7 @@ export type Database = {
           lure_brand: string | null
           lure_model: string | null
           notes: string | null
+          outing_id: string | null
           photo_path: string | null
           precise_for_friends: boolean
           privacy: string
@@ -90,6 +91,7 @@ export type Database = {
           lure_brand?: string | null
           lure_model?: string | null
           notes?: string | null
+          outing_id?: string | null
           photo_path?: string | null
           precise_for_friends?: boolean
           privacy?: string
@@ -124,6 +126,7 @@ export type Database = {
           lure_brand?: string | null
           lure_model?: string | null
           notes?: string | null
+          outing_id?: string | null
           photo_path?: string | null
           precise_for_friends?: boolean
           privacy?: string
@@ -143,6 +146,13 @@ export type Database = {
           wind_speed_kmh?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "catches_outing_id_fkey"
+            columns: ["outing_id"]
+            isOneToOne: false
+            referencedRelation: "outings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "catches_spot_id_fkey"
             columns: ["spot_id"]
@@ -385,6 +395,36 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          label: string | null
+          max_uses: number
+          uses: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          label?: string | null
+          max_uses?: number
+          uses?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          label?: string | null
+          max_uses?: number
+          uses?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -423,6 +463,132 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      outing_participants: {
+        Row: {
+          created_at: string
+          proposal_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          proposal_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          proposal_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outing_participants_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outing_participants_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outing_proposals: {
+        Row: {
+          area_label: string | null
+          capacity: number | null
+          created_at: string
+          department: string
+          host_id: string
+          id: string
+          notes: string | null
+          planned_at: string
+          status: string
+        }
+        Insert: {
+          area_label?: string | null
+          capacity?: number | null
+          created_at?: string
+          department: string
+          host_id: string
+          id?: string
+          notes?: string | null
+          planned_at: string
+          status?: string
+        }
+        Update: {
+          area_label?: string | null
+          capacity?: number | null
+          created_at?: string
+          department?: string
+          host_id?: string
+          id?: string
+          notes?: string | null
+          planned_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      outings: {
+        Row: {
+          created_at: string
+          department: string
+          ended_at: string | null
+          id: string
+          notes: string | null
+          species_targeted: string[] | null
+          spot_id: string | null
+          started_at: string
+          technique: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          species_targeted?: string[] | null
+          spot_id?: string | null
+          started_at: string
+          technique?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          species_targeted?: string[] | null
+          spot_id?: string | null
+          started_at?: string
+          technique?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outings_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outings_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -919,6 +1085,24 @@ export type Database = {
         }
         Relationships: []
       }
+      outing_proposals_for_viewer: {
+        Row: {
+          accepted_count: number | null
+          area_label: string | null
+          capacity: number | null
+          created_at: string | null
+          department: string | null
+          host_avatar_url: string | null
+          host_display_name: string | null
+          host_id: string | null
+          host_username: string | null
+          id: string | null
+          notes: string | null
+          planned_at: string | null
+          status: string | null
+        }
+        Relationships: []
+      }
       profile_stats: {
         Row: {
           biggest_catch_cm: number | null
@@ -1167,6 +1351,7 @@ export type Database = {
         Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
         Returns: unknown
       }
+      consume_invite_code: { Args: { p_code: string }; Returns: boolean }
       current_tier: { Args: { uid: string }; Returns: string }
       delete_my_account: { Args: never; Returns: undefined }
       disablelongtransactions: { Args: never; Returns: string }
@@ -1344,6 +1529,7 @@ export type Database = {
       }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
+      get_my_outing_stats: { Args: never; Returns: Json }
       get_pending_recfishing_catches: {
         Args: { p_since: string; p_species: string[] }
         Returns: {

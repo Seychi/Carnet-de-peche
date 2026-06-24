@@ -215,6 +215,44 @@ export async function signUpWithPassword(
     };
   }
 
+  // Gate beta fondateurs (sprint 25) : si INVITE_ONLY=true, un code d'invitation
+  // valide est requis. OFF par défaut → inscription ouverte, comportement inchangé.
+  // Consommation atomique via RPC service_role (consume_invite_code, migration 052).
+  if (process.env.INVITE_ONLY === "true") {
+    const code = String(formData.get("invite_code") ?? "").trim();
+    if (!code) {
+      return {
+        error: "Un code d'invitation est requis pour rejoindre la beta fondateurs.",
+        success: false,
+        email,
+        submittedAt: null,
+      };
+    }
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const { data: consumed, error: cErr } = await createAdminClient().rpc(
+        "consume_invite_code",
+        { p_code: code },
+      );
+      if (cErr || consumed !== true) {
+        return {
+          error: "Code d'invitation invalide, expiré ou déjà utilisé.",
+          success: false,
+          email,
+          submittedAt: null,
+        };
+      }
+    } catch (e) {
+      console.error("[signUpWithPassword] invite gate", e);
+      return {
+        error: "Inscription momentanément indisponible. Réessaie.",
+        success: false,
+        email,
+        submittedAt: null,
+      };
+    }
+  }
+
   const supabase = await createClient();
   const origin = await getOrigin();
 

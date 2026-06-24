@@ -573,6 +573,21 @@ export default function LoginPage() {
               />
               <FieldError message={signupErrors.password_confirm} />
             </div>
+            {/* Code d'invitation (beta fondateurs, sprint 25). Optionnel côté UI :
+                le serveur ne l'exige que si INVITE_ONLY=true. */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="signup-invite" className="text-[14px] font-semibold text-ink-900">
+                Code d&rsquo;invitation
+              </Label>
+              <Input
+                id="signup-invite"
+                name="invite_code"
+                type="text"
+                autoComplete="off"
+                placeholder="Si tu as un code beta"
+                className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
+              />
+            </div>
             {signupState.error && (
               <p className="text-[13px] text-coral-500 -mt-2" role="alert">
                 {signupState.error}

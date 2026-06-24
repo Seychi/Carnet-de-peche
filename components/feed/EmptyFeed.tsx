@@ -13,6 +13,7 @@ const CONTENT: Record<
     Icon: Fish,
     title: (region) => `Sois le premier à poster dans le ${region ?? 'coin'}.`,
     body: 'Une question matos, une alerte spot, un retour de session… lance le fil de ton département.',
+    cta: { href: '/follows', label: 'Trouver des pêcheurs de ton coin' },
   },
   'follows-none': {
     Icon: UserPlus,

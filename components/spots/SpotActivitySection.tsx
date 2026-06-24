@@ -36,8 +36,30 @@ export async function SpotActivitySection({
   const row = Array.isArray(data) ? data[0] : data
 
   const catchesCount = row?.catches_count ?? 0
-  // Pas d'activité 7j → on ne rend rien (pas de placeholder "feature manquante").
-  if (!row || catchesCount === 0) return null
+  // Pas d'activité 7j → état vide qui CONVERTIT (sprint 25 WS-C) : on ne laisse plus
+  // de silence sur la fiche spot. Pas de fausse promesse (« 3 prises ici » seulement
+  // si vrai) — juste une invitation honnête à être le premier.
+  if (!row || catchesCount === 0) {
+    return (
+      <section className="bg-white rounded-[18px] border border-ink-100 p-5 md:p-7">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="inline-block size-2 rounded-full bg-ink-200" aria-hidden />
+          <h2 className="font-display text-navy-900 text-xl">Activité récente</h2>
+        </div>
+        <p className="text-[15px] text-ink-600">
+          Personne n&rsquo;a encore logué de prise ici cette semaine.{' '}
+          <span className="font-medium text-navy-900">Sois le premier</span> — ta prise allumera ce
+          spot pour la communauté.
+        </p>
+        <Link
+          href={ctaHref}
+          className="mt-4 inline-block text-[13px] font-semibold text-teal-600 hover:text-teal-700"
+        >
+          Logue ta prise ici →
+        </Link>
+      </section>
+    )
+  }
 
   const fishers = row.fishers_count ?? 0
   const recent = ((row.recent_catches ?? []) as RecentCatch[]).slice(0, 3)

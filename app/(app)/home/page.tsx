@@ -69,23 +69,26 @@ export default async function HomePage() {
           <div className="bg-white rounded-[22px] border border-ink-100 p-8 text-center flex flex-col items-center gap-4">
             <Fish size={44} className="text-teal-500" strokeWidth={1.7} aria-hidden="true" />
             <p className="text-ink-700 max-w-sm">
-              Pour démarrer, logue ta première prise ou explore la carte des spots
-              près de chez toi.
+              Le plus rapide : <span className="font-semibold text-navy-900">importe tes dernières
+              prises</span>. Dès 3 prises, ton carnet commence à te révéler où et quand tu prends.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
-                href="/carnet/nouvelle"
+                href="/carnet/import"
                 className={cn(buttonVariants({ variant: "accent", size: "cta" }), "w-full sm:w-auto")}
               >
-                Loguer une prise →
+                Importer mes prises →
               </Link>
               <Link
-                href="/carte"
+                href="/carnet/nouvelle"
                 className={cn(buttonVariants({ variant: "line", size: "cta" }), "w-full sm:w-auto")}
               >
-                Voir la carte
+                Loguer une prise
               </Link>
             </div>
+            <Link href="/carte" className="text-[13px] text-teal-600 hover:underline">
+              ou explore la carte des spots →
+            </Link>
           </div>
         ) : (
           <>

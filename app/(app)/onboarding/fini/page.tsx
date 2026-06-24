@@ -169,6 +169,26 @@ export default async function OnboardingFiniPage() {
           </p>
         </div>
 
+        {/* Payoff time-to-value (sprint 25 WS-A/C) : l'import débloque les tendances
+            dès 3 prises — le chemin le plus court vers la valeur pour un compte neuf. */}
+        <div className="mt-6 rounded-[14px] border border-teal-300/30 bg-teal-300/[0.07] p-4">
+          <TagData variant="on-dark" className="mb-1.5 block text-teal-300/80">
+            DÉBLOQUE TES TENDANCES EN 2 MIN
+          </TagData>
+          <p className="text-[13.5px] leading-relaxed text-white/70">
+            Tu as déjà des sorties en tête ? Importe tes dernières prises d&rsquo;un coup : dès
+            <span className="font-semibold text-white"> 3 prises</span>, ton carnet commence à te
+            dire où et quand tu prends.
+          </p>
+          <Link
+            href="/carnet/import"
+            className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-teal-300 hover:text-teal-200"
+          >
+            Importer mes prises passées
+            <ArrowRight size={14} aria-hidden />
+          </Link>
+        </div>
+
         {/* CTAs */}
         <div className="mt-auto pt-8">
           <Link
