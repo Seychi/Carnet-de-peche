@@ -16,6 +16,13 @@ import {
 } from "@/components/ui-v2/tide-sparkline";
 import { getHomeStats } from "@/lib/marketing/home-stats";
 import { HomeVisualMap, HomeVisualCarnet, HomeVisualFeed } from "@/components/marketing/home-visuals";
+import { HeroPrimaryCta } from "@/components/marketing/HeroPrimaryCta";
+import { SPECIES_SLUGS } from "@/lib/seo/programmatic";
+
+// Compte d'espèces dérivé du référentiel unique (sprint 23) — liste LÉGÈRE de slugs,
+// aucune fiche éditoriale tirée dans le bundle. Ajouter/retirer un slug fait bouger la
+// stat sans toucher ce fichier. Cf lib/seo/programmatic.ts (RÉFÉRENTIEL ESPÈCES — SOURCE UNIQUE).
+const ESPECES_COUNT = SPECIES_SLUGS.length;
 
 const SITE_URL = "https://www.carnet-de-peche.com";
 
@@ -143,10 +150,7 @@ export default async function HomePage() {
               </p>
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link href="/auth/register" className={`${BTN_ACCENT} w-full sm:w-auto`}>
-                  {CTA_REGISTER}
-                  <ArrowRight size={16} strokeWidth={1.7} />
-                </Link>
+                <HeroPrimaryCta className={`${BTN_ACCENT} w-full sm:w-auto`} registerLabel={CTA_REGISTER} />
                 <Link href="/carte" className={`${BTN_GHOST_DARK} w-full sm:w-auto`}>
                   Explorer la carte
                 </Link>
@@ -156,8 +160,7 @@ export default async function HomePage() {
               <div className="mt-11 flex flex-wrap gap-x-9 gap-y-5 border-t border-white/10 pt-8">
                 <div>
                   <div className="font-display text-[26px] font-bold leading-none text-white sm:text-[28px]">
-                    {/* Source de vérité : lib/especes/content/index.ts (catalogue = 20 depuis sprint 23). */}
-                    <AnimatedCounter value={20} />
+                    <AnimatedCounter value={ESPECES_COUNT} />
                   </div>
                   <div className="mt-1.5 text-[12.5px] text-white/45">espèces de chez nous</div>
                 </div>

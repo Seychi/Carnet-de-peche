@@ -55,7 +55,16 @@ export async function Header() {
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
           {user && profile ? (
-            <UserMenu username={profile.username} avatarUrl={profile.avatar_url} />
+            <>
+              {/* Pont retour vers l'app pour un connecté qui navigue le shell marketing/carte. */}
+              <Link
+                href="/home"
+                className="hidden sm:inline-flex items-center min-h-[44px] px-3 text-[14px] font-semibold text-navy-900 hover:text-teal-700 transition-colors"
+              >
+                Mon carnet
+              </Link>
+              <UserMenu username={profile.username} avatarUrl={profile.avatar_url} />
+            </>
           ) : (
             <>
               <Link

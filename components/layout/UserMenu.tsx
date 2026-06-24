@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
-import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users, Home, Handshake, Fish } from 'lucide-react'
+import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users, Home, Handshake, Fish, Bell } from 'lucide-react'
 
 interface UserMenuProps {
   username: string | null
@@ -110,6 +110,14 @@ export function UserMenu({ username, avatarUrl, isModerator = false }: UserMenuP
             >
               <Handshake size={15} className="text-ink-400" />
               Co-pêchage
+            </Link>
+            <Link
+              href="/notifications"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <Bell size={15} className="text-ink-400" />
+              Notifications
             </Link>
             <div className="my-1 border-t border-ink-100" />
             <Link
