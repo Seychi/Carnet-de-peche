@@ -13,7 +13,7 @@ export const chinchardEspece: EspeceContent = {
   slug: "chinchard",
 
   intro: [
-    `Le chinchard — le saurel, comme on l'appelle souvent — c'est le pélagique de banc qui tape entre deux maquereaux quand l'été bat son plein. Tu le reconnais à sa ligne latérale armée d'écussons coupants, son œil énorme et sa nervosité de poisson de pleine eau. Il chasse en bancs serrés, file vite, et débarque souvent là où le maquereau finit par lasser : sorties de port, pointes de digue, veines de courant.`,
+    `Le chinchard — le saurel dans le Sud, parfois le sévereau ou le gascon selon les coins de côte — c'est le pélagique de banc qui tape entre deux maquereaux quand l'été bat son plein. Tu le reconnais à sa ligne latérale armée d'écussons coupants, son œil énorme et sa nervosité de poisson de pleine eau. Il chasse en bancs serrés, file vite, et débarque souvent là où le maquereau finit par lasser : sorties de port, pointes de digue, veines de courant.`,
     `Ne le snobe pas sous prétexte qu'il « se prend tout seul ». Le chinchard a sa propre logique : il colle plus volontiers au fond et entre deux eaux que le maquereau qui chasse en surface, et il mord souvent quand la lumière tombe. Trouve sa profondeur — compte la descente de ton plomb, repère à quelle hauteur les touches partent — et tu enchaînes, parfois deux ou trois poissons d'un coup sur la mitraillette. Sur du matériel léger, ses rushs courts et nerveux te surprennent à chaque fois.`,
     `C'est aussi une pêche conviviale et accessible : une digue, un train de plumes, le bon créneau au crépuscule, et la glacière se remplit. Côté réglementation, c'est simple pour le loisir — une maille de 15 cm, pas de quota — mais prélève avec mesure : un banc se décime vite.`,
   ],
@@ -107,6 +107,10 @@ export const chinchardEspece: EspeceContent = {
   ],
 
   faq: [
+    {
+      q: "Chinchard, saurel, sévereau, gascon : est-ce le même poisson ?",
+      a: `Oui, exactement le même poisson — Trachurus trachurus. « Chinchard » est le nom officiel ; « saurel » est très répandu en Méditerranée et sur la façade atlantique, « sévereau » s'entend aussi sur certaines côtes, et « gascon » dans le golfe de Gascogne. Quel que soit le nom employé sur ton coin de côte, c'est la même espèce, la même maille de 15 cm et les mêmes techniques.`,
+    },
     {
       q: "Quelle est la taille minimale du chinchard ?",
       a: `La maille est de 15 cm en Manche, Atlantique et Méditerranée : tout poisson sous cette taille doit être remis à l'eau. Il n'y a pas de marquage obligatoire ni de quota journalier pour la pêche de loisir du chinchard. Les quotas (TAC) que l'on voit passer dans les règlements européens concernent la pêche professionnelle, pas la pêche de loisir du bord.`,
