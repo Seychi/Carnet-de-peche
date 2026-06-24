@@ -156,7 +156,8 @@ export default async function HomePage() {
               <div className="mt-11 flex flex-wrap gap-x-9 gap-y-5 border-t border-white/10 pt-8">
                 <div>
                   <div className="font-display text-[26px] font-bold leading-none text-white sm:text-[28px]">
-                    <AnimatedCounter value={6} />
+                    {/* Source de vérité : lib/especes/content/index.ts (catalogue = 20 depuis sprint 23). */}
+                    <AnimatedCounter value={20} />
                   </div>
                   <div className="mt-1.5 text-[12.5px] text-white/45">espèces de chez nous</div>
                 </div>

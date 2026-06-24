@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, startTransition } from 'react'
-import { Menu, X, LogOut, User, BookOpen, CreditCard, MessageCircle, Users } from 'lucide-react'
+import { Menu, X, LogOut, User, BookOpen, CreditCard, MessageCircle, Users, Handshake } from 'lucide-react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
 
@@ -104,6 +104,14 @@ export function MobileNav({ isAuthenticated = false, username = null }: MobileNa
                   >
                     <Users size={18} className="text-ink-400" />
                     Mes pêcheurs
+                  </Link>
+                  <Link
+                    href="/sorties"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 py-3 text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors border-b border-ink-100"
+                  >
+                    <Handshake size={18} className="text-ink-400" />
+                    Co-pêchage
                   </Link>
                   <Link
                     href="/compte/abonnement"

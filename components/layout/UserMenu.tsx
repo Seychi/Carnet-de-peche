@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
-import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users } from 'lucide-react'
+import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users, Home, Handshake, Fish } from 'lucide-react'
 
 interface UserMenuProps {
   username: string | null
@@ -64,6 +64,14 @@ export function UserMenu({ username, avatarUrl, isModerator = false }: UserMenuP
           </div>
           <nav className="py-1.5">
             <Link
+              href="/home"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <Home size={15} className="text-ink-400" />
+              Accueil
+            </Link>
+            <Link
               href="/profil"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
@@ -95,6 +103,32 @@ export function UserMenu({ username, avatarUrl, isModerator = false }: UserMenuP
               <Users size={15} className="text-ink-400" />
               Mes pêcheurs
             </Link>
+            <Link
+              href="/sorties"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <Handshake size={15} className="text-ink-400" />
+              Co-pêchage
+            </Link>
+            <div className="my-1 border-t border-ink-100" />
+            <Link
+              href="/especes"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <Fish size={15} className="text-ink-400" />
+              Espèces
+            </Link>
+            <Link
+              href="/guides"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50 hover:text-navy-900 transition-colors"
+            >
+              <BookOpen size={15} className="text-ink-400" />
+              Guides
+            </Link>
+            <div className="my-1 border-t border-ink-100" />
             <Link
               href="/compte/abonnement"
               onClick={() => setOpen(false)}
