@@ -1,6 +1,6 @@
 # Sprint 25 — RECAP (Lancement & Amorçage, Chantier D + G2)
 
-> Exécuté le 2026-06-24 (ultracode). Branche `sprint-25`, **code-complet, NON mergé, NON déployé, aucune migration ni seed appliqué en prod** (consigne respectée). Suite de `docs/sprint-25/BRIEF.md`.
+> Exécuté le 2026-06-24 (ultracode). **MERGÉ `main` (commit `0c55afa`) + DÉPLOYÉ. Migrations 051/052/053 appliquées + vérifiées en prod, `lib/types.ts` régénéré, `untyped()` retiré.** deploy-watch GO, qa-chrome public OK. Suite de `docs/sprint-25/BRIEF.md`.
 
 ---
 
@@ -65,17 +65,22 @@
 
 ---
 
+## Fait automatiquement (« fait tout ça », 2026-06-24)
+
+- ✅ Migrations **051/052/053 appliquées + vérifiées** en prod (RLS active, vue `security_invoker`, **0 colonne coord**, CHECK notif 10 types sans régression + reports/target_type +`outing`, `invite_codes` 0 policy, **UPDATE participants host-only**). **`lib/types.ts` régénéré**, **`untyped()` retiré** (helper supprimé), typecheck/lint/build OK, 437 tests.
+- ✅ Merge `sprint-25` → **`main` (`0c55afa`) + push (déployé)**. **deploy-watch GO** (build READY, routes en prod, 0 erreur runtime/Sentry, aucun nouvel advisor). **qa-chrome public OK** (champ code d'invitation, état vide « Activité récente », floutage GPS intact 657-887 m).
+
 ## Reste manuel John (post-sprint)
 
-1. **Appliquer les migrations** 051 + 052 + 053 en prod (ordre), puis **régénérer `lib/types.ts`** (sortira les usages `untyped()` des casts) + `get_advisors`.
+1. **Vérifier avec ta session** les écrans authentifiés : `/sorties` (co-pêchage : proposer/rejoindre/accepter), `/carnet/sortie` (bredouille), `/home` (état vide neuf → import), `/carnet/nouvelle` (hint), onboarding final (payoff import).
 2. **Lancer la beta fondateurs** : créer des codes (`INSERT INTO invite_codes (code, max_uses) VALUES ('FONDATEUR-XX', 1);` en service-role/SQL), passer **`INVITE_ONLY=true`** dans l'env Vercel quand tu veux fermer l'inscription publique. Inviter de vrais pêcheurs à loguer publiquement (objectif : ≥3 prises + 3 pêcheurs/cellule pour allumer la heatmap k-anon).
 3. (Optionnel) Ajouter une entrée **/sorties** dans la nav (la page existe, pas encore liée au menu).
-4. Relire → merge `main` + déploiement. deploy-watch + qa-chrome (time-to-value compte neuf, co-pêchage, **passe adversariale floutage**).
-5. (Doc) Corriger `CLAUDE.md §2` : migrations → 053, prod = 1 post/4 follows, `released` default `false`.
+4. (Doc) Corriger `CLAUDE.md §2` : migrations → 053, prod = 1 post/4 follows, `released` default `false`.
+5. (Sécu, hors urgence) `REVOKE EXECUTE` des trigger-functions `enforce_*` à anon/authenticated (pré-existant, inexploitable mais à durcir en passe dédiée).
 
 ---
 
 ## Décisions récapitulées
 - **D-D1** beta fondateurs (pas de seed démo) · **D-D2** codes d'invitation · **D-D3** dépt+label sans geom · **D-D4** co-pêchage gratuit + anti-spam.
 
-*Sprint exécuté en mode ultracode/xhigh. Patterns réutilisés : `can_post_in_department` (022/032), rate-limit triggers (022), `createNotification` service_role (037), vue security_invoker (031). Helper `untyped()` confiné à la couche data pour coder contre les migrations 051+ non encore appliquées (à retirer après regen des types par John).*
+*Sprint exécuté en mode ultracode/xhigh. Patterns réutilisés : `can_post_in_department` (022/032), rate-limit triggers (022), `createNotification` service_role (037), vue security_invoker (031). Le helper temporaire `untyped()` (code contre migrations non appliquées) a été retiré après application + regen des types — accès Supabase entièrement typé.*
