@@ -1,9 +1,21 @@
+import Link from 'next/link'
+import { Check, Plus } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui-v2/scroll-reveal'
 import { ScoreRing } from '@/components/ui-v2/score-ring'
 import { AnimatedCounter } from '@/components/ui-v2/animated-counter'
+import { Bathy } from '@/components/ui-v2/bathy'
+import { HeroPrimaryCta } from '@/components/marketing/HeroPrimaryCta'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
 import { trendLabel } from '@/lib/conditions/tide'
-import type { HomeData, HomeCounts, HeroSnapshot, HomeActivity } from '@/lib/marketing/home-data'
+import type {
+  HomeData,
+  HomeCounts,
+  HeroSnapshot,
+  HomeActivity,
+  HomeTier,
+} from '@/lib/marketing/home-data'
 
 // Sections « storytelling » de la home (sprint 34, WS-5a) — SERVER component (SSR
 // pour le SEO) ; les `ScrollReveal`/`AnimatedCounter` sont des îlots client qui
@@ -35,6 +47,9 @@ export function HomeSections({ data }: { data: HomeData }) {
       <TrustStrip counts={data.counts} />
       <MoatSection hero={data.hero} />
       <CommunitySection activity={data.activity} counts={data.counts} />
+      <PricingSection tiers={data.tiers} />
+      <FAQSection />
+      <FinalCTA />
     </>
   )
 }
@@ -208,5 +223,218 @@ function SpeciesMarquee() {
         </span>
       </div>
     </div>
+  )
+}
+
+// ── 04 — Tarifs (HOME_TIERS réels + copy features statique) ──────────────────────
+// Les features sont de la copy marketing (pas de la donnée) ; les MONTANTS viennent
+// de HOME_TIERS (source = lib/stripe/pricing).
+const TIER_FEATURES: Record<HomeTier['id'], string[]> = {
+  discovery: [
+    'Carnet illimité + photos',
+    'Fil régional complet, gratuit',
+    '26 fiches espèces + guides',
+    '3 spots/dépt, coords floutées',
+  ],
+  local: [
+    'Carte complète de ton département',
+    'Coords GPS précises + score 0-100',
+    'Filtres, hors-ligne, notifications',
+    'Bathymétrie, vent, courants',
+  ],
+  itinerant: [
+    'Tous les départements côtiers',
+    'Bathymétrie EMODnet premium',
+    'Itinéraires GPS multi-spots',
+    'Accès anticipé + support prio',
+  ],
+}
+const TIER_CTA: Record<HomeTier['id'], { label: string; href: string }> = {
+  discovery: { label: 'Créer mon carnet', href: '/auth/register' },
+  local: { label: 'Essai 7 jours', href: '/auth/register?plan=local' },
+  itinerant: { label: 'Essai 7 jours', href: '/auth/register?plan=itinerant' },
+}
+
+function PricingSection({ tiers }: { tiers: HomeTier[] }) {
+  return (
+    <section className="relative overflow-hidden bg-navy-950 py-24 text-white md:py-28">
+      <Bathy density={4} opacity={0.22} />
+      <div className="relative mx-auto max-w-[1180px] px-6">
+        <ScrollReveal>
+          <p className="font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-gold-300">
+            04 — La précision se paie
+          </p>
+          <h2 className="mt-3 max-w-[640px] font-display text-[clamp(28px,4.6vw,52px)] font-semibold leading-[1.08] text-white">
+            Le carnet est gratuit.
+            <br />
+            La carte au mètre, c&apos;est toi qui choisis.
+          </h2>
+          <p className="mt-5 max-w-[560px] text-[18px] leading-relaxed text-white/70">
+            Logue sans limite, poste sans limite. Tu paies seulement ce qui se voit au mètre
+            près : coordonnées GPS exactes, score par spot, bathymétrie.
+          </p>
+        </ScrollReveal>
+
+        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {tiers.map((t, i) => (
+            <ScrollReveal key={t.id} delayMs={i * 90}>
+              <div
+                className={cn(
+                  'relative h-full rounded-[20px] border p-7',
+                  t.highlight
+                    ? 'border-gold-500/55 bg-gradient-to-b from-gold-500/[0.14] to-white/[0.03]'
+                    : 'border-white/12 bg-white/[0.04]',
+                )}
+              >
+                {t.highlight && (
+                  <span className="absolute right-4 top-4 rounded-full bg-gold-500 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] text-navy-950">
+                    LE PLUS POPULAIRE
+                  </span>
+                )}
+                <p
+                  className={cn(
+                    'font-mono text-[12px] font-medium uppercase tracking-[0.1em]',
+                    t.highlight ? 'text-gold-300' : 'text-teal-300',
+                  )}
+                >
+                  {t.name}
+                </p>
+                <p className="mt-2.5 font-display text-[40px] font-semibold leading-none">
+                  {t.monthly}{' '}
+                  <span className="text-[15px] font-normal text-white/55">{t.period}</span>
+                </p>
+                {t.annual && (
+                  <p className="mt-1.5 font-mono text-[11px] text-white/45">
+                    ou {t.annual} / an (−17 %)
+                  </p>
+                )}
+                <ul className="mt-5 flex flex-col gap-2.5">
+                  {TIER_FEATURES[t.id].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-[14px] text-white/75">
+                      <Check
+                        size={16}
+                        strokeWidth={2}
+                        className={cn(
+                          'mt-0.5 shrink-0',
+                          t.highlight ? 'text-gold-300' : 'text-teal-400',
+                        )}
+                      />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={TIER_CTA[t.id].href}
+                  className={cn(
+                    buttonVariants({ variant: t.highlight ? 'accent' : 'lineDark', size: 'cta' }),
+                    'mt-6 w-full justify-center',
+                  )}
+                >
+                  {TIER_CTA[t.id].label}
+                </Link>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ── FAQ (a11y <details> + JSON-LD FAQPage) ──────────────────────────────────────
+const FAQ_ITEMS = [
+  {
+    q: "C'est vraiment gratuit ?",
+    a: 'Oui. Le carnet, le fil régional, les guides et les fiches espèces sont gratuits et illimités, pour toujours. Tu ne paies que pour la carte précise (coords au mètre, score par spot).',
+  },
+  {
+    q: 'En quoi c’est différent des autres apps de marées ?',
+    a: 'Les autres donnent la même info à tout le monde. Carnet de Pêche superpose tes prises par-dessus la donnée brute et te dit ce qui marche pour toi. C’est ton historique qui devient ton avantage.',
+  },
+  {
+    q: 'Il faut une carte bancaire pour commencer ?',
+    a: 'Non. Tu crées ton carnet en 30 secondes, sans CB. La carte bancaire n’est demandée que si tu lances l’essai 7 jours d’une formule payante.',
+  },
+  {
+    q: 'Mes spots restent privés ?',
+    a: 'Par défaut, oui : tes prises sont privées et tu décides ce que tu partages, à quel cercle, et avec quelle précision GPS. Tes données restent les tiennes.',
+  },
+]
+
+function FAQSection() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }
+  return (
+    <section className="py-24 md:py-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="mx-auto max-w-[760px] px-6">
+        <ScrollReveal className="text-center">
+          <p className="font-mono text-[11.5px] font-medium uppercase tracking-[0.18em] text-teal-700">
+            Questions fréquentes
+          </p>
+          <h2 className="mt-3 font-display text-[clamp(26px,4.2vw,46px)] font-semibold text-navy-900">
+            Tes questions, nos réponses.
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal delayMs={100} className="mt-10">
+          {FAQ_ITEMS.map((f, i) => (
+            <details
+              key={f.q}
+              open={i === 0}
+              className="group border-b border-sand-200 py-1"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[18px] font-semibold text-navy-900">
+                {f.q}
+                <Plus
+                  size={18}
+                  className="shrink-0 text-teal-600 transition-transform group-open:rotate-45"
+                />
+              </summary>
+              <p className="pb-4 text-[15.5px] leading-relaxed text-ink-600">{f.a}</p>
+            </details>
+          ))}
+        </ScrollReveal>
+      </div>
+    </section>
+  )
+}
+
+// ── CTA final ───────────────────────────────────────────────────────────────────
+function FinalCTA() {
+  return (
+    <section className="relative overflow-hidden bg-navy-950 py-28 text-center text-white md:py-32">
+      <Bathy density={4} opacity={0.2} />
+      <div className="relative mx-auto max-w-[1180px] px-6">
+        <ScrollReveal>
+          <p className="font-mono text-[11.5px] font-medium uppercase tracking-[0.18em] text-teal-300">
+            Gratuit · illimité · sans CB
+          </p>
+          <h2 className="mx-auto mt-4 max-w-[760px] font-display text-[clamp(30px,5vw,60px)] font-semibold leading-[1.05] text-white">
+            Ton prochain beau bar
+            <br />
+            commence par une ligne.
+          </h2>
+          <p className="mt-4 text-[18px] text-white/65">
+            Crée ton carnet en 30 secondes. La marée n&apos;attend pas.
+          </p>
+          <div className="mt-9 flex justify-center">
+            <HeroPrimaryCta
+              className={cn(buttonVariants({ variant: 'accent', size: 'cta' }))}
+              registerLabel="Créer mon carnet — gratuit"
+            />
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
   )
 }
