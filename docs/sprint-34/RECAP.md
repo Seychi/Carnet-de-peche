@@ -1,8 +1,10 @@
-# Sprint 34 — RECAP (refonte home « production ») — **EN COURS**
+# Sprint 34 — RECAP (refonte home « production ») — **COMPLET (branche, non poussé)**
 
 > Chantier multi-semaines (décision John). Branche **`sprint-34`**, **`main` propre à
-> 226d297, RIEN poussé**. Préversion live : `pnpm dev` → **`/refonte-v3`** (route noindex,
-> hors préfixe protégé `/home`). Le swap vers `/` = WS-7.
+> 226d297, RIEN poussé**. La page refonte est **COMPLÈTE et SWAPPÉE sur `/`** (la
+> préversion `/refonte-v3` a été supprimée au WS-7). Lancer `pnpm dev` → **`/`**.
+> **Reste = VERIF perf post-déploiement** (Lighthouse/qa-chrome/deploy-watch sur la
+> preview Vercel) + relecture + merge par John.
 
 ## Décisions John (verrouillées)
 1. **Tout en réel** + **motion la plus avancée** (GSAP/ScrollTrigger/Lenis).
@@ -33,6 +35,10 @@
 | bc741e1 | **WS-5b** : 04 Tarifs (HOME_TIERS) + FAQ (JSON-LD) + CTA final |
 | 7ae296e | **fix** : markers spots en couche circle GPU (fin du tremblement à la dérive) |
 | 8c6e552 | **WS-4** : section 02 carte explorable RÉELLE (MapLibre lazy, vrais spots, SpotPopup) |
+| 980ce8b | **docs** : RECAP complet |
+| 650addb | **WS-6** : pass mobile (carte section 02 non-interactive sur tactile + CTA) |
+| 21d19cd | **WS-7 + SWAP** : SEO/JSON-LD + events PostHog + `/refonte-v3` → `/` (preview supprimée) |
+| 81152f1 | **fix** : titre hero « où » lisible (span dégradé `inline-block`) |
 
 ## Architecture livrée
 
@@ -76,10 +82,17 @@ Marnage (pas de coef) · score étiqueté « générique » · perso « débloqu
 
 ## Gates (à chaque commit) : 543 tests · build 72 pages · types · lint OK.
 
-## Reste
-- **WS-6** — mobile/device (360/390) : zéro scroll horizontal, motion dégradée, tap targets ≥ 44 px, hero allégé.
-- **WS-7** — SEO (metadata/canonical/OG + JSON-LD WebSite/Organization) + events PostHog sur les CTA + **swap** (`/refonte-v3` → remplacer `app/(marketing)/page.tsx`).
-- **VERIF** — Lighthouse (perf desktop ≥ 85 / mobile ≥ 90 via poster, a11y/SEO ≥ 95, LCP < 2,5 s, CLS < 0,1, INP < 200 ms) + qa-chrome device + deploy-watch après preview.
+## WS-6 / WS-7 / fix titre (faits)
+- **WS-6** (650addb) — pass mobile : `HomeMapSection` carte NON interactive sur tactile (`useMediaQuery <768px`, sinon capte le scroll 1 doigt) + CTA « Explorer la carte complète ». Reste déjà OK (Lenis/curseur/magnetic OFF tactile, body overflow-x:hidden, tap targets ≥ 44 px).
+- **WS-7 + SWAP** (21d19cd) — `/refonte-v3` **supprimée**, `app/(marketing)/page.tsx` = la nouvelle home. Métadonnées (title/description/OG) + JSON-LD WebSite/Organization. Events PostHog conversion (`analytics.homeCtaClicked` → `hero_register`/`final_register`/`pricing_*`, opt-out défaut, no-op SSR) via `HeroPrimaryCta.event` + `TrackedCta`. Perf : **HeroMap → `next/dynamic` ssr:false**.
+- **fix** (81152f1) — titre hero « quand et où » en `inline-block` (sinon « où » coupé en milieu de `bg-clip-text` au retour ligne = invisible) + stops clairs.
+
+## Dead code post-swap (à signaler, NON supprimé)
+`components/marketing/home-visuals.tsx` + `lib/marketing/home-stats.ts` ne sont plus importés (l'ancienne home était le seul consommateur). Tree-shakés (0 impact bundle). **Cleanup optionnel pour John.**
+
+## VERIF — gates verts ; perf = POST-DÉPLOIEMENT
+- ✅ **Gates** : 543 tests · build **71 pages** · types · lint · vérif visuelle desktop+mobile `/` (0 erreur console réelle).
+- ⏳ **Post-déploiement** (besoin de la preview Vercel ; chrome-devtools MCP KO en local → pas de Lighthouse local) : **Lighthouse** (perf desktop ≥ 85 / mobile ≥ 90 via poster, a11y/SEO ≥ 95, LCP < 2,5 s, CLS < 0,1) + **qa-chrome** device réel + **deploy-watch**. À lancer dès que John a mergé+déployé.
 
 ## Reste manuel John
-Relire la préversion `/refonte-v3`. Trancher le moment du swap. Phase 0 (sprint 31) = déjà mergée.
+1. Relire la home en local (`pnpm dev` → `/`). 2. Merger `sprint-34` → `main` + déployer. 3. Post-déploiement : lancer deploy-watch + qa-chrome + Lighthouse sur la preview/prod. Phase 0 (sprint 31) = déjà mergée.
