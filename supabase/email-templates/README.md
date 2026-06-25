@@ -48,14 +48,27 @@ Dashboard → **Authentication → URL Configuration** :
 **Authentication → Sessions → Email OTP Expiration** est bien à `3600` s
 (le défaut). Si la valeur diffère, adapter la phrase dans le HTML.
 
-## Périmètre des autres emails
+## 2. Coller le template magic link
 
-Confirmation d'inscription et magic link utilisent ENCORE l'ancien template
-Supabase par défaut (`{{ .ConfirmationURL }}`) → même bug latent cross-device.
-Pour les durcir, appliquer le même patron `token_hash` :
-`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/onboarding/1`
-(et `type=magiclink&next=/home`). La route `/auth/confirm` gère déjà tous les
-types — il ne reste qu'à éditer ces deux templates dans le Dashboard.
+Dashboard → **Authentication → Emails → Templates → Magic Link** :
+
+- Subject : `Ton lien de connexion — Carnet de Pêche`
+- Body : coller le contenu de [`magic-link.html`](./magic-link.html).
+
+Le lien y est : `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/home`.
+
+⚠️ **`type=email`, PAS `type=magiclink`.** La doc Supabase courante unifie les
+liens token_hash construits manuellement sur `type=email` pour le sign-in ET le
+sign-up (`magiclink`/`signup` sont l'ancienne convention). La valeur `recovery`
+reste réservée au reset password.
+
+## Périmètre restant
+
+La **confirmation d'inscription** (template « Confirm signup ») utilise encore
+l'ancien `{{ .ConfirmationURL }}` → même bug latent cross-device. Pour la durcir,
+même patron : `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/onboarding/1`
+(`type=email`, comme le magic link). La route `/auth/confirm` gère déjà tous les
+types — il ne reste qu'à éditer ce template dans le Dashboard.
 
 ## 2. (Recommandé) SMTP custom via Resend — même domaine d'envoi partout
 
