@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Map as MapLibreMap, Marker } from 'maplibre-gl'
+import type { Map as MapLibreMap } from 'maplibre-gl'
 import { markerColorForQuality } from '@/lib/map/utils'
 import type { QualityLevel } from '@/lib/solunar/types'
 import { makeSeaLayer } from './seaLayer'
@@ -40,7 +40,6 @@ export function HeroMap({
 
     let cancelled = false
     let raf = 0
-    const markers: Marker[] = []
     let onVisibility: (() => void) | null = null
 
     const idle: (cb: () => void) => void =
@@ -81,30 +80,63 @@ export function HeroMap({
 
       map.on('load', () => {
         if (cancelled) return
-        for (const s of spots) {
-          const color = markerColorForQuality(s.quality)
-          const el = document.createElement('div')
-          el.style.cssText =
-            `width:13px;height:13px;border-radius:50%;background:${color};` +
-            `border:1.5px solid rgba(255,255,255,.75);` +
-            `box-shadow:0 0 0 4px ${color}26, 0 0 16px 4px ${color}59;`
-          markers.push(
-            new maplibre.Marker({ element: el, anchor: 'center' })
-              .setLngLat([s.lng, s.lat])
-              .addTo(map),
-          )
-        }
-        setReady(true)
 
-        // Dérive lente du bearing (≈0,6°/s) — premium, non distrayant. OFF reduced-motion,
-        // en pause onglet caché (drain GPU).
+        // Mer WebGL (WS-3.4) — custom layer GLSL dans le MÊME contexte GL, SOUS les
+        // spots. Hors reduced-motion.
         if (!reduce) {
-          // Mer WebGL (WS-3.4) — custom layer GLSL dans le MÊME contexte GL.
           try {
             map.addLayer(makeSeaLayer(maplibre, { lat: center.lat, lng: center.lng }))
           } catch {
             /* la mer n'est pas critique : en cas d'échec shader, la carte reste */
           }
+        }
+
+        // Spots = couche CIRCLE (canvas/GPU), PAS des marqueurs HTML : positionnés au
+        // sous-pixel par le moteur → AUCUN tremblement pendant la dérive (les marqueurs
+        // HTML, repositionnés en `transform` à chaque frame, vibraient). Le mouvement
+        // de la caméra est conservé, seul le rendu des points change.
+        map.addSource('hero-spots', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: spots.map((s) => ({
+              type: 'Feature' as const,
+              geometry: {
+                type: 'Point' as const,
+                coordinates: [s.lng, s.lat] as [number, number],
+              },
+              properties: { color: markerColorForQuality(s.quality) },
+            })),
+          },
+        })
+        map.addLayer({
+          id: 'hero-spots-glow',
+          type: 'circle',
+          source: 'hero-spots',
+          paint: {
+            'circle-radius': 15,
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.3,
+            'circle-blur': 1,
+          },
+        })
+        map.addLayer({
+          id: 'hero-spots-dot',
+          type: 'circle',
+          source: 'hero-spots',
+          paint: {
+            'circle-radius': 5,
+            'circle-color': ['get', 'color'],
+            'circle-stroke-width': 1.5,
+            'circle-stroke-color': 'rgba(255,255,255,0.8)',
+          },
+        })
+
+        setReady(true)
+
+        // Dérive lente du bearing (≈0,6°/s) — premium, non distrayant. OFF reduced-motion,
+        // en pause onglet caché (drain GPU).
+        if (!reduce) {
           const loop = () => {
             if (cancelled) return
             map.setBearing(map.getBearing() + 0.01)
@@ -124,7 +156,6 @@ export function HeroMap({
       cancelled = true
       cancelAnimationFrame(raf)
       if (onVisibility) document.removeEventListener('visibilitychange', onVisibility)
-      markers.forEach((m) => m.remove())
       mapRef.current?.remove()
       mapRef.current = null
     }
