@@ -50,8 +50,8 @@ export function HeroMap({
               window as unknown as {
                 requestIdleCallback: (c: () => void, o?: { timeout: number }) => number
               }
-            ).requestIdleCallback(cb, { timeout: 1500 })
-        : (cb) => void window.setTimeout(cb, 400)
+            ).requestIdleCallback(cb, { timeout: 500 })
+        : (cb) => void window.setTimeout(cb, 200)
 
     idle(async () => {
       if (cancelled) return
@@ -65,7 +65,7 @@ export function HeroMap({
           container,
           style: `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${maptilerKey}`,
           center: [center.lng, center.lat],
-          zoom: 8.3,
+          zoom: 7.4, // plus large → davantage de spots de la façade à l'écran (hero « rempli »)
           pitch: 40,
           bearing: -18,
           interactive: false,
@@ -115,9 +115,9 @@ export function HeroMap({
           type: 'circle',
           source: 'hero-spots',
           paint: {
-            'circle-radius': 15,
+            'circle-radius': 18,
             'circle-color': ['get', 'color'],
-            'circle-opacity': 0.3,
+            'circle-opacity': 0.45,
             'circle-blur': 1,
           },
         })
@@ -135,16 +135,23 @@ export function HeroMap({
 
         setReady(true)
 
-        // Dérive lente du bearing (≈0,6°/s) — premium, non distrayant. OFF reduced-motion,
-        // en pause onglet caché (drain GPU).
+        // Dérive du bearing ~4°/s, TIME-BASED (indépendante du refresh rate) → clairement
+        // perceptible. Démarre dès le montage de la carte. OFF reduced-motion, en pause
+        // onglet caché (drain GPU).
         if (!reduce) {
-          const loop = () => {
+          const DEG_PER_SEC = 5
+          let last = 0
+          const loop = (now: number) => {
             if (cancelled) return
-            map.setBearing(map.getBearing() + 0.01)
+            if (!last) last = now
+            const dt = Math.min((now - last) / 1000, 0.05) // clamp frame longue / retour d'onglet
+            last = now
+            map.setBearing(map.getBearing() + DEG_PER_SEC * dt)
             raf = requestAnimationFrame(loop)
           }
           onVisibility = () => {
             cancelAnimationFrame(raf)
+            last = 0 // reset → pas de saut au retour d'onglet
             if (!document.hidden && !cancelled) raf = requestAnimationFrame(loop)
           }
           document.addEventListener('visibilitychange', onVisibility)

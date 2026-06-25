@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
@@ -40,7 +40,78 @@ function fmtMeters(m: number | null): string {
   return `${m.toFixed(1).replace('.', ',')} m`
 }
 
-export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts }) {
+type HeroVariant = 'atlantic' | 'med'
+
+// Habillage par façade. La carte + l'instrument utilisent TOUJOURS `hero` (données
+// réelles de la façade concernée) ; seuls l'accroche, le titre, le sous-titre et
+// l'affichage des stats/scroll changent.
+const HERO_VARIANTS: Record<
+  HeroVariant,
+  {
+    eyebrow: string
+    title: ReactNode
+    subhead: ReactNode
+    showStats: boolean
+    showScrollCue: boolean
+    minHClass: string
+    registerEvent: string
+  }
+> = {
+  atlantic: {
+    eyebrow: 'Canne du bord · Mer · France',
+    title: (
+      <>
+        Sache <span className="text-teal-300">quand et où</span>
+        <br />
+        ça va mordre.
+      </>
+    ),
+    subhead: (
+      <>
+        Logue tes prises. Le carnet croise marée, marnage, vent et heure avec{' '}
+        <b className="text-white">ton</b> historique — et te dit quand sortir. La donnée
+        d&apos;un instrument marin, dans ta poche.
+      </>
+    ),
+    showStats: true,
+    showScrollCue: true,
+    minHClass: 'min-h-[100svh]',
+    registerEvent: 'hero_register',
+  },
+  med: {
+    eyebrow: 'Méditerranée · canne du bord · France',
+    title: (
+      <>
+        La Grande Bleue,
+        <br />
+        <span className="text-teal-300">au mètre près</span>.
+      </>
+    ),
+    subhead: (
+      <>
+        De Banyuls à Menton : spots curés, score du jour, vent et créneaux. La Méditerranée
+        traitée comme un <b className="text-white">instrument de précision</b> — pas comme un lac.
+      </>
+    ),
+    showStats: false,
+    showScrollCue: false,
+    minHClass: 'min-h-[88svh]',
+    registerEvent: 'med_register',
+  },
+}
+
+export function Hero({
+  hero,
+  counts,
+  variant = 'atlantic',
+  id,
+}: {
+  hero: HeroSnapshot
+  counts: HomeCounts
+  variant?: HeroVariant
+  id?: string
+}) {
+  const v = HERO_VARIANTS[variant]
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const exploreRef = useMagnetic<HTMLAnchorElement>({ strength: 0.3 })
@@ -104,7 +175,8 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
   return (
     <section
       ref={rootRef}
-      className="relative flex min-h-[100svh] items-center overflow-hidden text-white"
+      id={id}
+      className={`relative flex ${v.minHClass} items-center overflow-hidden text-white`}
       style={{ background: 'radial-gradient(130% 100% at 78% -8%, #0c2a38 0%, var(--navy-950) 52%)' }}
     >
       {/* ── Fond : poster instantané (WS-3.5) → carte MapLibre live (WS-3.3) → voiles ── */}
@@ -152,40 +224,36 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
             data-hero-line
             className="inline-flex items-center gap-2 font-mono text-[12px] font-medium uppercase tracking-[0.18em] text-teal-300"
           >
-            <span aria-hidden="true" className="text-teal-400">●</span> Canne du bord · Mer · France
+            <span aria-hidden="true" className="text-teal-400">●</span> {v.eyebrow}
           </p>
+          {/* Accent en teal-300 PLEIN (lisible partout — le dégradé bg-clip rendait
+              « où » quasi invisible). Le titre dépend de la façade (cf HERO_VARIANTS). */}
           <h1
             data-hero-line
             className="mt-5 font-display text-[clamp(40px,6.4vw,74px)] font-semibold leading-[1.03] tracking-[-0.025em] text-white"
           >
-            Sache{' '}
-            {/* Couleur PLEINE teal-300 (claire, brillante sur navy) — lisible partout,
-                desktop comme mobile. Le dégradé bg-clip-text rendait « où » quasi
-                invisible (fin de dégradé sombre + coupure de ligne). */}
-            <span className="text-teal-300">quand et où</span>
-            <br />
-            ça va mordre.
+            {v.title}
           </h1>
           <p data-hero-line className="mt-6 max-w-[520px] text-[19px] leading-relaxed text-white/75">
-            Logue tes prises. Le carnet croise marée, marnage, vent et heure avec{' '}
-            <b className="text-white">ton</b> historique — et te dit quand sortir. La donnée
-            d&apos;un instrument marin, dans ta poche.
+            {v.subhead}
           </p>
           <div data-hero-line className="mt-8 flex flex-wrap gap-3.5">
             <HeroPrimaryCta
               className={BTN_ACCENT}
               registerLabel="Créer mon carnet — gratuit"
-              event="hero_register"
+              event={v.registerEvent}
             />
             <Link ref={exploreRef} href="/carte" className={BTN_GHOST_DARK}>
               Explorer la carte
             </Link>
           </div>
-          <div data-hero-line className="mt-12 flex flex-wrap gap-9">
-            <Stat value={counts.species} label="espèces de chez nous" />
-            <Stat value={counts.spots ?? 157} label="spots curés &amp; vérifiés" />
-            <Stat value={100} suffix="%" label="fil communautaire gratuit" />
-          </div>
+          {v.showStats && (
+            <div data-hero-line className="mt-12 flex flex-wrap gap-9">
+              <Stat value={counts.species} label="espèces de chez nous" />
+              <Stat value={counts.spots ?? 157} label="spots curés &amp; vérifiés" />
+              <Stat value={100} suffix="%" label="fil communautaire gratuit" />
+            </div>
+          )}
         </div>
 
         {/* ── Instrument (données RÉELLES) ── */}
@@ -253,13 +321,15 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
         </div>
       </div>
 
-      <div
-        aria-hidden="true"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center font-mono text-[10px] tracking-[0.2em] text-white/40"
-      >
-        SCROLL
-        <ChevronDown size={14} className="mx-auto mt-1 animate-bounce" />
-      </div>
+      {v.showScrollCue && (
+        <div
+          aria-hidden="true"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center font-mono text-[10px] tracking-[0.2em] text-white/40"
+        >
+          SCROLL
+          <ChevronDown size={14} className="mx-auto mt-1 animate-bounce" />
+        </div>
+      )}
     </section>
   )
 }

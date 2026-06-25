@@ -195,60 +195,94 @@ function parisHourNow(): number {
   return h + m / 60
 }
 
-async function _getHeroSnapshot(): Promise<HeroSnapshot> {
+// Façades : la façade détermine le spot de l'INSTRUMENT (meilleur score) + le centre
+// de la carte. La carte de fond, elle, montre TOUS les spots (cf getAllHeroSpots).
+type HeroRegion = { depts: string[]; fallback: { lat: number; lng: number } }
+const REGION_ATLANTIC: HeroRegion = { depts: [HERO_DEPT], fallback: POINTE_DU_RAZ }
+// Fond MÉDITERRANÉE de la section Tarifs : centre FIXE sur Marseille (décision John).
+const MED_CENTER = { lat: 43.3, lng: 5.37 }
+
+type HeroSpotEnriched = {
+  id: string
+  name: string
+  slug: string
+  lat: number
+  lng: number
+  department: string
+  dayScore: number | null
+  nextWindowStart: string | null
+  nextWindowQuality: string | null
+}
+
+// TOUS les spots publics (centroïdes geom_public FLOUTÉS) + leur day_score. Sert de
+// carte de fond DÉCORATIVE pour les deux heros → vue bien remplie sur chaque façade.
+// (Décoratif et flouté : pas le produit /carte, donc pas le gating 3/dépt.) React-cache
+// → un seul fetch par requête, partagé Atlantique + Méditerranée.
+const getAllHeroSpots = cache(async (): Promise<HeroSpotEnriched[]> => {
   const sb = anonClient()
+  if (!sb) return []
+  const { data: spots } = await sb.rpc('get_spots_for_map', {})
+  if (!spots || spots.length === 0) return []
+  const ids = spots.map((s) => s.id)
+  const { data: scores } = await sb
+    .from('spot_scores')
+    .select('spot_id, day_score, next_window_start, next_window_quality')
+    .in('spot_id', ids)
+    .gt('valid_until', new Date().toISOString())
+  const byId = new Map((scores ?? []).map((r) => [r.spot_id, r as ScoreRow]))
+  return spots.map((s) => {
+    const sc = byId.get(s.id)
+    return {
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      lat: s.lat,
+      lng: s.lng,
+      department: (s.department ?? '').trim(),
+      dayScore: sc?.day_score ?? null,
+      nextWindowStart: sc?.next_window_start ?? null,
+      nextWindowQuality: sc?.next_window_quality ?? null,
+    }
+  })
+})
+
+async function _getHeroSnapshot(region: HeroRegion): Promise<HeroSnapshot> {
   const nowHour = parisHourNow()
-  let heroSpot:
-    | { name: string; slug: string; department: string; lat: number; lng: number }
-    | null = null
+  const allSpots = await getAllHeroSpots()
+
+  let heroSpot: HeroSpotEnriched | null = null
   let score: number | null = null
   let quality: string | null = null
   let nextWindow: HeroSnapshot['nextWindow'] = null
   let mapSpots: HeroSnapshot['mapSpots'] = []
 
-  if (sb) {
-    // Spots Finistère : anon → gatés 3/dépt, position = centroïde geom_public.
-    const { data: spots } = await sb.rpc('get_spots_for_map', { dept_filter: HERO_DEPT })
-    if (spots && spots.length > 0) {
-      const ids = spots.map((s) => s.id)
-      const { data: scores } = await sb
-        .from('spot_scores')
-        .select('spot_id, day_score, next_window_start, next_window_quality')
-        .in('spot_id', ids)
-        .gt('valid_until', new Date().toISOString())
-      const scoreById = new Map((scores ?? []).map((r) => [r.spot_id, r as ScoreRow]))
-      const chosen = rankByDayScore(spots, (id) => scoreById.get(id)?.day_score ?? null)[0]
-      heroSpot = {
-        name: chosen.name,
-        slug: chosen.slug,
-        department: (chosen.department ?? '').trim(),
-        lat: chosen.lat,
-        lng: chosen.lng,
-      }
-      const sc = scoreById.get(chosen.id)
-      // day_score = meilleur moment du jour ; la qualité en est DÉRIVÉE (mêmes seuils
-      // que le cron) car spot_scores ne stocke pas de colonne `day_quality`.
-      score = sc?.day_score ?? null
+  if (allSpots.length > 0) {
+    // Carte de fond = TOUS les spots (floutés), colorés par score. La vue (zoom régional
+    // centrée sur la façade) ne rend que ceux à l'écran → hero bien rempli, 0 fuite GPS.
+    mapSpots = allSpots.map((s) => ({
+      id: s.id,
+      name: s.name,
+      lat: s.lat,
+      lng: s.lng,
+      quality: s.dayScore != null ? qualityFromScore(s.dayScore) : null,
+    }))
+    // Instrument = meilleur spot de la façade (fallback : meilleur toutes façades).
+    const regional = allSpots.filter((s) => region.depts.includes(s.department))
+    const pool = regional.length > 0 ? regional : allSpots
+    const byId = new Map(pool.map((s) => [s.id, s]))
+    heroSpot = rankByDayScore(pool, (id) => byId.get(id)?.dayScore ?? null)[0] ?? null
+    if (heroSpot) {
+      // day_score = meilleur moment du jour ; qualité DÉRIVÉE (mêmes seuils que le cron).
+      score = heroSpot.dayScore
       quality = score != null ? qualityFromScore(score) : null
       nextWindow =
-        sc?.next_window_start && sc.next_window_quality
-          ? { startISO: sc.next_window_start, quality: sc.next_window_quality }
+        heroSpot.nextWindowStart && heroSpot.nextWindowQuality
+          ? { startISO: heroSpot.nextWindowStart, quality: heroSpot.nextWindowQuality }
           : null
-      // Spots de la façade pour la carte de fond (position = centroïde geom_public).
-      mapSpots = spots.slice(0, 12).map((s) => {
-        const ds = scoreById.get(s.id)?.day_score ?? null
-        return {
-          id: s.id,
-          name: s.name,
-          lat: s.lat,
-          lng: s.lng,
-          quality: ds != null ? qualityFromScore(ds) : null,
-        }
-      })
     }
   }
 
-  const position = heroSpot ? { lat: heroSpot.lat, lng: heroSpot.lng } : POINTE_DU_RAZ
+  const position = heroSpot ? { lat: heroSpot.lat, lng: heroSpot.lng } : region.fallback
 
   let tide: HeroSnapshot['tide'] = {
     points: [],
@@ -298,8 +332,23 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
   }
 }
 
-/** Mémoïsé par requête (React cache) — pas `unstable_cache` (fetchSpotConditions lit des cookies). */
-export const getHeroSnapshot = cache(_getHeroSnapshot)
+/** Hero façade ATLANTIQUE (par défaut). Mémoïsé par requête (React cache) — pas
+ * `unstable_cache` (fetchSpotConditions lit des cookies). */
+export const getHeroSnapshot = cache(() => _getHeroSnapshot(REGION_ATLANTIC))
+/** Vue carte MÉDITERRANÉE — sert de FOND décoratif à la section Tarifs (§04). Centre =
+ *  meilleur spot Med ; spots = TOUS (floutés). Léger : aucun fetch marée/météo (≠ hero). */
+export type MedMapView = { center: { lat: number; lng: number }; mapSpots: HeroSnapshot['mapSpots'] }
+export const getMedMapView = cache(async (): Promise<MedMapView> => {
+  const allSpots = await getAllHeroSpots()
+  const mapSpots: HeroSnapshot['mapSpots'] = allSpots.map((s) => ({
+    id: s.id,
+    name: s.name,
+    lat: s.lat,
+    lng: s.lng,
+    quality: s.dayScore != null ? qualityFromScore(s.dayScore) : null,
+  }))
+  return { center: MED_CENTER, mapSpots } // centré sur Marseille (fond §04)
+})
 
 // ── 4. Tarifs : HOME_TIERS / HomeTier réexportés depuis ./home-data-core ────────
 

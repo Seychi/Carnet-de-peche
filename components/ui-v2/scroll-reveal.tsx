@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { motionReduced } from '@/components/marketing/motion/config'
 
 /**
  * Révèle son contenu (fade + léger slide-up) quand il entre dans le viewport.
@@ -29,7 +30,7 @@ export function ScrollReveal({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (motionReduced()) return // politique motion centrale (cf marketing/motion/config)
     // Déjà visible au montage → on garde tel quel (pas de flash sur le pli).
     if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { motionReduced } from '@/components/marketing/motion/config'
 
 /**
  * Compteur « count-up » au défilement. Robuste SEO / no-JS / reduced-motion :
@@ -28,7 +29,7 @@ export function AnimatedCounter({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (motionReduced()) return // politique motion centrale (cf marketing/motion/config)
 
     let raf = 0
     const run = () => {

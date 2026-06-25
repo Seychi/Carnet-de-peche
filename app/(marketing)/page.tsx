@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SmoothScroll } from '@/components/marketing/motion'
 import { Hero } from '@/components/marketing/home-v3/Hero'
 import { HomeSections } from '@/components/marketing/home-v3/HomeSections'
-import { getHomeData, getHomeMapSpots } from '@/lib/marketing/home-data'
+import { getHomeData, getHomeMapSpots, getMedMapView } from '@/lib/marketing/home-data'
 
 const SITE_URL = 'https://www.carnet-de-peche.com'
 
@@ -54,7 +54,11 @@ const HOME_JSONLD = [
 // FAQ, CTA). Tout en donnée réelle, anon-safe (jamais de geom brut). Source de vérité
 // data : lib/marketing/home-data.ts.
 export default async function HomePage() {
-  const [data, mapSpots] = await Promise.all([getHomeData(), getHomeMapSpots()])
+  const [data, mapSpots, medMap] = await Promise.all([
+    getHomeData(),
+    getHomeMapSpots(),
+    getMedMapView(),
+  ])
 
   return (
     <div className="bg-sand-50 font-sans text-ink-900">
@@ -67,7 +71,7 @@ export default async function HomePage() {
       ))}
       <SmoothScroll />
       <Hero hero={data.hero} counts={data.counts} />
-      <HomeSections data={data} mapSpots={mapSpots} />
+      <HomeSections data={data} mapSpots={mapSpots} medMap={medMap} />
     </div>
   )
 }

@@ -14,10 +14,12 @@ import type {
   HeroSnapshot,
   HomeActivity,
   HomeTier,
+  MedMapView,
 } from '@/lib/marketing/home-data'
 import type { SpotMarker } from '@/lib/map/utils'
 import { HomeMapSection } from './HomeMapSection'
 import { TrackedCta } from './TrackedCta'
+import { MedMapBackdrop } from './MedMapBackdrop'
 
 // Sections « storytelling » de la home (sprint 34, WS-5a) — SERVER component (SSR
 // pour le SEO) ; les `ScrollReveal`/`AnimatedCounter` sont des îlots client qui
@@ -43,14 +45,23 @@ function SecNum({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function HomeSections({ data, mapSpots }: { data: HomeData; mapSpots: SpotMarker[] }) {
+export function HomeSections({
+  data,
+  mapSpots,
+  medMap,
+}: {
+  data: HomeData
+  mapSpots: SpotMarker[]
+  medMap: MedMapView
+}) {
   return (
     <>
       <TrustStrip counts={data.counts} />
       <MoatSection hero={data.hero} />
       <HomeMapSection spots={mapSpots} />
       <CommunitySection activity={data.activity} counts={data.counts} />
-      <PricingSection tiers={data.tiers} />
+      {/* §04 Tarifs : fond = vraie carte MÉDITERRANÉE (cf medMap). */}
+      <PricingSection tiers={data.tiers} medMap={medMap} />
       <FAQSection />
       <FinalCTA />
     </>
@@ -200,9 +211,16 @@ function CommunitySection({ activity, counts }: { activity: HomeActivity; counts
         <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
           {cards.map((c, i) => (
             <ScrollReveal key={c.title} delayMs={i * 90}>
-              <div className="h-full rounded-[18px] border border-sand-200 bg-white p-6 transition-transform duration-300 hover:-translate-y-1">
-                <h3 className="font-display text-[20px] font-semibold text-navy-900">{c.title}</h3>
+              <div className="group h-full rounded-[18px] border border-sand-200 bg-white p-6 transition-all duration-300 hover:-translate-y-2 hover:border-teal-400/70 hover:shadow-[0_24px_50px_-26px_rgba(14,26,34,.4)]">
+                <h3 className="font-display text-[20px] font-semibold text-navy-900 transition-colors group-hover:text-teal-700">
+                  {c.title}
+                </h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-ink-600">{c.body}</p>
+                {/* Barre d'accent qui s'étire au survol — repère de FORME (daltonien-safe). */}
+                <span
+                  aria-hidden="true"
+                  className="mt-4 block h-[3px] w-8 rounded-full bg-teal-500/30 transition-all duration-300 group-hover:w-16 group-hover:bg-teal-500"
+                />
               </div>
             </ScrollReveal>
           ))}
@@ -258,11 +276,12 @@ const TIER_CTA: Record<HomeTier['id'], { label: string; href: string }> = {
   itinerant: { label: 'Essai 7 jours', href: '/auth/register?plan=itinerant' },
 }
 
-function PricingSection({ tiers }: { tiers: HomeTier[] }) {
+function PricingSection({ tiers, medMap }: { tiers: HomeTier[]; medMap: MedMapView }) {
   return (
     <section className="relative overflow-hidden bg-navy-950 py-24 text-white md:py-28">
-      <Bathy density={4} opacity={0.22} />
-      <div className="relative mx-auto max-w-[1180px] px-6">
+      {/* Fond = vraie carte MÉDITERRANÉE (décorative, lazy à l'entrée en viewport). */}
+      <MedMapBackdrop center={medMap.center} spots={medMap.mapSpots} />
+      <div className="relative z-10 mx-auto max-w-[1180px] px-6">
         <ScrollReveal>
           <p className="font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-gold-300">
             04 — La précision se paie
@@ -283,10 +302,10 @@ function PricingSection({ tiers }: { tiers: HomeTier[] }) {
             <ScrollReveal key={t.id} delayMs={i * 90}>
               <div
                 className={cn(
-                  'relative h-full rounded-[20px] border p-7',
+                  'relative h-full rounded-[20px] border p-7 transition-all duration-300 hover:-translate-y-2',
                   t.highlight
-                    ? 'border-gold-500/55 bg-gradient-to-b from-gold-500/[0.14] to-white/[0.03]'
-                    : 'border-white/12 bg-white/[0.04]',
+                    ? 'border-gold-500/55 bg-gradient-to-b from-gold-500/[0.14] to-white/[0.03] hover:border-gold-400/80 hover:shadow-[0_30px_70px_-28px_rgba(217,165,60,.45)]'
+                    : 'border-white/12 bg-white/[0.04] hover:border-teal-300/50 hover:shadow-[0_30px_70px_-30px_rgba(0,0,0,.65)]',
                 )}
               >
                 {t.highlight && (
