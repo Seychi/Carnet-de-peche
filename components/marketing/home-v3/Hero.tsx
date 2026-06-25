@@ -7,6 +7,7 @@ import { ScoreRing } from '@/components/ui-v2/score-ring'
 import { TideSparkline } from '@/components/ui-v2/tide-sparkline'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { AnimatedCounter } from '@/components/ui-v2/animated-counter'
+import { Bathy } from '@/components/ui-v2/bathy'
 import { HeroPrimaryCta } from '@/components/marketing/HeroPrimaryCta'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -100,7 +101,12 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
       className="relative flex min-h-[100svh] items-center overflow-hidden text-white"
       style={{ background: 'radial-gradient(130% 100% at 78% -8%, #0c2a38 0%, var(--navy-950) 52%)' }}
     >
-      {/* ── Fond : vraie carte MapLibre (WS-3.3) + voiles de lisibilité ── */}
+      {/* ── Fond : poster instantané (WS-3.5) → carte MapLibre live (WS-3.3) → voiles ── */}
+      {/* Poster = texture marine inline (isobathes DA-v2), ZÉRO réseau et hors LCP,
+          affichée tout de suite ; la carte MapLibre + mer WebGL fondent par-dessus
+          après idle → le live ne bloque jamais le 1er paint. (L'API static MapTiler
+          renvoie 403 sur ce plan → on ne dépend pas d'une image distante.) */}
+      <Bathy density={5} opacity={0.4} />
       <HeroMap center={hero.position} spots={hero.mapSpots} />
       {/* Voile horizontal : sombre à gauche (texte lisible), translucide à droite (carte visible). */}
       <div
