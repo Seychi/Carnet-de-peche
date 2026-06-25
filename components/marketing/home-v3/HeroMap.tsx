@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Map as MapLibreMap, Marker } from 'maplibre-gl'
 import { markerColorForQuality } from '@/lib/map/utils'
 import type { QualityLevel } from '@/lib/solunar/types'
+import { makeSeaLayer } from './seaLayer'
 
 export type HeroMapSpot = {
   id: string
@@ -98,6 +99,12 @@ export function HeroMap({
         // Dérive lente du bearing (≈0,6°/s) — premium, non distrayant. OFF reduced-motion,
         // en pause onglet caché (drain GPU).
         if (!reduce) {
+          // Mer WebGL (WS-3.4) — custom layer GLSL dans le MÊME contexte GL.
+          try {
+            map.addLayer(makeSeaLayer(maplibre, { lat: center.lat, lng: center.lng }))
+          } catch {
+            /* la mer n'est pas critique : en cas d'échec shader, la carte reste */
+          }
           const loop = () => {
             if (cancelled) return
             map.setBearing(map.getBearing() + 0.01)
