@@ -114,7 +114,12 @@ export const getHomeActivity = unstable_cache(
 
 // ── 3. Hero : vraie marée du jour + score réel d'un spot par défaut ─────────────
 
-type ScoreRow = { spot_id: string; day_score: number | null }
+type ScoreRow = {
+  spot_id: string
+  day_score: number | null
+  next_window_start: string | null
+  next_window_quality: string | null
+}
 
 export type HeroSnapshot = {
   spot: { name: string; slug: string; department: string } | null
@@ -123,13 +128,21 @@ export type HeroSnapshot = {
   /** Score générique réel 0-100 (meilleur moment du jour), ou null. */
   score: number | null
   quality: string | null
+  /** Prochain créneau optimal réel (solunaire générique), ou null. */
+  nextWindow: { startISO: string; quality: string } | null
   tide: {
+    /** Points horaires réels (pour tracer la courbe). */
+    points: { hour: number; height_m: number }[]
+    /** PM/BM réels du jour. */
+    extrema: { type: 'high' | 'low'; hour: number }[]
     nextHigh: UpcomingExtremum | null
     nextLow: UpcomingExtremum | null
     /** Marnage réel du jour (m) — la donnée honnête, PAS un coefficient. */
     marnageM: number | null
     trend: TideTrend | null
     currentHeightM: number | null
+    /** Heure courante Europe/Paris (0-24) — curseur « maintenant ». */
+    nowHour: number
   }
   weather: { windKmh: number | null; code: number | null; airTempC: number | null }
 }
@@ -149,11 +162,13 @@ function parisHourNow(): number {
 
 async function _getHeroSnapshot(): Promise<HeroSnapshot> {
   const sb = anonClient()
+  const nowHour = parisHourNow()
   let heroSpot:
     | { name: string; slug: string; department: string; lat: number; lng: number }
     | null = null
   let score: number | null = null
   let quality: string | null = null
+  let nextWindow: HeroSnapshot['nextWindow'] = null
 
   if (sb) {
     // Spots Finistère : anon → gatés 3/dépt, position = centroïde geom_public.
@@ -162,7 +177,7 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
       const ids = spots.map((s) => s.id)
       const { data: scores } = await sb
         .from('spot_scores')
-        .select('spot_id, day_score')
+        .select('spot_id, day_score, next_window_start, next_window_quality')
         .in('spot_id', ids)
         .gt('valid_until', new Date().toISOString())
       const scoreById = new Map((scores ?? []).map((r) => [r.spot_id, r as ScoreRow]))
@@ -174,34 +189,44 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
         lat: chosen.lat,
         lng: chosen.lng,
       }
+      const sc = scoreById.get(chosen.id)
       // day_score = meilleur moment du jour ; la qualité en est DÉRIVÉE (mêmes seuils
       // que le cron) car spot_scores ne stocke pas de colonne `day_quality`.
-      score = scoreById.get(chosen.id)?.day_score ?? null
+      score = sc?.day_score ?? null
       quality = score != null ? qualityFromScore(score) : null
+      nextWindow =
+        sc?.next_window_start && sc.next_window_quality
+          ? { startISO: sc.next_window_start, quality: sc.next_window_quality }
+          : null
     }
   }
 
   const position = heroSpot ? { lat: heroSpot.lat, lng: heroSpot.lng } : POINTE_DU_RAZ
 
   let tide: HeroSnapshot['tide'] = {
+    points: [],
+    extrema: [],
     nextHigh: null,
     nextLow: null,
     marnageM: null,
     trend: null,
     currentHeightM: null,
+    nowHour,
   }
   let weather: HeroSnapshot['weather'] = { windKmh: null, code: null, airTempC: null }
 
   try {
     const cond = await fetchSpotConditions(position.lat, position.lng)
-    const parisHour = parisHourNow()
-    const { high, low } = upcomingExtrema(cond.tide.points, cond.tide.extrema, parisHour)
+    const { high, low } = upcomingExtrema(cond.tide.points, cond.tide.extrema, nowHour)
     tide = {
+      points: cond.tide.points,
+      extrema: cond.tide.extrema.map((e) => ({ type: e.type, hour: e.hour })),
       nextHigh: high,
       nextLow: low,
       marnageM: dailyMarnage(cond.tide.points),
-      trend: cond.tide.points.length >= 2 ? tideTrendAt(cond.tide.points, parisHour) : null,
+      trend: cond.tide.points.length >= 2 ? tideTrendAt(cond.tide.points, nowHour) : null,
       currentHeightM: cond.tide.current_height_m,
+      nowHour,
     }
     weather = {
       windKmh: cond.weather.wind_speed_kmh,
@@ -219,6 +244,7 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
     position,
     score,
     quality,
+    nextWindow,
     tide,
     weather,
   }
