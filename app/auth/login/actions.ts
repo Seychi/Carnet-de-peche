@@ -270,11 +270,11 @@ export async function signUpWithPassword(
     if (safe) ctxParams.set("after", safe);
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password: passwordParsed.data,
     options: {
-      emailRedirectTo: `${origin}/auth/callback?${ctxParams.toString()}`,
+      emailRedirectTo: `${origin}/auth/confirm?${ctxParams.toString()}`,
     },
   });
 
@@ -295,6 +295,18 @@ export async function signUpWithPassword(
       email,
       submittedAt: null,
     };
+  }
+
+  // Si la confirmation d'email est DÉSACTIVÉE côté Dashboard (ou l'adresse
+  // auto-confirmée), signUp renvoie directement une SESSION → l'utilisateur est
+  // déjà connecté (cookies posés par le client serveur). On l'envoie dans
+  // l'onboarding sans passer par l'écran « confirme ton adresse ». Le middleware
+  // route de toute façon tout nouvel inscrit non-onboardé vers /onboarding/1.
+  // Si la confirmation est ACTIVE, data.session est null → on retombe sur
+  // l'écran SentScreen ci-dessous. Le code marche donc dans les deux cas, sans
+  // hypothèse figée sur le réglage Supabase.
+  if (data.session) {
+    redirect("/onboarding/1");
   }
 
   return { error: null, success: true, email, submittedAt: Date.now() };
