@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: SITE_URL,
+    // IMPORTANT pour le nom de site Google : ce bloc openGraph de la home REMPLACE
+    // celui du layout racine (Next.js ne fusionne pas les openGraph imbriqués), donc
+    // siteName disparaissait du <head> en prod. On le redéclare ici explicitement.
+    siteName: 'Carnet de Pêche',
     title: 'Carnet de Pêche — Sache quand et où ça va mordre',
     description:
       'Logue tes prises. Le carnet apprend tes patterns — marée, marnage, vent, heure — et te dit ' +
@@ -35,6 +39,9 @@ const HOME_JSONLD = [
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Carnet de Pêche',
+    // Filet pour le nom de site dans Google (variantes sans accent + domaine).
+    // La home doit rester le SEUL node WebSite, rendu en SSR, sur l'URL racine.
+    alternateName: ['Carnet de Peche', 'carnet-de-peche.com'],
     url: SITE_URL,
     inLanguage: 'fr-FR',
     description:

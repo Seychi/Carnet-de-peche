@@ -33,6 +33,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.carnet-de-peche.com'),
   manifest: "/manifest.webmanifest",
+  // Signal de nom de site pour Google, cohérent avec le JSON-LD WebSite de la home.
+  applicationName: "Carnet de Pêche",
   appleWebApp: {
     capable: true,
     title: "Carnet de Pêche",
