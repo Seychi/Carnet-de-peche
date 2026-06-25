@@ -2,8 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 function MapSkeleton() {
   return (
@@ -31,6 +36,9 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
   const [activeSpot, setActiveSpot] = useState<SpotMarker | null>(null)
+  // Sur tactile : carte NON interactive (sinon elle capte le scroll vertical à un
+  // doigt → la page se bloque). Le bouton « Explorer la carte » mène au vrai /carte.
+  const isDesktop = useMediaQuery('(min-width: 768px)')
 
   useEffect(() => {
     const el = boxRef.current
@@ -72,7 +80,7 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
           {inView ? (
             <MapView
               spots={spots}
-              interactive
+              interactive={isDesktop}
               initialCenter={COASTAL_DEFAULT_CENTER}
               initialZoom={COASTAL_DEFAULT_ZOOM}
               className="absolute inset-0"
@@ -81,9 +89,16 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
           ) : (
             <MapSkeleton />
           )}
-          {activeSpot && (
+          {activeSpot && isDesktop && (
             <SpotPopup spot={activeSpot} onClose={() => setActiveSpot(null)} userTier="anonymous" />
           )}
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <Link href="/carte" className={cn(buttonVariants({ variant: 'navy', size: 'cta' }))}>
+            Explorer la carte complète
+            <ArrowRight size={16} strokeWidth={1.7} />
+          </Link>
         </div>
       </div>
     </section>
