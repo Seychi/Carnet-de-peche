@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { Check, Plus } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui-v2/scroll-reveal'
 import { ScoreRing } from '@/components/ui-v2/score-ring'
@@ -18,6 +17,7 @@ import type {
 } from '@/lib/marketing/home-data'
 import type { SpotMarker } from '@/lib/map/utils'
 import { HomeMapSection } from './HomeMapSection'
+import { TrackedCta } from './TrackedCta'
 
 // Sections « storytelling » de la home (sprint 34, WS-5a) — SERVER component (SSR
 // pour le SEO) ; les `ScrollReveal`/`AnimatedCounter` sont des îlots client qui
@@ -326,15 +326,16 @@ function PricingSection({ tiers }: { tiers: HomeTier[] }) {
                     </li>
                   ))}
                 </ul>
-                <Link
+                <TrackedCta
                   href={TIER_CTA[t.id].href}
+                  event={`pricing_${t.id}`}
                   className={cn(
                     buttonVariants({ variant: t.highlight ? 'accent' : 'lineDark', size: 'cta' }),
                     'mt-6 w-full justify-center',
                   )}
                 >
                   {TIER_CTA[t.id].label}
-                </Link>
+                </TrackedCta>
               </div>
             </ScrollReveal>
           ))}
@@ -434,6 +435,7 @@ function FinalCTA() {
             <HeroPrimaryCta
               className={cn(buttonVariants({ variant: 'accent', size: 'cta' }))}
               registerLabel="Créer mon carnet — gratuit"
+              event="final_register"
             />
           </div>
         </ScrollReveal>

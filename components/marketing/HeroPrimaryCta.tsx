@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { analytics } from '@/lib/analytics'
 
 /**
  * CTA primaire du hero, auth-aware SANS rendre la home dynamique.
@@ -21,9 +22,12 @@ import { createClient } from '@/lib/supabase/client'
 export function HeroPrimaryCta({
   className,
   registerLabel,
+  event,
 }: {
   className?: string
   registerLabel: string
+  /** Identifiant d'event PostHog (conversion) à émettre au clic. Optionnel. */
+  event?: string
 }) {
   const [authed, setAuthed] = useState(false)
 
@@ -42,7 +46,11 @@ export function HeroPrimaryCta({
   const label = authed ? 'Aller à mon carnet' : registerLabel
 
   return (
-    <Link href={href} className={className}>
+    <Link
+      href={href}
+      className={className}
+      onClick={event ? () => analytics.homeCtaClicked({ cta: event }) : undefined}
+    >
       {label}
       <ArrowRight size={16} strokeWidth={1.7} />
     </Link>

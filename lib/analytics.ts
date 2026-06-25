@@ -43,6 +43,10 @@ export const analytics = {
   upsellClicked(props: { surface: string }): void {
     capture('upsell_clicked', props)
   },
+  /** Clic sur un CTA de la home (conversion funnel). `cta` = identifiant du bouton. */
+  homeCtaClicked(props: { cta: string }): void {
+    capture('home_cta_clicked', props)
+  },
   /** Soumission du CTA de Checkout (avant la redirection Stripe). */
   checkoutStarted(props: { plan: 'local' | 'itinerant'; interval: 'monthly' | 'annual' }): void {
     capture('checkout_started', props)

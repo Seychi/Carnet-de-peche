@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { ScoreRing } from '@/components/ui-v2/score-ring'
@@ -15,8 +16,12 @@ import { gsap, useGSAP } from '@/components/marketing/motion/gsap'
 import { useMagnetic } from '@/components/marketing/motion'
 import { trendLabel } from '@/lib/conditions/tide'
 import type { HeroSnapshot, HomeCounts } from '@/lib/marketing/home-data'
-import { HeroMap } from './HeroMap'
 import { LiveClock } from './LiveClock'
+
+// Carte MapLibre du hero (~150 KB maplibre-gl) en lazy → HORS First Load JS de la
+// home. Le poster Bathy (instantané, CSS/SVG) couvre le premier paint ; la carte se
+// monte après hydratation puis fond par-dessus. ssr:false = client-only (WebGL).
+const HeroMap = dynamic(() => import('./HeroMap').then((m) => m.HeroMap), { ssr: false })
 
 const QUALITY_LABEL: Record<string, string> = {
   faible: 'Faible',
@@ -165,7 +170,11 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
             d&apos;un instrument marin, dans ta poche.
           </p>
           <div data-hero-line className="mt-8 flex flex-wrap gap-3.5">
-            <HeroPrimaryCta className={BTN_ACCENT} registerLabel="Créer mon carnet — gratuit" />
+            <HeroPrimaryCta
+              className={BTN_ACCENT}
+              registerLabel="Créer mon carnet — gratuit"
+              event="hero_register"
+            />
             <Link ref={exploreRef} href="/carte" className={BTN_GHOST_DARK}>
               Explorer la carte
             </Link>
