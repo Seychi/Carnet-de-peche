@@ -7,7 +7,6 @@ import { ScoreRing } from '@/components/ui-v2/score-ring'
 import { TideSparkline } from '@/components/ui-v2/tide-sparkline'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { AnimatedCounter } from '@/components/ui-v2/animated-counter'
-import { Bathy } from '@/components/ui-v2/bathy'
 import { HeroPrimaryCta } from '@/components/marketing/HeroPrimaryCta'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -15,6 +14,7 @@ import { gsap, useGSAP } from '@/components/marketing/motion/gsap'
 import { useMagnetic } from '@/components/marketing/motion'
 import { trendLabel } from '@/lib/conditions/tide'
 import type { HeroSnapshot, HomeCounts } from '@/lib/marketing/home-data'
+import { HeroMap } from './HeroMap'
 import { LiveClock } from './LiveClock'
 
 const QUALITY_LABEL: Record<string, string> = {
@@ -100,20 +100,29 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
       className="relative flex min-h-[100svh] items-center overflow-hidden text-white"
       style={{ background: 'radial-gradient(130% 100% at 78% -8%, #0c2a38 0%, var(--navy-950) 52%)' }}
     >
-      {/* ── Fond (placeholder WS-3.1 ; MapLibre + mer WebGL en WS-3.3/3.4) ── */}
+      {/* ── Fond : vraie carte MapLibre (WS-3.3) + voiles de lisibilité ── */}
+      <HeroMap center={hero.position} spots={hero.mapSpots} />
+      {/* Voile horizontal : sombre à gauche (texte lisible), translucide à droite (carte visible). */}
       <div
         aria-hidden="true"
-        data-aurora
-        className="pointer-events-none absolute left-[-110px] top-[8%] h-[460px] w-[460px] rounded-full blur-[80px] mix-blend-screen"
-        style={{ background: 'radial-gradient(circle, rgba(20,184,166,.5), transparent 64%)' }}
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-navy-950 via-navy-950/80 to-navy-950/35"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-navy-950/85 via-transparent to-navy-950/55"
       />
       <div
         aria-hidden="true"
         data-aurora
-        className="pointer-events-none absolute bottom-[-70px] right-[-90px] h-[420px] w-[420px] rounded-full blur-[80px] mix-blend-screen"
-        style={{ background: 'radial-gradient(circle, rgba(217,165,60,.38), transparent 64%)' }}
+        className="pointer-events-none absolute left-[-110px] top-[8%] z-[1] h-[460px] w-[460px] rounded-full blur-[80px] mix-blend-screen"
+        style={{ background: 'radial-gradient(circle, rgba(20,184,166,.4), transparent 64%)' }}
       />
-      <Bathy density={5} opacity={0.35} className="text-teal-500" />
+      <div
+        aria-hidden="true"
+        data-aurora
+        className="pointer-events-none absolute bottom-[-70px] right-[-90px] z-[1] h-[420px] w-[420px] rounded-full blur-[80px] mix-blend-screen"
+        style={{ background: 'radial-gradient(circle, rgba(217,165,60,.3), transparent 64%)' }}
+      />
       {/* Halo curseur (desktop) — suit --glow-x/--glow-y posés par useGSAP. */}
       <div
         aria-hidden="true"

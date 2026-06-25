@@ -13,6 +13,7 @@ import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
 import { qualityFromScore } from '@/lib/solunar/scoring'
 import { rankByDayScore, HOME_TIERS, type HomeTier } from './home-data-core'
 import type { Database } from '@/lib/types'
+import type { QualityLevel } from '@/lib/solunar/types'
 
 export { HOME_TIERS, type HomeTier } from './home-data-core'
 
@@ -128,6 +129,8 @@ export type HeroSnapshot = {
   /** Score générique réel 0-100 (meilleur moment du jour), ou null. */
   score: number | null
   quality: string | null
+  /** Spots de la façade (anon, centroïdes floutés) — carte de fond du hero. */
+  mapSpots: { id: string; name: string; lat: number; lng: number; quality: QualityLevel | null }[]
   /** Prochain créneau optimal réel (solunaire générique), ou null. */
   nextWindow: { startISO: string; quality: string } | null
   tide: {
@@ -169,6 +172,7 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
   let score: number | null = null
   let quality: string | null = null
   let nextWindow: HeroSnapshot['nextWindow'] = null
+  let mapSpots: HeroSnapshot['mapSpots'] = []
 
   if (sb) {
     // Spots Finistère : anon → gatés 3/dépt, position = centroïde geom_public.
@@ -198,6 +202,17 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
         sc?.next_window_start && sc.next_window_quality
           ? { startISO: sc.next_window_start, quality: sc.next_window_quality }
           : null
+      // Spots de la façade pour la carte de fond (position = centroïde geom_public).
+      mapSpots = spots.slice(0, 12).map((s) => {
+        const ds = scoreById.get(s.id)?.day_score ?? null
+        return {
+          id: s.id,
+          name: s.name,
+          lat: s.lat,
+          lng: s.lng,
+          quality: ds != null ? qualityFromScore(ds) : null,
+        }
+      })
     }
   }
 
@@ -244,6 +259,7 @@ async function _getHeroSnapshot(): Promise<HeroSnapshot> {
     position,
     score,
     quality,
+    mapSpots,
     nextWindow,
     tide,
     weather,
