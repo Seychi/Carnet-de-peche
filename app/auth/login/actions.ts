@@ -320,8 +320,14 @@ export async function requestPasswordReset(
   const supabase = await createClient();
   const origin = await getOrigin();
 
+  // Le lien de reset passe par /auth/confirm (token_hash + verifyOtp), câblé
+  // DANS le template email (supabase/email-templates/reset-password.html) :
+  // robuste cross-device, contrairement au flux PKCE de /auth/callback. Le
+  // `redirectTo` ci-dessous n'alimente que {{ .RedirectTo }} (non utilisé par
+  // le template token_hash) ; on le pointe sur la destination finale par
+  // cohérence — il doit figurer dans l'allowlist Redirect URLs du Dashboard.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?next=/auth/reset-password`,
+    redirectTo: `${origin}/auth/reset-password`,
   });
 
   if (error) {

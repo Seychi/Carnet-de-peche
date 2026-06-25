@@ -5,6 +5,20 @@ sont envoyés par **Supabase Auth**, pas par notre code — donc pas par Resend
 ni par les templates React de `emails/`. Pour les brander, deux actions
 **manuelles dans le dashboard Supabase** (projet `glgciwwnpmgifyhbvxsw`) :
 
+## ⚠️ Flux de reset (corrigé 2026-06-25) — NE PAS revenir en arrière
+
+Le lien de reset utilise le flux **`token_hash` + `verifyOtp`** via la route
+serveur [`app/auth/confirm/route.ts`](../../app/auth/confirm/route.ts), PAS
+l'ancien flux `{{ .ConfirmationURL }}` → `/auth/callback`.
+
+Pourquoi : l'ancien flux produisait soit un fragment `#access_token=…`
+(flux implicite, illisible côté serveur), soit un `?code=` PKCE dont le
+« code verifier » vit dans le navigateur DEMANDEUR — donc cassé dès que
+l'utilisateur ouvre l'email sur un autre appareil (desktop → mobile) ou dans
+la webview d'un client mail. Symptôme observé : atterrissage sur la home (avec
+`#access_token` dans l'URL) ou sur `/auth/login`, sans pouvoir changer le mot
+de passe. `verifyOtp({ token_hash })` est auto-suffisant → robuste cross-device.
+
 ## 1. Coller le template reset password (2 min)
 
 Dashboard → **Authentication → Emails → Templates → Reset Password** :
@@ -12,13 +26,36 @@ Dashboard → **Authentication → Emails → Templates → Reset Password** :
 - Subject : `Réinitialise ton mot de passe — Carnet de Pêche`
 - Body : coller le contenu de [`reset-password.html`](./reset-password.html)
 
-Les variables `{{ .ConfirmationURL }}` / `{{ .Email }}` sont remplacées par
-Supabase à l'envoi — ne pas y toucher. Le lien renvoie vers
-`/auth/callback` (déjà configuré côté app, flow de reset du sprint 3.5).
+Le lien y est : `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/auth/reset-password`.
+Les variables `{{ .SiteURL }}` / `{{ .TokenHash }}` / `{{ .Email }}` sont
+remplacées par Supabase à l'envoi — ne pas y toucher.
+
+## 1bis. Vérifier la config URL (OBLIGATOIRE — c'était la cause racine)
+
+Dashboard → **Authentication → URL Configuration** :
+
+- **Site URL** = `https://carnet-de-peche.com` (sans `www`). C'est ce que
+  `{{ .SiteURL }}` injecte dans le lien — s'il est faux, le lien est mort.
+- **Redirect URLs** (allowlist) : ajouter, si absents —
+  `https://carnet-de-peche.com/auth/confirm`,
+  `https://carnet-de-peche.com/auth/reset-password`,
+  `https://carnet-de-peche.com/auth/callback` (OAuth Google),
+  ainsi que les previews Vercel via wildcard `https://*.vercel.app/auth/**` si besoin.
+  Une URL `redirectTo` absente de l'allowlist est ignorée → Supabase retombe
+  sur le Site URL (= ce qui cassait le reset).
 
 ⚠️ Le template affirme « le lien est valable 1 heure » : vérifier que
 **Authentication → Sessions → Email OTP Expiration** est bien à `3600` s
 (le défaut). Si la valeur diffère, adapter la phrase dans le HTML.
+
+## Périmètre des autres emails
+
+Confirmation d'inscription et magic link utilisent ENCORE l'ancien template
+Supabase par défaut (`{{ .ConfirmationURL }}`) → même bug latent cross-device.
+Pour les durcir, appliquer le même patron `token_hash` :
+`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/onboarding/1`
+(et `type=magiclink&next=/home`). La route `/auth/confirm` gère déjà tous les
+types — il ne reste qu'à éditer ces deux templates dans le Dashboard.
 
 ## 2. (Recommandé) SMTP custom via Resend — même domaine d'envoi partout
 
