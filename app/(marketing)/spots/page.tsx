@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
-import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
+import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS, departmentArticle } from '@/lib/geo/departments'
 
 export const revalidate = 3600
 
@@ -29,22 +29,23 @@ type Props = {
 
 function buildH1(dept?: string, species?: string): string {
   const speciesLabel = species ? (SPECIES_LABELS[species] ?? species) : null
-  const deptLabel = dept ? `${DEPARTMENT_LABELS[dept] ?? dept} (${dept})` : null
-  if (speciesLabel && deptLabel) return `Spots à ${speciesLabel} dans le ${deptLabel}`
+  // Article accordé au département + code entre parenthèses (« dans les Alpes-Maritimes (06) »).
+  const deptPhrase = dept ? `${departmentArticle(dept, 'dans')} (${dept})` : null
+  if (speciesLabel && deptPhrase) return `Spots à ${speciesLabel} ${deptPhrase}`
   if (speciesLabel) return `Spots à ${speciesLabel} en France`
-  if (deptLabel) return `Spots de pêche dans le ${deptLabel}`
+  if (deptPhrase) return `Spots de pêche ${deptPhrase}`
   return 'Spots de pêche à la canne du bord en France'
 }
 
 function buildDescription(dept?: string, species?: string): string {
   const sp = species ? (SPECIES_LABELS[species]?.toLowerCase() ?? species) : null
-  const dp = dept ? (DEPARTMENT_LABELS[dept] ?? dept) : null
+  const dp = dept ? departmentArticle(dept, 'dans') : null
   if (sp && dp)
-    return `Tous les spots à ${sp} dans le ${dp}. Fiches avec conditions météo, marées et prises de la communauté.`
+    return `Tous les spots à ${sp} ${dp}. Fiches avec conditions météo, marées et prises de la communauté.`
   if (sp)
     return `Tous les spots à ${sp} sur le littoral français. Conditions, marées et scores d'activité par spot.`
   if (dp)
-    return `Tous les spots de pêche à la canne du bord dans le ${dp}. Fiches complètes avec données environnementales.`
+    return `Tous les spots de pêche à la canne du bord ${dp}. Fiches complètes avec données environnementales.`
   return 'Annuaire complet des spots de pêche à la canne du bord en France. Conditions météo, marées et prises récentes pour chaque spot.'
 }
 

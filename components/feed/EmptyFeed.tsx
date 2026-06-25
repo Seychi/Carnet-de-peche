@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Fish, UserPlus, Wind } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { departmentArticle } from '@/lib/geo/departments'
 
 type Variant = 'dept' | 'follows-none' | 'follows-empty'
 
@@ -11,7 +12,7 @@ const CONTENT: Record<
 > = {
   dept: {
     Icon: Fish,
-    title: (region) => `Sois le premier à poster dans le ${region ?? 'coin'}.`,
+    title: (region) => `Sois le premier à poster ${region ? departmentArticle(region, 'dans') : 'dans le coin'}.`,
     body: 'Une question matos, une alerte spot, un retour de session… lance le fil de ton département.',
     cta: { href: '/follows', label: 'Trouver des pêcheurs de ton coin' },
   },

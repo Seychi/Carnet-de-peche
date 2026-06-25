@@ -115,6 +115,32 @@ export const CARNET_SPECIES_DB_KEYS: string[] = Object.values(SPECIES)
   .filter((m) => m.inCarnet)
   .map((m) => m.dbKey)
 
+/**
+ * Options { value: dbKey, label } loggables au carnet, CŒUR D'ABORD (ordre d'insertion).
+ * SOURCE UNIQUE du sélecteur d'espèce (`CatchForm`) et de l'onboarding — fini la liste
+ * codée en dur à 6 (sprint 31, F3). `catches.species` étant du texte libre, aucune
+ * contrainte DB ne borne cette liste : la garde reste la validation zod (`catchSpeciesEnum`).
+ */
+export const CARNET_SPECIES_OPTIONS: { value: string; label: string }[] = Object.values(SPECIES)
+  .filter((m) => m.inCarnet)
+  .map((m) => ({ value: m.dbKey, label: m.label }))
+
+/**
+ * Espèces « cœur » du produit v1 (CLAUDE.md §1) — quick-picks en accès direct dans le
+ * sélecteur carnet. Les 20 autres passent par la recherche « Autre espèce » (sprint 31).
+ */
+export const CORE_SPECIES_SLUGS: SpeciesSlug[] = [
+  'bar',
+  'dorade-royale',
+  'lieu-jaune',
+  'maquereau',
+  'sar',
+  'orphie',
+]
+
+/** Clés DB des espèces cœur (dérivé de `CORE_SPECIES_SLUGS`) — split quick-picks / recherche. */
+export const CORE_SPECIES_DB_KEYS: string[] = CORE_SPECIES_SLUGS.map((slug) => SPECIES[slug].dbKey)
+
 // ─── Techniques ───────────────────────────────────────────────────────────────
 
 export type TechniqueSlug = 'leurres' | 'surfcasting' | 'flottante' | 'vif'

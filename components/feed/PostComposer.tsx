@@ -65,7 +65,14 @@ export function PostComposer({
   onOptimisticCreate: (post: FeedPostEnriched) => void
   onReconcile: (tempId: string, success: boolean) => void
 }) {
-  const [text, setText] = useState('')
+  // Textarea NON contrôlée + flag « contient du texte » (Bloc E, INP sprint 31) :
+  // taper ne re-render plus PostComposer (ni l'aperçu photos, ni le picker, ni le
+  // bouton) — zéro reconciliation par frappe. Le flag ne bascule qu'au passage
+  // vide↔non-vide (pour activer/désactiver « Publier »). La valeur est lue au ref
+  // au moment d'envoyer.
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  const [hasText, setHasText] = useState(false)
+  const hadTextRef = useRef(false)
   const [attached, setAttached] = useState<RecentCatch | null>(null)
   const [photos, setPhotos] = useState<DraftPhoto[]>([])
   const [resizing, setResizing] = useState(false)
@@ -173,8 +180,19 @@ export function PostComposer({
     })
   }
 
+  // Recalc minimal au boundary vide↔non-vide pour piloter l'état « disabled » du
+  // bouton Publier, sans re-render à chaque caractère (INP, Bloc E).
+  function handleComposerChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const has = e.target.value.trim().length > 0
+    if (has !== hadTextRef.current) {
+      hadTextRef.current = has
+      setHasText(has)
+    }
+  }
+
   async function handleSubmit() {
-    if (!text.trim() && !attached && photos.length === 0) return
+    const value = textRef.current?.value ?? ''
+    if (!value.trim() && !attached && photos.length === 0) return
     setSubmitting(true)
 
     const tempId = `temp-${crypto.randomUUID()}`
@@ -195,7 +213,7 @@ export function PostComposer({
       catch_technique: null,
       catch_spot_name: null,
       catch_spot_slug: null,
-      text: text.trim() || null,
+      text: value.trim() || null,
       region,
       likes_count: 0,
       comments_count: 0,
@@ -239,7 +257,7 @@ export function PostComposer({
       }
 
       const res = await createPost({
-        text: text.trim() || undefined,
+        text: value.trim() || undefined,
         catchId: attached?.id,
         region,
         photos: uploaded,
@@ -256,7 +274,9 @@ export function PostComposer({
 
       // Succès : on vide le composer (sans révoquer les blob: encore affichés par
       // la carte optimiste — ils seront libérés au prochain rendu/navigation).
-      setText('')
+      if (textRef.current) textRef.current.value = ''
+      hadTextRef.current = false
+      setHasText(false)
       setAttached(null)
       setPhotos([])
       onReconcile(tempId, true)
@@ -273,13 +293,14 @@ export function PostComposer({
     }
   }
 
-  const canSubmit = (text.trim() || attached || photos.length > 0) && !submitting && !resizing
+  const canSubmit = (hasText || attached || photos.length > 0) && !submitting && !resizing
 
   return (
     <div className="flex flex-col gap-2 rounded-[14px] border border-sand-200 bg-white p-3">
       <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        ref={textRef}
+        defaultValue=""
+        onChange={handleComposerChange}
         rows={3}
         maxLength={2000}
         placeholder="Quoi de neuf sur le bord ?"

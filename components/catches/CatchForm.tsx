@@ -2,14 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm, Controller, type SubmitHandler, type Resolver } from 'react-hook-form'
+import { useForm, Controller, type SubmitHandler, type SubmitErrorHandler, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { MapPin, Loader2, Fish } from 'lucide-react'
+import { MapPin, Loader2, Fish, Search, ChevronDown } from 'lucide-react'
 
 import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
 import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LABELS } from '@/lib/regulation'
+import { CARNET_SPECIES_OPTIONS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 import { PhotoInput } from '@/components/forms/PhotoInput'
 import { analytics } from '@/lib/analytics'
 import type { CatchRow } from '@/lib/catches/queries'
@@ -22,14 +23,12 @@ const DRAFT_KEY = 'carnet:draft-catch'
 // BUG-18). Le brouillon protège contre une perte accidentelle DANS la session.
 const DRAFT_TTL_MS = 30 * 60 * 1000
 
-const SPECIES = [
-  { value: 'bar', label: 'Bar' },
-  { value: 'dorade_royale', label: 'Dorade royale' },
-  { value: 'lieu_jaune', label: 'Lieu jaune' },
-  { value: 'maquereau', label: 'Maquereau' },
-  { value: 'sar', label: 'Sar' },
-  { value: 'orphie', label: 'Orphie' },
-] as const
+// Espèces loguables — DÉRIVÉ du référentiel unique (sprint 31, F3) : 26 espèces, cœur
+// d'abord. Les 6 cœur sont en quick-picks, les 20 autres derrière la recherche
+// « Autre espèce » (SpeciesPicker en bas de fichier). Plus de liste codée en dur.
+const CORE_KEYS = new Set(CORE_SPECIES_DB_KEYS)
+const QUICK_SPECIES = CARNET_SPECIES_OPTIONS.filter((o) => CORE_KEYS.has(o.value))
+const OTHER_SPECIES = CARNET_SPECIES_OPTIONS.filter((o) => !CORE_KEYS.has(o.value))
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -430,12 +429,35 @@ export function CatchForm(props: CatchFormProps) {
     router.push(`/carnet/${result.id}`)
   }
 
+  // Submit invalide (F7, sprint 31) : le CTA collant est en bas, les champs requis
+  // peuvent être hors écran → on scrolle vers la 1re section fautive ET on toaste
+  // pourquoi. Plus de clic « dans le vide » sans retour.
+  const onInvalid: SubmitErrorHandler<CreateCatchInput> = (formErrors) => {
+    const sections: { keys: (keyof CreateCatchInput)[]; id: string; msg: string }[] = [
+      { keys: ['species'], id: 'catch-section-species', msg: 'Choisis une espèce pour continuer.' },
+      { keys: ['technique'], id: 'catch-section-technique', msg: 'Choisis une technique de pêche.' },
+      {
+        keys: ['latitude', 'longitude', 'spot_id'],
+        id: 'catch-section-lieu',
+        msg: 'Indique le lieu de la prise (GPS, ville ou spot).',
+      },
+    ]
+    for (const s of sections) {
+      if (s.keys.some((k) => formErrors[k])) {
+        document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        toast.error(s.msg)
+        return
+      }
+    }
+    toast.error('Vérifie les champs en rouge avant de valider.')
+  }
+
   // Label de position existante en mode édition (quand lat/lng non encore renseignés dans le form)
   const existingLocationLabel =
     isEdit && !watchedLat ? (initialValues?.location_label ?? null) : null
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="space-y-4 pb-32">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} autoComplete="off" className="space-y-4 pb-32">
 
       {/* ── Bandeau spot pré-sélectionné ── */}
       {spotContext && (
@@ -465,29 +487,16 @@ export function CatchForm(props: CatchFormProps) {
       )}
 
       {/* ── Section 1 : Espèce ── */}
-      <Card>
+      <Card id="catch-section-species">
         <SectionTitle required>Espèce</SectionTitle>
         <Controller
           name="species"
           control={control}
           render={({ field }) => (
-            <div className="grid grid-cols-2 gap-2 mt-3">
-              {SPECIES.map((s) => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => { field.onChange(s.value); field.onBlur() }}
-                  className={`flex items-center gap-2.5 px-4 py-3 rounded-[10px] border text-[14px] font-medium transition-colors text-left ${
-                    field.value === s.value
-                      ? 'border-teal-500 bg-teal-50 text-teal-700'
-                      : 'border-sand-200 bg-slate-50 text-ink-700 active:bg-slate-100'
-                  }`}
-                >
-                  <Fish size={15} className="shrink-0" />
-                  <span>{s.label}</span>
-                </button>
-              ))}
-            </div>
+            <SpeciesPicker
+              value={field.value}
+              onSelect={(v) => { field.onChange(v); field.onBlur() }}
+            />
           )}
         />
         <FieldError error={errors.species?.message} />
@@ -618,7 +627,7 @@ export function CatchForm(props: CatchFormProps) {
       </Card>
 
       {/* ── Section 3 : Technique ── */}
-      <Card>
+      <Card id="catch-section-technique">
         <SectionTitle required>Technique</SectionTitle>
         <Controller
           name="technique"
@@ -682,7 +691,7 @@ export function CatchForm(props: CatchFormProps) {
       </Card>
 
       {/* ── Section 4 : Lieu ── */}
-      <Card>
+      <Card id="catch-section-lieu">
         <SectionTitle required={!isEdit}>Lieu</SectionTitle>
 
         {locationMode === 'spot' && spotContext && (
@@ -988,10 +997,125 @@ export function CatchForm(props: CatchFormProps) {
 const inputCls =
   'w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 placeholder:text-slate-400 bg-white'
 
-function Card({ children }: { children: React.ReactNode }) {
+function Card({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
-    <div className="bg-white rounded-[14px] border border-sand-200 p-5">
+    <div id={id} className="bg-white rounded-[14px] border border-sand-200 p-5">
       {children}
+    </div>
+  )
+}
+
+// ─── Sélecteur d'espèce (sprint 31, F3) ───────────────────────────────────────
+// 6 quick-picks cœur + « Autre espèce » qui déroule une recherche sur les 20
+// restantes. Source unique = CARNET_SPECIES_OPTIONS (référentiel). La recherche
+// balaie les 26 (taper « bar » trouve aussi le quick-pick) ; insensible aux
+// accents/à la casse. Le picker reste contrôlé (RHF) : il ne stocke aucune valeur.
+function normalizeText(s: string): string {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+}
+
+function SpeciesPicker({
+  value,
+  onSelect,
+}: {
+  value: string | undefined
+  onSelect: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+
+  // Une espèce hors cœur déjà choisie (ex. édition d'une prise « seiche ») doit
+  // rester visible : le bouton « Autre espèce » affiche alors son libellé, surligné.
+  const selectedIsOther = !!value && !CORE_KEYS.has(value)
+  const selectedLabel = CARNET_SPECIES_OPTIONS.find((o) => o.value === value)?.label
+
+  const q = normalizeText(query.trim())
+  const results = q
+    ? CARNET_SPECIES_OPTIONS.filter((o) => normalizeText(o.label).includes(q))
+    : OTHER_SPECIES
+
+  function pick(v: string) {
+    onSelect(v)
+    setOpen(false)
+    setQuery('')
+  }
+
+  return (
+    <div className="mt-3 flex flex-col gap-2">
+      {/* Quick-picks cœur (1 tap pour ~95 % des prises) */}
+      <div className="grid grid-cols-2 gap-2">
+        {QUICK_SPECIES.map((s) => (
+          <button
+            key={s.value}
+            type="button"
+            onClick={() => pick(s.value)}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-[10px] border text-[14px] font-medium transition-colors text-left ${
+              value === s.value
+                ? 'border-teal-500 bg-teal-50 text-teal-700'
+                : 'border-sand-200 bg-slate-50 text-ink-700 active:bg-slate-100'
+            }`}
+          >
+            <Fish size={15} className="shrink-0" />
+            <span>{s.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* « Autre espèce » : déroule la recherche sur les 20 restantes */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className={`flex items-center justify-between gap-2 px-4 py-3 rounded-[10px] border text-[14px] font-medium transition-colors ${
+          selectedIsOther
+            ? 'border-teal-500 bg-teal-50 text-teal-700'
+            : 'border-sand-200 bg-slate-50 text-ink-700 active:bg-slate-100'
+        }`}
+      >
+        <span className="flex items-center gap-2.5">
+          <Fish size={15} className="shrink-0" />
+          <span>{selectedIsOther ? (selectedLabel ?? value) : `Autre espèce (${OTHER_SPECIES.length})`}</span>
+        </span>
+        <ChevronDown size={16} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="rounded-[10px] border border-sand-200 bg-white p-2">
+          <div className="mb-2 flex items-center gap-2 rounded-[8px] border border-sand-200 px-2.5">
+            <Search size={14} className="shrink-0 text-ink-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher une espèce…"
+              aria-label="Rechercher une espèce"
+              autoFocus
+              className="min-h-10 flex-1 bg-transparent text-[14px] outline-none placeholder:text-slate-400"
+            />
+          </div>
+          <div className="flex max-h-56 flex-col gap-1 overflow-y-auto">
+            {results.length === 0 ? (
+              <p className="px-2 py-3 text-[13px] text-ink-400">Aucune espèce ne correspond.</p>
+            ) : (
+              results.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => pick(s.value)}
+                  className={`flex min-h-11 items-center gap-2.5 rounded-[8px] px-2.5 py-2.5 text-left text-[14px] transition-colors ${
+                    value === s.value
+                      ? 'bg-teal-50 font-medium text-teal-700'
+                      : 'text-ink-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <Fish size={15} className="shrink-0 text-teal-500" />
+                  <span>{s.label}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

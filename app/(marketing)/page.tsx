@@ -183,6 +183,13 @@ export default async function HomePage() {
 
             {/* Aperçu produit : fiche du jour (UI représentative) */}
             <div className="relative">
+              {/* Honnêteté (Bloc A, sprint 31) : tout cet aperçu est une ILLUSTRATION.
+                  Le score perso prédictif (« calculé sur tes derniers bars ») n'est pas
+                  encore livré — le scoring réel est solunaire générique. On le marque
+                  pour ne pas survendre le moat. */}
+              <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-navy-950/85 px-3 py-1 font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-white/70 backdrop-blur-sm">
+                Exemple
+              </span>
               <div className="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 backdrop-blur-sm sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <TagData variant="on-dark">Pointe du Raz · 47.8709°N · 4.7372°O</TagData>
@@ -343,7 +350,7 @@ export default async function HomePage() {
             </div>
 
             <div className="relative rounded-[22px] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-sm sm:p-7">
-              <TagData variant="on-dark">Aperçu · patterns calculés sur ton historique</TagData>
+              <TagData variant="on-dark">Exemple · patterns calculés sur ton historique</TagData>
               <table className="mt-4 w-full text-sm">
                 <tbody>
                   {[

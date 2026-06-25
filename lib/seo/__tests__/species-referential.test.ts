@@ -3,6 +3,8 @@ import {
   SPECIES,
   ALL_SPECIES_DB_KEYS,
   CARNET_SPECIES_DB_KEYS,
+  CARNET_SPECIES_OPTIONS,
+  CORE_SPECIES_DB_KEYS,
   SPECIES_BY_DB_KEY,
 } from '@/lib/seo/programmatic'
 import { catchSpeciesEnum } from '@/lib/catches/schema'
@@ -40,5 +42,39 @@ describe('référentiel espèces unifié (sprint 23)', () => {
 
   it('dbKey ↔ slug bijectif sur 26 entrées', () => {
     expect(Object.keys(SPECIES_BY_DB_KEY)).toHaveLength(26)
+  })
+})
+
+// Sélecteur carnet 6 → 26 (sprint 31, F3) : la liste codée en dur à 6 est supprimée,
+// tout dérive de CARNET_SPECIES_OPTIONS. Verrou anti-réintroduction de liste parallèle.
+describe('sélecteur carnet (sprint 31, F3) — dérivé du référentiel', () => {
+  it('CARNET_SPECIES_OPTIONS = 26 options {value,label} alignées sur CARNET_SPECIES_DB_KEYS', () => {
+    expect(CARNET_SPECIES_OPTIONS).toHaveLength(26)
+    expect(CARNET_SPECIES_OPTIONS.map((o) => o.value)).toEqual(CARNET_SPECIES_DB_KEYS)
+    for (const o of CARNET_SPECIES_OPTIONS) {
+      expect(o.value, 'value vide').toBeTruthy()
+      expect(o.label, `label vide pour ${o.value}`).toBeTruthy()
+    }
+  })
+
+  it('toutes les options du carnet sont acceptées par catchSpeciesEnum (loguables)', () => {
+    for (const o of CARNET_SPECIES_OPTIONS) {
+      expect(catchSpeciesEnum.safeParse(o.value).success, `${o.value} rejetée`).toBe(true)
+    }
+  })
+
+  it('seiche / mulet / congre sont bien loguables (le bug F3)', () => {
+    const values = CARNET_SPECIES_OPTIONS.map((o) => o.value)
+    for (const k of ['seiche', 'mulet', 'congre']) expect(values, `${k} manquante`).toContain(k)
+  })
+
+  it('CORE = 6 espèces cœur ⊂ carnet ; split quick (6) + autre (20) = 26', () => {
+    expect(CORE_SPECIES_DB_KEYS).toHaveLength(6)
+    const carnet = new Set(CARNET_SPECIES_DB_KEYS)
+    for (const k of CORE_SPECIES_DB_KEYS) expect(carnet.has(k), `${k} hors carnet`).toBe(true)
+    const quick = CARNET_SPECIES_OPTIONS.filter((o) => CORE_SPECIES_DB_KEYS.includes(o.value))
+    const other = CARNET_SPECIES_OPTIONS.filter((o) => !CORE_SPECIES_DB_KEYS.includes(o.value))
+    expect(quick).toHaveLength(6)
+    expect(other).toHaveLength(20)
   })
 })

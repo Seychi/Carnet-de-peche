@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import { MarketingCTA } from '@/components/marketing/MarketingCTA'
+import { TechniquesWaitlist } from '@/components/marketing/TechniquesWaitlist'
 
-// Page statique (stub « Bientôt disponible », pas de data async) → pas de
-// loading.tsx. robots index:false conservé tant que les guides techniques
-// ne sont pas publiés.
+// Page « Bientôt disponible » + capture email (F8 sprint 31). La meta « inscris-toi
+// pour être notifié » est désormais VRAIE (le formulaire ci-dessous alimente la
+// liste d'attente guide_waitlist). robots index:false CONSERVÉ : la page reste
+// mince tant que les guides ne sont pas publiés (anti thin-content). À retirer à la
+// sortie des guides.
 export const metadata: Metadata = {
   title: 'Techniques — Bientôt disponible · Carnet de Pêche',
   description:
     'Leurres, surfcasting, pêche à la flottante, vif : les guides techniques pour la pêche à la canne du bord arrivent bientôt. Inscris-toi pour être notifié.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/techniques' },
-  // Page stub « Bientôt disponible » : pas d'indexation tant qu'elle est vide
-  // (évite le signal « contenu mince »). À retirer à la sortie des guides.
   robots: { index: false },
 }
 
@@ -28,6 +29,13 @@ export default function TechniquesPage() {
             flottante et au vif — matériel, montages et conditions idéales pour chaque
             approche depuis le bord.
           </p>
+
+          <div className="mt-8">
+            <p className="mb-3 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-ink-500">
+              Préviens-moi à la sortie
+            </p>
+            <TechniquesWaitlist />
+          </div>
         </div>
       </div>
 

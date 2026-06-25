@@ -112,6 +112,15 @@ export function HomeVisualCarnet() {
       style={{ background: SEA_NIGHT }}
     >
       <Bathy opacity={0.4} density={4} />
+      {/* Marqueur d'honnêteté (Bloc A, sprint 31) : chiffres illustratifs, pas tes vraies
+          données (record, spot fétiche, graphe annuel). aria-hidden : la figure porte déjà
+          un aria-label « Aperçu ». */}
+      <span
+        aria-hidden="true"
+        className="absolute right-3 top-3 z-10 rounded-full border border-white/15 bg-navy-950/70 px-2.5 py-1 font-mono text-[9px] font-medium uppercase tracking-[0.1em] text-white/65 backdrop-blur-sm"
+      >
+        Exemple
+      </span>
       <div aria-hidden="true" className="absolute inset-0 p-5">
         <p className="font-display text-[15px] font-bold leading-none text-white">Ton année, en un coup d&apos;œil</p>
         <p className="mt-1.5 font-mono text-[10px] tracking-[0.09em] text-white/50">SESSIONS · PRISES · CONDITIONS</p>

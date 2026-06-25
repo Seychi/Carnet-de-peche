@@ -22,7 +22,7 @@ import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
-import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -114,11 +114,10 @@ export async function generateMetadata(
   const structureLabel = (spot.structure && STRUCTURE_LABELS[spot.structure]) ?? 'Spot'
   const topSpecies = spot.species.slice(0, 3).map((s) => SPECIES_LABELS[s] ?? s).join(', ')
   const deptKey = String(spot.department).trim()
-  const deptLabel = DEPARTMENT_LABELS[deptKey] ?? deptKey
   const canonicalUrl = `${BASE_URL}/spots/${spot.slug}`
 
   const title = `Pêche à ${spot.name} (${deptKey}) — ${topSpecies} · Carnet de Pêche`
-  const description = `${structureLabel} pour pêcher ${topSpecies} dans le ${deptLabel}. Conditions, marées et techniques recommandées.`.slice(0, 158)
+  const description = `${structureLabel} pour pêcher ${topSpecies} ${departmentArticle(deptKey, 'dans')}. Conditions, marées et techniques recommandées.`.slice(0, 158)
   const ogDescription = spot.description
     ? `${spot.description.slice(0, 150)}${spot.description.length > 150 ? '…' : ''}`
     : description

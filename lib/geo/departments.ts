@@ -110,3 +110,67 @@ export const DEPARTMENT_REGION: Record<string, string> = {
 export function regionForDepartment(dept: string): string {
   return DEPARTMENT_REGION[dept.trim()] ?? ''
 }
+
+// ── Article + préposition par département (Bloc B, sprint 31) ──────────────────
+// Pour coller le BON article au nom : « du Finistère », « des Landes »,
+// « de l'Hérault » (prep 'de') / « dans le Finistère », « dans les Landes »,
+// « dans l'Hérault » (prep 'dans'). Fini le « du Alpes-Maritimes » fautif des
+// titres /fil et sous-titres /sorties (audit 2026-06-25 #3).
+// Une catégorie unique par département côtier :
+//   'm'       = masculin singulier  → du / dans le
+//   'f'       = féminin singulier   → de la / dans la
+//   'pl'      = pluriel             → des / dans les
+//   'elision' = voyelle / h muet    → de l' / dans l'  (genre indifférent)
+// Source unique, PURE et testée (lib/geo/__tests__/departments.test.ts).
+type DeptGrammar = 'm' | 'f' | 'pl' | 'elision'
+
+const DEPARTMENT_GRAMMAR: Record<string, DeptGrammar> = {
+  '14': 'm', // le Calvados
+  '17': 'f', // la Charente-Maritime
+  '22': 'pl', // les Côtes-d'Armor
+  '29': 'm', // le Finistère
+  '33': 'f', // la Gironde
+  '35': 'elision', // l'Ille-et-Vilaine
+  '40': 'pl', // les Landes
+  '44': 'f', // la Loire-Atlantique
+  '50': 'f', // la Manche
+  '56': 'm', // le Morbihan
+  '59': 'm', // le Nord
+  '62': 'm', // le Pas-de-Calais
+  '64': 'pl', // les Pyrénées-Atlantiques
+  '76': 'f', // la Seine-Maritime
+  '85': 'f', // la Vendée
+  '06': 'pl', // les Alpes-Maritimes
+  '11': 'elision', // l'Aude
+  '13': 'pl', // les Bouches-du-Rhône
+  '30': 'm', // le Gard
+  '34': 'elision', // l'Hérault
+  '66': 'pl', // les Pyrénées-Orientales
+  '83': 'm', // le Var
+  '2A': 'f', // la Corse-du-Sud
+  '2B': 'f', // la Haute-Corse
+}
+
+const ARTICLE_PREFIX: Record<'de' | 'dans', Record<DeptGrammar, string>> = {
+  de: { m: 'du ', f: 'de la ', pl: 'des ', elision: "de l'" },
+  dans: { m: 'dans le ', f: 'dans la ', pl: 'dans les ', elision: "dans l'" },
+}
+
+/**
+ * Article + préposition correctement accordés, COLLÉS au nom du département.
+ * `prep` = 'de' → « du Finistère », « des Landes », « de l'Hérault »,
+ *                  « de la Corse-du-Sud ».
+ * `prep` = 'dans' → « dans le Finistère », « dans les Landes », « dans l'Hérault »,
+ *                    « dans la Corse-du-Sud ».
+ * Fallback prudent pour un code hors liste côtière : on n'invente jamais d'article
+ * fautif (« de <nom> » au pire, ou le code brut) plutôt qu'un « undefined » à l'écran.
+ * Fonction PURE — testée.
+ */
+export function departmentArticle(code: string, prep: 'de' | 'dans'): string {
+  const key = code?.trim() ?? ''
+  const name = DEPARTMENT_LABELS[key]
+  const grammar = DEPARTMENT_GRAMMAR[key]
+  if (!name) return key
+  if (!grammar) return `${prep} ${name}`
+  return `${ARTICLE_PREFIX[prep][grammar]}${name}`
+}

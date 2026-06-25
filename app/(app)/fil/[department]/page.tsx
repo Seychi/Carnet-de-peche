@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { isCoastalDepartment, DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { isCoastalDepartment, DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
 import { getFeedPage } from '@/app/actions/feed'
 import { FeedTabs } from '@/components/feed/FeedTabs'
 import { type RecentCatch } from '@/components/feed/PostComposer'
@@ -27,7 +27,9 @@ export async function generateMetadata({
   const name = DEPARTMENT_LABELS[department]
   // Le fil est réservé aux connectés → noindex.
   return {
-    title: name ? `Fil du ${name} (${department}) · Carnet de Pêche` : 'Fil · Carnet de Pêche',
+    title: name
+      ? `Fil ${departmentArticle(department, 'de')} (${department}) · Carnet de Pêche`
+      : 'Fil · Carnet de Pêche',
     robots: { index: false, follow: false },
   }
 }
@@ -100,7 +102,7 @@ export default async function DepartmentFeedPage({
           </p>
           <h1 className="font-display text-2xl text-navy-900">Fil {deptName}</h1>
           <p className="text-[13px] text-ink-600">
-            Ce qui se passe sur le bord dans le {department}.
+            Ce qui se passe sur le bord {departmentArticle(department, 'dans')}.
           </p>
         </header>
 
