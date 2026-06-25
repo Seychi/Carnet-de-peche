@@ -2,15 +2,17 @@
 
 import { useRef } from 'react'
 import { gsap, ScrollTrigger, useGSAP } from './gsap'
+import { motionReduced, isCoarsePointer } from './config'
 
 // Lectures synchrones de la préférence, DANS le callback useGSAP (donc côté client
-// après hydratation). On ne crée aucune animation si l'utilisateur veut moins de
-// motion ; les effets POINTEUR (magnetic/glow) se coupent aussi sur tactile.
+// après hydratation). Le bridage reduced-motion passe par la politique centrale
+// (`config.ts`, RESPECT_REDUCED_MOTION) : par défaut le motion joue toujours. Les
+// effets POINTEUR (magnetic/glow) restent coupés sur tactile (aucune souris).
 function prefersReduce(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  return motionReduced()
 }
 function isTouch(): boolean {
-  return window.matchMedia('(pointer: coarse)').matches
+  return isCoarsePointer()
 }
 
 // ── useReveal : entrée « la donnée se dessine » au scroll dans le viewport ──────

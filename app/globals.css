@@ -304,7 +304,8 @@
   .marker-exceptional-ring { animation: none; opacity: 0.4; }
   .animate-like-pop { animation: none; }
   .animate-like-halo { display: none; }
-  .animate-marquee { animation: none; }
+  /* .animate-marquee : volontairement PAS bridé — le défilé des espèces est un motion
+     signature de la home (cf components/marketing/motion/config.ts, décision John). */
 }
 
 @layer base {

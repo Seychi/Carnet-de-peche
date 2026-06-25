@@ -14,6 +14,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { gsap, useGSAP } from '@/components/marketing/motion/gsap'
 import { useMagnetic } from '@/components/marketing/motion'
+import { motionReduced, isCoarsePointer } from '@/components/marketing/motion/config'
 import { trendLabel } from '@/lib/conditions/tide'
 import type { HeroSnapshot, HomeCounts } from '@/lib/marketing/home-data'
 import { LiveClock } from './LiveClock'
@@ -48,8 +49,8 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
     () => {
       const root = rootRef.current
       if (!root) return
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      const touch = window.matchMedia('(pointer: coarse)').matches
+      const reduce = motionReduced()
+      const touch = isCoarsePointer()
 
       if (!reduce) {
         // Entrée orchestrée « la donnée se compose ».
@@ -158,12 +159,10 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
             className="mt-5 font-display text-[clamp(40px,6.4vw,74px)] font-semibold leading-[1.03] tracking-[-0.025em] text-white"
           >
             Sache{' '}
-            {/* inline-block : la phrase reste un bloc atomique → pas de coupure au
-                milieu du dégradé (sinon le fragment qui passe à la ligne devient
-                quasi invisible). Stops clairs (teal-300 → gold-300) = lisibles partout. */}
-            <span className="inline-block bg-gradient-to-r from-teal-300 to-gold-300 bg-clip-text text-transparent">
-              quand et où
-            </span>
+            {/* Couleur PLEINE teal-300 (claire, brillante sur navy) — lisible partout,
+                desktop comme mobile. Le dégradé bg-clip-text rendait « où » quasi
+                invisible (fin de dégradé sombre + coupure de ligne). */}
+            <span className="text-teal-300">quand et où</span>
             <br />
             ça va mordre.
           </h1>

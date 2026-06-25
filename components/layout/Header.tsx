@@ -45,7 +45,7 @@ export async function Header() {
             <Link
               key={item.label}
               href={item.href}
-              className="inline-flex items-center min-h-[44px] text-[15px] font-medium text-ink-700 hover:text-navy-900 transition-colors"
+              className="relative inline-flex items-center min-h-[44px] text-[15px] font-medium text-ink-700 transition-colors hover:text-navy-900 after:pointer-events-none after:absolute after:bottom-[9px] after:left-0 after:h-[2px] after:w-0 after:rounded-full after:bg-teal-500 after:transition-[width] after:duration-300 hover:after:w-full focus-visible:after:w-full"
             >
               {item.label}
             </Link>

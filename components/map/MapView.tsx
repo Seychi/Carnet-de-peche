@@ -54,6 +54,10 @@ type MapViewProps = {
   onMapReady?: (map: MapLibreMap) => void
   className?: string
   interactive?: boolean
+  /** Gestes coopératifs : zoom molette → ctrl/⌘ requis, pan tactile → 2 doigts. Le
+   *  scroll vertical 1 doigt traverse la carte (pas de scroll-trap) ; le TAP reste
+   *  actif (clic marqueur OK). Idéal pour une carte EMBARQUÉE dans une page (home). */
+  cooperativeGestures?: boolean
 }
 
 type MapError = 'missing-key' | 'no-webgl' | 'init-error'
@@ -351,6 +355,7 @@ export default function MapView({
   onMapReady,
   className,
   interactive = true,
+  cooperativeGestures = false,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const readoutRef = useRef<HTMLSpanElement>(null)
@@ -450,6 +455,7 @@ export default function MapView({
           zoom: initialZoom,
           attributionControl: {},
           interactive,
+          cooperativeGestures,
           // Perf : supprime le fade-in des labels (300ms de repaints), réduit le
           // cache tuiles RAM, évite de rendre les copies du monde (inutile pour FR).
           fadeDuration: 0,

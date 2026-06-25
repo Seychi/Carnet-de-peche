@@ -2,22 +2,22 @@
 
 import Lenis from 'lenis'
 import { gsap, ScrollTrigger, useGSAP } from './gsap'
+import { motionReduced, isCoarsePointer } from './config'
 
 /**
  * Smooth scroll (Lenis) synchronisé avec ScrollTrigger — colonne vertébrale du
  * ressenti premium (sprint 34, WS-1). À monter UNE fois sur la home.
  *
  * - Piloté par le ticker GSAP (`autoRaf: false`) pour éviter le double-RAF.
- * - `prefers-reduced-motion` OU pointeur tactile → AUCUNE init Lenis : on garde
- *   le scroll natif (ScrollTrigger fonctionne très bien dessus, et le smooth-scroll
- *   tactile est instable). Le hero live mobile (décision John) ne dépend pas de Lenis.
+ * - Bridage reduced-motion via la politique centrale (`config.ts`) : par défaut Lenis
+ *   joue. On le garde COUPÉ sur tactile car le smooth-scroll au doigt fait du jank
+ *   (il se bat contre l'inertie native) → sur mobile le scroll NATIF est le bon ressenti,
+ *   pas une dégradation. Tout le reste du motion (hero, reveals, marquee) joue sur mobile.
  * - Cleanup automatique au démontage via `useGSAP` (+ `lenis.destroy()`).
  */
 export function SmoothScroll() {
   useGSAP(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const isTouch = window.matchMedia('(pointer: coarse)').matches
-    if (reduce || isTouch) return
+    if (motionReduced() || isCoarsePointer()) return
 
     const lenis = new Lenis({ autoRaf: false })
     lenis.on('scroll', ScrollTrigger.update)

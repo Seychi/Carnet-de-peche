@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { RESPECT_REDUCED_MOTION } from './config'
 
 export type MotionPreference = {
   /** L'utilisateur demande moins d'animation (`prefers-reduced-motion: reduce`). */
@@ -30,7 +31,8 @@ export function useMotionPreference(): MotionPreference {
     const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)')
     const mqTouch = window.matchMedia('(pointer: coarse)')
     const update = () => {
-      const reduceMotion = mqReduce.matches
+      // Bridage seulement si la politique respecte la préférence (cf config.ts).
+      const reduceMotion = RESPECT_REDUCED_MOTION && mqReduce.matches
       setPref({ reduceMotion, isTouch: mqTouch.matches, enabled: !reduceMotion })
     }
     update()

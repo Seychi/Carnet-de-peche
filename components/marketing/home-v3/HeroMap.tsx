@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Map as MapLibreMap } from 'maplibre-gl'
 import { markerColorForQuality } from '@/lib/map/utils'
 import type { QualityLevel } from '@/lib/solunar/types'
+import { motionReduced } from '@/components/marketing/motion/config'
 import { makeSeaLayer } from './seaLayer'
 
 export type HeroMapSpot = {
@@ -36,7 +37,7 @@ export function HeroMap({
   useEffect(() => {
     if (mapRef.current || !containerRef.current || !maptilerKey) return
     const container = containerRef.current
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduce = motionReduced()
 
     let cancelled = false
     let raf = 0
