@@ -158,7 +158,10 @@ export function Hero({ hero, counts }: { hero: HeroSnapshot; counts: HomeCounts 
             className="mt-5 font-display text-[clamp(40px,6.4vw,74px)] font-semibold leading-[1.03] tracking-[-0.025em] text-white"
           >
             Sache{' '}
-            <span className="bg-gradient-to-r from-teal-300 via-teal-500 to-gold-300 bg-clip-text text-transparent">
+            {/* inline-block : la phrase reste un bloc atomique → pas de coupure au
+                milieu du dégradé (sinon le fragment qui passe à la ligne devient
+                quasi invisible). Stops clairs (teal-300 → gold-300) = lisibles partout. */}
+            <span className="inline-block bg-gradient-to-r from-teal-300 to-gold-300 bg-clip-text text-transparent">
               quand et où
             </span>
             <br />
