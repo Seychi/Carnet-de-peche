@@ -12,6 +12,7 @@ import {
 import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
 import { qualityFromScore } from '@/lib/solunar/scoring'
 import { rankByDayScore, HOME_TIERS, type HomeTier } from './home-data-core'
+import { toSpotMarker, limitSpotsPerDept, type SpotMarker } from '@/lib/map/utils'
 import type { Database } from '@/lib/types'
 import type { QualityLevel } from '@/lib/solunar/types'
 
@@ -110,6 +111,37 @@ export const getHomeActivity = unstable_cache(
     }
   },
   ['home-activity-v1'],
+  { revalidate: 3600 },
+)
+
+// ── Spots de la carte explorable (section 02, WS-4) ─────────────────────────────
+// Vue ANONYME identique au tier gratuit : tous les spots publics (centroïdes
+// `geom_public` floutés, jamais `geom`), gatés 3/dépt comme sur /carte. Couleur des
+// markers dérivée du `day_score` réel (spot_scores). Aucune fuite GPS.
+export const getHomeMapSpots = unstable_cache(
+  async (): Promise<SpotMarker[]> => {
+    const sb = anonClient()
+    if (!sb) return []
+    const { data, error } = await sb.rpc('get_spots_for_map', {})
+    if (error || !data) return []
+    const spots = limitSpotsPerDept(data.map(toSpotMarker), 3)
+    const ids = spots.map((s) => s.id)
+    if (ids.length === 0) return spots
+    const { data: scores } = await sb
+      .from('spot_scores')
+      .select('spot_id, day_score, valid_until')
+      .gt('valid_until', new Date().toISOString())
+      .in('spot_id', ids)
+    const scoreById = new Map<string, number>()
+    for (const r of (scores ?? []) as { spot_id: string; day_score: number | null }[]) {
+      if (typeof r.day_score === 'number') scoreById.set(r.spot_id, r.day_score)
+    }
+    return spots.map((s) => {
+      const ds = scoreById.get(s.id)
+      return ds != null ? { ...s, currentScore: ds, currentQuality: qualityFromScore(ds) } : s
+    })
+  },
+  ['home-map-spots-v1'],
   { revalidate: 3600 },
 )
 

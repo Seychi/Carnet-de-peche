@@ -16,6 +16,8 @@ import type {
   HomeActivity,
   HomeTier,
 } from '@/lib/marketing/home-data'
+import type { SpotMarker } from '@/lib/map/utils'
+import { HomeMapSection } from './HomeMapSection'
 
 // Sections « storytelling » de la home (sprint 34, WS-5a) — SERVER component (SSR
 // pour le SEO) ; les `ScrollReveal`/`AnimatedCounter` sont des îlots client qui
@@ -41,11 +43,12 @@ function SecNum({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function HomeSections({ data }: { data: HomeData }) {
+export function HomeSections({ data, mapSpots }: { data: HomeData; mapSpots: SpotMarker[] }) {
   return (
     <>
       <TrustStrip counts={data.counts} />
       <MoatSection hero={data.hero} />
+      <HomeMapSection spots={mapSpots} />
       <CommunitySection activity={data.activity} counts={data.counts} />
       <PricingSection tiers={data.tiers} />
       <FAQSection />
