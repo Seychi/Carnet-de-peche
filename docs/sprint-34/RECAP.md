@@ -1,52 +1,85 @@
 # Sprint 34 — RECAP (refonte home « production ») — **EN COURS**
 
-> Chantier multi-semaines (décision John). **Cette session = fondations WS-1 + WS-2**
-> (les deux que le brief demande de lancer en premier). WS-3→7 + VERIF = sessions
-> suivantes (hero MapLibre + mer WebGL + motion choreography → itération visuelle +
-> device + specs Figma). **Non commité sur main, non poussé.**
+> Chantier multi-semaines (décision John). Branche **`sprint-34`**, **`main` propre à
+> 226d297, RIEN poussé**. Préversion live : `pnpm dev` → **`/refonte-v3`** (route noindex,
+> hors préfixe protégé `/home`). Le swap vers `/` = WS-7.
 
-## Décisions John (verrouillées cette session)
-1. **Hero mobile** : **live aussi sur mobile** (MapLibre + mer WebGL). → je garderai des garde-fous perf (poster LCP, montage après idle, pause onglet caché, cap devicePixelRatio) ; `prefers-reduced-motion` reste le coupe-circuit dur (même sur mobile).
-2. **Communauté home** : **spots + marées + activité AGRÉGÉE k-anon** (pas de prise/post individuel). Choix conforté par les findings data (cf ci-dessous).
-3. **Mise en ligne** : **swap direct** (pas d'A/B) — on câblera quand même les events de conversion PostHog (WS-7).
+## Décisions John (verrouillées)
+1. **Tout en réel** + **motion la plus avancée** (GSAP/ScrollTrigger/Lenis).
+2. **Hero = vraie carte MapLibre + mer WebGL pleine** (custom layer GL, LCP via poster).
+3. **Hero live aussi sur mobile** (reduced-motion = coupe-circuit dur).
+4. **Communauté = activité AGRÉGÉE k-anon** (pas de prise/post individuel).
+5. **Mise en ligne = swap direct** (events PostHog quand même, pas d'A/B).
+6. **Source de design = le prototype HTML** `docs/maquette-v3/accueil-premium-v3.html`
+   (+ tokens DA-v2 du code). **PAS Figma** (aucun fichier hero ; static API MapTiler 403).
 
-## Findings data critiques (supabase-guard, à connaître pour la suite)
-- **Pas de coefficient de marée** : le projet n'invente AUCUN coef SHOM (`tide_coefficient` = toujours `null`). La donnée honnête = le **MARNAGE** (amplitude PM-BM en m). → le hero affichera le marnage, **pas** un faux « COEF 88 ». (Le brief disait « coef réels » — corrigé pour rester honnête.)
-- **Posts du fil = bloqués en anon** (RLS `feed_posts_for_viewer` gatée `auth.uid()`). Aucun chemin public → pas de posts sur la home publique.
-- **Prises individuelles = risque GPS** : `catches_for_viewer` peut exposer le **point exact** (`reveal_precise_to_public`, 3/6 prises publiques à 0 m). → on n'affiche **jamais** la coord brute d'une prise sur la home. D'où l'activité **agrégée** (décision 2).
-- **Home déjà dynamique** (Header lit les cookies auth) → réutiliser `fetchSpotConditions` (cookies) est gratuit ; le LCP se protège par le poster statique côté hero (WS-3).
+## Findings data structurants (à connaître)
+- **AUCUN coefficient de marée** dans le projet (`tide_coefficient` toujours null). Donnée
+  honnête = le **MARNAGE** (amplitude PM-BM). Le hero affiche le marnage, pas un faux coef.
+- **Posts du fil bloqués en anon** (RLS) ; **`catches_for_viewer` peut exposer le GPS exact**
+  (`reveal_precise_to_public`) → la home n'expose JAMAIS de coord de prise → activité agrégée.
+- **Home déjà dynamique** (Header lit les cookies) → `fetchSpotConditions` (cookies) gratuit ;
+  le LCP est protégé par le poster + le montage différé de la carte.
 
-## WS-1 — Fondations motion & perf ✅ (livré)
-Installé `gsap@3.15 + @gsap/react@2.1 + lenis@1.3`. Module `components/marketing/motion/` :
-- `gsap.ts` : enregistrement plugins UNE fois, client-only (`useGSAP`, `ScrollTrigger`).
-- `useMotionPreference.ts` : hook réactif `{ reduceMotion, isTouch, enabled }`, SSR-safe (défaut conservateur = pas d'animation avant hydratation).
-- `SmoothScroll.tsx` : Lenis ↔ ScrollTrigger via `gsap.ticker` (`autoRaf:false`, anti double-RAF) ; **off** si reduced-motion **ou** tactile (scroll natif). Cleanup auto.
-- `hooks.ts` : `useReveal`, `useParallax`, `usePin`, `useScrub`, `useMagnetic`, `useCursorGlow` — tous **no-op en reduced-motion** ; les effets POINTEUR (magnetic/glow) aussi **no-op en tactile**. Cleanup auto (`useGSAP` + cleanups retournés).
-- `index.ts` : barrel.
-- Pattern version-correct 2026 (docs-researcher) : `useGSAP` (auto SSR-safe + revert au démontage), Lenis package `lenis` (pas `@studio-freight`).
-- **Pas encore monté sur la home** (fondations dormantes) → WS-3 les câble en lazy hors LCP.
+## Commits (sprint-34), dans l'ordre
+| Commit | Contenu |
+|---|---|
+| 6c85c1d | **WS-1+WS-2 fondations** : motion (GSAP/@gsap/react/Lenis) + couche données réelles |
+| 8f17bd6 | **WS-3.1/3.2** : hero scaffold + vraie donnée + motion GSAP |
+| 4339e52 | **WS-3.3** : fond carte MapLibre sombre (vrais spots floutés + dérive) |
+| f0e180c | **WS-3.4** : mer WebGL (custom layer GLSL, contexte GL unique) |
+| 86b5577 | **WS-3.5** : poster LCP (texture Bathy instantanée) |
+| 441d1cc | **WS-5a** : trust strip + 01 Moat + 03 Communauté + marquee 26 espèces |
+| bc741e1 | **WS-5b** : 04 Tarifs (HOME_TIERS) + FAQ (JSON-LD) + CTA final |
+| 7ae296e | **fix** : markers spots en couche circle GPU (fin du tremblement à la dérive) |
+| 8c6e552 | **WS-4** : section 02 carte explorable RÉELLE (MapLibre lazy, vrais spots, SpotPopup) |
 
-## WS-2 — Couche données réelles ✅ (livré, anon-safe)
-- `lib/marketing/home-data.ts` (serveur) + `lib/marketing/home-data-core.ts` (pur, testé) :
-  - `getHomeCounts()` → `{ spots, departments, species }` réels (`spots_for_viewer`, anon, `unstable_cache` 1h). species = 26 (référentiel).
-  - `getHeroSnapshot()` → spot Finistère par défaut (le mieux scoré, déterministe via `rankByDayScore`) + **vraie marée du jour** (`fetchSpotConditions` : PM/BM, **marnage**, tendance, hauteur) + **score générique réel** (`spot_scores.day_score`, qualité dérivée via `qualityFromScore`). Position = **centroïde `geom_public`** (floutée), jamais `geom`.
-  - `getHomeActivity()` → activité agrégée nationale `{ catchCount, cellCount }` via `get_catch_heatmap` k-anon (K=3, counts only), `unstable_cache` 1h.
-  - `HOME_TIERS` → 3 formules, montants depuis `lib/stripe/pricing` (source de vérité).
-  - `getHomeData()` → agrège tout en parallèle (best-effort par brique).
-- **Anon-safe par construction** : aucune lecture de `geom`/`catches` direct ; tout via vues/RPC floutées (verrous 028b/041). Confirmé supabase-guard.
-- Tests : `home-data-core.test.ts` (rankByDayScore déterministe + HOME_TIERS prix exacts) = **6 verts**.
+## Architecture livrée
 
-## Gates (cette session)
-- `pnpm test` : **543 verts** (52 fichiers, +7). `tsc --noEmit` : 0 erreur. `next build` : OK (71 pages, First Load JS inchangé — fondations non encore importées). `next lint` (fichiers touchés) : 0.
+### Couche données — `lib/marketing/home-data.ts` (+ `home-data-core.ts` testé)
+- `getHomeCounts()` (spots/dépts/espèces), `getHeroSnapshot()` (spot Finistère réel + marée
+  + marnage + score + prochain créneau + mapSpots), `getHomeActivity()` (k-anon national),
+  `getHomeMapSpots()` (tous spots publics anon, gatés 3/dépt, scores mergés), `HOME_TIERS`,
+  `getHomeData()`. **Anon-safe par construction** (vues/RPC floutées, jamais `geom`).
 
-## Reste (sessions suivantes)
-- **WS-3** Hero = vraie carte MapLibre + **mer WebGL** (custom layer GL, `args.defaultProjectionData.mainMatrix`, `triggerRepaint`, antialias au constructeur) + instrument HUD (marnage/score réels) + **poster LCP**. Besoin specs **Figma** (`get_motion_context`, `get_shader_effect`).
-- **WS-4** Carte explorable (section 02, lazy, `SpotPopup` réel, floutage anon).
-- **WS-5** Sections + scroll storytelling (moat réel, activité agrégée, marquee 26 espèces, tarifs `HOME_TIERS`, FAQ JSON-LD).
-- **WS-6** Mobile (motion + device réel 360/390 ; live mobile assumé).
-- **WS-7** SEO/JSON-LD + **events PostHog** sur les CTA + **swap** (pas d'A/B).
-- **VERIF** : Lighthouse (perf desktop ≥85 / mobile ≥90 via poster, LCP<2,5s, INP<200ms, CLS<0,1), qa-chrome device + réseau (zéro coord GPS anon), E2E, copy FR.
+### Motion — `components/marketing/motion/`
+- `gsap.ts`, `useMotionPreference`, `SmoothScroll` (Lenis↔ScrollTrigger), hooks
+  `useReveal/useParallax/usePin/useScrub/useMagnetic/useCursorGlow`. **No-op reduced-motion**
+  (pointeur no-op tactile). SSR-safe (`useGSAP`).
+
+### Page `/refonte-v3` (`app/(marketing)/refonte-v3/page.tsx`)
+`getHomeData()` + `getHomeMapSpots()` → `<Hero>` + `<HomeSections>`. **Complète** :
+1. **Hero** (`home-v3/Hero.tsx` + `HeroMap.tsx` + `seaLayer.ts` + `LiveClock.tsx`) :
+   poster Bathy → carte MapLibre live (dataviz-dark, markers **circle GPU** colorés par
+   qualité, dérive bearing) → mer WebGL (GLSL caustiques) → voiles → instrument réel
+   (TideSparkline/ScoreRing/marnage/créneau) + entrée GSAP + magnetic CTA + halo curseur.
+2. **Trust strip** + **01 Moat** (carte donnée réelle + perso honnête « débloqué dès ta 1re prise »)
+3. **02 Carte** (`HomeMapSection.tsx`) : MapView réel + SpotPopup, lazy (IntersectionObserver), anon-floutée.
+4. **03 Communauté** (3 cards, fil = activité agrégée) + **marquee 26 espèces**.
+5. **04 Tarifs** (HOME_TIERS, Local mis en avant) + **FAQ** (JSON-LD FAQPage) + **CTA final**.
+- `app/globals.css` : keyframe `marquee` (reduced-motion-safe).
+
+### Honnêteté (« tout en réel »)
+Marnage (pas de coef) · score étiqueté « générique » · perso « débloqué dès ta 1re prise »
+(pas de fausse stat) · communauté agrégée k-anon (pas d'individuel, pas de fuite GPS).
+
+## Leçons / gotchas
+- **Carte qui s'anime en continu → JAMAIS de `maplibre.Marker` HTML** (vibrent au transform
+  par frame) : utiliser une couche **circle canvas** (data-driven color). (fix 7ae296e.)
+- **Custom layer MapLibre v5** : matrice = `options.defaultProjectionData.mainMatrix`
+  (vérifié maplibre-gl.d.ts), `triggerRepaint()`, `antialias:true` au constructeur.
+- **h1 sur fond sombre** : `text-white` EXPLICITE (base `h1{color:navy-900}` dans globals.css).
+- **Build** : tuer node (`taskkill //F //IM node.exe`) AVANT `next build` (jamais pendant
+  `pnpm dev` → collision `.next`).
+- Verif visuelle : **Playwright MCP** (`mcp__plugin_playwright_playwright__*`) ; chrome-devtools MCP KO.
+- Dev local : warn `weather_cache` + RSC 500 = clé admin serveur absente en local (OK en prod).
+
+## Gates (à chaque commit) : 543 tests · build 72 pages · types · lint OK.
+
+## Reste
+- **WS-6** — mobile/device (360/390) : zéro scroll horizontal, motion dégradée, tap targets ≥ 44 px, hero allégé.
+- **WS-7** — SEO (metadata/canonical/OG + JSON-LD WebSite/Organization) + events PostHog sur les CTA + **swap** (`/refonte-v3` → remplacer `app/(marketing)/page.tsx`).
+- **VERIF** — Lighthouse (perf desktop ≥ 85 / mobile ≥ 90 via poster, a11y/SEO ≥ 95, LCP < 2,5 s, CLS < 0,1, INP < 200 ms) + qa-chrome device + deploy-watch après preview.
 
 ## Reste manuel John
-- Relire les fondations. Fournir l'accès Figma (specs hero/motion/shader) pour WS-3.
-- Phase 0 (sprint 31) verte = **fait** (mergé/déployé).
+Relire la préversion `/refonte-v3`. Trancher le moment du swap. Phase 0 (sprint 31) = déjà mergée.
