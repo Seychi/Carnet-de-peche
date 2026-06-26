@@ -652,7 +652,7 @@ export default function MapShell({
             <div className="max-w-lg mx-auto bg-navy-900/95 backdrop-blur-sm text-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3 shadow-lg pointer-events-auto">
               <p className="text-sm leading-snug">
                 <span className="font-semibold">3 spots gratuits par département.</span>{' '}
-                <span className="text-white/70">Crée ton carnet pour voir tous les spots.</span>
+                <span className="text-white/70">Crée ton carnet pour débloquer la carte complète.</span>
               </p>
               <Link
                 href="/auth/login?tab=register"

@@ -3,6 +3,7 @@ import TideChart from '@/components/conditions/TideChartLazy'
 import TideStrengthBand, { buildMarnageDays } from '@/components/conditions/TideStrengthBand'
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
+import { formatWeatherTime } from '@/lib/conditions/format'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 
 type Props = {
@@ -115,7 +116,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions, 
               <div>
                 <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700">Lever</p>
                 <p className="font-mono text-sm font-semibold text-navy-900">
-                  {conditions.weather.sunrise.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
+                  {formatWeatherTime(conditions.weather.sunrise) ?? '—'}
                 </p>
               </div>
             </div>
@@ -126,7 +127,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions, 
               <div>
                 <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700">Coucher</p>
                 <p className="font-mono text-sm font-semibold text-navy-900">
-                  {conditions.weather.sunset.match(/T(\d{2}:\d{2})/)?.[1] ?? '—'}
+                  {formatWeatherTime(conditions.weather.sunset) ?? '—'}
                 </p>
               </div>
             </div>

@@ -31,9 +31,24 @@ Voix : tutoiement, direct, concret. Pas de bullet points superflus. Si John te d
 
 ## 2. État actuel du projet
 
-> ✅ **État réel — vérifié le 2026-06-23** (audit transverse `docs/audits/AUDIT-2026-06-23.md` ; mis à jour au sprint 21). Cette synthèse FAIT FOI. Le détail « sprints 1 → 11.6 » plus bas est conservé comme **annexe généalogique** (historique des décisions), PAS comme état courant.
+> ✅ **État réel — vérifié le 2026-06-26** (audit transverse `docs/audits/AUDIT-2026-06-26.md` + QA live prod + revue code/DB). **Cette synthèse FAIT FOI.** Les blocs datés plus bas (2026-06-23 et antérieurs) sont conservés comme **annexe généalogique** — ils étaient vrais à leur date, ce ne sont PLUS l'état courant.
 
-**Où on en est : fin du sprint 20 + épique carte v2 (C1→C3b) livrée et DÉPLOYÉE.**
+**Où on en est : ~sprint 34. La refonte « home production » (sprint 34) + tout l'arbre des sprints 22→33 sont EN PROD** (vérifié live le 2026-06-26 : prod = HEAD de `main`, déployée Vercel, 0 erreur console sur les pages testées).
+
+> ⚠️ **Piège récurrent à connaître** : les lignes « non poussé / reste merge John » à la fin des RECAP de sprint sont écrites quand le code est complet sur la branche, et **deviennent périmées** dès que John merge + déploie sans rééditer le vieux RECAP. **La vérité = HEAD de `main` = prod** (auto-deploy Vercel). Ne JAMAIS conclure « pas déployé » à partir de la ligne de statut d'un ancien RECAP — vérifier git/prod.
+
+- **Livré ET en prod (vérifié live 2026-06-26)** : carnet (CRUD prises + photos + conditions auto + helper RecFishing) ; **scoring perso descriptif réel** — « le carnet qui parle », tendances par espèce/spot/moment (sprint 22 ; le moat n'est PLUS neutralisé) ; **26 fiches espèces** profondes sourcées (`/especes`, sprints 23/29) ; **carte v2** (vivante/heatmap k-anon, multi-source curé+communauté+OSM, bathy EMODnet, qualité par espèce) + gating freemium ; **moteur réglementation par façade + helper RecFishing** sourcé/daté (sprint 24) ; **co-pêchage** `/sorties` + **log de la bredouille** + **codes d'invitation beta** (gate `INVITE_ONLY`, sprint 25) ; **PostHog EU + consentement RGPD**, **emails dunning/win-back** (opt-out), **notif perso « optimal window »**, **gamification anti-comparaison** (Pokédex/streaks/badges privés, **zéro leaderboard** — sprint 26) ; **nav/IA unifiée** + tab bar mobile + hero auth-aware (sprint 27) ; polish « feel natif » (sprint 28) ; **cockpit `/home`** « Aujourd'hui » (présent/semaine/près-de-toi/progression — sprint 30) ; **carnet 26 espèces** + fixes honnêteté/INP (sprint 31) ; **refonte home production** (hero MapLibre réel + mer WebGL GLSL + motion GSAP/Lenis, sprint 34) ; **fil social** (posts/likes/commentaires/follows, Realtime, **100 % gratuit**) ; notifications in-app Realtime ; modération `/moderation` ; **Stripe** (Checkout + Portal + webhooks + essai 7j + Tax FR, QA LIVE OK) ; **RGPD** (pages légales + **suppression de compte en cascade, vérifiée live** — purge profil+prises+posts) ; **PWA** (manifest + SW + offline).
+- **Métriques (2026-06-26)** : **58 fichiers de migration** (`001`→`057`), **~540 tests Vitest**, **26 espèces** (carnet + onboarding + éditorial), **157 spots curés / 24 départements côtiers**. Stack : Next **15.5.x** (App Router) + React **19** + TypeScript 5.9 + Tailwind **v4** + zod **v4** + @supabase/ssr 0.10 + Stripe SDK **22.x** + @sentry/nextjs **10** + maplibre-gl **5.x** + suncalc + Node **24**.
+- **Mobile : PAS encore commencé** — aucune dépendance Expo/React Native dans `package.json`, pas de monorepo Turborepo/`pnpm-workspace`. C'est la **prochaine phase** ; le gate web→mobile est dans **`docs/ROADMAP-PRE-MOBILE-2026-06-26.md`**.
+- **Bugs / chantiers ouverts au 2026-06-26 (cf audit `docs/audits/AUDIT-2026-06-26.md`)** : 🔴 **perf `/carte`** (Lighthouse mobile ~35, TBT ~3,9 s — sprint perf « carte instantanée » jamais exécuté) ; 🔴 **réservoir vide** (6 prises publiques / 1 post / 0 invitation → le moat « scoring perso » est codé mais invisible faute de données — décision de lancement) ; 🟠 **géocodage du log de prise par nom de ville cassé** (« Position requise » sauf coords manuelles) ; 🟠 **heures de soleil fausses sur `/home`** (`08:19–00:23` à Brest) ; 🟠 **en-têtes HTTP de sécurité absents** (CSP, X-Frame-Options…). → traités au **Sprint 35 « Vérité & bugs » : `docs/sprint-35/BRIEF.md`**.
+
+---
+
+> 🗄️ **Bloc historique — synthèse 2026-06-23 (sprint 20-21), conservée telle quelle ci-dessous (n'EST PLUS l'état courant ; voir la synthèse 2026-06-26 ci-dessus qui FAIT FOI).**
+
+> ✅ **État réel — vérifié le 2026-06-23** (audit transverse `docs/audits/AUDIT-2026-06-23.md` ; mis à jour au sprint 21). ~~Cette synthèse FAIT FOI~~ → **périmée, cf 2026-06-26**. Le détail « sprints 1 → 11.6 » plus bas est conservé comme **annexe généalogique** (historique des décisions), PAS comme état courant.
+
+**Où on en était (2026-06-23) : fin du sprint 20 + épique carte v2 (C1→C3b) livrée et DÉPLOYÉE.**
 
 - **Prod = HEAD de `main`** (`5a17509`), `main == origin/main`, déployée sur Vercel. **Aucun backlog de merge** (toutes les branches sprint/carte-v2 sont mergées — le « backlog de déploiement » est un mythe). Migrations sur disque jusqu'à **046** (047 = sprint 21, non appliquée). ⚠️ Dérive d'historique : 025/026/027/044 appliquées en prod mais absentes de `supabase_migrations` → `migration repair` à faire avant tout `db push`.
 - **Livré ET en prod** : carnet (CRUD prises + photos WebP resize client + conditions auto-loggées + stats + privacy/floutage) ; **fiches espèces** (`/especes` + 6 fiches profondes sourcées/datées, sprint 15) ; **carte v2** (C1 vivante/heatmap k-anon · C2 multi-source curé+communauté+OSM · C3a bathy EMODnet · C3b **qualité par espèce** `get_quality_cells`) ; **fil social** (posts/likes/commentaires/follows, Realtime, **100 % gratuit**) ; **notifications** in-app Realtime ; **photos** (prises/posts/avatars) ; **modération** (`/moderation`, sprint 17) ; **Stripe** (Checkout + Portal + webhooks + essai 7j + Tax FR, QA LIVE OK) ; **RGPD** (pages légales + suppression de compte RPC) ; **PWA** (manifest + SW + offline).
@@ -126,7 +141,7 @@ Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta �
 | Couche | Choix | Note |
 |---|---|---|
 | **Web Frontend** | Next.js 15 (App Router) + TypeScript + Tailwind v4 + shadcn/ui | SSR/ISR pour SEO |
-| **Mobile** | React Native + Expo SDK 51 + Expo Router | À implémenter Sprint 13+, code partagé avec web |
+| **Mobile** | React Native + Expo (Expo Router) — **non démarré** | ⚠️ PAS encore en place (2026-06-26) : aucune dépendance Expo/RN, pas de dossier mobile. Phase à venir (gate : `docs/ROADMAP-PRE-MOBILE-2026-06-26.md`). **Viser un SDK Expo récent au démarrage — « SDK 51 » (mi-2024) est obsolète, à trancher avec John.** |
 | **Backend / DB / Auth** | Supabase (PostgreSQL 15+ avec PostGIS + RLS + Auth + Storage + Edge Functions + Realtime) | Région eu-west-1 (Irlande) |
 | **Cartographie** | MapLibre GL JS (web) + Native (mobile) + tuiles MapTiler | Free tier suffit jusqu'à 100k tiles/mois |
 | **Marées + météo + vent + houle** | **Open-Meteo Marine** (gratuit, sans clé API) | Pas de SHOM en v1. Migration possible plus tard. |
@@ -137,16 +152,19 @@ Voir `docs/ROADMAP.md` pour le découpage complet (Stripe → Guides → Beta �
 | **Modération (plus tard)** | Claude API (Haiku + Vision) | Pas en v1, modération libre au lancement |
 | **Analytics** | Plausible (web) + PostHog (produit) | À setup Sprint 4 |
 | **Monitoring** | Sentry | À setup Sprint 6 |
-| **Monorepo** | Turborepo + pnpm | Préparation phase mobile |
+| **Monorepo** | Turborepo + pnpm (cible) | ⚠️ **Non mis en place** (2026-06-26 : pas de `turbo.json` ni `pnpm-workspace.yaml`) — repo encore mono-package Next.js. À faire au démarrage mobile. |
 | **CI/CD** | GitHub Actions + Vercel + EAS Build (mobile) | Vercel auto-deploy déjà branché |
 
-**Versions précises au lancement**
-- Node 24 (LTS active — Node 20 est EOL depuis avril 2026) ; `nvm use 24` ou `.nvmrc`
+**Versions précises (vérifiées dans `package.json` au 2026-06-26)**
+- Node **24** (LTS active — Node 20 EOL depuis avril 2026) ; `.nvmrc` = 24, `engines.node` = 24.x
 - pnpm 9+
-- TypeScript 5.5+
-- Next.js 15.0+ (App Router obligatoire, pas pages router)
-- Tailwind v4 (utiliser le nouveau setup CSS-first)
-- @supabase/ssr (pas @supabase/auth-helpers, déprécié)
+- TypeScript **5.9**
+- Next.js **15.5.x** (App Router obligatoire, pas pages router)
+- **React 19** + React-DOM 19
+- Tailwind **v4** (setup CSS-first)
+- zod **v4** (⚠️ pas v3 — l'API diffère)
+- @supabase/ssr **0.10** + @supabase/supabase-js 2.105 (pas @supabase/auth-helpers, déprécié)
+- Stripe SDK **22.x** (API `2026-04-22.dahlia`, cf §2 sprint 9 findings) · @sentry/nextjs **10** · maplibre-gl **5.x** · suncalc 1.9
 
 ---
 
@@ -295,12 +313,12 @@ Charte v1 définie dans la maquette HTML (`docs/maquette/assets/style.css`) :
 ### Tables clés à connaître
 
 - **`profiles`** : étend `auth.users`. Auto-créé par trigger à l'inscription. Champ `onboarded boolean default false` — le frontend doit rediriger vers `/onboarding` tant que `false`.
-- **`spots`** : spots de pêche. `geom` = précis, `geom_public` = flouté **1 km** (généré par trigger). Visibilité `public` / `subscriber` / `private`.
+- **`spots`** : spots de pêche. `geom` = précis, `geom_public` = flouté **~500-900 m** (jitter recentré, migration 028 ; + verrou colonne `geom` 028b/041 → `anon`/`authenticated` SANS SELECT). Visibilité `public` / `subscriber` / `private`.
 - **`catches`** : **LE CARNET — cœur du produit**. Chaque prise loguée. `conditions` jsonb contient le snapshot Open-Meteo. Privacy `private` / `friends` / `public`. Deux booleans `precise_for_friends` (default true) et `reveal_precise_to_public` (default false).
 - **`feed_posts`** : mur communautaire. `moderation_status` default `approved` (modération libre au lancement).
 - **`subscriptions`** : source de vérité = Stripe webhook. Plans `discovery` / `local` / `itinerant`.
 
-> ⚠️ **L'intro « 4 fichiers » ci-dessus est HISTORIQUE.** Il y a aujourd'hui **47 migrations** numérotées (`001`→`047`, voir `supabase/migrations/`). `conditions_cache` **n'existe plus** (droppée en 046). `has_active_subscription` est remplacé par la RPC **`current_tier`** (source = webhook Stripe).
+> ⚠️ **L'intro « 4 fichiers » ci-dessus est HISTORIQUE.** Il y a aujourd'hui **58 fichiers de migration** numérotés (`001`→`057`, voir `supabase/migrations/`). `conditions_cache` **n'existe plus** (droppée en 046). `has_active_subscription` est remplacé par la RPC **`current_tier`** (source = webhook Stripe).
 
 **Tables / objets ajoutés depuis (migrations 023→046) :**
 
@@ -312,8 +330,9 @@ Charte v1 définie dans la maquette HTML (`docs/maquette/assets/style.css`) :
 ### Helpers SQL utiles (à utiliser depuis le frontend)
 
 ```ts
-// Vérifier abonnement actif
-const { data } = await supabase.rpc('has_active_subscription', { uid: user.id });
+// Tier courant — source de vérité = webhook Stripe (REMPLACE has_active_subscription)
+const { data: tier } = await supabase.rpc('current_tier', { uid: user.id });
+// → 'anonymous' | 'discovery' | 'local' | 'itinerant'
 
 // Spots proches d'une position
 const { data } = await supabase.rpc('nearby_spots', {
@@ -336,8 +355,8 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 ## 8. Décisions produit verrouillées
 
 ### Floutage GPS
-- **Spots** : utilisateurs **gratuits** voient `geom_public` (rayon 1 km flouté). **Abonnés** Local/Itinérant voient `geom` précis. Géré par la vue `spots_for_viewer`.
-- **Catches** : par défaut **non-amis** voient `geom_public` (jitter ~1 km). **Amis** voient `geom` précis SI `precise_for_friends=true` (default). Le pêcheur peut activer `reveal_precise_to_public` pour partager précisément à tous.
+- **Spots** : utilisateurs **gratuits** voient `geom_public` (jitter recentré **~500-900 m**, migration 028 — plus « 1 km » fixe). **Abonnés** Local/Itinérant voient `geom` précis. Géré par la vue `spots_for_viewer` + RPC gatées au tier (`current_tier`). Verrou colonne : `geom` non lisible par `anon`/`authenticated` (028b/041).
+- **Catches** : par défaut **non-amis** voient `geom_public` (jitter **~500-900 m**). **Amis** voient `geom` précis SI `precise_for_friends=true` (default). Le pêcheur peut activer `reveal_precise_to_public` pour partager précisément à tous. Toujours passer par la vue `catches_for_viewer`.
 
 ### Onboarding
 - **Obligatoire** dès la première connexion. Le frontend doit bloquer l'accès à toutes les routes `(app)/*` tant que `profile.onboarded = false` — redirige vers `/onboarding`.
@@ -408,6 +427,8 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 ## 9. Roadmap par sprint
 
 > 🟥 **La roadmap d'origine (sprints 1→23) est ATTEINTE et DÉPASSÉE.** Le découpage par sprint historique a été retiré d'ici (sprints 1→20 livrés/déployés, cf §2). La roadmap **COURANTE**, issue de l'audit 2026-06-23, s'organise en **chantiers** + **phases** et FAIT FOI dans **`docs/ROADMAP-2026-H2.md`**.
+
+> 🟩 **Mise à jour 2026-06-26 :** les chantiers **A** (carnet qui parle, S22), **B** (pôle espèces 26, S23/29), **C** (conformité + RecFishing, S24), **D + G2** (lancement/amorçage, S25), **F + G3** (monétisation/gamification, S26) sont **livrés en code et en prod**. Reste : remplir le réservoir (amorçage réel — décision John) + perf carte. **La prochaine phase est le MOBILE** — gate web→mobile dans **`docs/ROADMAP-PRE-MOBILE-2026-06-26.md`** (avant ça : Sprint 35 « Vérité & bugs » `docs/sprint-35/BRIEF.md`, puis perf carte, puis amorçage).
 
 **Chantiers H2 2026 (résumé — détail, critères d'acceptation et décisions John dans `docs/ROADMAP-2026-H2.md`)**
 
@@ -673,6 +694,6 @@ Puis : relancer le terminal + Claude Code → `/mcp` (déclenche les OAuth supab
 
 ---
 
-*Dernière mise à jour : 2026-06-22 (§20 ajouté : connecteurs MCP & usage systématique — dev pack supabase/vercel/sentry/github/context7/stripe, sous-agents connecteurs, hooks guard-git/lint, commande /verif-sprint ; `.claude/` versionné). Précédent : 2026-06-21 (§19 enrichi : Docker optionnel + posture effort max/esprit critique ; track Excellence UX+social = briefs sprints 12-15 + 12.5 rédigés, cf `docs/excellence/ROADMAP.md` ; sprint 11.5 — sécurité GPS, lint, SEO, tests, perf). À tenir à jour à chaque décision majeure.*
+*Dernière mise à jour : 2026-06-26 (resync post-audit transverse `docs/audits/AUDIT-2026-06-26.md` : §2 état réel ~sprint 34 — refonte home + sprints 22→33 en prod, métriques 58 migrations / ~540 tests / 26 espèces ; §4 stack mobile/monorepo « non démarré » + versions réelles React 19 / zod v4 / Next 15.5 / Stripe 22 / Sentry 10 / MapLibre 5 ; §7 `current_tier` remplace `has_active_subscription`, 58 fichiers ; §8 floutage ~500-900 m + verrou colonne ; §9 chantiers A-G livrés, prochaine phase = mobile, gate `docs/ROADMAP-PRE-MOBILE-2026-06-26.md`. Bugs ouverts = Sprint 35 `docs/sprint-35/BRIEF.md`). Précédent : 2026-06-22 (§20 ajouté : connecteurs MCP & usage systématique — dev pack supabase/vercel/sentry/github/context7/stripe, sous-agents connecteurs, hooks guard-git/lint, commande /verif-sprint ; `.claude/` versionné). Précédent : 2026-06-21 (§19 enrichi : Docker optionnel + posture effort max/esprit critique ; track Excellence UX+social = briefs sprints 12-15 + 12.5 rédigés, cf `docs/excellence/ROADMAP.md` ; sprint 11.5 — sécurité GPS, lint, SEO, tests, perf). À tenir à jour à chaque décision majeure.*
 
 **Maintenant, attends que John te dise « vas-y » et exécute la section 10 dans l'ordre.**

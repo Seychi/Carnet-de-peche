@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CalendarDays, Sun, Thermometer, Waves } from 'lucide-react'
 import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
+import { formatWeatherTime } from '@/lib/conditions/format'
 import { getDeptUpcomingWindows } from '@/lib/conditions/dept-window'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
 import { ScoreRing } from '@/components/ui-v2/score-ring'
@@ -42,15 +43,6 @@ function fmtTemp(c: number | null): string | null {
   return c == null ? null : `${Math.round(c)}°C`
 }
 
-function sunTime(iso: string | null): string | null {
-  if (!iso) return null
-  return new Intl.DateTimeFormat('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Europe/Paris',
-  }).format(new Date(iso))
-}
-
 // Bandeau de conditions COMPLÉMENTAIRE du bandeau instruments (qui porte déjà
 // PM/BM, vent, houle) : ici température eau/air + lever/coucher — pas de doublon.
 function ConditionsStrip({ conditions }: { conditions: SpotConditions }) {
@@ -59,8 +51,8 @@ function ConditionsStrip({ conditions }: { conditions: SpotConditions }) {
     conditions.weather.min_temp_c != null && conditions.weather.max_temp_c != null
       ? `${Math.round(conditions.weather.min_temp_c)}–${Math.round(conditions.weather.max_temp_c)}°C`
       : fmtTemp(conditions.weather.air_temp_c)
-  const sunrise = sunTime(conditions.weather.sunrise)
-  const sunset = sunTime(conditions.weather.sunset)
+  const sunrise = formatWeatherTime(conditions.weather.sunrise)
+  const sunset = formatWeatherTime(conditions.weather.sunset)
 
   const items: { icon: React.ReactNode; label: string; value: string }[] = []
   if (water) items.push({ icon: <Waves size={13} className="text-teal-600" />, label: 'Eau', value: water })

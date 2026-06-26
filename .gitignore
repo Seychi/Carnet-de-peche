@@ -35,3 +35,6 @@ e2e/.auth/
 supabase/.temp/
 supabase/.branches/
 .superpowers/
+
+# Captures Playwright MCP (snapshots QA jetables — ne pas versionner)
+.playwright-mcp/

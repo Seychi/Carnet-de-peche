@@ -2,7 +2,7 @@ import {
   Sun, CloudSun, Cloud, CloudFog, CloudDrizzle,
   CloudRain, CloudSnow, Zap, Wind, Thermometer, Droplets, Gauge,
 } from 'lucide-react'
-import { degreesToCompass, beaufortLabel } from '@/lib/conditions/format'
+import { degreesToCompass, beaufortLabel, formatWeatherTime } from '@/lib/conditions/format'
 import { wmoLabel, wmoIconName, type WeatherIconName } from '@/lib/conditions/weather-codes'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 
@@ -42,19 +42,12 @@ function Card({
   )
 }
 
-function formatTime(iso: string | null): string | null {
-  if (!iso) return null
-  // ISO string from Open-Meteo: "2026-05-19T06:23"
-  const match = iso.match(/T(\d{2}:\d{2})/)
-  return match ? match[1] : null
-}
-
 export default function WeatherGrid({ weather }: Props) {
   const windDir   = weather.wind_direction_deg !== null ? degreesToCompass(weather.wind_direction_deg) : null
   const windBeauf = weather.wind_speed_kmh !== null ? beaufortLabel(weather.wind_speed_kmh) : null
   const iconName  = wmoIconName(weather.code)
-  const sunrise   = formatTime(weather.sunrise)
-  const sunset    = formatTime(weather.sunset)
+  const sunrise   = formatWeatherTime(weather.sunrise)
+  const sunset    = formatWeatherTime(weather.sunset)
 
   const tempRange = [
     weather.min_temp_c !== null ? `↓ ${Math.round(weather.min_temp_c)}°` : null,

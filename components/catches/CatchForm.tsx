@@ -12,6 +12,8 @@ import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/action
 import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LABELS } from '@/lib/regulation'
 import { CARNET_SPECIES_OPTIONS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 import { PhotoInput } from '@/components/forms/PhotoInput'
+import { CityAutocomplete } from '@/components/catches/CityAutocomplete'
+import { geocodeMunicipality } from '@/lib/geo/geocode'
 import { analytics } from '@/lib/analytics'
 import type { CatchRow } from '@/lib/catches/queries'
 
@@ -195,6 +197,7 @@ export function CatchForm(props: CatchFormProps) {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<CreateCatchInput>({
     resolver: zodResolver(isEdit ? catchBaseSchema : createCatchSchema) as Resolver<CreateCatchInput>,
@@ -209,6 +212,7 @@ export function CatchForm(props: CatchFormProps) {
   const watchedPrivacy = watch('privacy') ?? 'private'
   const watchedLat = watch('latitude')
   const watchedLng = watch('longitude')
+  const watchedLabel = watch('location_label') ?? ''
 
   const watchedReleased = watch('released')
 
@@ -456,8 +460,46 @@ export function CatchForm(props: CatchFormProps) {
   const existingLocationLabel =
     isEdit && !watchedLat ? (initialValues?.location_label ?? null) : null
 
+  // Submit (sprint 35) : si l'utilisateur a tapé une ville SANS choisir de suggestion,
+  // on tente un géocodage « best match » AVANT la validation zod. Sans résultat → message
+  // FR explicite (au lieu du « Position requise » générique). Le chemin nominal reste la
+  // sélection d'une suggestion (qui renseigne déjà lat/lng).
+  // ⚠️ Le géocodage ajoute un `await` AVANT la validation → garde anti double-submit
+  // (ref synchrone + phase) : sans elle, un double-clic pendant l'appel BAN créerait 2 prises.
+  const preSubmitRef = useRef(false)
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (preSubmitRef.current || submitPhase !== 'idle') return
+    preSubmitRef.current = true
+    try {
+      const method = getValues('location_method')
+      const label = (getValues('location_label') ?? '').trim()
+      const hasCoords =
+        getValues('latitude') !== undefined && getValues('longitude') !== undefined
+      if ((method === 'gps' || method === 'manual') && label && !hasCoords) {
+        const hits = await geocodeMunicipality(label)
+        if (hits.length > 0) {
+          setValue('latitude', hits[0].lat, { shouldValidate: true })
+          setValue('longitude', hits[0].lng, { shouldValidate: true })
+          setValue('location_method', 'manual')
+        } else {
+          toast.error(
+            `« ${label} » introuvable. Choisis une ville dans la liste de suggestions, ou saisis les coordonnées GPS.`
+          )
+          document
+            .getElementById('catch-section-lieu')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          return
+        }
+      }
+      void handleSubmit(onSubmit, onInvalid)()
+    } finally {
+      preSubmitRef.current = false
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} autoComplete="off" className="space-y-4 pb-32">
+    <form onSubmit={handleFormSubmit} autoComplete="off" className="space-y-4 pb-32">
 
       {/* ── Bandeau spot pré-sélectionné ── */}
       {spotContext && (
@@ -755,10 +797,16 @@ export function CatchForm(props: CatchFormProps) {
               </button>
             )}
 
-            <input
-              {...register('location_label')}
-              {...trackFocus('location_label')}
-              placeholder="Ville ou lieu (ex : Camaret-sur-Mer)"
+            <CityAutocomplete
+              value={watchedLabel}
+              onValueChange={(v) => setValue('location_label', v)}
+              onSelect={(hit) => {
+                setValue('latitude', hit.lat, { shouldValidate: true })
+                setValue('longitude', hit.lng, { shouldValidate: true })
+                setValue('location_method', 'manual')
+              }}
+              onFocus={trackFocus('location_label').onFocus}
+              ariaLabel="Ville ou lieu de la prise"
               className={inputCls}
             />
 
@@ -805,10 +853,16 @@ export function CatchForm(props: CatchFormProps) {
                 />
               </div>
             </div>
-            <input
-              {...register('location_label')}
-              {...trackFocus('location_label')}
-              placeholder="Ville ou lieu (ex : Camaret-sur-Mer)"
+            <CityAutocomplete
+              value={watchedLabel}
+              onValueChange={(v) => setValue('location_label', v)}
+              onSelect={(hit) => {
+                setValue('latitude', hit.lat, { shouldValidate: true })
+                setValue('longitude', hit.lng, { shouldValidate: true })
+                setValue('location_method', 'manual')
+              }}
+              onFocus={trackFocus('location_label').onFocus}
+              ariaLabel="Ville ou lieu de la prise"
               className={inputCls}
             />
 
@@ -828,7 +882,7 @@ export function CatchForm(props: CatchFormProps) {
 
         {/* Erreur lat/lng uniquement en mode création */}
         {!isEdit && (errors.latitude || errors.longitude) && (
-          <FieldError error="Position requise. Utilise le GPS ou saisis les coordonnées." />
+          <FieldError error="Position requise. Choisis une ville dans les suggestions, utilise le GPS, ou saisis les coordonnées." />
         )}
 
         {isOutOfCoverage && (
