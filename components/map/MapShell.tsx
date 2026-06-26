@@ -22,7 +22,7 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import type { NearbySpot } from '@/lib/spots/nearby'
-import MapLayerSelector from '@/components/map/MapLayerSelector'
+import { useDeferredMount } from '@/lib/hooks/useDeferredMount'
 import { useCatchHeatmap } from '@/lib/map/useCatchHeatmap'
 import { useCatchHeatRealtime } from '@/lib/map/useCatchHeatRealtime'
 import type { HeatFilters } from '@/lib/map/heatmap'
@@ -77,6 +77,10 @@ const SpotPopup = dynamic(loadSpotPopup, { ssr: false })
 
 // Panneau « ton score » (perso, payant) — lazy, hors First Load JS de /carte.
 const ScorePanel = dynamic(() => import('@/components/map/ScorePanel'), { ssr: false })
+
+// Sélecteur de couches — code-split (sprint 36) pour le sortir du First Load JS de /carte
+// (overlay permanent, mais pas dans le chemin critique du 1er paint).
+const MapLayerSelector = dynamic(() => import('@/components/map/MapLayerSelector'), { ssr: false })
 
 type MapShellProps = {
   spots: SpotMarker[]
@@ -254,6 +258,13 @@ export default function MapShell({
     tier: userTier,
     spots,
   })
+
+  // Montage MapLibre DIFFÉRÉ (sprint 36 « Carte instantanée ») : on ne rend l'instance
+  // interactive qu'après le 1er paint (idle) ou au 1er geste — sort la long task d'init
+  // (~1,5 s) de la fenêtre TBT. Tant que false : MapSkeleton. Ne change RIEN aux données
+  // reçues (spots déjà gatés/floutés côté serveur) → floutage GPS + gating intacts.
+  const mapZoneRef = useRef<HTMLDivElement>(null)
+  const shouldMountMap = useDeferredMount(mapZoneRef, { timeout: 2000 })
 
   // Prise publique loguée (broadcast geom-free, migration 042) → coalesce un refetch
   // de la heatmap k-anonyme + pastille « +1 prise » discrète. Aucune coord reçue.
@@ -507,21 +518,25 @@ export default function MapShell({
       )}
 
       {/* ── Zone carte (toutes tailles) ────────────────────────────── */}
-      <div className="relative flex-1 min-h-0 min-w-0">
-        <MapView
-          spots={filteredSpots}
-          nearbySpotIds={nearbySpotIds}
-          initialCenter={initialCenter ?? COASTAL_DEFAULT_CENTER}
-          initialZoom={initialZoom ?? COASTAL_DEFAULT_ZOOM}
-          className="w-full h-full"
-          onMarkerClick={setActiveSpot}
-          onMapReady={(map) => {
-            mapInstanceRef.current = map
-            setMapInstance(map)
-            // Carte prête → un clic marker peut suivre : on précharge le chunk popup
-            void loadSpotPopup()
-          }}
-        />
+      <div ref={mapZoneRef} className="relative flex-1 min-h-0 min-w-0">
+        {shouldMountMap ? (
+          <MapView
+            spots={filteredSpots}
+            nearbySpotIds={nearbySpotIds}
+            initialCenter={initialCenter ?? COASTAL_DEFAULT_CENTER}
+            initialZoom={initialZoom ?? COASTAL_DEFAULT_ZOOM}
+            className="w-full h-full"
+            onMarkerClick={setActiveSpot}
+            onMapReady={(map) => {
+              mapInstanceRef.current = map
+              setMapInstance(map)
+              // Carte prête → un clic marker peut suivre : on précharge le chunk popup
+              void loadSpotPopup()
+            }}
+          />
+        ) : (
+          <MapSkeleton />
+        )}
 
         {/* Sélecteur de couches — heatmap communautaire (gratuit) + ton score (payant) */}
         <MapLayerSelector

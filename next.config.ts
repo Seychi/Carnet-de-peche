@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import withBundleAnalyzer from "@next/bundle-analyzer";
+
+// Analyseur de bundle (sprint 36) — no-op total sauf `ANALYZE=true` (script `pnpm analyze`).
+// Wrapper le PLUS externe (il n'opère que sur la config finale, après Sentry).
+const withAnalyzer = withBundleAnalyzer({ enabled: process.env.ANALYZE === "true" });
 
 // CSP en Report-Only (sprint 35 / finding audit 2026-06-26 : en-têtes HTTP absents).
 // ⚠️ Report-Only UNIQUEMENT ce sprint : on collecte les violations sans rien casser
@@ -90,7 +95,7 @@ const nextConfig: NextConfig = {
 // Sentry (sprint 11 Bloc D). L'upload des source maps ne s'active que si
 // SENTRY_AUTH_TOKEN est présent (intégration Vercel↔Sentry ou token manuel) —
 // sans token, le build reste inchangé.
-export default withSentryConfig(nextConfig, {
+export default withAnalyzer(withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -105,4 +110,4 @@ export default withSentryConfig(nextConfig, {
     excludeReplayShadowDom: true,
   },
   widenClientFileUpload: true,
-});
+}));

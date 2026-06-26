@@ -1,0 +1,22 @@
+{
+  "//": "Sprint 36 — surveillance perf de /carte en MOBILE (CPU 4x + slow 4G = défaut Lighthouse). Séparé de lighthouserc.json (preset desktop) pour ne pas casser les seuils des autres pages. Cibles en WARN d'abord (D3) : la CI Lighthouse mobile est bruyante ; à passer en error une fois stabilisé.",
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm start",
+      "startServerReadyPattern": "Ready",
+      "startServerReadyTimeout": 60000,
+      "url": ["http://localhost:3000/carte"],
+      "numberOfRuns": 3
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.7 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 600 }],
+        "largest-contentful-paint": ["warn", { "maxNumericValue": 4000 }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
