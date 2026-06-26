@@ -25,7 +25,8 @@ const UNAVAILABLE_HTML =
  * Couche « Fond marin » (profondeur + nature du fond) — Carte v2 / C3a.
  * Gère l'ajout/retrait LAZY de la couche raster EMODnet (rien chargé tant que !active)
  * + le popup « Fond : X · Profondeur : Y m » au clic carte (lookup serveur /api/seabed).
- * `enabled` = tier Itinérant : hors Itinérant on ne branche rien (l'UI propose l'upsell).
+ * `enabled` = accès couche (Local+, cf lib/map/bathy-config hasBathyAccess) : sinon on ne
+ * branche rien (l'UI propose l'upsell).
  * Logique pure dans lib/map/bathymetry-layer.ts.
  */
 export function useBathyLayer({

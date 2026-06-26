@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getUserTier } from '@/lib/auth/tier'
+import { hasBathyAccess } from '@/lib/map/bathy-config'
 import { fetchSeabedInfo } from '@/lib/conditions/bathymetry'
 
 // Dépend du tier de l'utilisateur → jamais mis en cache partagé.
 export const dynamic = 'force-dynamic'
 
 // Lookup « Fond + Profondeur » à un point cliqué sur la carte. Couche avancée =
-// réservée à l'offre Itinérant (cf docs/carte-v2/sprint-C3a + tarifs §8 CLAUDE.md).
+// réservée aux abonnés Local+ (cf lib/map/bathy-config + tarifs §8 CLAUDE.md).
 // La donnée brute vient d'EMODnet (profondeur + substrat), agrégée côté serveur
 // pour (1) éviter le CORS/quotas côté client, (2) bénéficier du cache 30 j.
 
@@ -18,9 +19,9 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   const tier = await getUserTier()
-  if (tier !== 'itinerant') {
-    // 403 = la couche fond marin est une fonctionnalité Itinérant. Le front
-    // affiche un aperçu/upsell ; il ne doit pas appeler cette route hors Itinérant.
+  if (!hasBathyAccess(tier)) {
+    // 403 = la couche fond marin est une fonctionnalité Local+. Le front affiche
+    // un aperçu/upsell ; il ne doit pas appeler cette route hors Local/Itinérant.
     return NextResponse.json({ error: 'tier', tier }, { status: 403 })
   }
 

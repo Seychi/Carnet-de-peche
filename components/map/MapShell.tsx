@@ -27,6 +27,7 @@ import { useCatchHeatmap } from '@/lib/map/useCatchHeatmap'
 import { useCatchHeatRealtime } from '@/lib/map/useCatchHeatRealtime'
 import type { HeatFilters } from '@/lib/map/heatmap'
 import { useBathyLayer } from '@/lib/map/useBathyLayer'
+import { hasBathyAccess } from '@/lib/map/bathy-config'
 import { useQualityLayer } from '@/lib/map/useQualityLayer'
 import type { QualityFilters } from '@/lib/map/quality'
 
@@ -234,12 +235,12 @@ export default function MapShell({
   })
 
   // Couche fond marin : ajout/retrait lazy + popup « Fond/Profondeur » au clic.
-  // Gating Itinérant (la donnée précise = payant) ; hors Itinérant, rien n'est branché.
+  // Gating Local+ (cf lib/map/bathy-config ; aligné /tarifs) ; sinon rien n'est branché.
   useBathyLayer({
     map: mapInstance,
     active: bathyOn,
     opacity: bathyOpacity,
-    enabled: userTier === 'itinerant',
+    enabled: hasBathyAccess(userTier),
   })
 
   // Couche « Qualité » (score décomposé par espèce) — aperçu communautaire pour tous,

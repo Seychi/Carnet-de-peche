@@ -29,6 +29,12 @@ export const BATHY_SUBSTRATE_LAYER = 'bathy-subs'
 // pas de retour au « 8 s de chargement », cf sprint 16). Borne posée sur le LAYER.
 export const BATHY_MIN_ZOOM = 9
 
+// Borne HAUTE sur la SOURCE (overzoom) — sprint Fond marin / WS B. EMODnet ~115 m de
+// résolution → au-delà de z13 on sur-échantillonne pour rien. MapLibre réutilise les
+// tuiles z13 en les agrandissant (zéro requête inutile au zoom rapproché). Posée sur la
+// SOURCE (≠ maxzoom de layer, qui MASQUERAIT la couche au-delà du seuil).
+export const BATHY_MAX_ZOOM = 13
+
 // Couches de spots à ignorer pour le clic « fond » (évite le double-popup avec la
 // fiche spot). Couvre les DEUX modes de rendu de MapView : disques floutés Discovery
 // (`fuzzy-fill`, mode HTML < 200 spots) ET clusters (`clusters`/`unclustered-spots`/
@@ -39,24 +45,20 @@ const ATTRIBUTION =
   '<a href="https://emodnet.ec.europa.eu/en/bathymetry" target="_blank" rel="noopener noreferrer">EMODnet Bathymetry</a> · ' +
   '<a href="https://emodnet.ec.europa.eu/en/seabed-habitats" target="_blank" rel="noopener noreferrer">EMODnet Seabed Habitats</a> (CC-BY 4.0)'
 
-// WMS GetMap → tuiles raster MapLibre via le token {bbox-epsg-3857}.
-// WMS 1.3.0 + EPSG:3857 : ordre d'axes E,N = minx,miny,maxx,maxy (= ce que produit
-// le token MapLibre). Vérifié : 200 image/png, CORS `*`.
-const EMODNET_DEPTH_WMS =
-  'https://ows.emodnet-bathymetry.eu/wms?service=WMS&version=1.3.0&request=GetMap' +
-  '&layers=emodnet:mean&styles=&format=image/png&transparent=true' +
-  '&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}'
+// Tuiles servies par NOTRE proxy (sprint Fond marin / WS A) : `app/api/seabed/tiles` fait
+// le GetMap WMS server-side vers EMODnet (whitelist), neutralise les erreurs (tuile
+// transparente) et cache au CDN. Le navigateur ne tape PLUS EMODnet en direct → fini les
+// `Failed to fetch (CORS)` et `source image could not be decoded`. Token {bbox-epsg-3857}
+// conservé ; width/height=512 (cf tileSize 512, WS B → ÷4 les requêtes par déplacement).
+const PROXY_DEPTH_TILES = '/api/seabed/tiles?layer=depth&width=512&height=512&bbox={bbox-epsg-3857}'
+const PROXY_SUBSTRATE_TILES = '/api/seabed/tiles?layer=substrate&width=512&height=512&bbox={bbox-epsg-3857}'
 
-const EMODNET_SUBSTRATE_WMS =
-  'https://ows.emodnet-seabedhabitats.eu/geoserver/emodnet_open/wms?service=WMS&version=1.3.0&request=GetMap' +
-  '&layers=eusm2025_subs_full&styles=&format=image/png&transparent=true' +
-  '&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}'
-
+// Surcharge env (ex. PMTiles auto-hébergées R2, cf scripts/bathy/) → bascule sans toucher au code.
 function depthTilesUrl(): string {
-  return process.env.NEXT_PUBLIC_BATHY_DEPTH_TILES_URL || EMODNET_DEPTH_WMS
+  return process.env.NEXT_PUBLIC_BATHY_DEPTH_TILES_URL || PROXY_DEPTH_TILES
 }
 function substrateTilesUrl(): string {
-  return process.env.NEXT_PUBLIC_BATHY_SUBSTRATE_TILES_URL || EMODNET_SUBSTRATE_WMS
+  return process.env.NEXT_PUBLIC_BATHY_SUBSTRATE_TILES_URL || PROXY_SUBSTRATE_TILES
 }
 
 // Id du 1er layer `symbol` (labels) → on insère la bathy DESSOUS pour ne pas
@@ -74,7 +76,8 @@ export function addBathyLayer(map: MapLibreMap, opacity = 0.7): void {
     map.addSource(BATHY_DEPTH_SOURCE, {
       type: 'raster',
       tiles: [depthTilesUrl()],
-      tileSize: 256,
+      tileSize: 512, // WS B : 512 → ÷4 le nombre de requêtes vs 256 (proxy width/height=512)
+      maxzoom: BATHY_MAX_ZOOM, // overzoom au-delà : pas de requêtes inutiles (EMODnet ~115 m)
       attribution: ATTRIBUTION,
     })
   }
@@ -95,7 +98,8 @@ export function addBathyLayer(map: MapLibreMap, opacity = 0.7): void {
     map.addSource(BATHY_SUBSTRATE_SOURCE, {
       type: 'raster',
       tiles: [substrateTilesUrl()],
-      tileSize: 256,
+      tileSize: 512, // WS B (cf source profondeur)
+      maxzoom: BATHY_MAX_ZOOM,
     })
   }
   if (!map.getLayer(BATHY_SUBSTRATE_LAYER)) {

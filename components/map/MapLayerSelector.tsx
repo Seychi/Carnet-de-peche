@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves, Grid3x3 } from 'lucide-react'
 import type { UserTier } from '@/lib/auth/tier'
+import { hasBathyAccess } from '@/lib/map/bathy-config'
 import { HEAT_LEGEND_STOPS } from '@/lib/map/heatmap'
 import { QUALITY_LEGEND } from '@/lib/map/quality'
 import { SPECIES_LABELS } from '@/lib/labels'
@@ -82,17 +83,17 @@ export default function MapLayerSelector({
   const [open, setOpen] = useState(false)
   const isPaid = userTier === 'local' || userTier === 'itinerant'
   const isItinerant = userTier === 'itinerant'
+  // Fond marin = Local+ (décision John, aligné /tarifs) ; Qualité reste Itinérant au clic.
+  const canUseBathy = hasBathyAccess(userTier)
 
   // Paywall vu : à l'ouverture du panneau, on logue chaque couche verrouillée
-  // visible (score si non payant, fond marin + qualité si non itinérant).
+  // visible (score si non payant, fond marin si < Local, qualité si non itinérant).
   useEffect(() => {
     if (!open) return
     if (!isPaid) analytics.paywallViewed({ surface: 'layer_score' })
-    if (!isItinerant) {
-      analytics.paywallViewed({ surface: 'layer_bathy' })
-      analytics.paywallViewed({ surface: 'layer_quality' })
-    }
-  }, [open, isPaid, isItinerant])
+    if (!canUseBathy) analytics.paywallViewed({ surface: 'layer_bathy' })
+    if (!isItinerant) analytics.paywallViewed({ surface: 'layer_quality' })
+  }, [open, isPaid, canUseBathy, isItinerant])
 
   return (
     <div className="absolute top-3 left-3 z-20">
@@ -217,20 +218,20 @@ export default function MapLayerSelector({
               </div>
             </div>
 
-            {/* Fond marin — profondeur + nature du fond (payant Itinérant) — Carte v2 / C3a */}
+            {/* Fond marin — profondeur + nature du fond (payant Local+) — Carte v2 / C3a */}
             <div className="px-3.5 py-3">
               <div className="flex items-center gap-2.5">
-                <Waves size={16} className={isItinerant ? 'text-teal-600 shrink-0' : 'text-ink-300 shrink-0'} />
+                <Waves size={16} className={canUseBathy ? 'text-teal-600 shrink-0' : 'text-ink-300 shrink-0'} />
                 <div className="min-w-0 flex-1">
                   <p className="text-[13.5px] font-medium text-ink-900 flex items-center gap-1.5">
                     Fond marin
-                    {!isItinerant && <Lock size={11} className="text-ink-400" />}
+                    {!canUseBathy && <Lock size={11} className="text-ink-400" />}
                   </p>
                   <p className="text-[11px] text-ink-400">
-                    {isItinerant ? 'Profondeur + nature du fond' : 'Itinérant · profondeur + nature du fond'}
+                    {canUseBathy ? 'Profondeur + nature du fond' : 'Local · profondeur + nature du fond'}
                   </p>
                 </div>
-                {isItinerant ? (
+                {canUseBathy ? (
                   <Switch on={bathyOn} onClick={() => onBathyToggle(!bathyOn)} label="Afficher la couche fond marin" />
                 ) : (
                   <Link
@@ -243,7 +244,7 @@ export default function MapLayerSelector({
                 )}
               </div>
 
-              {isItinerant && bathyOn && (
+              {canUseBathy && bathyOn && (
                 <div className="mt-3 pl-[26px] flex items-center gap-2">
                   <span className="text-[11px] text-ink-500 shrink-0">Opacité</span>
                   <input
