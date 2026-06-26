@@ -9,17 +9,17 @@ export const sarEspece: EspeceContent = {
   slug: 'sar',
 
   intro: [
-    `Le sar commun, c'est le sparidé du ressac : trapu, méfiant, collé aux rochers battus là où la dorade ne s'aventure pas. Touche sèche comme un coup de marteau, départ droit dans la caille — du bord, c'est un des combats les plus francs de nos côtes.`,
-    `Tu le trouves dans moins de 5 m d'eau, parfois dans 50 cm de mousse, toujours au contact du dur. En Méditerranée, c'est LE poisson des digues, des jetées et des calanques : présent à l'année, avec un pic net en automne-hiver dès que la mer se forme. Sur l'Atlantique, il occupe la façade sud — du Pays basque aux pertuis charentais, en passant par les épis landais et les enrochements portuaires de la Gironde — grosso modo d'avril à novembre.`,
-    `Deux approches le prennent vraiment du bord : le surfcasting léger dans les vagues et la flottante au ras des cailloux. Règle commune : bas de ligne discret, appât naturel solide, ferrage immédiat — il ne te laisse pas de deuxième chance. Et retiens ceci : le sar mange quand ça bouge. La mer formée qui fait rentrer tout le monde au port, c'est précisément ton créneau.`,
+    `Le sar commun, c'est le sparidé du ressac : trapu, méfiant, collé aux rochers battus là où la dorade ne s'aventure pas. Touche sèche comme un coup de marteau, départ droit dans la caille. Du bord, c'est un des combats les plus francs de nos côtes.`,
+    `Tu le trouves dans moins de 5 m d'eau, parfois dans 50 cm de mousse, toujours au contact du dur. En Méditerranée, c'est LE poisson des digues, des jetées et des calanques : présent à l'année, avec un pic net en automne-hiver dès que la mer se forme. Sur l'Atlantique, il occupe la façade sud (du Pays basque aux pertuis charentais, en passant par les épis landais et les enrochements portuaires de la Gironde), grosso modo d'avril à novembre.`,
+    `Deux approches le prennent vraiment du bord : le surfcasting léger dans les vagues et la flottante au ras des cailloux. Règle commune : bas de ligne discret, appât naturel solide, ferrage immédiat. Il ne te laisse pas de deuxième chance. Et retiens ceci : le sar mange quand ça bouge. La mer formée qui fait rentrer tout le monde au port, c'est précisément ton créneau.`,
   ],
 
   identity: {
     famille: `Sparidés (Diplodus sargus)`,
     tailleCourante: `20-35 cm du bord, 40 cm+ pour les beaux sujets`,
     tailleMax: `~45 cm pour près de 2 kg`,
-    habitat: `Enrochements battus, digues, calanques — 0 à 5 m d'eau, dans le ressac`,
-    regime: `Crabes, moules, vers, bernard-l'ermite — dentition broyeuse`,
+    habitat: `Enrochements battus, digues, calanques : 0 à 5 m d'eau, dans le ressac`,
+    regime: `Crabes, moules, vers, bernard-l'ermite (dentition broyeuse)`,
   },
 
   regulation: {
@@ -29,7 +29,7 @@ export const sarEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 25, mediterranee: 23 },
     marquage: true,
     items: [
-      `<strong>Taille minimale : 25 cm</strong> en Manche et Atlantique, <strong>23 cm</strong> en Méditerranée — en dessous, remise à l'eau immédiate.`,
+      `<strong>Taille minimale : 25 cm</strong> en Manche et Atlantique, <strong>23 cm</strong> en Méditerranée : en dessous, remise à l'eau immédiate.`,
       `<strong>Marquage obligatoire</strong> de chaque sar conservé : ablation de la partie inférieure de la nageoire caudale, dès la capture.`,
       `<strong>Pas de quota national</strong> de captures pour la pêche de loisir. Reste raisonnable malgré tout : un poisson de roche se prélève avec mesure.`,
       `En Méditerranée, <strong>vérifie la réglementation locale avant de pêcher</strong> : réserves marines et zones protégées (Cerbère-Banyuls, Scandola, cœur du Parc national des Calanques…) peuvent restreindre ou interdire la pêche.`,
@@ -86,18 +86,18 @@ export const sarEspece: EspeceContent = {
   techniques: [
     {
       slug: 'surfcasting',
-      why: `Le surfcasting léger est l'arme reine dès que la mer se forme : tu poses un demi-crabe ou une moule ligaturée dans l'eau blanche, à 20-50 m du bord, là où la houle retourne le fond. Canne 60-100 g, trainard court, bannière tendue — la touche est un coup sec unique, le ferrage doit suivre dans la seconde.`,
+      why: `Le surfcasting léger est l'arme reine dès que la mer se forme : tu poses un demi-crabe ou une moule ligaturée dans l'eau blanche, à 20-50 m du bord, là où la houle retourne le fond. Canne 60-100 g, trainard court, bannière tendue. La touche est un coup sec unique, le ferrage doit suivre dans la seconde.`,
     },
     {
       slug: 'flottante',
-      why: `La flottante, c'est le sar au contact : bolognaise 5-6 m, flotteur 2-6 g, et tu pêches à gratter au ras des rochers, dans la mousse, souvent à moins de 2 m du bord. Un broumé léger de moules écrasées fixe le poste ; au premier enfoncement franc, ferre — tout se joue dans les trois premières secondes.`,
+      why: `La flottante, c'est le sar au contact : bolognaise 5-6 m, flotteur 2-6 g, et tu pêches à gratter au ras des rochers, dans la mousse, souvent à moins de 2 m du bord. Un broumé léger de moules écrasées fixe le poste ; au premier enfoncement franc, ferre : tout se joue dans les trois premières secondes.`,
     },
   ],
 
   postes: [
-    `Le sar tient des postes précis, toujours au contact du dur : pieds de digues et de jetées, failles et sorties de calanques, épis, pointes rocheuses, enrochements portuaires. Cherche la zone exacte où la vague vient de casser — l'eau blanche chargée d'oxygène où il fouille le fond retourné par la houle. Sans touche au bout de vingt minutes, change de bloc : c'est à toi d'aller le trouver, pas l'inverse.`,
-    `Côté conditions, retiens une règle simple : plus ça bouge, mieux il mord. Un vent de face de 15 à 25 km/h, une houle d'un mètre, une eau teintée par le ressac : ce sont tes meilleures fenêtres. En Méditerranée, le créneau en or, c'est juste après un coup de mistral ou de levant, quand la mer retombe mais que l'eau reste blanchie. À l'inverse, plat total et eau cristalline égalent poisson quasi impêchable en pleine journée — descends en 18-22/100 ou attends le crépuscule.`,
-    `Sur l'Atlantique, la marée commande tout : pêche le montant, surtout les deux dernières heures avant la pleine mer, quand l'eau recouvre les moulières et les zones à crabes au pied des enrochements. Regarde la courbe de marée de ton spot et cale ta session sur cette fenêtre, étale comprise. En Méditerranée, le marnage est négligeable : c'est la houle qui joue le rôle de la marée — elle décolle la nourriture du caillou et déclenche les repas.`,
+    `Le sar tient des postes précis, toujours au contact du dur : pieds de digues et de jetées, failles et sorties de calanques, épis, pointes rocheuses, enrochements portuaires. Cherche la zone exacte où la vague vient de casser : l'eau blanche chargée d'oxygène où il fouille le fond retourné par la houle. Sans touche au bout de vingt minutes, change de bloc : c'est à toi d'aller le trouver, pas l'inverse.`,
+    `Côté conditions, retiens une règle simple : plus ça bouge, mieux il mord. Un vent de face de 15 à 25 km/h, une houle d'un mètre, une eau teintée par le ressac : ce sont tes meilleures fenêtres. En Méditerranée, le créneau en or, c'est juste après un coup de mistral ou de levant, quand la mer retombe mais que l'eau reste blanchie. À l'inverse, plat total et eau cristalline égalent poisson quasi impêchable en pleine journée. Descends en 18-22/100 ou attends le crépuscule.`,
+    `Sur l'Atlantique, la marée commande tout : pêche le montant, surtout les deux dernières heures avant la pleine mer, quand l'eau recouvre les moulières et les zones à crabes au pied des enrochements. Regarde la courbe de marée de ton spot et cale ta session sur cette fenêtre, étale comprise. En Méditerranée, le marnage est négligeable : c'est la houle qui joue le rôle de la marée : elle décolle la nourriture du caillou et déclenche les repas.`,
   ],
 
   faq: [
@@ -115,7 +115,7 @@ export const sarEspece: EspeceContent = {
     },
     {
       q: `Le sar est-il bon à manger ?`,
-      a: `Oui, c'est même un des meilleurs poissons de roche : chair blanche, ferme et fine, excellente entière au four ou grillée. Un sujet de 25-30 cm suffit pour une portion. Prélève avec mesure — le sar grandit lentement et reste fidèle à ses postes : un bloc vidé met longtemps à se repeupler.`,
+      a: `Oui, c'est même un des meilleurs poissons de roche : chair blanche, ferme et fine, excellente entière au four ou grillée. Un sujet de 25-30 cm suffit pour une portion. Prélève avec mesure. Le sar grandit lentement et reste fidèle à ses postes : un bloc vidé met longtemps à se repeupler.`,
     },
   ],
 }

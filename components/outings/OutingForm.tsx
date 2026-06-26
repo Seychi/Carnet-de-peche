@@ -61,7 +61,7 @@ export function OutingForm({ defaultDepartment }: { defaultDepartment?: string |
       setSubmitting(false)
       return
     }
-    toast.success('Sortie enregistrée — même bredouille, ça compte.')
+    toast.success('Sortie enregistrée, même bredouille, ça compte.')
     router.push('/carnet')
     router.refresh()
   }

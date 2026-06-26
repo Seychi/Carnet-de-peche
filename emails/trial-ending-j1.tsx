@@ -26,7 +26,7 @@ export default function TrialEndingJ1Email({
       </Text>
       <Text style={paragraph}>
         Si l&rsquo;app t&rsquo;a convaincu, tu n&rsquo;as rien à faire. Sinon, tu peux annuler en 1
-        clic — aucune charge ne sera appliquée.
+        clic, aucune charge ne sera appliquée.
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>Tu gardes la main, toujours.</Text>
       <CtaButton href={`${SITE_URL}/compte/abonnement`} label="Gérer mon essai" />

@@ -41,7 +41,7 @@ export default async function CheckoutSuccessPage({
       </h1>
       <p className="text-ink-700 mb-8">
         Ton essai 7 jours démarre maintenant. Tu peux annuler à tout moment, en ligne, depuis
-        ton compte — aucune charge avant la fin de l&rsquo;essai.
+        ton compte. Aucune charge avant la fin de l&rsquo;essai.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link

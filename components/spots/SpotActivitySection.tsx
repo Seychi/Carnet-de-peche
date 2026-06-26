@@ -48,7 +48,7 @@ export async function SpotActivitySection({
         </div>
         <p className="text-[15px] text-ink-600">
           Personne n&rsquo;a encore logué de prise ici cette semaine.{' '}
-          <span className="font-medium text-navy-900">Sois le premier</span> — ta prise allumera ce
+          <span className="font-medium text-navy-900">Sois le premier</span>, ta prise allumera ce
           spot pour la communauté.
         </p>
         <Link

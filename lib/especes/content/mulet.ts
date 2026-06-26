@@ -11,13 +11,13 @@ export const muletEspece: EspeceContent = {
   slug: 'mulet',
 
   intro: [
-    `Le mulet, c'est le poisson que tu vois tous les jours et que tu n'arrives jamais à prendre. Des bancs entiers qui patrouillent sous tes pieds dans le port, des lèvres charnues qui gobent en surface… et au moindre faux pas, tout se volatilise. Loin d'être le poisson « facile » qu'on raconte, c'est l'un des plus méfiants du bord — et c'est exactement ce qui en fait une pêche d'orfèvre.`,
-    `Sous le nom de mulet se cachent en réalité plusieurs espèces de muges (Mugil spp.), dont le mulet lippu (Chelon labrosus) est le plus courant du bord. Il colonise les eaux saumâtres et tranquilles : bassins de port, estuaires, embouchures, darses, là où l'eau douce rencontre la mer et où les algues tapissent les quais. Omnivore, il broute le film verdâtre des cales, aspire la vase chargée de micro-organismes, et raffole de tout ce qui flotte — d'où la pêche au pain, technique reine pour le faire sortir de sa réserve.`,
+    `Le mulet, c'est le poisson que tu vois tous les jours et que tu n'arrives jamais à prendre. Des bancs entiers qui patrouillent sous tes pieds dans le port, des lèvres charnues qui gobent en surface… et au moindre faux pas, tout se volatilise. Loin d'être le poisson « facile » qu'on raconte, c'est l'un des plus méfiants du bord, et c'est exactement ce qui en fait une pêche d'orfèvre.`,
+    `Sous le nom de mulet se cachent en réalité plusieurs espèces de muges (Mugil spp.), dont le mulet lippu (Chelon labrosus) est le plus courant du bord. Il colonise les eaux saumâtres et tranquilles : bassins de port, estuaires, embouchures, darses, là où l'eau douce rencontre la mer et où les algues tapissent les quais. Omnivore, il broute le film verdâtre des cales, aspire la vase chargée de micro-organismes, et raffole de tout ce qui flotte : d'où la pêche au pain, technique reine pour le faire sortir de sa réserve.`,
     `Ne te laisse pas avoir par sa réputation de poisson de seconde zone : un mulet de 50 cm pris au flotteur en fil fin, c'est un combat magnifique, des rushs puissants et une défense rageuse qui mettent ta tresse à l'épreuve. Une fois qu'on y a goûté, on devient accro à cette pêche d'approche, discrète et technique, qui se pratique en short au bord d'un quai par une belle journée.`,
   ],
 
   identity: {
-    famille: 'Mugilidés (Chelon labrosus, mulet lippu) — plusieurs muges regroupés sous Mugil spp.',
+    famille: 'Mugilidés (Chelon labrosus, mulet lippu), plusieurs muges regroupés sous Mugil spp.',
     tailleCourante: '30-50 cm du bord, 60 cm pour les beaux sujets',
     tailleMax: 'environ 75 cm pour 3-4 kg sur les plus gros lippus',
     habitat: 'Fonds meubles des ports et estuaires : bassins, darses, embouchures, eaux saumâtres calmes près des quais',
@@ -30,9 +30,9 @@ export const muletEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 30, mediterranee: null },
     marquage: false,
     items: [
-      `<strong>Maille : 30 cm</strong> en Manche et Atlantique (Mugil spp.) — tout mulet sous cette taille doit être remis à l'eau immédiatement.`,
+      `<strong>Maille : 30 cm</strong> en Manche et Atlantique (Mugil spp.). Tout mulet sous cette taille doit être remis à l'eau immédiatement.`,
       `<strong>Méditerranée : pas de taille minimale réglementaire de capture en pêche de loisir</strong> pour le mulet. Reste raisonnable et ne conserve que de beaux sujets.`,
-      `<strong>Aucune fermeture ni quota loisir national</strong> ; des arrêtés préfectoraux locaux peuvent ajouter des restrictions — vérifie l'affichage de ton port et la réglementation de ton département.`,
+      `<strong>Aucune fermeture ni quota loisir national</strong> ; des arrêtés préfectoraux locaux peuvent ajouter des restrictions. Vérifie l'affichage de ton port et la réglementation de ton département.`,
       `<strong>Pêche dans les ports</strong> : certains bassins interdisent ou encadrent la pêche pour des raisons de sécurité ou de salubrité. Respecte la signalétique et ne prélève pas de poisson en eau douteuse.`,
     ],
   },
@@ -87,7 +87,7 @@ export const muletEspece: EspeceContent = {
   techniques: [
     {
       slug: 'flottante',
-      why: `La technique reine : flotteur fin réglé peu profond, hameçon n°10-14 garni d'une boulette de mie de pain ou d'asticots, le tout amorcé au pain trempé qui dérive en surface. Fil fin (12-16/100), nylon discret, et de la patience : le mulet inspecte longtemps avant de gober. À la touche, ferre en douceur — sa bouche est tendre et se déchire vite.`,
+      why: `La technique reine : flotteur fin réglé peu profond, hameçon n°10-14 garni d'une boulette de mie de pain ou d'asticots, le tout amorcé au pain trempé qui dérive en surface. Fil fin (12-16/100), nylon discret, et de la patience : le mulet inspecte longtemps avant de gober. À la touche, ferre en douceur : sa bouche est tendre et se déchire vite.`,
     },
     {
       slug: 'surfcasting',
@@ -97,7 +97,7 @@ export const muletEspece: EspeceContent = {
 
   postes: [
     `Le mulet est un poisson de calme et de structure : cherche-le dans les bassins de port abrités du vent, le long des quais tapissés d'algues, sous les pontons, dans les darses et aux embouchures où l'eau douce et la mer se mélangent. Il broute le film verdâtre des cales et des coques de bateau, alors ces zones « sales » sont souvent les plus poissonneuses. Repère les gobages en surface avant de t'installer : si tu vois les bancs tourner et goûter le pain qui flotte, tu es au bon poste.`,
-    `Côté conditions, vise le calme plat. Un vent fort qui ride et brasse l'eau du port disperse les bancs et rend les mulets nerveux ; une eau lisse et claire, au contraire, les fait monter et gober en confiance. En estuaire, le moment de marée compte : la fin de la montante et l'étale de pleine mer ramènent l'eau saumâtre et les poissons vers le bord, tandis que la descendante les entraîne vers le large. Dans les ports fermés, l'effet de marée est moindre — c'est la lumière et le calme qui dominent.`,
+    `Côté conditions, vise le calme plat. Un vent fort qui ride et brasse l'eau du port disperse les bancs et rend les mulets nerveux ; une eau lisse et claire, au contraire, les fait monter et gober en confiance. En estuaire, le moment de marée compte : la fin de la montante et l'étale de pleine mer ramènent l'eau saumâtre et les poissons vers le bord, tandis que la descendante les entraîne vers le large. Dans les ports fermés, l'effet de marée est moindre. C'est la lumière et le calme qui dominent.`,
     `La clé reste l'amorçage et la discrétion. Lance régulièrement de petites boulettes de pain trempé pour fixer le banc et créer une traînée flottante, puis présente ton hameçon dans cette dérive. Reste en retrait, baisse-toi, évite les vibrations sur le quai : un mulet voit ton ombre et sent tes pas dans le béton. Aux premières heures du jour et en soirée, quand le port est désert et l'eau immobile, tu auras tes meilleures chances sur ces poissons réputés imprenables.`,
   ],
 

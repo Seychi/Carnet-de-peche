@@ -305,7 +305,7 @@ export default function MapLayerSelector({
                       </div>
                     ))}
                     <p className="text-[10px] text-ink-400 leading-snug mt-0.5">
-                      Le score (0-100) est inscrit sur chaque case — lisible quel que soit le daltonisme.
+                      Le score (0-100) est inscrit sur chaque case, lisible quel que soit le daltonisme.
                     </p>
                   </div>
 
@@ -313,7 +313,7 @@ export default function MapLayerSelector({
                   {qualityEmpty && (
                     <p className="text-[11px] leading-snug text-ink-400">
                       Pas encore assez de prises partagées pour afficher la qualité ici. Elle apparaît
-                      dès que plusieurs pêcheurs y loguent publiquement{isItinerant ? ' — ou sur tes propres spots' : ''}.
+                      dès que plusieurs pêcheurs y loguent publiquement{isItinerant ? ', ou sur tes propres spots' : ''}.
                     </p>
                   )}
 

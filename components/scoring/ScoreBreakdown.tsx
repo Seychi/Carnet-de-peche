@@ -87,8 +87,8 @@ export function ScoreBreakdown({
 
       <p className="mt-3 border-t border-ink-100 pt-2.5 text-[11px] leading-snug text-ink-500">
         {tideNonDiscriminating
-          ? 'Score générique — marée plate ici (marnage faible), son poids est réparti sur l’astro et le vent. Identique pour tous ; tes tendances perso vivent dans ton carnet.'
-          : 'Score générique (astro 40 % · marée 35 % · vent 25 %) — identique pour tous. Tes tendances personnelles (où et quand tombent tes prises) vivent dans ton carnet.'}
+          ? 'Score générique : marée plate ici (marnage faible), son poids est réparti sur l’astro et le vent. Identique pour tous ; tes tendances perso vivent dans ton carnet.'
+          : 'Score générique (astro 40 % · marée 35 % · vent 25 %), identique pour tous. Tes tendances personnelles (où et quand tombent tes prises) vivent dans ton carnet.'}
       </p>
     </div>
   )

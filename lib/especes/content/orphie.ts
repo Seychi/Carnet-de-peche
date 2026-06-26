@@ -11,7 +11,7 @@ export const orphieEspece: EspeceContent = {
   intro: [
     `L'orphie, c'est la flèche argentée des beaux jours : 50 à 70 cm de poisson qui chasse dans la pellicule d'eau, attaque franchement et enchaîne les chandelles une fois piquée. Visible depuis n'importe quelle digue dès que l'eau se réchauffe, c'est LA pêche idéale pour débuter du bord.`,
     `Tu la repères avant même de lancer : gerbes d'eau en surface, alevins qui giclent, parfois un bec fin qui fend la pellicule à 30 m de la digue. L'orphie chasse en bancs dans les deux premiers mètres d'eau, souvent à portée de lancer des jetées, des pointes rocheuses et des sorties de port. Pas besoin de matériel lourd ni de lever à 5 h : par mer calme, elle mord en pleine journée.`,
-    `Sa seule vraie difficulté, c'est le ferrage. Son long bec osseux et étroit laisse peu de prise à l'hameçon : tu vas rater des touches, tout le monde en rate. C'est exactement ce qui rend cette pêche addictive — et une école parfaite pour apprendre à temporiser une touche au lieu de ferrer comme une brute. Lanière de maquereau sous flotteur ou petite cuiller ramenée vite : deux approches simples, des sauts garantis.`,
+    `Sa seule vraie difficulté, c'est le ferrage. Son long bec osseux et étroit laisse peu de prise à l'hameçon : tu vas rater des touches, tout le monde en rate. C'est exactement ce qui rend cette pêche addictive, et une école parfaite pour apprendre à temporiser une touche au lieu de ferrer comme une brute. Lanière de maquereau sous flotteur ou petite cuiller ramenée vite : deux approches simples, des sauts garantis.`,
   ],
 
   identity: {
@@ -28,9 +28,9 @@ export const orphieEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 30, mediterranee: null },
     marquage: false,
     items: [
-      `<strong>Maille : 30 cm</strong> en Manche et Atlantique — toute orphie sous cette taille doit être remise à l'eau immédiatement. En Méditerranée, l'espèce n'a pas de taille minimale réglementaire.`,
-      `<strong>Pas de quota national</strong> en pêche de loisir — reste raisonnable, prélève ce que tu manges.`,
-      `<strong>Arêtes vertes naturelles</strong> : c'est la biliverdine, un pigment inoffensif — l'orphie est parfaitement comestible.`,
+      `<strong>Maille : 30 cm</strong> en Manche et Atlantique : toute orphie sous cette taille doit être remise à l'eau immédiatement. En Méditerranée, l'espèce n'a pas de taille minimale réglementaire.`,
+      `<strong>Pas de quota national</strong> en pêche de loisir, reste raisonnable, prélève ce que tu manges.`,
+      `<strong>Arêtes vertes naturelles</strong> : c'est la biliverdine, un pigment inoffensif. L'orphie est parfaitement comestible.`,
     ],
   },
 
@@ -84,24 +84,24 @@ export const orphieEspece: EspeceContent = {
   techniques: [
     {
       slug: 'flottante',
-      why: `La technique reine : une lanière de maquereau de 5-6 cm sous un flotteur réglé entre 0,5 et 1,5 m. À la touche, rends la main 3 à 5 secondes avant de mettre en tension — sur ce bec osseux, le ferrage différé fait toute la différence.`,
+      why: `La technique reine : une lanière de maquereau de 5-6 cm sous un flotteur réglé entre 0,5 et 1,5 m. À la touche, rends la main 3 à 5 secondes avant de mettre en tension. Sur ce bec osseux, le ferrage différé fait toute la différence.`,
     },
     {
       slug: 'leurres',
-      why: `Petites cuillers argentées de 5 à 12 g ramenées vite, canne haute, dans les 50 premiers centimètres. Pour améliorer le ratio, remplace le triple par un simple à hampe longue — ou passe au floss sans hameçon : ses micro-dents s'emmêlent dans les fibres et le poisson repart intact.`,
+      why: `Petites cuillers argentées de 5 à 12 g ramenées vite, canne haute, dans les 50 premiers centimètres. Pour améliorer le ratio, remplace le triple par un simple à hampe longue, ou passe au floss sans hameçon : ses micro-dents s'emmêlent dans les fibres et le poisson repart intact.`,
     },
   ],
 
   postes: [
-    `Cherche 2 à 3 m d'eau claire à portée de lancer : digues et jetées portuaires, pointes rocheuses, sorties d'estuaire. L'orphie ne colle pas au fond, elle patrouille la pellicule — un poste haut comme une digue te donne un avantage énorme pour repérer les bancs et lancer au-delà. Si tu vois des gerbes d'eau ou des oiseaux qui piquent, ne réfléchis pas : chaque lancer dans la chasse compte.`,
+    `Cherche 2 à 3 m d'eau claire à portée de lancer : digues et jetées portuaires, pointes rocheuses, sorties d'estuaire. L'orphie ne colle pas au fond, elle patrouille la pellicule. Un poste haut comme une digue te donne un avantage énorme pour repérer les bancs et lancer au-delà. Si tu vois des gerbes d'eau ou des oiseaux qui piquent, ne réfléchis pas : chaque lancer dans la chasse compte.`,
     `Le vent et la houle décident de ta session plus que tout le reste. Vise un vent sous 15 km/h et plusieurs jours sans houle : l'eau s'éclaircit, la surface se lisse, et les orphies remontent franchement. Une mer ridée ou teintée après un coup de vent, et les bancs décollent du bord. En Méditerranée, tout se joue sur la lumière : petit matin, mer d'huile, avant que le thermique ne se lève.`,
-    `Sur la Manche et l'Atlantique, pêche la montante et le tout début de la descendante : le courant plaque les bancs le long des ouvrages, et les deux heures avant la pleine mer sont souvent les meilleures. Repère les horaires de pleine mer de ton spot avant de partir — arriver à mi-montante, c'est pêcher quand ça s'allume au lieu d'attendre que ça démarre.`,
+    `Sur la Manche et l'Atlantique, pêche la montante et le tout début de la descendante : le courant plaque les bancs le long des ouvrages, et les deux heures avant la pleine mer sont souvent les meilleures. Repère les horaires de pleine mer de ton spot avant de partir. Arriver à mi-montante, c'est pêcher quand ça s'allume au lieu d'attendre que ça démarre.`,
   ],
 
   faq: [
     {
       q: `Pourquoi l'orphie a-t-elle les arêtes vertes, est-elle comestible ?`,
-      a: `Cette couleur vient de la biliverdine, un pigment naturel totalement inoffensif présent dans ses os. L'orphie est parfaitement comestible : chair fine, légèrement iodée, parfaite en filets poêlés ou en escabèche. La couleur verte surprend dans l'assiette, mais elle n'altère ni le goût ni la qualité du poisson — c'est sa signature, pas un défaut.`,
+      a: `Cette couleur vient de la biliverdine, un pigment naturel totalement inoffensif présent dans ses os. L'orphie est parfaitement comestible : chair fine, légèrement iodée, parfaite en filets poêlés ou en escabèche. La couleur verte surprend dans l'assiette, mais elle n'altère ni le goût ni la qualité du poisson, c'est sa signature, pas un défaut.`,
     },
     {
       q: `Quelle est la taille minimale de capture de l'orphie ?`,

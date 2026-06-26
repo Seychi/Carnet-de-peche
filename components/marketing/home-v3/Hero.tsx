@@ -69,7 +69,7 @@ const HERO_VARIANTS: Record<
     subhead: (
       <>
         Logue tes prises. Le carnet croise marée, marnage, vent et heure avec{' '}
-        <b className="text-white">ton</b> historique — et te dit quand sortir. La donnée
+        <b className="text-white">ton</b> historique, et te dit quand sortir. La donnée
         d&apos;un instrument marin, dans ta poche.
       </>
     ),
@@ -90,7 +90,7 @@ const HERO_VARIANTS: Record<
     subhead: (
       <>
         De Banyuls à Menton : spots curés, score du jour, vent et créneaux. La Méditerranée
-        traitée comme un <b className="text-white">instrument de précision</b> — pas comme un lac.
+        traitée comme un <b className="text-white">instrument de précision</b>, pas comme un lac.
       </>
     ),
     showStats: false,
@@ -316,7 +316,7 @@ export function Hero({
             </div>
           </div>
           <p className="mt-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-white/35">
-            Score générique, identique pour tous — tes tendances perso vivent dans ton carnet.
+            Score générique, identique pour tous. Tes tendances perso vivent dans ton carnet.
           </p>
         </div>
       </div>

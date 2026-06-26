@@ -887,7 +887,7 @@ export function CatchForm(props: CatchFormProps) {
 
         {isOutOfCoverage && (
           <p className="mt-3 rounded-[10px] border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-800">
-            Position hors France métropolitaine — la prise sera enregistrée, mais les
+            Position hors France métropolitaine : la prise sera enregistrée, mais les
             conditions et le score ne seront pas calculés.
           </p>
         )}

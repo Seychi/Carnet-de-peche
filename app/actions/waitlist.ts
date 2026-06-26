@@ -11,7 +11,7 @@ const waitlistEmail = z
   .min(1, 'Ton email est requis pour continuer')
   .max(254, 'Cet email est trop long')
   .pipe(
-    z.email("Cet email n'a pas l'air valide — vérifie le format (ex : pecheur@exemple.fr)"),
+    z.email("Cet email n'a pas l'air valide. Vérifie le format (ex : pecheur@exemple.fr)"),
   )
 
 export type WaitlistResult = { ok: true } | { ok: false; error: string }

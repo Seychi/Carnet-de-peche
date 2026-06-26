@@ -478,7 +478,7 @@ export function OnboardingStep({
         {step === 5 && (
           <StepWrapper
             title="Ton niveau"
-            subtitle="Honnêtement — pour calibrer tes suggestions de spots et de techniques."
+            subtitle="Honnêtement, pour calibrer tes suggestions de spots et de techniques."
           >
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-3">

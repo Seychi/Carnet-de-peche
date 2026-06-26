@@ -48,7 +48,7 @@ export function RecfishingNotice({
   function handleCopy() {
     const text = fields.map((f) => `${f.label} : ${f.value}`).join('\n')
     navigator.clipboard?.writeText(text).then(
-      () => toast.success('Récap copié — colle-le dans RecFishing'),
+      () => toast.success('Récap copié, colle-le dans RecFishing'),
       () => toast.error('Copie impossible sur cet appareil'),
     )
   }
@@ -92,7 +92,7 @@ export function RecfishingNotice({
           </p>
           <p className="mt-1 text-[12px] text-amber-800 leading-relaxed">
             Cette espèce doit être déclarée à l&rsquo;administration via l&rsquo;appli officielle RecFishing
-            (y compris si tu l&rsquo;as relâchée). On prépare ton récap ci-dessous — c&rsquo;est toi qui
+            (y compris si tu l&rsquo;as relâchée). On prépare ton récap ci-dessous. C&rsquo;est toi qui
             valides la déclaration sur RecFishing (connexion EU Login).
           </p>
         </div>

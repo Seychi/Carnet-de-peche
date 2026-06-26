@@ -68,7 +68,7 @@ export function CatchRegulationSection({
                 <span aria-hidden>⚠️</span>
                 <span>
                   Cette prise ({sizeCm} cm) est sous la maille de {verdict.minSizeCm} cm
-                  {released ? ' — bien relâchée.' : ' : elle aurait dû être remise à l’eau.'}
+                  {released ? ', bien relâchée.' : ' : elle aurait dû être remise à l’eau.'}
                 </span>
               </p>
             )}

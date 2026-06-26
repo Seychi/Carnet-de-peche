@@ -11,9 +11,9 @@ export const lieuJauneEspece: EspeceContent = {
   slug: 'lieu-jaune',
 
   intro: [
-    `Le lieu jaune, c'est le combattant d'eau froide des pointes profondes : un premier rush vers la roche qui plie la canne et punit un frein trop serré. Du bord, il se mérite — 8 à 15 m d'eau à portée de lancer, l'aube, et un leurre ramené lentement au ras du fond.`,
-    `Ce gadidé — cousin de la morue — vit collé aux structures : tombants rocheux, têtes de roche, piles de digues. Il chasse le lançon près du fond et monte rarement en pleine eau passé le lever du jour. En France, son territoire du bord se résume à la Manche et à l'Atlantique nord : pointes du Finistère, caps des Côtes-d'Armor, ouest du Cotentin. Au sud de la Loire, il devient anecdotique depuis la côte, et en Méditerranée il est tout simplement absent.`,
-    `Depuis l'arrêté du 24 décembre 2024, la donne a changé : pêche fermée du 1er janvier au 30 avril, maille à 42 cm, deux poissons par jour. Résultat, la réouverture de mai est devenue LE rendez-vous de l'année — des poissons frais, peu sollicités, et des lançons de retour sur les côtes. Cette fiche te donne les saisons, les deux techniques qui prennent vraiment du bord — souple finesse et vif de lançon — et les postes selon le vent, la houle et la marée.`,
+    `Le lieu jaune, c'est le combattant d'eau froide des pointes profondes : un premier rush vers la roche qui plie la canne et punit un frein trop serré. Du bord, il se mérite : 8 à 15 m d'eau à portée de lancer, l'aube, et un leurre ramené lentement au ras du fond.`,
+    `Ce gadidé, cousin de la morue, vit collé aux structures : tombants rocheux, têtes de roche, piles de digues. Il chasse le lançon près du fond et monte rarement en pleine eau passé le lever du jour. En France, son territoire du bord se résume à la Manche et à l'Atlantique nord : pointes du Finistère, caps des Côtes-d'Armor, ouest du Cotentin. Au sud de la Loire, il devient anecdotique depuis la côte, et en Méditerranée il est tout simplement absent.`,
+    `Depuis l'arrêté du 24 décembre 2024, la donne a changé : pêche fermée du 1er janvier au 30 avril, maille à 42 cm, deux poissons par jour. Résultat, la réouverture de mai est devenue LE rendez-vous de l'année : des poissons frais, peu sollicités, et des lançons de retour sur les côtes. Cette fiche te donne les saisons, les deux techniques qui prennent vraiment du bord (souple finesse et vif de lançon) et les postes selon le vent, la houle et la marée.`,
   ],
 
   identity: {
@@ -31,9 +31,9 @@ export const lieuJauneEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 42, mediterranee: null },
     marquage: true,
     items: [
-      `<strong>Maille : 42 cm</strong> en Manche et Atlantique — tout lieu jaune sous cette taille doit être relâché immédiatement.`,
+      `<strong>Maille : 42 cm</strong> en Manche et Atlantique. Tout lieu jaune sous cette taille doit être relâché immédiatement.`,
       `<strong>Quota : 2 lieus jaunes par jour et par pêcheur</strong>, toutes techniques confondues.`,
-      `<strong>Fermeture totale du 1er janvier au 30 avril</strong> — aucune capture ni détention pendant cette période.`,
+      `<strong>Fermeture totale du 1er janvier au 30 avril</strong> : aucune capture ni détention pendant cette période.`,
       `<strong>Marquage obligatoire</strong> de chaque lieu jaune conservé : ablation de la partie inférieure de la nageoire caudale.`,
     ],
   },
@@ -71,20 +71,20 @@ export const lieuJauneEspece: EspeceContent = {
     },
     {
       slug: 'vif',
-      why: `Le vif — lançon en tête — présenté en dérive sous flotteur ou en plombée légère décollée du fond reste la valeur sûre des postes profonds, surtout quand le lieu boude les leurres une fois le soleil levé.`,
+      why: `Le vif, lançon en tête, présenté en dérive sous flotteur ou en plombée légère décollée du fond reste la valeur sûre des postes profonds, surtout quand le lieu boude les leurres une fois le soleil levé.`,
     },
   ],
 
   postes: [
-    `Le bon poste à lieu jaune se reconnaît à une seule chose : la profondeur collée au bord. Vise les pointes rocheuses qui plongent vite — 8 m d'eau minimum à moins de 50 m —, les digues portuaires profondes et les tombants avec du courant. Finistère, Côtes-d'Armor, Cotentin : c'est là que ces profils existent du bord. Oublie les plages et le sable plat : sans relief ni hauteur d'eau, pas de lieu.`,
-    `Le moment de marée pèse plus que la météo. Les phases fortes du bord sont le montant et les deux heures qui encadrent la pleine mer : plus de hauteur d'eau sur tes roches, un courant relancé qui active les chasses au ras du fond. Les coefficients moyens à forts amplifient le phénomène le long des tombants. Cale ta session pour que l'aube tombe sur le montant — la courbe de marée et les horaires de pleine et basse mer de ton spot suffisent à le planifier. Aux étales, ralentis encore la récupération.`,
-    `Côté ciel : un vent modéré qui ride la surface te sert, il casse la luminosité et rapproche le poisson de la roche. Une houle au-delà de 1,5 m, en revanche, rend la pêche au ras du fond impossible — dérive incontrôlable, accrochages en série, et des pointes battues qui deviennent dangereuses. Cherche une mer peu agitée, une eau claire à légèrement teintée, et méfie-toi des coups de chaud prolongés qui renvoient les poissons au large.`,
+    `Le bon poste à lieu jaune se reconnaît à une seule chose : la profondeur collée au bord. Vise les pointes rocheuses qui plongent vite (8 m d'eau minimum à moins de 50 m), les digues portuaires profondes et les tombants avec du courant. Finistère, Côtes-d'Armor, Cotentin : c'est là que ces profils existent du bord. Oublie les plages et le sable plat : sans relief ni hauteur d'eau, pas de lieu.`,
+    `Le moment de marée pèse plus que la météo. Les phases fortes du bord sont le montant et les deux heures qui encadrent la pleine mer : plus de hauteur d'eau sur tes roches, un courant relancé qui active les chasses au ras du fond. Les coefficients moyens à forts amplifient le phénomène le long des tombants. Cale ta session pour que l'aube tombe sur le montant. La courbe de marée et les horaires de pleine et basse mer de ton spot suffisent à le planifier. Aux étales, ralentis encore la récupération.`,
+    `Côté ciel : un vent modéré qui ride la surface te sert, il casse la luminosité et rapproche le poisson de la roche. Une houle au-delà de 1,5 m, en revanche, rend la pêche au ras du fond impossible : dérive incontrôlable, accrochages en série, et des pointes battues qui deviennent dangereuses. Cherche une mer peu agitée, une eau claire à légèrement teintée, et méfie-toi des coups de chaud prolongés qui renvoient les poissons au large.`,
   ],
 
   faq: [
     {
       q: 'Quelle est la taille minimale et le quota pour le lieu jaune en 2026 ?',
-      a: `La maille est fixée à 42 cm et le quota à 2 lieus jaunes par jour et par pêcheur. La pêche de loisir est totalement fermée du 1er janvier au 30 avril — aucune capture ni détention — et tout poisson conservé doit être marqué. Source : arrêté du 24 décembre 2024, vérifié le 12/06/2026.`,
+      a: `La maille est fixée à 42 cm et le quota à 2 lieus jaunes par jour et par pêcheur. La pêche de loisir est totalement fermée du 1er janvier au 30 avril, aucune capture ni détention, et tout poisson conservé doit être marqué. Source : arrêté du 24 décembre 2024, vérifié le 12/06/2026.`,
     },
     {
       q: 'Quelle est la meilleure période pour pêcher le lieu jaune du bord ?',
@@ -92,11 +92,11 @@ export const lieuJauneEspece: EspeceContent = {
     },
     {
       q: 'Quel leurre pour le lieu jaune du bord ?',
-      a: `Un souple finesse de 10 à 15 cm — shad ou slug imitation lançon, blanc nacré ou ayu — sur tête plombée de 10 à 25 g selon la profondeur et le courant. L'animation qui prend : laisser couler jusqu'au contact du fond, puis un linéaire très lent dans le dernier mètre. Prévois du stock de têtes, les accrochages font partie du jeu.`,
+      a: `Un souple finesse de 10 à 15 cm (shad ou slug imitation lançon, blanc nacré ou ayu) sur tête plombée de 10 à 25 g selon la profondeur et le courant. L'animation qui prend : laisser couler jusqu'au contact du fond, puis un linéaire très lent dans le dernier mètre. Prévois du stock de têtes, les accrochages font partie du jeu.`,
     },
     {
       q: 'Où pêcher le lieu jaune du bord en France ?',
-      a: `Sur les façades Manche et Atlantique nord : pointes du Finistère (Crozon, Cap Sizun, abers), caps des Côtes-d'Armor, ouest du Cotentin. Il faut 8 m d'eau et plus à portée de lancer — pointes rocheuses, digues profondes, tombants. Au sud de la Loire, il devient rare depuis la côte, et il est absent de Méditerranée.`,
+      a: `Sur les façades Manche et Atlantique nord : pointes du Finistère (Crozon, Cap Sizun, abers), caps des Côtes-d'Armor, ouest du Cotentin. Il faut 8 m d'eau et plus à portée de lancer : pointes rocheuses, digues profondes, tombants. Au sud de la Loire, il devient rare depuis la côte, et il est absent de Méditerranée.`,
     },
   ],
 }

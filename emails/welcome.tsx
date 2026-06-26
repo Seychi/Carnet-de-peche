@@ -10,17 +10,17 @@ type Props = {
 // Bloc C : mentionner le fil 100% gratuit — l'argument différenciant post-pivot.
 export default function WelcomeEmail({ firstName = "pêcheur" }: Props) {
   return (
-    <EmailShell preview="Ton carnet est prêt — logue ta première prise">
+    <EmailShell preview="Ton carnet est prêt : logue ta première prise">
       <Text style={h1}>Bienvenue, {firstName} 🎣</Text>
       <Text style={paragraph}>
-        Ton carnet est prêt. Chaque prise que tu logues — espèce, taille, spot, conditions —
+        Ton carnet est prêt. Chaque prise que tu logues, espèce, taille, spot, conditions,
         affine tes patterns : le carnet apprend <strong>quand</strong> et <strong>où</strong> TU
         pêches le mieux, pas des moyennes génériques.
       </Text>
       <Text style={paragraph}>
         Le carnet est <strong>illimité et gratuit</strong>, pour toujours. Et le{" "}
         <strong>fil régional est 100&nbsp;% gratuit</strong> : lecture, publication, likes,
-        commentaires, follows — dans tous les départements côtiers.
+        commentaires, follows, dans tous les départements côtiers.
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>
         Le meilleur point de départ : ta première prise. Deux minutes, et ton carnet commence à

@@ -78,14 +78,14 @@ function HowItWorksDialog() {
             <li className="flex items-start gap-2">
               <span className="font-mono font-bold text-navy-900 shrink-0">40%</span>
               <span>
-                <strong>Astronomique</strong> — lever et coucher de lune et de soleil, transits lunaires.
+                <strong>Astronomique</strong> : lever et coucher de lune et de soleil, transits lunaires.
                 Les moments autour du lever/coucher de lune sont historiquement les plus actifs pour les poissons.
               </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-mono font-bold text-navy-900 shrink-0">35%</span>
               <span>
-                <strong>Marée</strong> — montante &gt; descendante &gt; étale, avec un bonus
+                <strong>Marée</strong> : montante &gt; descendante &gt; étale, avec un bonus
                 quand une pleine ou basse mer tombe dans le créneau. La marée qui bouge
                 concentre les poissons et favorise l&apos;alimentation.
               </span>
@@ -93,14 +93,14 @@ function HowItWorksDialog() {
             <li className="flex items-start gap-2">
               <span className="font-mono font-bold text-navy-900 shrink-0">25%</span>
               <span>
-                <strong>Vent</strong> — idéal entre 5 et 15 km/h. Trop calme ou trop fort dégrade
+                <strong>Vent</strong>, idéal entre 5 et 15 km/h. Trop calme ou trop fort dégrade
                 la qualité de pêche.
               </span>
             </li>
           </ul>
           <p className="text-[12px] text-ink-500 border-t border-ink-100 pt-3 mt-1">
             Ce scoring est générique : il s&apos;appuie sur les conditions
-            astronomiques, la marée et le vent — identiques pour tous les pêcheurs.
+            astronomiques, la marée et le vent, identiques pour tous les pêcheurs.
           </p>
         </div>
       </DialogContent>

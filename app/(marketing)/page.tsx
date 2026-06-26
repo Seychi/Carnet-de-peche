@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: 'Carnet de Pêche',
     title: 'Carnet de Pêche — Sache quand et où ça va mordre',
     description:
-      'Logue tes prises. Le carnet apprend tes patterns — marée, marnage, vent, heure — et te dit ' +
+      'Logue tes prises. Le carnet apprend tes patterns (marée, marnage, vent, heure) et te dit ' +
       'quand et où sortir. Carte marine, marées réelles, fil régional gratuit.',
   },
 }

@@ -159,7 +159,7 @@ export async function signInWithPassword(
     if (msg.includes("email not confirmed")) {
       return {
         error:
-          "Confirme ton email avant de te connecter — vérifie ta boîte de réception.",
+          "Confirme ton email avant de te connecter. Vérifie ta boîte de réception.",
         success: false,
         email,
         submittedAt: null,

@@ -693,7 +693,7 @@ export default function MapView({
     return (
       <div className={`flex items-center justify-center bg-gray-100 rounded-xl ${className ?? ''}`}>
         <p className="text-sm text-gray-500">
-          La carte n&apos;a pas pu se charger — vérifie ta connexion ou réessaie.
+          La carte n&apos;a pas pu se charger. Vérifie ta connexion ou réessaie.
         </p>
       </div>
     )

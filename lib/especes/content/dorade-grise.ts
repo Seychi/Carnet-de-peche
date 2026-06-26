@@ -10,8 +10,8 @@ export const doradeGriseEspece: EspeceContent = {
   slug: "dorade-grise",
 
   intro: [
-    `La dorade grise, qu'on appelle aussi griset ou canthare, c'est le sparidé discret mais généreux de nos côtes : moins doré que sa cousine royale, mais largement plus accessible du bord. Robe gris ardoise marquée de fines lignes longitudinales, corps ovale et haut, touche nerveuse suivie d'une défense en têtes de bélier — quand un banc passe sur ton appât, ça enchaîne.`,
-    `Sa grande différence avec la royale et le sar, c'est le banc. Le griset vit en groupe, souvent nombreux, calé sur les fonds rocheux et les zones coquillières : tombants, têtes de roche, sèches, épaves côtières, mais aussi le sable parsemé de galets et de coquilles au pied des digues et des jetées. Du bord, tu le trouves dès que la roche n'est pas loin — pointes, enrochements portuaires, plateaux rocheux à marée basse. Quand tu en prends un, reste sur le poste : les autres suivent.`,
+    `La dorade grise, qu'on appelle aussi griset ou canthare, c'est le sparidé discret mais généreux de nos côtes : moins doré que sa cousine royale, mais largement plus accessible du bord. Robe gris ardoise marquée de fines lignes longitudinales, corps ovale et haut, touche nerveuse suivie d'une défense en têtes de bélier. Quand un banc passe sur ton appât, ça enchaîne.`,
+    `Sa grande différence avec la royale et le sar, c'est le banc. Le griset vit en groupe, souvent nombreux, calé sur les fonds rocheux et les zones coquillières : tombants, têtes de roche, sèches, épaves côtières, mais aussi le sable parsemé de galets et de coquilles au pied des digues et des jetées. Du bord, tu le trouves dès que la roche n'est pas loin : pointes, enrochements portuaires, plateaux rocheux à marée basse. Quand tu en prends un, reste sur le poste : les autres suivent.`,
     `Deux appâts naturels font tout le travail : le ver (arénicole, dur, néréide) et le crabe ou le morceau de coquillage, présentés au posé sur le fond. C'est une pêche simple, idéale pour se faire la main, mais qui récompense le soin du montage et le bon créneau de marée. Note tes sorties : le griset est fidèle à ses postes et à ses horaires, et les patterns reviennent d'une année sur l'autre.`,
   ],
 
@@ -19,8 +19,8 @@ export const doradeGriseEspece: EspeceContent = {
     famille: `Sparidés (Spondyliosoma cantharus)`,
     tailleCourante: `20-35 cm du bord, 40 cm+ pour les beaux grisets`,
     tailleMax: `Environ 50 cm pour près de 2 kg, exceptionnel du bord`,
-    habitat: `Fonds rocheux et coquilliers, tombants et sèches — souvent en banc, de 3 à 30 m`,
-    regime: `Vers marins, petits crustacés, coquillages, algues — régime omnivore opportuniste`,
+    habitat: `Fonds rocheux et coquilliers, tombants et sèches, souvent en banc, de 3 à 30 m`,
+    regime: `Vers marins, petits crustacés, coquillages, algues, régime omnivore opportuniste`,
   },
 
   regulation: {
@@ -29,7 +29,7 @@ export const doradeGriseEspece: EspeceContent = {
     minSizeCm: { "manche-atlantique": 23, mediterranee: 23 },
     marquage: false,
     items: [
-      `<strong>Taille minimale : 23 cm</strong> en Manche et Atlantique comme en Méditerranée — en dessous, remise à l'eau immédiate, décrochée dans l'eau si possible.`,
+      `<strong>Taille minimale : 23 cm</strong> en Manche et Atlantique comme en Méditerranée. En dessous, remise à l'eau immédiate, décrochée dans l'eau si possible.`,
       `<strong>Pas de marquage obligatoire</strong> pour la dorade grise : tu n'as pas à couper la nageoire caudale des poissons conservés (contrairement au bar, au sar ou à la dorade royale).`,
       `<strong>Pas de quota national</strong> de captures en pêche de loisir. Reste raisonnable : le griset vit en banc et se prélève vite sur un poste, relâche les sujets justes à la maille.`,
       `Avant de pêcher, <strong>vérifie la réglementation locale</strong> : certaines aires marines protégées et réserves peuvent imposer des règles plus strictes ou interdire la pêche.`,
@@ -86,7 +86,7 @@ export const doradeGriseEspece: EspeceContent = {
   techniques: [
     {
       slug: "surfcasting",
-      why: `La technique de référence pour le griset du bord : tu poses un montage à deux ou trois empiles garnies de ver dur ou de morceau de crabe sur la zone rocho-coquillière, à 20-60 m. Plombée juste assez lourde pour tenir, bannière tendue — le griset tape sec puis se met en travers, ferre dès que ça secoue franchement. Vise les bordures de roche et le sable parsemé de coquilles.`,
+      why: `La technique de référence pour le griset du bord : tu poses un montage à deux ou trois empiles garnies de ver dur ou de morceau de crabe sur la zone rocho-coquillière, à 20-60 m. Plombée juste assez lourde pour tenir, bannière tendue. Le griset tape sec puis se met en travers, ferre dès que ça secoue franchement. Vise les bordures de roche et le sable parsemé de coquilles.`,
     },
     {
       slug: "flottante",
@@ -95,7 +95,7 @@ export const doradeGriseEspece: EspeceContent = {
   ],
 
   postes: [
-    `Le griset tient les fonds durs : têtes de roche, tombants, sèches, plateaux rocheux, mais aussi le sable parsemé de galets et de coquilles au pied des digues, des jetées et des enrochements portuaires. La clé, c'est la transition : la bordure où la roche rencontre le coquillier, là où il fouille. Comme il vit en banc, le premier poisson t'indique le bon poste — reste dessus, ré-amorce, et enchaîne tant que les touches viennent. Sans rien après vingt minutes, décale-toi de quelques mètres vers la roche.`,
+    `Le griset tient les fonds durs : têtes de roche, tombants, sèches, plateaux rocheux, mais aussi le sable parsemé de galets et de coquilles au pied des digues, des jetées et des enrochements portuaires. La clé, c'est la transition : la bordure où la roche rencontre le coquillier, là où il fouille. Comme il vit en banc, le premier poisson t'indique le bon poste : reste dessus, ré-amorce, et enchaîne tant que les touches viennent. Sans rien après vingt minutes, décale-toi de quelques mètres vers la roche.`,
     `Côté marée, le griset mange avec le mouvement d'eau : le montant et les deux heures qui encadrent la pleine mer sont les créneaux les plus réguliers, quand le courant recouvre les fonds coquilliers et remet le banc à table. Cale ta session sur la courbe de marée de ton spot et l'étale qui suit. En Méditerranée où le marnage est faible, c'est plutôt l'aube, le crépuscule et une légère houle qui décolle la nourriture du fond qui déclenchent les repas.`,
     `Côté météo, une mer légèrement formée avec une eau un peu teintée vaut mieux qu'un plat d'huile cristallin, surtout en plein jour : la touche est plus franche et le poisson moins méfiant. Évite la grosse houle qui rend le posé impraticable sur la roche, et par eau très claire descends en diamètre. Un vent de terre modéré qui aplatit le clapot tout en gardant un peu de courant est souvent la fenêtre idéale du bord.`,
   ],

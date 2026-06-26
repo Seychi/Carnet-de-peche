@@ -265,7 +265,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                   ))}
                 </ul>
                 <p className="mt-3 border-t border-gold-500/20 pt-3 text-[12px] leading-snug text-ink-500">
-                  Source : {content.regulation.source}. La réglementation évolue — vérifie
+                  Source : {content.regulation.source}. La réglementation évolue. Vérifie
                   l&apos;arrêté en vigueur de ta façade avant de prélever.
                 </p>
               </aside>
@@ -354,7 +354,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
               <p>
                 Chaque fiche spot de{' '}
                 <Link href="/carte">la carte</Link> affiche la courbe de marée du jour, le vent et
-                la houle — de quoi choisir ton poste avant de charger la voiture.
+                la houle, de quoi choisir ton poste avant de charger la voiture.
               </p>
             </section>
 

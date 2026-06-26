@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
       const { default: PostTrialWinbackEmail } = await import('@/emails/post-trial-winback')
       await sendEmail({
         to: recipient.email,
-        subject: "Ton essai est terminé — ton carnet t'attend",
+        subject: "Ton essai est terminé. Ton carnet t'attend",
         react: PostTrialWinbackEmail({
           firstName: recipient.firstName,
           unsubToken: recipient.unsubToken,

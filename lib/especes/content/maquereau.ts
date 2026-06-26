@@ -11,15 +11,15 @@ export const maquereauEspece: EspeceContent = {
   slug: 'maquereau',
 
   intro: [
-    `Le maquereau, c'est la pêche plaisir par excellence : un pélagique nerveux de 25 à 40 cm qui débarque en bancs compacts dès que l'eau passe les 12-14 °C. Pas de spot secret, pas de matériel de pointe — une digue, le bon créneau, et ça mitraille à tous les lancers.`,
-    `Ne te fie pas à sa réputation de poisson facile : sa fenêtre de présence est capricieuse. Un soir, le port bouillonne de chasses — sternes qui piquent, sardines qui giclent — et le lendemain, plus rien. Toute la pêche du maquereau consiste à être au bon endroit quand le banc passe, et à trouver vite la profondeur où il évolue. Compte la descente de ton plomb : dès la première touche, tu sais où répéter. Et pour sa taille, il tape fort, avec des rushs courts et rageurs qui surprennent toujours sur du matériel léger.`,
-    `C'est aussi LA pêche conviviale du bord : en famille, depuis une jetée, avec des touches en rafale qui fabriquent les premiers souvenirs des gamins. Et dans la glacière, un poisson gras superbe à griller le soir même — à condition de l'avoir saigné et glacé dès la capture.`,
+    `Le maquereau, c'est la pêche plaisir par excellence : un pélagique nerveux de 25 à 40 cm qui débarque en bancs compacts dès que l'eau passe les 12-14 °C. Pas de spot secret, pas de matériel de pointe : une digue, le bon créneau, et ça mitraille à tous les lancers.`,
+    `Ne te fie pas à sa réputation de poisson facile : sa fenêtre de présence est capricieuse. Un soir, le port bouillonne de chasses (sternes qui piquent, sardines qui giclent) et le lendemain, plus rien. Toute la pêche du maquereau consiste à être au bon endroit quand le banc passe, et à trouver vite la profondeur où il évolue. Compte la descente de ton plomb : dès la première touche, tu sais où répéter. Et pour sa taille, il tape fort, avec des rushs courts et rageurs qui surprennent toujours sur du matériel léger.`,
+    `C'est aussi LA pêche conviviale du bord : en famille, depuis une jetée, avec des touches en rafale qui fabriquent les premiers souvenirs des gamins. Et dans la glacière, un poisson gras superbe à griller le soir même, à condition de l'avoir saigné et glacé dès la capture.`,
   ],
 
   identity: {
     famille: 'Scombridés (Scomber scombrus)',
     tailleCourante: '25-40 cm du bord',
-    tailleMax: '60 cm pour les records — 45 cm, c\'est déjà un très beau sujet du bord',
+    tailleMax: '60 cm pour les records. 45 cm, c\'est déjà un très beau sujet du bord',
     habitat: 'Pleine eau : pointes de digues, jetées, sorties de port et veines de courant quand les bancs approchent',
     regime: 'Petits poissons (sprats, lançons, juvéniles de sardine), zooplancton, petites crevettes',
   },
@@ -31,10 +31,10 @@ export const maquereauEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 20, mediterranee: 18 },
     marquage: true,
     items: [
-      `<strong>Maille : 20 cm</strong> en Manche et Atlantique, <strong>18 cm</strong> en Méditerranée — toute prise sous la taille retourne à l'eau.`,
+      `<strong>Maille : 20 cm</strong> en Manche et Atlantique, <strong>18 cm</strong> en Méditerranée. Toute prise sous la taille retourne à l'eau.`,
       `<strong>Quota : 10 maquereaux/jour/pêcheur</strong> en Manche, mer du Nord et Atlantique (depuis avril 2026). Pas de quota en Méditerranée.`,
       `<strong>Marquage obligatoire</strong> de chaque maquereau conservé : ablation de la partie inférieure de la nageoire caudale (possible avant le débarquement, et non dès la mise à bord).`,
-      `<strong>Prélève ce que tu consommes</strong> — les bancs ne sont pas inépuisables, et un seau plein qui finit à la poubelle ne fait honneur à personne.`,
+      `<strong>Prélève ce que tu consommes</strong> : les bancs ne sont pas inépuisables, et un seau plein qui finit à la poubelle ne fait honneur à personne.`,
     ],
   },
 
@@ -43,7 +43,7 @@ export const maquereauEspece: EspeceContent = {
       {
         saison: 'Printemps',
         activite: 2,
-        note: `Les premiers bancs touchent les digues en mai, dès que l'eau passe 12-14 °C — passages encore irréguliers, parfois massifs.`,
+        note: `Les premiers bancs touchent les digues en mai, dès que l'eau passe 12-14 °C, passages encore irréguliers, parfois massifs.`,
       },
       {
         saison: 'Été',
@@ -65,7 +65,7 @@ export const maquereauEspece: EspeceContent = {
       {
         saison: 'Printemps',
         activite: 3,
-        note: `Passages plus précoces qu'en Atlantique, dès avril — irréguliers et souvent à l'aube, sur les digues profondes et sorties de port.`,
+        note: `Passages plus précoces qu'en Atlantique, dès avril, irréguliers et souvent à l'aube, sur les digues profondes et sorties de port.`,
       },
       {
         saison: 'Été',
@@ -92,14 +92,14 @@ export const maquereauEspece: EspeceContent = {
     },
     {
       slug: 'flottante',
-      why: `Flotteur coulissant réglé entre 2 et 6 m, lanière de maquereau ou morceau de sardine : imbattable dans les ports quand le banc traîne entre deux eaux sans chasser. Touches franches, montage simple — idéale pour initier un débutant ou un enfant.`,
+      why: `Flotteur coulissant réglé entre 2 et 6 m, lanière de maquereau ou morceau de sardine : imbattable dans les ports quand le banc traîne entre deux eaux sans chasser. Touches franches, montage simple, idéale pour initier un débutant ou un enfant.`,
     },
   ],
 
   postes: [
-    `Le maquereau suit la nourriture, pas la structure : inutile de chercher les roches ou les herbiers, vise les endroits où le courant concentre les proies. Pointes de digue, jetées, estacades, sorties de port et veines de courant sont les postes rois. Le meilleur indicateur reste le ciel : des sternes et des goélands qui piquent à répétition, c'est le banc qui chasse dessous. S'il est à 60 m et hors de portée, ne t'acharne pas — il tourne, il reviendra à distance de lancer.`,
-    `Côté marée, le maquereau est moins calé sur les horaires qu'un bar, mais le courant rassemble ses proies : sur la Manche et l'Atlantique, les deux heures autour de la pleine mer et le début de la descendante concentrent l'essentiel des passages depuis les digues. Le vrai déclencheur, c'est la lumière : aube et crépuscule dominent largement, en pleine eau claire d'été. En Méditerranée, c'est encore plus marqué — la plupart des coups se jouent aux premières lueurs.`,
-    `Le vent et la houle font le tri : une brise modérée qui ride la surface rassure le banc et aide franchement. À l'inverse, une mer formée ou une eau turbide après un gros coup de vent coupe net l'activité — le maquereau chasse à vue, il lui faut une eau propre. Après une tempête, laisse passer 24 à 48 h que l'eau se clarifie avant d'y retourner.`,
+    `Le maquereau suit la nourriture, pas la structure : inutile de chercher les roches ou les herbiers, vise les endroits où le courant concentre les proies. Pointes de digue, jetées, estacades, sorties de port et veines de courant sont les postes rois. Le meilleur indicateur reste le ciel : des sternes et des goélands qui piquent à répétition, c'est le banc qui chasse dessous. S'il est à 60 m et hors de portée, ne t'acharne pas. Il tourne, il reviendra à distance de lancer.`,
+    `Côté marée, le maquereau est moins calé sur les horaires qu'un bar, mais le courant rassemble ses proies : sur la Manche et l'Atlantique, les deux heures autour de la pleine mer et le début de la descendante concentrent l'essentiel des passages depuis les digues. Le vrai déclencheur, c'est la lumière : aube et crépuscule dominent largement, en pleine eau claire d'été. En Méditerranée, c'est encore plus marqué : la plupart des coups se jouent aux premières lueurs.`,
+    `Le vent et la houle font le tri : une brise modérée qui ride la surface rassure le banc et aide franchement. À l'inverse, une mer formée ou une eau turbide après un gros coup de vent coupe net l'activité : le maquereau chasse à vue, il lui faut une eau propre. Après une tempête, laisse passer 24 à 48 h que l'eau se clarifie avant d'y retourner.`,
   ],
 
   faq: [

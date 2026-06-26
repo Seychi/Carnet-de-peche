@@ -126,7 +126,7 @@ export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, cl
       </ul>
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-400">
         Ces tendances décrivent <strong className="font-medium text-ink-500">où et quand</strong>{' '}
-        tombent tes prises — pas si tu pêches mieux. Calculé sur tes vraies prises.
+        tombent tes prises, pas si tu pêches mieux. Calculé sur tes vraies prises.
       </p>
       {/* Soft-upsell : on vend l'ALERTE proactive (Local+), jamais la tendance (gratuite). */}
       {tier !== undefined && tier !== 'local' && tier !== 'itinerant' && (

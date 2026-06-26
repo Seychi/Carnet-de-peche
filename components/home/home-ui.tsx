@@ -118,7 +118,7 @@ export function ActionOfTheDay({ loggedToday }: { loggedToday: boolean }) {
     <div className="flex flex-col gap-3 rounded-[14px] border border-sand-200 bg-white px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-[14px] text-navy-900">
         Pas encore loguée, ta sortie du jour ?{' '}
-        <span className="text-ink-600">Même bredouille — c’est ce qui fait parler ton carnet.</span>
+        <span className="text-ink-600">Même bredouille, c’est ce qui fait parler ton carnet.</span>
       </p>
       <div className="flex shrink-0 gap-2">
         <Link
@@ -153,7 +153,7 @@ export function OnboardingBanner() {
       </h2>
       <p className="mt-2 max-w-prose text-[14.5px] leading-relaxed text-ink-600">
         Le créneau et les conditions ci-dessous sont les mêmes pour tout le monde. Loguer tes
-        prises — même les anciennes — fait apparaître <strong className="font-medium text-ink-700">tes
+        prises (même les anciennes) fait apparaître <strong className="font-medium text-ink-700">tes
         propres tendances</strong> par-dessus : où et quand elles tombent vraiment.
       </p>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">

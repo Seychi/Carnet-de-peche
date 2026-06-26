@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Fil régional · Carnet de Pêche',
   description:
-    "Le fil des pêcheurs à la canne du bord de ton département : prises récentes, conditions du jour, échanges entre passionnés — sans donner tes coins secrets. Crée ton compte pour rejoindre le fil de ta côte.",
+    "Le fil des pêcheurs à la canne du bord de ton département : prises récentes, conditions du jour, échanges entre passionnés, sans donner tes coins secrets. Crée ton compte pour rejoindre le fil de ta côte.",
   alternates: { canonical: '/fil' },
   openGraph: {
     title: 'Le fil des pêcheurs de ton département',
@@ -26,7 +26,7 @@ const STEPS = [
   {
     icon: <MapPin size={22} />,
     title: 'Le bord, près de chez toi',
-    body: 'Chaque département côtier a son fil. Tu vois les prises récentes, les conditions du jour et l’activité sur tes spots — à l’échelle de ta côte, pas un flux mondial sans intérêt.',
+    body: 'Chaque département côtier a son fil. Tu vois les prises récentes, les conditions du jour et l’activité sur tes spots, à l’échelle de ta côte, pas un flux mondial sans intérêt.',
   },
   {
     icon: <MessageCircle size={22} />,
@@ -64,7 +64,7 @@ function DepartmentChooser() {
         </h1>
         <p className="text-[15px] sm:text-[16px] text-ink-700 leading-relaxed max-w-[560px]">
           Ton compte n’a pas encore de département. Choisis celui où tu pêches pour ouvrir ton
-          fil — tu pourras le fixer définitivement dans ton profil.
+          fil, tu pourras le fixer définitivement dans ton profil.
         </p>
 
         <div className="mt-9 flex flex-col gap-8">
@@ -154,7 +154,7 @@ export default async function FilTeaserPage() {
 
           <p className="text-[16px] sm:text-[18px] text-ink-700 leading-relaxed mx-auto max-w-[620px]">
             Ce qui se passe sur le bord près de chez toi : prises récentes, conditions du jour,
-            montages qui marchent. Un fil par département côtier — bar, dorade, lieu, maquereau,
+            montages qui marchent. Un fil par département côtier : bar, dorade, lieu, maquereau,
             sar, orphie. Tu partages le savoir, pas tes coins secrets.
           </p>
 

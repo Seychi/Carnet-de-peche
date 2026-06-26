@@ -118,7 +118,7 @@ export default function Image() {
 
         {/* Sous-titre */}
         <div style={{ display: 'flex', fontSize: '24px', color: 'rgba(255,255,255,0.55)', marginTop: '20px', maxWidth: '880px' }}>
-          Le carnet numérique et le réseau des pêcheurs à la canne du bord — bar, dorade, lieu, maquereau…
+          Le carnet numérique et le réseau des pêcheurs à la canne du bord : bar, dorade, lieu, maquereau…
         </div>
 
         {/* Spacer */}

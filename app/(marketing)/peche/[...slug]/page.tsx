@@ -278,8 +278,8 @@ export default async function ProgrammaticPageView({
             Pour aller plus loin :{' '}
             <Link href="/guides/comment-lire-une-courbe-de-maree">
               apprends à lire une courbe de marée
-            </Link>{' '}
-            — chaque fiche spot de la carte affiche la courbe du jour avec les horaires de pleine et
+            </Link>,{' '}
+            chaque fiche spot de la carte affiche la courbe du jour avec les horaires de pleine et
             basse mer.
           </p>
         </section>
@@ -325,7 +325,7 @@ export default async function ProgrammaticPageView({
               ))}
             </div>
             <p className="mt-3 text-[13px] text-ink-600">
-              Coordonnées floutées de plusieurs centaines de mètres en accès gratuit —{' '}
+              Coordonnées floutées de plusieurs centaines de mètres en accès gratuit :{' '}
               <Link href="/carte" className="font-medium text-teal-700 hover:underline">
                 explore la carte complète
               </Link>

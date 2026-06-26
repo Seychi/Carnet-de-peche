@@ -12,16 +12,16 @@ export const merlanEspece: EspeceContent = {
   slug: 'merlan',
 
   intro: [
-    `Le merlan, c'est le poisson qui sauve l'hiver du surfcasteur. Quand le bar a regagné le large et que la plage est vide à 2 h du matin sous 5 °C, lui s'approche du sable pour se gaver — vorace, peu méfiant, et en bancs serrés sur les bons fonds. Une touche de merlan, c'est franc : il ne mordille pas, il avale.`,
-    `Ce petit gadidé d'eau froide est un poisson de saison courte et intense. De novembre à mars, il colonise les plages de sable et les fonds sablo-vaseux de la Manche et de l'Atlantique nord — Nord, Pas-de-Calais, baie de Somme, côtes normandes et bretonnes. Le reste de l'année il reste au large ou repart frayer, et tu ne le croiseras quasiment plus du bord. C'est un poisson grégaire : quand tu en touches un, il y en a d'autres juste derrière, d'où l'intérêt des montages à plusieurs hameçons qui prospectent la colonne d'eau d'un seul lancer.`,
-    `Côté règlement, le merlan est l'un des plus simples de nos côtes : une maille de 27 cm en Manche-Atlantique, et c'est tout. Pas de marquage, pas de quota de loisir, pas de fermeture. Ça n'autorise pas le carnage — un beau merlan met des années à pousser et la ressource souffre — mais ça en fait un poisson de table accessible et une excellente école pour apprendre le surfcasting d'hiver. Cette fiche te donne les saisons par façade, les montages qui font la différence et comment lire le poste de nuit sur le sable.`,
+    `Le merlan, c'est le poisson qui sauve l'hiver du surfcasteur. Quand le bar a regagné le large et que la plage est vide à 2 h du matin sous 5 °C, lui s'approche du sable pour se gaver, vorace, peu méfiant, et en bancs serrés sur les bons fonds. Une touche de merlan, c'est franc : il ne mordille pas, il avale.`,
+    `Ce petit gadidé d'eau froide est un poisson de saison courte et intense. De novembre à mars, il colonise les plages de sable et les fonds sablo-vaseux de la Manche et de l'Atlantique nord : Nord, Pas-de-Calais, baie de Somme, côtes normandes et bretonnes. Le reste de l'année il reste au large ou repart frayer, et tu ne le croiseras quasiment plus du bord. C'est un poisson grégaire : quand tu en touches un, il y en a d'autres juste derrière, d'où l'intérêt des montages à plusieurs hameçons qui prospectent la colonne d'eau d'un seul lancer.`,
+    `Côté règlement, le merlan est l'un des plus simples de nos côtes : une maille de 27 cm en Manche-Atlantique, et c'est tout. Pas de marquage, pas de quota de loisir, pas de fermeture. Ça n'autorise pas le carnage, un beau merlan met des années à pousser et la ressource souffre, mais ça en fait un poisson de table accessible et une excellente école pour apprendre le surfcasting d'hiver. Cette fiche te donne les saisons par façade, les montages qui font la différence et comment lire le poste de nuit sur le sable.`,
   ],
 
   identity: {
     famille: 'Gadidés (Merlangius merlangus), cousin du tacaud, de la morue et du lieu',
     tailleCourante: '25-35 cm du bord, 40 cm+ pour un beau merlan de plage',
     tailleMax: '≈ 70 cm pour 3 kg (très rare, surtout au large)',
-    habitat: 'Plages de sable et fonds sablo-vaseux de 5 à 25 m, proches de têtes de roche — Manche et Atlantique nord',
+    habitat: 'Plages de sable et fonds sablo-vaseux de 5 à 25 m, proches de têtes de roche, Manche et Atlantique nord',
     regime: "Opportuniste vorace : vers, petits crustacés, alevins, morceaux de poisson",
   },
 
@@ -31,9 +31,9 @@ export const merlanEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 27, mediterranee: null },
     marquage: false,
     items: [
-      `<strong>Maille : 27 cm</strong> en Manche et Atlantique (annexe I de l'arrêté du 26 octobre 2012 modifié) — tout merlan sous cette taille est remis à l'eau immédiatement.`,
+      `<strong>Maille : 27 cm</strong> en Manche et Atlantique (annexe I de l'arrêté du 26 octobre 2012 modifié). Tout merlan sous cette taille est remis à l'eau immédiatement.`,
       `<strong>Pas de marquage obligatoire</strong> : le merlan ne figure pas dans la liste limitative de l'arrêté du 17 mai 2011, tu n'as pas à entailler la caudale.`,
-      `<strong>Pas de quota de loisir ni de fermeture nationale</strong> pour le merlan. Reste raisonnable malgré tout : c'est un poisson grégaire facile à surpêcher d'un seul poste — prélève l'assiette, pas le banc.`,
+      `<strong>Pas de quota de loisir ni de fermeture nationale</strong> pour le merlan. Reste raisonnable malgré tout : c'est un poisson grégaire facile à surpêcher d'un seul poste : prélève l'assiette, pas le banc.`,
       `<strong>Absent de Méditerranée</strong> (espèce d'eau froide) : aucune maille n'y est définie pour lui.`,
     ],
   },
@@ -58,7 +58,7 @@ export const merlanEspece: EspeceContent = {
       {
         saison: 'Hiver',
         activite: 3,
-        note: `LE moment : de décembre à février, le merlan se gave près du bord par eau froide et agitée. Surfcasting de nuit sur le sable, touches franches en rafale — la saison reine du poisson d'hiver.`,
+        note: `LE moment : de décembre à février, le merlan se gave près du bord par eau froide et agitée. Surfcasting de nuit sur le sable, touches franches en rafale, la saison reine du poisson d'hiver.`,
       },
     ],
     mediterranee: [
@@ -97,9 +97,9 @@ export const merlanEspece: EspeceContent = {
   ],
 
   postes: [
-    `Le merlan se cherche sur le sable, pas sur la roche. Vise les grandes plages océanes et les fonds sablo-vaseux, idéalement à proximité d'une tête de roche ou d'un cassé qui concentre la nourriture : Nord, Pas-de-Calais, baie de Somme, plages normandes et bretonnes. Repère les irrégularités du fond — baïnes, fosses, petites dunes successives, sorties de courant : c'est là que le banc patrouille. Une plage parfaitement plate et uniforme produit moins qu'un fond qui creuse, où les vers et les crustacés délogés s'accumulent.`,
+    `Le merlan se cherche sur le sable, pas sur la roche. Vise les grandes plages océanes et les fonds sablo-vaseux, idéalement à proximité d'une tête de roche ou d'un cassé qui concentre la nourriture : Nord, Pas-de-Calais, baie de Somme, plages normandes et bretonnes. Repère les irrégularités du fond, baïnes, fosses, petites dunes successives, sorties de courant : c'est là que le banc patrouille. Une plage parfaitement plate et uniforme produit moins qu'un fond qui creuse, où les vers et les crustacés délogés s'accumulent.`,
     `C'est une pêche de nuit et de saison froide, assume-le. Le merlan mord essentiellement la nuit, avec un pic d'activité qui démarre souvent deux heures avant la basse mer et court sur la descendante. Le froid et une eau brassée le rapprochent du bord : une mer agitée de 0,5 à 1,5 m et un vent de mer qui trouble l'eau jouent en ta faveur, à l'inverse du bar tu n'as pas besoin d'eau claire. Équipe-toi en conséquence : cannes de 4,20 à 5 m, 100 à 200 g de puissance pour lancer loin et tenir le plomb sur le sable malgré le courant. Habille-toi pour rester immobile dans le froid pendant des heures.`,
-    `Le montage fait la prise plus que l'appât. Le merlan a une bouche fragile et des dents fines : un flapper rig à trois empiles courtes, ou une empile haute de 50-70 cm doublée d'un long traînard de 80-100 cm qui ondule sur le sable, explore toute la colonne d'eau et te dit vite à quelle hauteur il chasse. Ajoute des perles rouges ou phosphorescentes en teaser devant l'hameçon — de nuit, ça déclenche. Côté appât, reste simple : un boudin d'arénicole ou un morceau de maquereau de la taille du petit doigt suffit ; il avale, inutile de soigner la présentation comme pour la dorade.`,
+    `Le montage fait la prise plus que l'appât. Le merlan a une bouche fragile et des dents fines : un flapper rig à trois empiles courtes, ou une empile haute de 50-70 cm doublée d'un long traînard de 80-100 cm qui ondule sur le sable, explore toute la colonne d'eau et te dit vite à quelle hauteur il chasse. Ajoute des perles rouges ou phosphorescentes en teaser devant l'hameçon, de nuit, ça déclenche. Côté appât, reste simple : un boudin d'arénicole ou un morceau de maquereau de la taille du petit doigt suffit ; il avale, inutile de soigner la présentation comme pour la dorade.`,
   ],
 
   faq: [

@@ -102,7 +102,7 @@ export default function ProposeSpotForm({ defaultDepartment, initialCenter }: Pr
       const res = await proposeSpot(values)
       if (res.ok) {
         setDone(true)
-        toast.success('Spot proposé — en attente de validation 🎣')
+        toast.success('Spot proposé, en attente de validation 🎣')
       } else {
         toast.error(res.error)
       }

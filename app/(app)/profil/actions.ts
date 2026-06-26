@@ -201,7 +201,7 @@ export async function deleteAccount() {
     console.error('[deleteAccount] delete_my_account :', deleteError.message)
     return {
       error:
-        "La suppression n'a pas pu aboutir. On a été prévenus et on règle ça — réessaie dans quelques minutes ou écris à support@carnet-de-peche.com.",
+        "La suppression n'a pas pu aboutir. On a été prévenus et on règle ça. Réessaie dans quelques minutes ou écris à support@carnet-de-peche.com.",
     }
   }
 

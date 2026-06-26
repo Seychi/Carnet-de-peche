@@ -9,16 +9,16 @@ export const barEspece: EspeceContent = {
   slug: 'bar',
 
   intro: [
-    `Le bar est LE poisson du bord en France : présent de Dunkerque à Menton, il chasse dans 50 cm d'eau comme le long des digues. Assez accessible pour ton premier poisson au leurre, assez malin pour t'obséder vingt ans — c'est lui qui remplit les carnets des pêcheurs du bord.`,
-    `Quatre techniques le prennent du bord, et aucune autre de nos espèces n'offre ça : leurre souple raclé sur une pointe battue, arénicole posée dans une baïne à 2 h du matin, lançon vivant dérivé dans la veine de courant, crevette sous un flotteur le long d'un quai. Un 45 cm te semblera énorme la première année ; un 70 cm+ reste un événement qu'on raconte encore dix ans après. En Méditerranée on l'appelle loup — même poisson, mais éduqué par l'eau claire et la pression de pêche.`,
-    `Le bar ne se donne pas : il impose de lire la marée, le vent et la lumière, puis de revenir au bon créneau. C'est aussi l'espèce la plus encadrée de nos côtes — maille, quota, fermeture hivernale, marquage — alors lis la réglementation ci-dessous avant de garder ton premier poisson.`,
+    `Le bar est LE poisson du bord en France : présent de Dunkerque à Menton, il chasse dans 50 cm d'eau comme le long des digues. Assez accessible pour ton premier poisson au leurre, assez malin pour t'obséder vingt ans. C'est lui qui remplit les carnets des pêcheurs du bord.`,
+    `Quatre techniques le prennent du bord, et aucune autre de nos espèces n'offre ça : leurre souple raclé sur une pointe battue, arénicole posée dans une baïne à 2 h du matin, lançon vivant dérivé dans la veine de courant, crevette sous un flotteur le long d'un quai. Un 45 cm te semblera énorme la première année ; un 70 cm+ reste un événement qu'on raconte encore dix ans après. En Méditerranée on l'appelle loup, même poisson, mais éduqué par l'eau claire et la pression de pêche.`,
+    `Le bar ne se donne pas : il impose de lire la marée, le vent et la lumière, puis de revenir au bon créneau. C'est aussi l'espèce la plus encadrée de nos côtes (maille, quota, fermeture hivernale, marquage), alors lis la réglementation ci-dessous avant de garder ton premier poisson.`,
   ],
 
   identity: {
     famille: 'Moronidés — Dicentrarchus labrax (« loup » en Méditerranée)',
     tailleCourante: '35-55 cm du bord, 70 cm+ pour les beaux sujets',
     tailleMax: 'Environ 1 m pour 10-12 kg, rarissime du bord',
-    habitat: "Pointes rocheuses, plages, estuaires, ports — de 0,5 à 15 m d'eau",
+    habitat: "Pointes rocheuses, plages, estuaires, ports : de 0,5 à 15 m d'eau",
     regime: 'Chasseur opportuniste : lançons, sardines, crabes, crevettes, vers',
   },
 
@@ -29,9 +29,9 @@ export const barEspece: EspeceContent = {
     minSizeCm: { 'manche-atlantique': 42, mediterranee: 30 },
     marquage: true,
     items: [
-      '<strong>Maille : 42 cm</strong> en Manche, mer du Nord et Atlantique — <strong>30 cm</strong> en Méditerranée (42 cm dans le Parc naturel marin du Golfe du Lion).',
+      '<strong>Maille : 42 cm</strong> en Manche, mer du Nord et Atlantique, <strong>30 cm</strong> en Méditerranée (42 cm dans le Parc naturel marin du Golfe du Lion).',
       '<strong>Quota : 3 bars/jour/pêcheur au nord du 48e parallèle</strong> (≈ Audierne), <strong>2 bars/jour au sud</strong> du 48e parallèle.',
-      "<strong>Février et mars : pêcher-relâcher obligatoire au nord du 48e parallèle</strong> — aucun prélèvement ; au sud du 48e, la pêche reste autorisée toute l'année (2/jour).",
+      "<strong>Février et mars : pêcher-relâcher obligatoire au nord du 48e parallèle</strong> : aucun prélèvement ; au sud du 48e, la pêche reste autorisée toute l'année (2/jour).",
       '<strong>Marquage obligatoire</strong> de tout bar conservé : ablation de la partie inférieure de la nageoire caudale.',
     ],
   },
@@ -46,7 +46,7 @@ export const barEspece: EspeceContent = {
       {
         saison: 'Été',
         activite: 2,
-        note: `Poissons présents mais méfiants : aube et coup du soir aux leurres de surface, nuit au surfcasting — laisse tomber le plein soleil de midi.`,
+        note: `Poissons présents mais méfiants : aube et coup du soir aux leurres de surface, nuit au surfcasting. Laisse tomber le plein soleil de midi.`,
       },
       {
         saison: 'Automne',
@@ -103,7 +103,7 @@ export const barEspece: EspeceContent = {
   ],
 
   postes: [
-    `Le bar aime l'eau qui bouge. Sur la façade Manche-Atlantique, cale ta session sur la marée de TON spot, pas sur ta montre : les deux dernières heures de montante et la première de descendante concentrent l'essentiel des touches, surtout quand le courant se rétablit après l'étale. Les coefficients moyens à forts (70-95) brassent juste ce qu'il faut ; au-delà de 100, courant et turbidité compliquent la présentation. La courbe de marée et les horaires de pleine et basse mer de chaque spot sont dans l'app — croise-les avec tes propres prises.`,
+    `Le bar aime l'eau qui bouge. Sur la façade Manche-Atlantique, cale ta session sur la marée de TON spot, pas sur ta montre : les deux dernières heures de montante et la première de descendante concentrent l'essentiel des touches, surtout quand le courant se rétablit après l'étale. Les coefficients moyens à forts (70-95) brassent juste ce qu'il faut ; au-delà de 100, courant et turbidité compliquent la présentation. La courbe de marée et les horaires de pleine et basse mer de chaque spot sont dans l'app. Croise-les avec tes propres prises.`,
     `Côté météo, fuis la mer d'huile sous grand soleil. Un vent de mer de 15 à 25 km/h qui teinte l'eau et forme un peu d'écume met les bars en confiance ; pour le surfcasting, une houle de 1 à 1,5 m qui creuse les baïnes vaut dix sessions sur mer plate. Le créneau en or : 24 à 48 h après un coup de vent, quand l'eau commence à clarifier et que les embouchures regorgent de nourriture déterrée.`,
     `Les postes qui paient : pointes rocheuses battues où la veine de courant accélère, sorties de parcs ostréicoles, baïnes et sorties d'eau des plages océanes la nuit, quais et pontons à l'ombre des coques dans les ports. En Méditerranée, vise les digues, les graus et les sorties d'eau douce, surtout pendant et juste après un coup d'est. Partout, la même règle : l'aube et le crépuscule écrasent le reste de la journée.`,
   ],
@@ -115,7 +115,7 @@ export const barEspece: EspeceContent = {
     },
     {
       q: 'Combien de bars peut-on garder par jour ?',
-      a: `Le quota est de 3 bars par jour et par pêcheur au nord du 48e parallèle (qui passe vers Audierne), et de 2 bars par jour au sud du 48e parallèle. Attention : en février et mars, c'est pêcher-relâcher obligatoire au nord du 48e parallèle — aucun prélèvement ; au sud, la pêche reste ouverte. Logue aussi tes poissons relâchés : ils comptent dans tes patterns.`,
+      a: `Le quota est de 3 bars par jour et par pêcheur au nord du 48e parallèle (qui passe vers Audierne), et de 2 bars par jour au sud du 48e parallèle. Attention : en février et mars, c'est pêcher-relâcher obligatoire au nord du 48e parallèle : aucun prélèvement ; au sud, la pêche reste ouverte. Logue aussi tes poissons relâchés : ils comptent dans tes patterns.`,
     },
     {
       q: 'Quel est le meilleur moment de marée pour pêcher le bar ?',

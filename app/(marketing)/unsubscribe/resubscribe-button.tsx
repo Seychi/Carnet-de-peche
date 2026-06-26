@@ -11,7 +11,7 @@ export function ResubscribeButton() {
   if (done) {
     return (
       <p className="text-sm text-teal-700 font-medium">
-        C&rsquo;est réactivé — tu recevras de nouveau nos emails de relance.
+        C&rsquo;est réactivé. Tu recevras de nouveau nos emails de relance.
       </p>
     )
   }

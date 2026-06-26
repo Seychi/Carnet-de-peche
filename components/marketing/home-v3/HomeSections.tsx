@@ -165,7 +165,7 @@ function MoatSection({ hero }: { hero: HeroSnapshot }) {
             </div>
             <div className="mt-5 border-t border-sand-100 pt-4 text-[13.5px] leading-relaxed text-ink-600">
               <b className="text-navy-900">Tes prises, par-dessus :</b> le carnet apprend TES
-              patterns — la saison, le jour, le vent et la marée où ça mord pour toi.{' '}
+              patterns : la saison, le jour, le vent et la marée où ça mord pour toi.{' '}
               <span className="font-mono text-[11px] text-ink-400">(débloqué dès ta 1re prise)</span>
             </div>
           </div>
@@ -179,8 +179,8 @@ function MoatSection({ hero }: { hero: HeroSnapshot }) {
 function CommunitySection({ activity, counts }: { activity: HomeActivity; counts: HomeCounts }) {
   const filBody =
     activity.catchCount > 0
-      ? `${activity.catchCount} prises partagées ces 30 derniers jours sur le littoral. Likes, commentaires, follows, co-pêchage — gratuit, sans pub, sans paywall.`
-      : 'Vois ce qui mord dans ton département. Likes, commentaires, follows, co-pêchage — gratuit, sans pub, sans paywall.'
+      ? `${activity.catchCount} prises partagées ces 30 derniers jours sur le littoral. Likes, commentaires, follows, co-pêchage, gratuit, sans pub, sans paywall.`
+      : 'Vois ce qui mord dans ton département. Likes, commentaires, follows, co-pêchage, gratuit, sans pub, sans paywall.'
 
   const cards = [
     {
@@ -204,7 +204,7 @@ function CommunitySection({ activity, counts }: { activity: HomeActivity; counts
           </h2>
           <p className="mt-5 max-w-[560px] text-[18px] leading-relaxed text-ink-600">
             Le fil de ton département, les fiches espèces traitées comme des instruments, et le
-            co-pêchage pour sortir à plusieurs. 100&nbsp;% gratuit — pour de vrai.
+            co-pêchage pour sortir à plusieurs. 100&nbsp;% gratuit. Pour de vrai.
           </p>
         </ScrollReveal>
 

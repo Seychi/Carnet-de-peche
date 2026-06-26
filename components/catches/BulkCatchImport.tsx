@@ -163,7 +163,7 @@ export function BulkCatchImport() {
       </div>
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-400">
-        Localisation approximative au département (point de mer de référence) — utilisée seulement
+        Localisation approximative au département (point de mer de référence), utilisée seulement
         pour récupérer la météo/marée du jour. Les conditions ne sont récupérées que pour les prises
         récentes (≈ 3 derniers mois).
       </p>

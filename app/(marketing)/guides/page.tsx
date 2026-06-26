@@ -12,7 +12,7 @@ export const revalidate = 86400
 export const metadata: Metadata = {
   title: 'Guides de pêche à la canne du bord — Carnet de Pêche',
   description:
-    'Guides pratiques pour la pêche à la canne du bord en France. Bar au leurre, dorade au surfcasting, marées, coefficients, spots — rédigés par des pêcheurs passionnés.',
+    'Guides pratiques pour la pêche à la canne du bord en France. Bar au leurre, dorade au surfcasting, marées, coefficients, spots, rédigés par des pêcheurs passionnés.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/guides' },
 }
 
@@ -95,7 +95,7 @@ export default async function GuidesPage() {
             Guides pratiques pour la canne du bord
           </h1>
           <p className="mt-4 text-white/60 max-w-xl text-lg">
-            Technique, matériel, marées, espèces, spots — des guides concrets écrits par des
+            Technique, matériel, marées, espèces, spots : des guides concrets écrits par des
             pêcheurs du bord, pour des pêcheurs du bord.
           </p>
           <TagData variant="on-dark" className="mt-6 block">

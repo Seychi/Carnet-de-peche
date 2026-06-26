@@ -10,16 +10,16 @@ export const doradeRoyaleEspece: EspeceContent = {
 
   intro: [
     `La dorade royale, c'est la belle méfiante des fonds coquilliers : un bandeau doré entre les yeux, des mâchoires capables de broyer une huître, et un premier rush qui te prend dix mètres de fil. Du bord, peu de poissons offrent un combat aussi brutal sur un montage aussi fin.`,
-    `Tu la trouves sur les fonds sablo-vaseux et les zones coquillières : plages à pente douce, baies abritées, parcs à huîtres et bouchots, graus des étangs méditerranéens, ports et digues. Elle remonte avec la marée pour fouiller dans 1 à 5 m d'eau, souvent à 30-70 m du bord — bien plus près que tu ne l'imagines. Couteau, bibi, crabe mou ou crevette vivante : tout ce qui craque sous la dent l'intéresse.`,
+    `Tu la trouves sur les fonds sablo-vaseux et les zones coquillières : plages à pente douce, baies abritées, parcs à huîtres et bouchots, graus des étangs méditerranéens, ports et digues. Elle remonte avec la marée pour fouiller dans 1 à 5 m d'eau, souvent à 30-70 m du bord, bien plus près que tu ne l'imagines. Couteau, bibi, crabe mou ou crevette vivante : tout ce qui craque sous la dent l'intéresse.`,
     `C'est aussi la plus capricieuse de nos côtes : elle goûte, recrache, revient, et snobe un appât délavé ou un bas de ligne trop épais. La finesse de présentation et le bon créneau de marée comptent plus que la distance de lancer. Note tes sorties et repère les conditions de tes réussites : avec la royale, les patterns se répètent d'une année sur l'autre.`,
   ],
 
   identity: {
     famille: 'Sparidés (Sparus aurata)',
     tailleCourante: '25-45 cm du bord, 50 cm+ pour les belles',
-    tailleMax: 'Environ 70 cm — les sujets de plus de 5 kg restent exceptionnels du bord',
+    tailleMax: 'Environ 70 cm, les sujets de plus de 5 kg restent exceptionnels du bord',
     habitat: 'Fonds sablo-vaseux et coquilliers de 1 à 30 m : baies abritées, parcs à huîtres, graus, ports',
-    regime: 'Coquillages (moules, couteaux), crabes, vers marins, crevettes — mâchoires broyeuses',
+    regime: 'Coquillages (moules, couteaux), crabes, vers marins, crevettes (mâchoires broyeuses)',
   },
 
   regulation: {
@@ -31,7 +31,7 @@ export const doradeRoyaleEspece: EspeceContent = {
     items: [
       `Taille minimale de capture : <strong>23 cm</strong>, sur toutes les façades (Manche, Atlantique, Méditerranée). Exception locale : 30 cm dans le Parc naturel marin du Golfe du Lion.`,
       `<strong>Marquage obligatoire</strong> de chaque poisson conservé : ablation de la partie inférieure de la nageoire caudale.`,
-      `Pas de quota national à ce jour (hors aires marines protégées, où des limites locales s'appliquent) — pratique raisonnée conseillée : relâche de préférence les sujets proches de la maille.`,
+      `Pas de quota national à ce jour (hors aires marines protégées, où des limites locales s'appliquent), pratique raisonnée conseillée : relâche de préférence les sujets proches de la maille.`,
     ],
   },
 
@@ -72,7 +72,7 @@ export const doradeRoyaleEspece: EspeceContent = {
       {
         saison: 'Automne',
         activite: 3,
-        note: `Le grand rendez-vous : les dorades regagnent la mer par les graus de Thau, Leucate ou Salses — les plus grosses de l'année.`,
+        note: `Le grand rendez-vous : les dorades regagnent la mer par les graus de Thau, Leucate ou Salses, les plus grosses de l'année.`,
       },
       {
         saison: 'Hiver',
@@ -93,14 +93,14 @@ export const doradeRoyaleEspece: EspeceContent = {
     },
     {
       slug: 'leurres',
-      why: `La technique montante : tenya ou madaï de 7 à 20 g garni d'une lanière de gambas, raclé au ras du fond avec de longues pauses — la touche vient à la pause.`,
+      why: `La technique montante : tenya ou madaï de 7 à 20 g garni d'une lanière de gambas, raclé au ras du fond avec de longues pauses. La touche vient à la pause.`,
     },
   ],
 
   postes: [
-    `La royale mange avec le mouvement d'eau. Le créneau roi : la montante qui recouvre les zones coquillières, surtout les deux dernières heures avant la pleine mer et l'étale qui suit. Cale tes sessions sur la courbe de marée de ton spot et sois en place avant que l'eau n'atteigne le poste — c'est la marée qui amène le poisson sur la table.`,
-    `Le scénario en or côté météo : un coup de vent la veille qui a remué le fond et délogé vers et coquillages, suivi d'une mer qui s'assagit avec une houle résiduelle de 0,5 à 1 m et une eau encore teintée. À l'inverse, une grosse houle en cours rend le surfcasting quasi impraticable, et une mer d'huile en eau très claire t'oblige à descendre en diamètre — ou à basculer sur les ports à la flottante.`,
-    `Elle devient vraiment active au-dessus de 14-15 °C d'eau. Côté horaires : aube, crépuscule et première partie de nuit dominent ; en plein été, la nuit fait clairement la différence sur les beaux poissons. Dans les ports, vise plutôt tôt le matin, avant le trafic des bateaux — et reste discret sur le ponton, une royale qui t'a repéré ne mangera plus.`,
+    `La royale mange avec le mouvement d'eau. Le créneau roi : la montante qui recouvre les zones coquillières, surtout les deux dernières heures avant la pleine mer et l'étale qui suit. Cale tes sessions sur la courbe de marée de ton spot et sois en place avant que l'eau n'atteigne le poste : c'est la marée qui amène le poisson sur la table.`,
+    `Le scénario en or côté météo : un coup de vent la veille qui a remué le fond et délogé vers et coquillages, suivi d'une mer qui s'assagit avec une houle résiduelle de 0,5 à 1 m et une eau encore teintée. À l'inverse, une grosse houle en cours rend le surfcasting quasi impraticable, et une mer d'huile en eau très claire t'oblige à descendre en diamètre, ou à basculer sur les ports à la flottante.`,
+    `Elle devient vraiment active au-dessus de 14-15 °C d'eau. Côté horaires : aube, crépuscule et première partie de nuit dominent ; en plein été, la nuit fait clairement la différence sur les beaux poissons. Dans les ports, vise plutôt tôt le matin, avant le trafic des bateaux, et reste discret sur le ponton, une royale qui t'a repéré ne mangera plus.`,
   ],
 
   faq: [
@@ -114,7 +114,7 @@ export const doradeRoyaleEspece: EspeceContent = {
     },
     {
       q: 'Quand pêcher la dorade royale du bord ?',
-      a: `Sur l'Atlantique, d'avril-mai (bassin d'Arcachon, pertuis charentais) jusqu'aux refroidissements d'octobre-novembre, avec un pic de la fin d'été au début d'automne. En Méditerranée, toute l'année avec deux pics : printemps et automne, quand les poissons transitent par les graus. Dans la journée, vise la montante, l'aube, le crépuscule — et la nuit pour les gros sujets.`,
+      a: `Sur l'Atlantique, d'avril-mai (bassin d'Arcachon, pertuis charentais) jusqu'aux refroidissements d'octobre-novembre, avec un pic de la fin d'été au début d'automne. En Méditerranée, toute l'année avec deux pics : printemps et automne, quand les poissons transitent par les graus. Dans la journée, vise la montante, l'aube, le crépuscule, et la nuit pour les gros sujets.`,
     },
     {
       q: 'À quelle distance lancer pour la dorade royale en surfcasting ?',

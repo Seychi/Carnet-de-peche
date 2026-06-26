@@ -64,7 +64,7 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-ink-600">
             157 spots curés et vérifiés. Coords floutées en gratuit, précises pour les abonnés.
-            Scoring 0-100, bathymétrie, courbes de marée. Tu vois le vrai produit — pas une
+            Scoring 0-100, bathymétrie, courbes de marée. Tu vois le vrai produit, pas une
             promesse.
           </p>
         </div>

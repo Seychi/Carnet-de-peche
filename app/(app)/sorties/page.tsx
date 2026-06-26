@@ -49,7 +49,7 @@ export default async function SortiesPage() {
           </h1>
           <p className="mt-1 text-[14px] text-ink-500">
             {dept
-              ? `Sorties à plusieurs ${departmentArticle(dept, 'dans')}. Tu cales le point de RDV exact avec tes participants en privé (message, hors appli) — aucune coordonnée n'est partagée ici.`
+              ? `Sorties à plusieurs ${departmentArticle(dept, 'dans')}. Tu cales le point de RDV exact avec tes participants en privé (message, hors appli) : aucune coordonnée n'est partagée ici.`
               : 'Définis ton département principal dans ton profil pour voir et proposer des sorties.'}
           </p>
         </header>
@@ -70,7 +70,7 @@ export default async function SortiesPage() {
                   Aucune sortie prévue {departmentArticle(dept, 'dans')} pour l’instant.
                 </p>
                 <p className="mt-1 text-[13px] text-ink-400">
-                  Sois le premier à en proposer une — les pêcheurs de ton coin recevront le signal.
+                  Sois le premier à en proposer une, les pêcheurs de ton coin recevront le signal.
                 </p>
               </div>
             ) : (

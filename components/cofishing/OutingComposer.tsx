@@ -45,7 +45,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
       toast.error(res.error)
       return
     }
-    toast.success('Sortie proposée — les pêcheurs de ton coin peuvent te rejoindre.')
+    toast.success('Sortie proposée. Les pêcheurs de ton coin peuvent te rejoindre.')
     setAreaLabel('')
     setNotes('')
     setCapacity('')

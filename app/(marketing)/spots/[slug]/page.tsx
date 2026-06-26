@@ -466,7 +466,7 @@ export default async function SpotPage({
 
               {!spot.is_precise && (
                 <p className="text-xs text-ink-500 text-center mt-2">
-                  Coordonnées approchées — abonne-toi pour le GPS précis
+                  Coordonnées approchées. Abonne-toi pour le GPS précis
                 </p>
               )}
             </div>

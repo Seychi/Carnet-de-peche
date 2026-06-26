@@ -91,7 +91,7 @@ export function PwaProvider() {
     >
       <Share size={18} className="shrink-0 text-teal-300" aria-hidden="true" />
       <p className="min-w-0 flex-1 text-[13px] leading-snug">
-        <strong>Installe Carnet de Pêche</strong> — l&apos;icône sur ton écran d&apos;accueil, les
+        <strong>Installe Carnet de Pêche</strong> : l&apos;icône sur ton écran d&apos;accueil, les
         marées à un tap.
       </p>
       <button

@@ -82,12 +82,12 @@ export function TideExplainer() {
           le courant s&apos;inverse.
         </span>
         <span>
-          <strong className="text-ink-400">BM</strong> (basse mer) : l&apos;eau est au plus bas —
+          <strong className="text-ink-400">BM</strong> (basse mer) : l&apos;eau est au plus bas,
           l&apos;autre étale.
         </span>
         <span>
           <strong className="text-coral-500">Le curseur</strong> : « maintenant ». Entre deux
-          étales, l&apos;eau bouge — c&apos;est là que ça mord.
+          étales, l&apos;eau bouge. C&apos;est là que ça mord.
         </span>
       </figcaption>
     </figure>

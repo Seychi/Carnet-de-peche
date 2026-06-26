@@ -40,7 +40,7 @@ export async function SpeciesScore({
         </TagData>
         <p className="text-[14px] leading-relaxed text-ink-600">
           Pas encore assez de prises partagées {s.regionLabel} pour noter {article.toLowerCase()}
-          {labelLower}. Le score s&apos;allume dès que la communauté logue — sois parmi les premiers.
+          {labelLower}. Le score s&apos;allume dès que la communauté logue. Sois parmi les premiers.
         </p>
         {s.perso && (
           <p className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-ink-700">
@@ -131,7 +131,7 @@ export async function SpeciesScore({
       )}
 
       <p className="mt-3 text-[11px] leading-snug text-ink-400">
-        Score décomposé sur de vraies prises {s.regionLabel}. Aucune donnée simulée — une
+        Score décomposé sur de vraies prises {s.regionLabel}. Aucune donnée simulée. Une
         composante absente est dite, pas inventée.
       </p>
     </section>

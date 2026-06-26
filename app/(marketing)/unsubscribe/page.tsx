@@ -34,7 +34,7 @@ export default async function UnsubscribePage({
           <h1 className="font-display text-2xl font-bold text-navy-900">C&rsquo;est noté.</h1>
           <p className="mt-4 text-ink-600 leading-relaxed">
             Tu ne recevras plus d&rsquo;emails de relance ni de conseils de notre part. Les emails
-            liés à ton compte (essai, paiement) continuent, eux, d&rsquo;arriver — ils font partie du
+            liés à ton compte (essai, paiement) continuent, eux, d&rsquo;arriver, ils font partie du
             service.
           </p>
           {user ? (

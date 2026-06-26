@@ -84,15 +84,15 @@ const faqItems = [
   },
   {
     q: 'Je peux annuler quand ?',
-    a: "Quand tu veux, en ligne, depuis ton compte — sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et dans les 30 jours qui suivent ta première facture, tu peux demander un remboursement intégral.",
+    a: "Quand tu veux, en ligne, depuis ton compte, sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et dans les 30 jours qui suivent ta première facture, tu peux demander un remboursement intégral.",
   },
   {
     q: "L'app fonctionne-t-elle sans connexion ?",
-    a: "Le mode hors ligne est en cours de développement. Pour l'instant, l'app se souvient des pages et fiches spots récemment visitées — pratique dans les zones à faible réseau.",
+    a: "Le mode hors ligne est en cours de développement. Pour l'instant, l'app se souvient des pages et fiches spots récemment visitées, pratique dans les zones à faible réseau.",
   },
   {
-    q: 'Vous couvrez toute la France ?',
-    a: "On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec 157 spots curés et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner — un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
+    q: 'Tu couvres toute la France ?',
+    a: "On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec 157 spots curés et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner. Un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
   },
   {
     q: 'Et mes données ?',

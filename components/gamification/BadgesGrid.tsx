@@ -94,7 +94,7 @@ export function BadgesGrid({
               <p className="mt-0.5 text-[11px] leading-snug text-ink-500">{def.description}</p>
               {DECLARATIVE[def.slug] && (
                 <p className="mt-1 text-[10px] italic leading-snug text-ink-400">
-                  Sur la base de ce que tu déclares — pas de vérification automatique.
+                  Sur la base de ce que tu déclares, pas de vérification automatique.
                 </p>
               )}
               {isEarned && earned?.earned_at && (

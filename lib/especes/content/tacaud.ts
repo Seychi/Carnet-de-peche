@@ -11,28 +11,28 @@ export const tacaudEspece: EspeceContent = {
 
   intro: [
     `Le tacaud, c'est le poisson qui te sauve une session d'hiver. Quand le bar a décroché et que la dorade dort, lui reste là, collé aux structures, à mordre franc sur un bas de ligne au ver. Du bord, il ne se mérite pas : il se trouve. Tu poses ton appât au pied d'une digue, près d'une épave ou sur un fond de roche, et si le banc est là, ça tape dans les minutes qui suivent.`,
-    `Ce petit gadidé — cousin du lieu jaune et de la morue — vit en banc serré au ras du fond, toujours proche d'un relief : enrochements de port, têtes de roche, carcasses d'épaves, piles de pont. Il se reconnaît à sa silhouette trapue, son corps cuivré barré de bandes sombres, son barbillon sous le menton et la grande tache noire à la base de la nageoire pectorale. En France, son terrain du bord, c'est la Manche et l'Atlantique : de la côte d'Opale au Pays basque. En Méditerranée, il est quasi absent — autant l'oublier là-bas.`,
-    `Côté réglementation, bonne nouvelle pour les débutants : il n'y a pas de taille minimale légale de capture en pêche de loisir. Le tacaud n'est listé ni dans l'arrêté maille ni dans le règlement européen. Attention quand même : sa chair est fragile et s'altère vite, alors on garde raisonnable et on consomme très frais. Cette fiche te donne les saisons façade par façade, les deux techniques qui prennent vraiment du bord — pose au ver et flottante posée — et les postes selon le vent, la houle et la marée.`,
+    `Ce petit gadidé, cousin du lieu jaune et de la morue, vit en banc serré au ras du fond, toujours proche d'un relief : enrochements de port, têtes de roche, carcasses d'épaves, piles de pont. Il se reconnaît à sa silhouette trapue, son corps cuivré barré de bandes sombres, son barbillon sous le menton et la grande tache noire à la base de la nageoire pectorale. En France, son terrain du bord, c'est la Manche et l'Atlantique : de la côte d'Opale au Pays basque. En Méditerranée, il est quasi absent, autant l'oublier là-bas.`,
+    `Côté réglementation, bonne nouvelle pour les débutants : il n'y a pas de taille minimale légale de capture en pêche de loisir. Le tacaud n'est listé ni dans l'arrêté maille ni dans le règlement européen. Attention quand même : sa chair est fragile et s'altère vite, alors on garde raisonnable et on consomme très frais. Cette fiche te donne les saisons façade par façade, les deux techniques qui prennent vraiment du bord (pose au ver et flottante posée) et les postes selon le vent, la houle et la marée.`,
   ],
 
   identity: {
     famille: "Gadidés (Trisopterus luscus), cousin du lieu jaune et de la morue",
     tailleCourante: "20-30 cm du bord, 35 cm+ pour un beau sujet",
     tailleMax: "≈ 45 cm pour 1,5 kg (rarissime du bord)",
-    habitat: "Se serre près des structures, épaves et roche, en banc — digues, enrochements, têtes de roche, Manche / Atlantique",
+    habitat: "Se serre près des structures, épaves et roche, en banc : digues, enrochements, têtes de roche, Manche / Atlantique",
     regime: "Fouilleur de fond : vers, crustacés, petits mollusques, alevins et morceaux de poisson",
   },
 
   regulation: {
     verifiedAt: "23/06/2026",
-    source: "Arrêté du 26 octobre 2012 modifié ; règlement (UE) 2019/1241 — le tacaud n'y figure pas",
+    source: "Arrêté du 26 octobre 2012 modifié ; règlement (UE) 2019/1241 : le tacaud n'y figure pas",
     minSizeCm: { "manche-atlantique": null, mediterranee: null },
     marquage: false,
     items: [
       `<strong>Pas de taille minimale réglementaire de capture en pêche de loisir</strong> en Manche et Atlantique : le tacaud n'est listé ni dans l'arrêté maille ni dans le règlement européen 2019/1241.`,
       `<strong>Recommandation, pas obligation</strong> : beaucoup de pêcheurs relâchent les sujets sous 19 cm (taille de première maturité). C'est un geste de bon sens pour la ressource, pas une règle légale.`,
-      `<strong>Pas de quota ni de fermeture</strong> spécifiques au tacaud à la date de vérification — pêche ouverte toute l'année, dans le respect de la réglementation générale de la pêche de loisir.`,
-      `<strong>Chair fragile</strong> : sans maille à respecter, la vraie règle est de prélever raisonnablement et de consommer le poisson très frais — il s'altère vite.`,
+      `<strong>Pas de quota ni de fermeture</strong> spécifiques au tacaud à la date de vérification, pêche ouverte toute l'année, dans le respect de la réglementation générale de la pêche de loisir.`,
+      `<strong>Chair fragile</strong> : sans maille à respecter, la vraie règle est de prélever raisonnablement et de consommer le poisson très frais, il s'altère vite.`,
     ],
   },
 
@@ -65,7 +65,7 @@ export const tacaudEspece: EspeceContent = {
   techniques: [
     {
       slug: "surfcasting",
-      why: `La pose au fond est l'arme numéro un : bas de ligne à deux ou trois empiles, hameçons fins de fer escher au ver de chalut, dur ou arénicole, plombée juste suffisante pour tenir au pied de la structure. Le tacaud fouille le fond en banc — dès qu'un poisson est là, les autres suivent, et les touches s'enchaînent.`,
+      why: `La pose au fond est l'arme numéro un : bas de ligne à deux ou trois empiles, hameçons fins de fer escher au ver de chalut, dur ou arénicole, plombée juste suffisante pour tenir au pied de la structure. Le tacaud fouille le fond en banc : dès qu'un poisson est là, les autres suivent, et les touches s'enchaînent.`,
     },
     {
       slug: "flottante",
@@ -74,9 +74,9 @@ export const tacaudEspece: EspeceContent = {
   ],
 
   postes: [
-    `Le bon poste à tacaud se résume à un mot : la structure. Vise tout ce qui casse un fond plat et offre un abri au banc — enrochements et musoirs de digue, pieds de jetée portuaire, têtes de roche, épaves accessibles depuis le bord, piles de pont. Plus il y a de relief et de hauteur d'eau, mieux c'est. Les fonds de sable nu sans rien autour, eux, ne produisent presque jamais : sans structure, pas de banc.`,
+    `Le bon poste à tacaud se résume à un mot : la structure. Vise tout ce qui casse un fond plat et offre un abri au banc : enrochements et musoirs de digue, pieds de jetée portuaire, têtes de roche, épaves accessibles depuis le bord, piles de pont. Plus il y a de relief et de hauteur d'eau, mieux c'est. Les fonds de sable nu sans rien autour, eux, ne produisent presque jamais : sans structure, pas de banc.`,
     `Le moment de marée compte beaucoup. Les phases qui produisent sont le montant et les deux heures qui encadrent la pleine mer : plus d'eau sur tes enrochements, un courant qui relance l'activité du banc au ras du fond et amène les vers déterrés vers tes hameçons. Les coefficients moyens à forts amplifient le phénomène le long des digues. La nuit et les premières heures de l'aube sont souvent les plus productives, surtout en hiver. La courbe de marée et les horaires de pleine et basse mer de ton spot suffisent à caler la session.`,
-    `Côté ciel et mer : le tacaud n'a pas peur d'une mer formée, au contraire — un peu de remous et d'eau teintée le met en confiance et le colle aux structures. Un vent modéré de secteur favorable, une houle qui reste gérable au pied de la digue, et tu pêches dans de bonnes conditions. Évite seulement les grosses tempêtes qui rendent les enrochements dangereux et la tenue de fond impossible. Une eau froide et brassée d'hiver, loin de te gêner, signe souvent les meilleures sessions.`,
+    `Côté ciel et mer : le tacaud n'a pas peur d'une mer formée, au contraire : un peu de remous et d'eau teintée le met en confiance et le colle aux structures. Un vent modéré de secteur favorable, une houle qui reste gérable au pied de la digue, et tu pêches dans de bonnes conditions. Évite seulement les grosses tempêtes qui rendent les enrochements dangereux et la tenue de fond impossible. Une eau froide et brassée d'hiver, loin de te gêner, signe souvent les meilleures sessions.`,
   ],
 
   faq: [
@@ -94,7 +94,7 @@ export const tacaudEspece: EspeceContent = {
     },
     {
       q: "Où trouver le tacaud du bord en France ?",
-      a: `Sur les façades Manche et Atlantique, de la côte d'Opale au Pays basque : digues et enrochements de port, têtes de roche, épaves accessibles, piles de pont. Il vit en banc collé aux structures, jamais sur le sable nu. En Méditerranée, il est quasi absent — inutile de le cibler là-bas.`,
+      a: `Sur les façades Manche et Atlantique, de la côte d'Opale au Pays basque : digues et enrochements de port, têtes de roche, épaves accessibles, piles de pont. Il vit en banc collé aux structures, jamais sur le sable nu. En Méditerranée, il est quasi absent, inutile de le cibler là-bas.`,
     },
   ],
 }

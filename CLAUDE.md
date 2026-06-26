@@ -277,6 +277,7 @@ Carnet-de-peche/
 - **Erreurs** : pas de `try/catch` silencieux. Toujours logger et remonter à l'utilisateur.
 - **Tests** : pas obligatoire en sprint 1-4, mais quand on en écrit : Vitest + Playwright.
 - **Commits** : Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`). Messages en français OK.
+- **Copy / ponctuation (anti-tic IA)** : **jamais de tiret cadratin « — » dans une chaîne de copy visible** (prose des pages, fiches espèces, guides, emails, UI). C'est le tic IA n°1 du projet (cf sprint Copy-IA, `docs/sprint-copy-ia/`). À la place, selon le sens : **virgule** (incise/aside), **parenthèses** (apposition secondaire), **deux-points** (explication/liste), **point** (rupture forte). **Exceptions tolérées** : placeholder de donnée vide `'—'`, séparateur de `<title>`/OG `'… — Carnet de Pêche'`, libellés data `'29 — Finistère'` / `'— 10 m'`, et commentaires de code. Lint conseil (non bloquant) : `node scripts/lint-copy-dashes.mjs`.
 
 ### Style UI
 

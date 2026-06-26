@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   title: "Carnet de Pêche — Le réseau des pêcheurs à la canne du bord",
   description:
-    "Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots — entre passionnés.",
+    "Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots, entre passionnés.",
   openGraph: {
     title: "Carnet de Pêche",
     description:

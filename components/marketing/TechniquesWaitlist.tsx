@@ -82,7 +82,7 @@ export function TechniquesWaitlist() {
       )}
 
       <p className="mt-2.5 text-[12px] leading-relaxed text-ink-400">
-        Un seul email, à la sortie des guides — pas de spam, désinscription sur simple
+        Un seul email, à la sortie des guides : pas de spam, désinscription sur simple
         demande. Voir notre{' '}
         <a
           href="/legal/confidentialite"

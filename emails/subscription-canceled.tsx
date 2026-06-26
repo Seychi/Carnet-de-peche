@@ -12,11 +12,11 @@ export default function SubscriptionCanceledEmail({
   accessUntil = "28 juin 2026",
 }: Props) {
   return (
-    <EmailShell preview="Ton abonnement est annulé — à bientôt">
+    <EmailShell preview="Ton abonnement est annulé, à bientôt">
       <Text style={h1}>À bientôt, {firstName}</Text>
       <Text style={paragraph}>
         Ton abonnement est bien annulé. Tu gardes l&rsquo;accès complet jusqu&rsquo;au{" "}
-        <strong>{accessUntil}</strong> — profite-en pour loguer encore quelques prises.
+        <strong>{accessUntil}</strong>, profite-en pour loguer encore quelques prises.
       </Text>
       <Text style={paragraph}>
         Ton carnet, lui, reste à toi pour toujours : tes prises, tes stats, tes spots. Rien ne se

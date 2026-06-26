@@ -18,10 +18,10 @@ export default function PostTrialWinbackEmail({
 }: Props) {
   const unsubUrl = `${SITE_URL}/unsubscribe?token=${unsubToken}`;
   return (
-    <EmailShell preview="Ton essai est terminé — ton carnet t'attend">
+    <EmailShell preview="Ton essai est terminé. Ton carnet t'attend">
       <Text style={h1}>Ton carnet t&rsquo;attend, {firstName}</Text>
       <Text style={paragraph}>
-        Ton essai s&rsquo;est terminé et tu n&rsquo;as pas activé d&rsquo;abonnement. Pas de souci —
+        Ton essai s&rsquo;est terminé et tu n&rsquo;as pas activé d&rsquo;abonnement. Pas de souci :
         ton carnet, tes prises et tes stats restent à toi, gratuitement, pour toujours.
       </Text>
       <Text style={paragraph}>

@@ -88,7 +88,7 @@ export async function NearYou({ dept }: { dept: string }) {
           prise{signal.catchCount > 1 ? 's' : ''} partagée{signal.catchCount > 1 ? 's' : ''} près de
           toi cette semaine.
           <span className="mt-0.5 block text-[12px] text-ink-400">
-            Comptage anonymisé (zones de ≥ 3 pêcheurs) — jamais un coin précis.
+            Comptage anonymisé (zones de ≥ 3 pêcheurs), jamais un coin précis.
           </span>
         </p>
       ) : (

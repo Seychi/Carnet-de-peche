@@ -26,8 +26,8 @@ export default function TechniquesPage() {
           <h1 className="font-display text-4xl text-navy-900 mb-4">Toutes les techniques</h1>
           <p className="text-lg text-ink-700 leading-relaxed">
             Bientôt : des guides dédiés aux leurres, au surfcasting, à la pêche à la
-            flottante et au vif — matériel, montages et conditions idéales pour chaque
-            approche depuis le bord.
+            flottante et au vif (matériel, montages et conditions idéales pour chaque
+            approche depuis le bord).
           </p>
 
           <div className="mt-8">

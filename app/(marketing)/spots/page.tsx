@@ -201,7 +201,7 @@ export default async function SpotsPage({ searchParams }: Props) {
           <h1 className="text-white font-display max-w-2xl">{h1}</h1>
           <p className="mt-4 text-white/60 max-w-2xl text-base leading-relaxed">
             {dept || species
-              ? `${spots.length} spot${spots.length > 1 ? 's' : ''} trouvé${spots.length > 1 ? 's' : ''} — fiches détaillées avec conditions météo, marées et prises de la communauté.`
+              ? `${spots.length} spot${spots.length > 1 ? 's' : ''} trouvé${spots.length > 1 ? 's' : ''} : fiches détaillées avec conditions météo, marées et prises de la communauté.`
               : "Retrouve tous les spots de pêche à la canne du bord sur le littoral français. Chaque fiche intègre les conditions météo, les marées et les prises récentes pour que tu choisisses le bon spot au bon moment."}
           </p>
         </div>
@@ -281,7 +281,7 @@ export default async function SpotsPage({ searchParams }: Props) {
             <div className="text-center py-20">
               <p className="font-semibold text-navy-900 text-lg mb-2">Aucun spot trouvé</p>
               <p className="text-sm text-ink-500 mb-6">
-                Essaie un autre filtre ou reviens bientôt — la base grossit chaque semaine.
+                Essaie un autre filtre ou reviens bientôt, la base grossit chaque semaine.
               </p>
               <Link
                 href="/spots"

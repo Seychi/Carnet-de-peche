@@ -295,7 +295,7 @@ export async function moderateMergeSpot(spotId: string): Promise<ActionResult> {
       actorId: user.id,
       targetType: 'spot',
       targetId: null,
-      previewText: `${name} — déjà présent sur la carte`,
+      previewText: `${name} : déjà présent sur la carte`,
     })
   }
   revalidatePath('/moderation')

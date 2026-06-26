@@ -14,7 +14,7 @@ export function OutingStats({ data, className }: { data: OutingStatsData; classN
       >
         <Wind size={18} className="shrink-0 text-teal-600" />
         <span className="flex-1 text-[13px] text-ink-600">
-          Sorti sans rien ? <span className="font-medium text-navy-900">Logue ta sortie</span> — même
+          Sorti sans rien ? <span className="font-medium text-navy-900">Logue ta sortie</span>, même
           une bredouille compte (et rend tes stats honnêtes).
         </span>
         <Plus size={16} className="shrink-0 text-ink-400" />

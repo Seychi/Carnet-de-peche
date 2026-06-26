@@ -16,7 +16,7 @@ export const revalidate = 86400
 export const metadata: Metadata = {
   title: 'Les espèces de la canne du bord : bar, dorade, lieu jaune… · Carnet de Pêche',
   description:
-    'Bar, dorade royale, lieu jaune, maquereau, sar, orphie : fiches complètes pour la pêche du bord — tailles légales vérifiées, saisons par façade, techniques et postes.',
+    'Bar, dorade royale, lieu jaune, maquereau, sar, orphie : fiches complètes pour la pêche du bord. Tailles légales vérifiées, saisons par façade, techniques et postes.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/especes' },
 }
 
@@ -64,7 +64,7 @@ export default function EspecesIndexPage() {
           <h1 className="max-w-2xl font-display text-white">Les espèces de la canne du bord</h1>
           <p className="mt-4 max-w-xl text-lg text-white/60">
             Pas un catalogue de 266 poissons : les espèces qu&apos;on pêche vraiment du bord en
-            France, traitées à fond — tailles légales vérifiées et datées, saisons par façade,
+            France, traitées à fond : tailles légales vérifiées et datées, saisons par façade,
             techniques et postes.
           </p>
         </div>

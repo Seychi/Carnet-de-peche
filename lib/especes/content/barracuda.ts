@@ -13,30 +13,30 @@ export const barracudaEspece: EspeceContent = {
   slug: 'barracuda',
 
   intro: [
-    `Le barracuda — la bécune, comme on dit sur la côte — c'est le prédateur effilé qui patrouille les digues et les ports de Méditerranée. Un fuseau d'argent posté en chasse sous les lampadaires, une attaque foudroyante sur ton minnow à trois mètres du bord, et un premier rush qui te scie le poignet : du bord, peu de poissons offrent une touche aussi violente.`,
+    `Le barracuda (la bécune, comme on dit sur la côte) c'est le prédateur effilé qui patrouille les digues et les ports de Méditerranée. Un fuseau d'argent posté en chasse sous les lampadaires, une attaque foudroyante sur ton minnow à trois mètres du bord, et un premier rush qui te scie le poignet : du bord, peu de poissons offrent une touche aussi violente.`,
     `Tu le croises le long des grandes digues portuaires, dans les ports eux-mêmes, sur les secs rocheux à portée de lancer et aux embouchures où défilent les mulets. C'est un poisson de bordure et de surface : il chasse l'aube, le crépuscule et surtout la nuit, quand il se rapproche du bord pour cueillir les petits poissons attirés par la lumière. En plein été, sous un soleil de plomb et sur mer d'huile, il devient méfiant et difficile à leurrer ; c'est fin d'été, en automne et même en plein hiver que les plus belles bécunes se prennent.`,
-    `Une technique domine du bord : le leurre dur effilé, minnow ou jerk de 12 à 17 cm, lancé loin et ramené lentement avec des pauses marquées — la bécune attaque neuf fois sur dix sur l'arrêt. Attention aux dents : un bas de ligne fluorocarbone costaud (autour de 35/100) n'est pas un luxe. Et avant de garder un beau sujet, lis la réglementation ci-dessous : il n'y a pas de maille nationale, mais une règle locale existe dans le Golfe du Lion.`,
+    `Une technique domine du bord : le leurre dur effilé, minnow ou jerk de 12 à 17 cm, lancé loin et ramené lentement avec des pauses marquées : la bécune attaque neuf fois sur dix sur l'arrêt. Attention aux dents : un bas de ligne fluorocarbone costaud (autour de 35/100) n'est pas un luxe. Et avant de garder un beau sujet, lis la réglementation ci-dessous : il n'y a pas de maille nationale, mais une règle locale existe dans le Golfe du Lion.`,
   ],
 
   identity: {
     famille: 'Sphyraenidés (Sphyraena viridensis), le barracuda de Méditerranée',
     tailleCourante: '50-80 cm du bord, 90 cm+ pour les beaux sujets de digue',
     tailleMax: 'Environ 1,30 m, les très gros sujets restant rares du bord',
-    habitat: 'Digues portuaires, ports éclairés, secs rocheux et embouchures — surface à mi-profondeur',
+    habitat: 'Digues portuaires, ports éclairés, secs rocheux et embouchures : surface à mi-profondeur',
     regime: 'Chasseur de surface : petits mulets, sardines, athérines, tout banc de fourrage',
   },
 
   regulation: {
     verifiedAt: '24/06/2026',
     source:
-      'Arrêté du 26 octobre 2012 modifié (tailles minimales pêche de loisir) — le barracuda (Sphyraena spp.) n’y figure pas',
+      'Arrêté du 26 octobre 2012 modifié (tailles minimales pêche de loisir) : le barracuda (Sphyraena spp.) n’y figure pas',
     minSizeCm: { 'manche-atlantique': null, mediterranee: null },
     marquage: false,
     items: [
-      `<strong>Pas de taille minimale réglementaire en France</strong> : le barracuda (Sphyraena spp.) ne figure pas dans l'arrêté du 26 octobre 2012 fixant les tailles minimales de capture. Aucun chiffre national ne s'applique — méfie-toi des « mailles » affichées au comptoir, elles sont inventées.`,
+      `<strong>Pas de taille minimale réglementaire en France</strong> : le barracuda (Sphyraena spp.) ne figure pas dans l'arrêté du 26 octobre 2012 fixant les tailles minimales de capture. Aucun chiffre national ne s'applique. Méfie-toi des « mailles » affichées au comptoir, elles sont inventées.`,
       `<strong>Pas de marquage obligatoire</strong> et <strong>pas de quota national</strong> pour la pêche de loisir.`,
-      `Recommandation non réglementaire : <strong>no-kill conseillé sur les gros sujets</strong> (à partir d'environ 60 cm selon les sources de pêche). La bécune est un prédateur lent à se reconstituer et sa chair de gros sujet est médiocre — relâche les beaux poissons, ils font le sel du poste.`,
-      `<strong>Règle LOCALE — Parc naturel marin du Golfe du Lion</strong> (Pyrénées-Orientales 66 et Aude 11) : depuis l'arrêté préfectoral du 12 février 2024, la pêche de loisir y impose une <strong>autorisation obligatoire</strong> (via l'application CatchMachine) et une <strong>taille minimale locale de 65 cm</strong> pour le barracuda. C'est une règle LOCALE propre à ce parc, pas une maille nationale : ailleurs en Méditerranée, elle ne s'applique pas.`,
+      `Recommandation non réglementaire : <strong>no-kill conseillé sur les gros sujets</strong> (à partir d'environ 60 cm selon les sources de pêche). La bécune est un prédateur lent à se reconstituer et sa chair de gros sujet est médiocre. Relâche les beaux poissons, ils font le sel du poste.`,
+      `<strong>Règle LOCALE, Parc naturel marin du Golfe du Lion</strong> (Pyrénées-Orientales 66 et Aude 11) : depuis l'arrêté préfectoral du 12 février 2024, la pêche de loisir y impose une <strong>autorisation obligatoire</strong> (via l'application CatchMachine) et une <strong>taille minimale locale de 65 cm</strong> pour le barracuda. C'est une règle LOCALE propre à ce parc, pas une maille nationale : ailleurs en Méditerranée, elle ne s'applique pas.`,
     ],
   },
 
@@ -50,7 +50,7 @@ export const barracudaEspece: EspeceContent = {
       {
         saison: 'Été',
         activite: 1,
-        note: `Au mieux quelques individus erratiques poussés par les eaux les plus chaudes de l'année sur l'extrême sud du golfe de Gascogne — anecdotique, ne construis pas une session dessus.`,
+        note: `Au mieux quelques individus erratiques poussés par les eaux les plus chaudes de l'année sur l'extrême sud du golfe de Gascogne, anecdotique, ne construis pas une session dessus.`,
       },
       {
         saison: 'Automne',
@@ -94,14 +94,14 @@ export const barracudaEspece: EspeceContent = {
     },
     {
       slug: 'vif',
-      why: `Le vif — petit mulet ou athérine — dérivé sous flotteur le long d'une digue ou aux abords d'un port prend les bécunes méfiantes qui suivent sans mordre le leurre. Filon utile de nuit, quand le poisson cale en bordure sur le banc de fourrage.`,
+      why: `Le vif (petit mulet ou athérine) dérivé sous flotteur le long d'une digue ou aux abords d'un port prend les bécunes méfiantes qui suivent sans mordre le leurre. Filon utile de nuit, quand le poisson cale en bordure sur le banc de fourrage.`,
     },
   ],
 
   postes: [
-    `La bécune est un poisson de bordure et de lumière. Les postes qui paient en priorité : les grandes digues portuaires éclairées, les quais des ports accessibles de nuit, les secs rocheux à portée de lancer et les embouchures où s'accumulent les mulets. Sous les lampadaires, la lumière concentre le fourrage et la bécune vient cueillir en lisière de la zone éclairée — c'est précisément cette frontière ombre/lumière qu'il faut prospecter, pas le plein faisceau.`,
+    `La bécune est un poisson de bordure et de lumière. Les postes qui paient en priorité : les grandes digues portuaires éclairées, les quais des ports accessibles de nuit, les secs rocheux à portée de lancer et les embouchures où s'accumulent les mulets. Sous les lampadaires, la lumière concentre le fourrage et la bécune vient cueillir en lisière de la zone éclairée. C'est précisément cette frontière ombre/lumière qu'il faut prospecter, pas le plein faisceau.`,
     `Le moment du jour pèse plus que tout le reste : crépuscule (18 h-20 h), première heure du matin, et surtout la nuit (typiquement 21 h-1 h) quand les bancs de mulets circulent. En pleine journée, sous grand soleil, range la canne ou cherche très loin. Côté mer, le barracuda aime une mer calme à peu agitée et une eau claire : contrairement au sar ou au loup, ce n'est pas un poisson de gros temps, il chasse à vue. Une légère brise qui ride la surface aide à le décider sans le faire fuir.`,
-    `Le marnage est négligeable en Méditerranée : ne raisonne pas marée mais activité du fourrage. Repère un banc de mulets qui défile le long de la digue et tu es sur le poste ; pas de fourrage, pas de bécune. Quand une chasse éclate en surface, balance ton minnow en lisière du banc, laisse-le couler une seconde, puis anime lentement avec des pauses appuyées — et tiens-toi prêt, l'attaque est sèche et le départ fulgurant.`,
+    `Le marnage est négligeable en Méditerranée : ne raisonne pas marée mais activité du fourrage. Repère un banc de mulets qui défile le long de la digue et tu es sur le poste ; pas de fourrage, pas de bécune. Quand une chasse éclate en surface, balance ton minnow en lisière du banc, laisse-le couler une seconde, puis anime lentement avec des pauses appuyées, et tiens-toi prêt, l'attaque est sèche et le départ fulgurant.`,
   ],
 
   faq: [
@@ -115,11 +115,11 @@ export const barracudaEspece: EspeceContent = {
     },
     {
       q: 'Quel leurre pour pêcher le barracuda en Méditerranée ?',
-      a: `Un leurre dur effilé : minnow ou jerk de 12 à 17 cm, flottant ou coulant, en coloris naturel (sardine, mulet) ou flashy de nuit. Lance loin, ramène lentement avec des pauses de 3 à 5 secondes — la bécune attaque quasi toujours sur l'arrêt. Monte impérativement un bas de ligne fluorocarbone d'environ 35/100 pour résister à ses dents et à l'abrasion des enrochements.`,
+      a: `Un leurre dur effilé : minnow ou jerk de 12 à 17 cm, flottant ou coulant, en coloris naturel (sardine, mulet) ou flashy de nuit. Lance loin, ramène lentement avec des pauses de 3 à 5 secondes : la bécune attaque quasi toujours sur l'arrêt. Monte impérativement un bas de ligne fluorocarbone d'environ 35/100 pour résister à ses dents et à l'abrasion des enrochements.`,
     },
     {
       q: 'Où pêcher le barracuda du bord en France ?',
-      a: `En Méditerranée, façade où l'espèce est chez elle : digues portuaires éclairées, ports, secs rocheux et embouchures, de la côte d'Azur au golfe du Lion. En Manche et en Atlantique, le barracuda est quasi absent du bord — l'eau y est trop froide — alors ne l'y cherche pas comme cible.`,
+      a: `En Méditerranée, façade où l'espèce est chez elle : digues portuaires éclairées, ports, secs rocheux et embouchures, de la côte d'Azur au golfe du Lion. En Manche et en Atlantique, le barracuda est quasi absent du bord (l'eau y est trop froide) alors ne l'y cherche pas comme cible.`,
     },
   ],
 }

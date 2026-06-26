@@ -91,7 +91,7 @@ export function PhotoInput({ onChange, className, initialUrl }: PhotoInputProps)
         >
           <CameraIcon />
           <span className="text-[13px] font-medium">Ajouter une photo</span>
-          <span className="text-[11px] text-slate-400">JPG, PNG, HEIC — max 20 Mo</span>
+          <span className="text-[11px] text-slate-400">JPG, PNG, HEIC : max 20 Mo</span>
         </button>
       )}
 

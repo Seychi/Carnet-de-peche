@@ -18,7 +18,7 @@ export default function WelcomeTrialEmail({ firstName = "pêcheur", planLabel = 
       </Text>
       <Text style={paragraph}>
         <strong>Aucune charge avant la fin de l&rsquo;essai.</strong> Tu peux annuler à tout moment
-        en 1 clic depuis ton espace abonnement — pas de question, pas de friction.
+        en 1 clic depuis ton espace abonnement, pas de question, pas de friction.
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>
         Le meilleur moyen de voir si l&rsquo;app te parle : logue ta première prise.

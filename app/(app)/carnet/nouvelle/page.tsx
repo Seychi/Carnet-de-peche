@@ -80,7 +80,7 @@ export default async function NouvellePrisePage({
           <div className="mb-5 rounded-[14px] border border-teal-200 bg-teal-50 px-4 py-3">
             <p className="text-[13px] text-teal-900">
               <span className="font-semibold">Ta première prise.</span> Renseigne au moins l&rsquo;espèce, le
-              lieu et la taille — la météo, la marée et les conditions sont captées automatiquement. Dès
+              lieu et la taille, la météo, la marée et les conditions sont captées automatiquement. Dès
               3 prises, ton carnet commence à te révéler tes tendances.
             </p>
           </div>

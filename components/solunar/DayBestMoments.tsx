@@ -121,7 +121,7 @@ export function DayBestMoments({ daily, showMoonInfo = true }: DayBestMomentsPro
             Pas de créneau optimal aujourd&apos;hui
           </p>
           <p className="text-[12px] text-ink-500">
-            Reviens demain — les conditions s&apos;améliorent.
+            Reviens demain, les conditions s&apos;améliorent.
           </p>
         </div>
       )}

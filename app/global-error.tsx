@@ -37,7 +37,7 @@ export default function GlobalError({
       >
         <h1 style={{ fontSize: 24, margin: 0 }}>Le fil a cassé.</h1>
         <p style={{ color: 'rgba(255,255,255,.6)', maxWidth: 380, lineHeight: 1.5, margin: 0 }}>
-          Une erreur inattendue s&apos;est produite. On est prévenus — réessaie dans un instant.
+          Une erreur inattendue s&apos;est produite. On est prévenus, réessaie dans un instant.
         </p>
         {error.digest && (
           <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,.4)' }}>
