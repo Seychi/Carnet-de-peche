@@ -257,6 +257,36 @@
 }
 
 /* ============================================================
+   Badge de PROVENANCE (sprint 41 / WS C) — coin du marker, spots
+   communautaires / importés. JAMAIS le ✓ (réservé aux curés). L'info
+   passe par la FORME + le glyphe (daltonisme), pas par la seule teinte.
+   ============================================================ */
+.marker-source-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+  border: 1.5px solid #fff;
+  box-shadow: 0 1px 3px rgba(4, 20, 28, 0.4);
+  pointer-events: none;
+}
+/* Communautaire : pastille « ~ » (point proposé, à confirmer) */
+.marker-source-community {
+  background: #475569; /* slate — neutre, distinct du navy « vérifié » */
+}
+/* Importé (OSM) : pastille « ◦ » (structure repérée, non vérifiée) */
+.marker-source-imported {
+  background: #94a3b8; /* slate clair — provenance la plus faible */
+}
+
+/* ============================================================
    Marker exceptionnel — pulse permanent emerald (top spots)
    ============================================================ */
 @keyframes exceptional-ping {

@@ -29,9 +29,10 @@ export default function MapLegend() {
         ))}
       </div>
 
-      {/* ⟢ MERGE C2 — Provenance + attribution OSM (ODbL). Le badge « Vérifié »
-          (✓, forme) distingue les curés ; communautaire / importé n'en ont pas. */}
-      <div className="flex items-center gap-3 border-t border-ink-100 pt-1.5">
+      {/* ⟢ Sprint 41 / WS C — Lisibilité des 4 natures. La FORME + le glyphe
+          portent l'info (daltonisme), pas la teinte seule. Le ✓ est réservé aux
+          spots curés ; communautaire et importé ont un repère distinct (jamais ✓). */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-ink-100 pt-1.5">
         <span className="flex items-center gap-1.5 whitespace-nowrap">
           <span
             className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-navy-950 text-[8px] font-bold text-white"
@@ -39,12 +40,37 @@ export default function MapLegend() {
           >
             ✓
           </span>
-          Coordonnée vérifiée
+          Curé vérifié
         </span>
-        <span className="whitespace-nowrap text-ink-400">Communautaire / Importé : sans badge</span>
+        <span className="flex items-center gap-1.5 whitespace-nowrap">
+          <span
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#475569] text-[9px] font-bold text-white"
+            aria-hidden
+          >
+            ~
+          </span>
+          Communauté
+        </span>
+        <span className="flex items-center gap-1.5 whitespace-nowrap">
+          <span
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#94a3b8] text-[9px] font-bold text-white"
+            aria-hidden
+          >
+            ◦
+          </span>
+          Importé
+        </span>
+        <span className="flex items-center gap-1.5 whitespace-nowrap">
+          <span
+            className="inline-block h-3.5 w-3.5 rounded-[3px]"
+            style={{ background: 'rgba(229,96,79,0.28)', border: '1.5px dashed #B23A2C' }}
+            aria-hidden
+          />
+          Zone active
+        </span>
       </div>
       <p className="text-[10px] text-ink-400">
-        Le badge ✓ marque une coordonnée vérifiée à la main, fixe. Pas un point communautaire approximatif.
+        Le badge ✓ marque une coordonnée vérifiée à la main, fixe. Pas un point communautaire ou importé approximatif.
       </p>
 
       <p className="text-[10px] text-ink-400">

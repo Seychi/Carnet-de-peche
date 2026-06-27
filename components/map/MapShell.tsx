@@ -30,6 +30,8 @@ import { useBathyLayer } from '@/lib/map/useBathyLayer'
 import { hasBathyAccess } from '@/lib/map/bathy-config'
 import { useQualityLayer } from '@/lib/map/useQualityLayer'
 import type { QualityFilters } from '@/lib/map/quality'
+import { useActiveZonesLayer } from '@/lib/map/useActiveZonesLayer'
+import type { ZonesFilters } from '@/lib/map/active-zones'
 
 // MapLibre pèse ~400 KB — on le lazy-charge pour ne pas alourdir le First Load JS.
 // Le skeleton s'affiche pendant l'init WebGL (~300–600 ms sur mobile).
@@ -81,6 +83,10 @@ const ScorePanel = dynamic(() => import('@/components/map/ScorePanel'), { ssr: f
 // Sélecteur de couches — code-split (sprint 36) pour le sortir du First Load JS de /carte
 // (overlay permanent, mais pas dans le chemin critique du 1er paint).
 const MapLayerSelector = dynamic(() => import('@/components/map/MapLayerSelector'), { ssr: false })
+
+// Comptes par département (sprint 41 / WS C) — overlay desktop, code-split. La RPC
+// n'est appelée qu'à la 1re ouverture du panneau (hors chemin critique).
+const DepartmentStats = dynamic(() => import('@/components/map/DepartmentStats'), { ssr: false })
 
 type MapShellProps = {
   spots: SpotMarker[]
@@ -214,6 +220,9 @@ export default function MapShell({
   // Couche « Qualité » par espèce (Carte v2 / C3b) — aperçu tous tiers, détail complet Itinérant
   const [qualityOn, setQualityOn] = useState(false)
   const [qualitySpecies, setQualitySpecies] = useState<string | null>(null)
+  // Couche « Zones actives » (Sprint 41) — densité k-anon des prises récentes,
+  // gratuite tous tiers (agrégat). Default OFF (pas de fetch au mount).
+  const [activeZonesOn, setActiveZonesOn] = useState(false)
   const [livePulse, setLivePulse] = useState<{ id: number; dept: string } | null>(null)
   const pingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -257,6 +266,21 @@ export default function MapShell({
     version: heatVersion,
     tier: userTier,
     spots,
+  })
+
+  // Couche « Zones actives » (Sprint 41 / WS A) : densité k-anon des prises RÉCENTES.
+  // Fenêtre fixe à 90 j (sémantique « actif » = récent), filtres espèce/technique
+  // hérités si posés. Agrégat gratuit (RPC grantée anon) → aucun gating front.
+  const zonesFilters: ZonesFilters = useMemo(
+    () => ({ species: filters.species ?? null, techniques: filters.techniques ?? null, days: 90 }),
+    [filters.species, filters.techniques],
+  )
+
+  const { cellCount: zonesCellCount, loading: zonesLoading } = useActiveZonesLayer({
+    map: mapInstance,
+    enabled: activeZonesOn,
+    filters: zonesFilters,
+    version: heatVersion,
   })
 
   // Montage MapLibre DIFFÉRÉ (sprint 36 « Carte instantanée ») : on ne rend l'instance
@@ -559,6 +583,10 @@ export default function MapShell({
           onQualitySpeciesChange={setQualitySpecies}
           qualityEmpty={qualityOn && qualityCellCount === 0 && !qualityLoading}
           qualityLoading={qualityLoading}
+          activeZonesOn={activeZonesOn}
+          onActiveZonesToggle={setActiveZonesOn}
+          activeZonesEmpty={activeZonesOn && zonesCellCount === 0 && !zonesLoading}
+          activeZonesLoading={zonesLoading}
         />
 
         {/* Pastille « +1 prise » — carte vivante (broadcast realtime, geom-free) */}
@@ -648,8 +676,11 @@ export default function MapShell({
           )}
         </button>
 
-        {/* Légende qualité — desktop uniquement */}
+        {/* Légende qualité + provenance — desktop uniquement (bottom-left) */}
         <MapLegend />
+
+        {/* Comptes par département — desktop uniquement (bottom-right) */}
+        <DepartmentStats />
 
         {/* Couche « ton score » — tendances perso descriptives (payant, gating serveur) */}
         {scoreOn && <ScorePanel onClose={() => setScoreOn(false)} />}

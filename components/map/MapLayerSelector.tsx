@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves, Grid3x3 } from 'lucide-react'
+import { Layers, Lock, Flame, Sparkles, MapPin, X, Loader2, Waves, Grid3x3, Radar } from 'lucide-react'
 import type { UserTier } from '@/lib/auth/tier'
 import { hasBathyAccess } from '@/lib/map/bathy-config'
 import { HEAT_LEGEND_STOPS } from '@/lib/map/heatmap'
@@ -33,6 +33,10 @@ type Props = {
   onQualitySpeciesChange: (s: string | null) => void
   qualityEmpty: boolean
   qualityLoading: boolean
+  activeZonesOn: boolean
+  onActiveZonesToggle: (on: boolean) => void
+  activeZonesEmpty: boolean
+  activeZonesLoading: boolean
 }
 
 function Switch({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
@@ -79,6 +83,10 @@ export default function MapLayerSelector({
   onQualitySpeciesChange,
   qualityEmpty,
   qualityLoading,
+  activeZonesOn,
+  onActiveZonesToggle,
+  activeZonesEmpty,
+  activeZonesLoading,
 }: Props) {
   const [open, setOpen] = useState(false)
   const isPaid = userTier === 'local' || userTier === 'itinerant'
@@ -329,6 +337,54 @@ export default function MapLayerSelector({
                       >
                         Itinérant
                       </Link>.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Zones actives — densité k-anon des prises récentes (gratuit, tous tiers).
+                Distincte des « Zones de prises » (heatmap) : grille de cellules
+                dénombrables, contour en pointillés + nombre de prises « Np » par case. */}
+            <div className="px-3.5 py-3">
+              <div className="flex items-center gap-2.5">
+                <Radar size={16} className="text-coral-500 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13.5px] font-medium text-ink-900">Zones actives</p>
+                  <p className="text-[11px] text-ink-400">Où ça produit en ce moment · gratuit</p>
+                </div>
+                <Switch
+                  on={activeZonesOn}
+                  onClick={() => onActiveZonesToggle(!activeZonesOn)}
+                  label="Afficher les zones actives"
+                />
+              </div>
+
+              {activeZonesOn && (
+                <div className="mt-3 pl-[26px] flex flex-col gap-2.5">
+                  {/* Légende : la FORME (carré pointillé) + le chiffre « Np » portent
+                      l'info ; l'opacité monte avec la densité (lisible en niveaux de gris). */}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-4 w-4 shrink-0 rounded-[3px]"
+                      style={{
+                        background: 'rgba(229,96,79,0.28)',
+                        border: '1.5px dashed #B23A2C',
+                      }}
+                      aria-hidden
+                    />
+                    <span className="text-[11px] leading-snug text-ink-500">
+                      Chaque case = une zone où plusieurs pêcheurs ont logué récemment. Le
+                      nombre indique les prises (ex. « 7p »).
+                    </span>
+                    {activeZonesLoading && <Loader2 size={12} className="animate-spin text-ink-400 shrink-0" />}
+                  </div>
+
+                  {/* État vide honnête */}
+                  {activeZonesEmpty && !activeZonesLoading && (
+                    <p className="text-[11px] leading-snug text-ink-400">
+                      Pas encore de zone active dans ce coin. Une zone apparaît dès que
+                      plusieurs pêcheurs y loguent publiquement leurs prises.
                     </p>
                   )}
                 </div>

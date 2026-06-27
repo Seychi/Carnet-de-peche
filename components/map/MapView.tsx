@@ -91,14 +91,21 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   // double l'info couleur du badge par du TEXTE (daltonisme) au survol + lecteur
   // d'écran.
   const isVerifiedCoord = spot.source === 'curated'
+  // Libellé de provenance (doublé en texte pour le daltonisme + lecteurs d'écran).
+  const sourceLabel =
+    spot.source === 'curated'
+      ? 'Coordonnée vérifiée à la main, fixe.'
+      : spot.source === 'community'
+        ? 'Spot proposé par la communauté, coordonnée non vérifiée.'
+        : spot.source === 'imported'
+          ? 'Structure importée (OpenStreetMap), coordonnée non vérifiée.'
+          : null
   wrapper.title = isVerifiedCoord
     ? `${spot.name} · ✓ Coordonnée vérifiée à la main`
     : spot.name
   wrapper.setAttribute(
     'aria-label',
-    isVerifiedCoord
-      ? `Spot : ${spot.name}. Coordonnée vérifiée à la main, fixe.`
-      : `Spot : ${spot.name}`,
+    sourceLabel ? `Spot : ${spot.name}. ${sourceLabel}` : `Spot : ${spot.name}`,
   )
 
   // Couleur de base selon la qualité — mémorisée pour la restaurer après un
@@ -130,14 +137,34 @@ function createPinElement(spot: SpotMarker): HTMLElement {
 
   // ⟢ MERGE C2 (sprint Carte-v2) — badge « Vérifié » (garantie éditoriale)
   // UNIQUEMENT pour les spots curés (source==='curated'). L'icône ✓ porte
-  // l'info par sa FORME, pas seulement la couleur (daltonisme). Les spots
-  // communautaires / importés (OSM) n'ont PAS ce badge.
+  // l'info par sa FORME, pas seulement la couleur (daltonisme).
+  //
+  // ⟢ Sprint 41 / WS C — lisibilité des sources : les spots communautaires et
+  // importés (OSM) ne portent JAMAIS le ✓, mais reçoivent un repère de PROVENANCE
+  // distinct par sa FORME (pas par la teinte seule) :
+  //   • communautaire → pastille « ~ » (point proposé, à confirmer) ;
+  //   • importé (OSM) → pastille « ◦ » (structure repérée, non vérifiée).
+  // Daltonien-safe : forme + glyphe + title/aria texte.
   if (spot.source === 'curated') {
     const badge = document.createElement('div')
     badge.className = 'marker-verified-badge'
     badge.setAttribute('aria-hidden', 'true')
     badge.title = 'Coordonnée vérifiée à la main, fixe'
     badge.textContent = '✓'
+    wrapper.appendChild(badge)
+  } else if (spot.source === 'community') {
+    const badge = document.createElement('div')
+    badge.className = 'marker-source-badge marker-source-community'
+    badge.setAttribute('aria-hidden', 'true')
+    badge.title = 'Spot proposé par la communauté, coordonnée non vérifiée'
+    badge.textContent = '~'
+    wrapper.appendChild(badge)
+  } else if (spot.source === 'imported') {
+    const badge = document.createElement('div')
+    badge.className = 'marker-source-badge marker-source-imported'
+    badge.setAttribute('aria-hidden', 'true')
+    badge.title = 'Structure importée (OpenStreetMap), coordonnée non vérifiée'
+    badge.textContent = '◦'
     wrapper.appendChild(badge)
   }
 
@@ -289,8 +316,11 @@ function addClusteredSpotsToMap(
     paint: {
       'circle-color': QUALITY_COLOR_EXPR,
       'circle-radius': 7,
-      'circle-stroke-width': 2,
-      'circle-stroke-color': 'white',
+      // ⟢ Sprint 41 / WS C — provenance par le CONTOUR (mode cluster) : curé =
+      // anneau blanc épais (= « vérifié ») ; communautaire/importé = anneau plus
+      // fin et navy (distinct, jamais blanc épais). Doublé du badge en mode HTML.
+      'circle-stroke-width': ['match', ['get', 'source'], 'curated', 2.5, 1.5],
+      'circle-stroke-color': ['match', ['get', 'source'], 'curated', '#ffffff', '#04141C'],
       // Spots précis = plein opaque ; floutés = légèrement transparents
       'circle-opacity': ['case', ['get', 'isPrecise'], 1, 0.7],
     },

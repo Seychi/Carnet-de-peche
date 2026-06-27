@@ -38,3 +38,6 @@ supabase/.branches/
 
 # Captures Playwright MCP (snapshots QA jetables — ne pas versionner)
 .playwright-mcp/
+
+.vercel
+.env*
