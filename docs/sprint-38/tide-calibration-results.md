@@ -1,6 +1,10 @@
 # Sprint 38 — WS E · Résultats de calibration marées (F3)
 
-> Figé le **2026-06-27** (audit lancé via `pnpm verify-tides --markdown`). Décision John **D3** : on **affiche la précision mesurée seulement**, on n'applique **aucun offset** en prod. `tide_coefficient` reste null partout, aucune heure de marée n'est corrigée.
+> Figé le **2026-06-27** (audit lancé via `pnpm verify-tides --markdown`).
+>
+> **Mise à jour 2026-06-27 (décision John, v2)** : on **APPLIQUE désormais l'offset par port** (`= -bias_min`) aux heures de PM/BM affichées sur la fiche spot (migration `064` : colonne `residual_min` + reseed ; correction faite à l'affichage dans `TideChart`, pas en base). L'encart annonce l'**écart résiduel** mesuré (1 à 8 min), pas l'écart brut. `tide_coefficient` reste null (on n'invente aucun coefficient). La courbe reste le modèle horaire Open-Meteo ; seules les heures de PM/BM sont calées.
+>
+> _(v1 / D3 initiale, conservée pour mémoire : « afficher la précision mesurée seulement, aucun offset ». Remplacée par la v2 ci-dessus.)_
 
 ## Méthodo
 

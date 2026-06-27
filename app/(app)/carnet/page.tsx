@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Box, ChevronRight } from 'lucide-react'
+import { Box, ChevronRight, Wind } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown } from '@/lib/catches/queries'
 import { getMyOutingStats } from '@/lib/outings/queries'
@@ -123,6 +123,25 @@ export default async function CarnetPage({ searchParams }: Props) {
 
         {/* Sorties (dont bredouilles) — dénominateur honnête */}
         {outingStats && <OutingStats data={outingStats} className="mb-3" />}
+
+        {/* Accès à la liste des sorties perso (partageables) */}
+        {outingStats && outingStats.totalOutings > 0 && (
+          <Link
+            href="/carnet/sorties"
+            className="mb-3 flex min-h-[44px] items-center gap-3 rounded-[14px] border border-sand-200 bg-white px-4 py-3 transition-colors hover:border-sand-300"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-500">
+              <Wind size={18} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[14.5px] font-semibold text-navy-900">Mes sorties</span>
+              <span className="block text-[13px] text-ink-500">
+                Tes sorties loguées, prises comme bredouilles, à partager sans montrer tes spots
+              </span>
+            </span>
+            <ChevronRight size={18} className="shrink-0 text-ink-400" aria-hidden="true" />
+          </Link>
+        )}
 
         {/* Accès à « ma boîte » : ce que chaque leurre rapporte (sprint 37) */}
         <Link

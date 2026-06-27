@@ -375,6 +375,9 @@ async function main() {
       facade: s.facade,
       median_error_min: round1(s.medInterp),
       bias_min: round1(s.medSigned),
+      // Résidu après correction du biais par port (offset = -bias_min) : la précision
+      // réelle annoncée une fois l'offset appliqué (décision John v2).
+      residual_min: round1(s.medAbsResidual),
       sample_window: `${startDate} → ${endDate} · ${s.n} extrema PM/BM`,
       source: 'SHOM (maree.info) vs Open-Meteo Marine (interpolation parabolique)',
     }
@@ -387,10 +390,10 @@ async function main() {
     console.log(`**verified_at** : ${verifiedAt}\n`)
     console.log('### Bloc seed `tide_calibration` (service-role)\n')
     console.log('```')
-    console.log('port | lat | lng | facade | median_error_min | bias_min | sample_window | source')
+    console.log('port | lat | lng | facade | median_error_min | bias_min | residual_min | sample_window | source')
     for (const r of seedRows) {
       console.log(
-        `${r.port} | ${r.lat} | ${r.lng} | ${r.facade} | ${r.median_error_min} | ${r.bias_min} | ${r.sample_window} | ${r.source}`,
+        `${r.port} | ${r.lat} | ${r.lng} | ${r.facade} | ${r.median_error_min} | ${r.bias_min} | ${r.residual_min} | ${r.sample_window} | ${r.source}`,
       )
     }
     console.log('```\n')

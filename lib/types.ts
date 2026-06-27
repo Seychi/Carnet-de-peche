@@ -1026,6 +1026,7 @@ export type Database = {
           lng: number | null
           median_error_min: number | null
           port: string
+          residual_min: number | null
           sample_window: string | null
           source: string | null
           verified_at: string | null
@@ -1039,6 +1040,7 @@ export type Database = {
           lng?: number | null
           median_error_min?: number | null
           port: string
+          residual_min?: number | null
           sample_window?: string | null
           source?: string | null
           verified_at?: string | null
@@ -1052,6 +1054,7 @@ export type Database = {
           lng?: number | null
           median_error_min?: number | null
           port?: string
+          residual_min?: number | null
           sample_window?: string | null
           source?: string | null
           verified_at?: string | null

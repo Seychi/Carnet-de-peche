@@ -28,6 +28,11 @@ type Props = {
   extrema: TideExtremum[]
   /** Heure courante (entier 0-23) calculée côté serveur — graine SSR. */
   currentHourIdx: number
+  /**
+   * Offset de calibration (minutes) à ajouter aux heures de PM/BM pour les caler sur
+   * le port de référence SHOM (sprint 38). 0 = pas de calibration (façade non auditée).
+   */
+  offsetMinutes?: number
 }
 
 type ChartPayload = { h: number; m: number }
@@ -57,7 +62,7 @@ const TREND_COLOR: Record<TideTrend, string> = {
   slack: 'text-ink-400',
 }
 
-export default function TideChart({ points, extrema, currentHourIdx }: Props) {
+export default function TideChart({ points, extrema, currentHourIdx, offsetMinutes = 0 }: Props) {
   const [mode, setMode] = useState<'chart' | 'table'>('chart')
   // Horloge live : se met à jour chaque minute pour faire bouger le curseur
   // « maintenant » et le compte à rebours PM/BM sans recharger la page.
@@ -82,8 +87,17 @@ export default function TideChart({ points, extrema, currentHourIdx }: Props) {
   const yMin = Math.floor((minH - pad) * 10) / 10
   const yMax = Math.ceil((maxH + pad) * 10) / 10
 
-  const { high: nextHigh, low: nextLow } = upcomingExtrema(points, extrema, currentHour)
-  const nowTrend = tideTrendAt(points, currentHour)
+  // Calibration par port (sprint 38) : les heures de PM/BM dérivées d'Open-Meteo sont
+  // en avance d'un biais ~constant par port. On les cale sur le SHOM en ajoutant
+  // offsetMinutes (= -biais). « Prochain extremum » évalué dans le temps CORRIGÉ :
+  // extremum corrigé >= maintenant <=> extremum brut >= (maintenant - offset). Puis on
+  // décale l'heure affichée de +offset. La courbe reste le modèle horaire Open-Meteo.
+  const offsetHours = offsetMinutes / 60
+  const refHour = currentHour - offsetHours
+  const { high, low } = upcomingExtrema(points, extrema, refHour)
+  const nextHigh = high ? { ...high, hourFraction: high.hourFraction + offsetHours } : null
+  const nextLow = low ? { ...low, hourFraction: low.hourFraction + offsetHours } : null
+  const nowTrend = tideTrendAt(points, refHour)
   const NowTrendIcon = TREND_ICON[nowTrend]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

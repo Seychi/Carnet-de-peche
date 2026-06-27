@@ -498,6 +498,7 @@ export default async function SpotPage({
                 lng={spot.lng}
                 conditions={conditions}
                 forecastWeek={forecastWeek}
+                department={deptKey}
               />
             )}
 

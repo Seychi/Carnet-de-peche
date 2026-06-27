@@ -4,6 +4,7 @@ import TideStrengthBand, { buildMarnageDays } from '@/components/conditions/Tide
 import WeatherGrid from '@/components/conditions/WeatherGrid'
 import WavesCard from '@/components/conditions/WavesCard'
 import { formatWeatherTime } from '@/lib/conditions/format'
+import { getTideCalibration } from '@/lib/conditions/tide-calibration'
 import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 
 type Props = {
@@ -13,6 +14,8 @@ type Props = {
   conditions: SpotConditions
   /** Prévisions 7 jours — alimente la bande « force des marées » (marnage réel). */
   forecastWeek?: SpotConditions[]
+  /** Département du spot : sert à caler les heures de PM/BM sur le port de référence. */
+  department: string
 }
 
 function formatDate(isoDate: string): string {
@@ -53,13 +56,18 @@ function currentHourParis(): number {
   return parseInt(h, 10) % 24
 }
 
-export default function SpotConditionsSection({ spotName, lat, lng, conditions, forecastWeek }: Props) {
+export default async function SpotConditionsSection({ spotName, lat, lng, conditions, forecastWeek, department }: Props) {
   const windyUrl = `https://www.windy.com/?${lat.toFixed(4)},${lng.toFixed(4)},10`
   const dateLabel = formatDate(conditions.date)
   const updatedAt = formatTime(conditions.fetched_at)
   const currentHour = currentHourParis()
   const hasTide = conditions.tide.points.length > 0
   const marnageDays = forecastWeek && forecastWeek.length > 0 ? buildMarnageDays(forecastWeek) : []
+
+  // Offset de calibration marée du port de référence du spot (sprint 38) : on cale
+  // les heures de PM/BM affichées sur le SHOM. 0 si façade non auditée (ex. Méditerranée).
+  const tideCal = await getTideCalibration(department)
+  const tideOffsetMinutes = tideCal?.offsetMinutes ?? 0
 
   return (
     <section className="bg-white rounded-[18px] border border-sand-200 p-5 md:p-7">
@@ -89,6 +97,7 @@ export default function SpotConditionsSection({ spotName, lat, lng, conditions, 
             points={conditions.tide.points}
             extrema={conditions.tide.extrema}
             currentHourIdx={currentHour}
+            offsetMinutes={tideOffsetMinutes}
           />
           {marnageDays.length > 0 && <TideStrengthBand days={marnageDays} />}
         </div>
