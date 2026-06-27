@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
+import { TideCalibrationNote } from '@/components/spots/TideCalibrationNote'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
@@ -625,6 +626,12 @@ export default async function SpotPage({
                 </p>
               </div>
             )}
+
+            {/* Précision marées (sprint 38, F3) — écart médian mesuré vs SHOM par
+                façade, sourcé + daté. Honnête : affiché tel quel même > 15 min
+                (D3 : précision mesurée seulement, aucun offset). Méditerranée et
+                table vide → l'encart ne s'affiche pas. */}
+            <TideCalibrationNote department={deptKey} />
 
             {/* Réglementation par espèce (sprint 24) — maille façade-aware + repères */}
             {spot.species.length > 0 && (

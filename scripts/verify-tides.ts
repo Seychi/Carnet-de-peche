@@ -43,20 +43,54 @@ type ShomFixture = {
   ports: Record<string, Record<string, ShomEvent[]>>
 }
 
-const PORTS: Record<string, { label: string; lat: number; lon: number; note?: string }> = {
-  brest: { label: 'Brest', lat: 48.3, lon: -4.6 },
-  'saint-malo': { label: 'Saint-Malo', lat: 48.69, lon: -2.03 },
+type Facade = 'manche' | 'atlantique' | 'mediterranee'
+
+// Ports audités = ceux pour lesquels on a un étalon SHOM figé dans le fixture.
+// Honnêteté : on n'audite QUE ce qu'on peut comparer à une source officielle. On
+// n'invente jamais d'horaire SHOM pour gonfler la couverture.
+//
+// La Méditerranée est traitée à part (PORTS_NOTES) : marnage ~0,2 m, marée surtout
+// météorologique (vent, pression) et non astronomique. Un extremum « astronomique »
+// y a peu de sens physique → on documente la limite plutôt que d'afficher un faux
+// écart. (cf docs/sprint-38/tide-calibration-results.md)
+const PORTS: Record<
+  string,
+  { label: string; lat: number; lon: number; facade: Facade; note?: string }
+> = {
+  // ── Manche ──────────────────────────────────────────────────────────────────
+  'saint-malo': {
+    label: 'Saint-Malo',
+    lat: 48.69,
+    lon: -2.03,
+    facade: 'manche',
+    note: 'Plus grand marnage d’Europe (~12 m) : test exigeant, étalon Manche',
+  },
+  // ── Atlantique ──────────────────────────────────────────────────────────────
+  brest: {
+    label: 'Brest',
+    lat: 48.3,
+    lon: -4.6,
+    facade: 'atlantique',
+    note: 'Port de référence historique du SHOM (marégraphe de référence FR)',
+  },
   pornichet: {
     label: 'Pornichet',
     lat: 47.22,
     lon: -2.38,
+    facade: 'atlantique',
     note: 'Port où Fishing Grid est critiqué (~30 min d’écart, avis App Store mai 2026)',
   },
-  'les-sables-dolonne': { label: 'Les Sables-d’Olonne', lat: 46.46, lon: -1.83 },
+  'les-sables-dolonne': {
+    label: 'Les Sables-d’Olonne',
+    lat: 46.46,
+    lon: -1.83,
+    facade: 'atlantique',
+  },
   arcachon: {
     label: 'Arcachon (Eyrac)',
     lat: 44.66,
     lon: -1.21,
+    facade: 'atlantique',
     note: 'Bassin semi-fermé : zone difficile pour un modèle global, à surveiller',
   },
 }
@@ -253,6 +287,7 @@ async function main() {
 
   const summary: {
     port: string
+    facade: Facade
     n: number
     medHourly: number
     maxHourly: number
@@ -289,6 +324,7 @@ async function main() {
 
     summary.push({
       port: port.label,
+      facade: port.facade,
       n: interp.deltas.length,
       medHourly: median(naive.deltas.map((d) => d.deltaMin)),
       maxHourly: Math.max(...naive.deltas.map((d) => d.deltaMin)),
@@ -306,18 +342,18 @@ async function main() {
       )
       .join('\n')
     detailBlocks.push(
-      `### ${port.label}${port.note ? ` — ${port.note}` : ''}\n\n` +
+      `### ${port.label} (${facadeLabel(port.facade)})${port.note ? ` — ${port.note}` : ''}\n\n` +
         `| Date | Type | SHOM | Open-Meteo (interpolé) | Écart (min) |\n|---|---|---|---|---|\n${rows}\n`,
     )
   }
 
   const header =
-    `| Port | n | Médiane horaire (min) | Max horaire | Médiane interpolée (min) | Max interpolé | Biais signé médian | Résidu médian après biais | Non matchés |\n` +
-    `|---|---|---|---|---|---|---|---|---|\n`
+    `| Port | Façade | n | Médiane horaire (min) | Max horaire | Médiane interpolée (min) | Max interpolé | Biais signé médian | Résidu médian après biais | Non matchés |\n` +
+    `|---|---|---|---|---|---|---|---|---|---|\n`
   const tableRows = summary
     .map(
       (s) =>
-        `| ${s.port} | ${s.n} | ${s.medHourly} | ${s.maxHourly} | ${s.medInterp} | ${s.maxInterp} | ${s.medSigned > 0 ? '+' : ''}${s.medSigned} | ${s.medAbsResidual} | ${s.unmatched} |`,
+        `| ${s.port} | ${facadeLabel(s.facade)} | ${s.n} | ${s.medHourly} | ${s.maxHourly} | ${s.medInterp} | ${s.maxInterp} | ${s.medSigned > 0 ? '+' : ''}${s.medSigned} | ${s.medAbsResidual} | ${s.unmatched} |`,
     )
     .join('\n')
 
@@ -326,15 +362,54 @@ async function main() {
     ? '✅ GO : médiane interpolée < 15 min sur tous les ports → copy « horaires de marée vérifiés » autorisée (en portant l’interpolation parabolique dans l’app).'
     : '❌ NO-GO : au moins un port ≥ 15 min de médiane → pas de comm’, WorldTides prioritaire au sprint 11.'
 
+  // ── Bloc seed pour tide_calibration (D3 : précision mesurée seulement) ──────
+  // Une ligne par port, prête à seeder en service-role. window = fenêtre auditée.
+  // sample_window porte la fenêtre + le mois pour la transparence sur la fiche spot.
+  const verifiedAt = new Date().toISOString()
+  const seedRows = summary.map((s) => {
+    const port = Object.values(PORTS).find((p) => p.label === s.port)!
+    return {
+      port: s.port,
+      lat: port.lat,
+      lng: port.lon,
+      facade: s.facade,
+      median_error_min: round1(s.medInterp),
+      bias_min: round1(s.medSigned),
+      sample_window: `${startDate} → ${endDate} · ${s.n} extrema PM/BM`,
+      source: 'SHOM (maree.info) vs Open-Meteo Marine (interpolation parabolique)',
+    }
+  })
+
   if (markdown) {
     console.log(`## Synthèse (fenêtre ${startDate} → ${endDate}, étalon : ${fixture.source})\n`)
     console.log(header + tableRows + '\n')
     console.log(`**Verdict** : ${verdict}\n`)
+    console.log(`**verified_at** : ${verifiedAt}\n`)
+    console.log('### Bloc seed `tide_calibration` (service-role)\n')
+    console.log('```')
+    console.log('port | lat | lng | facade | median_error_min | bias_min | sample_window | source')
+    for (const r of seedRows) {
+      console.log(
+        `${r.port} | ${r.lat} | ${r.lng} | ${r.facade} | ${r.median_error_min} | ${r.bias_min} | ${r.sample_window} | ${r.source}`,
+      )
+    }
+    console.log('```\n')
     console.log(detailBlocks.join('\n'))
   } else {
     console.table(summary)
     console.log(verdict)
+    console.log(`\nverified_at = ${verifiedAt}`)
+    console.log('\n── Bloc seed tide_calibration (service-role) ──')
+    console.table(seedRows)
   }
+}
+
+function facadeLabel(f: Facade): string {
+  return f === 'manche' ? 'Manche' : f === 'atlantique' ? 'Atlantique' : 'Méditerranée'
+}
+
+function round1(n: number): number {
+  return Number.isFinite(n) ? Math.round(n * 10) / 10 : n
 }
 
 main().catch((e) => {

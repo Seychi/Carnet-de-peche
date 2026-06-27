@@ -761,6 +761,33 @@ export type Database = {
           },
         ]
       }
+      shared_cards: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          payload: Json
+          slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       spatial_ref_sys: {
         Row: {
           auth_name: string | null
@@ -989,6 +1016,48 @@ export type Database = {
         }
         Relationships: []
       }
+      tide_calibration: {
+        Row: {
+          bias_min: number | null
+          created_at: string
+          facade: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          median_error_min: number | null
+          port: string
+          sample_window: string | null
+          source: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          bias_min?: number | null
+          created_at?: string
+          facade?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          median_error_min?: number | null
+          port: string
+          sample_window?: string | null
+          source?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          bias_min?: number | null
+          created_at?: string
+          facade?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          median_error_min?: number | null
+          port?: string
+          sample_window?: string | null
+          source?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_slug: string
@@ -1054,6 +1123,7 @@ export type Database = {
           lure_brand: string | null
           lure_model: string | null
           notes: string | null
+          outing_id: string | null
           photo_path: string | null
           precise_for_friends: boolean | null
           privacy: string | null
@@ -1078,6 +1148,13 @@ export type Database = {
             columns: ["gear_id"]
             isOneToOne: false
             referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catches_outing_id_fkey"
+            columns: ["outing_id"]
+            isOneToOne: false
+            referencedRelation: "outings"
             referencedColumns: ["id"]
           },
           {

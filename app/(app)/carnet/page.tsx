@@ -15,6 +15,8 @@ import { CatchGrid } from '@/components/catches/CatchGrid'
 import { NextWindowInsight } from '@/components/catches/NextWindowInsight'
 import { OutingStats } from '@/components/outings/OutingStats'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { ShareButton } from '@/components/share/ShareButton'
+import { ManageShareCards } from '@/components/share/ManageShareCards'
 
 export const dynamic = 'force-dynamic'
 
@@ -149,6 +151,24 @@ export default async function CarnetPage({ searchParams }: Props) {
           <PersonalTendencies data={personalTendencies} tier={tier} className="mb-5" />
         )}
 
+        {/* Partager ses « conditions gagnantes » (sprint 38) — uniquement si le
+            carnet a assez de prises pour des tendances réelles (pas de carte vide). */}
+        {personalTendencies?.hasEnough && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-sand-200 bg-white px-4 py-3">
+            <p className="text-[13.5px] text-ink-600">
+              Fier de tes tendances ?{' '}
+              <span className="font-medium text-navy-900">Partage-les</span>, sans jamais montrer tes spots.
+            </p>
+            <ShareButton
+              input={{ kind: 'conditions' }}
+              title="Mes conditions gagnantes — Carnet de Pêche"
+              text="Voici quand et dans quelles conditions je sors le plus."
+              label="Partager mes conditions"
+              variant="ghost"
+            />
+          </div>
+        )}
+
         {/* Insight : prochain bon créneau du département (card live) */}
         {dept && <NextWindowInsight dept={dept} />}
 
@@ -170,6 +190,9 @@ export default async function CarnetPage({ searchParams }: Props) {
           hasFilters={hasFilters}
           searchParams={params}
         />
+
+        {/* Gestion / révocation des cartes partagées (sprint 38). */}
+        <ManageShareCards className="mt-6" />
       </div>
     </div>
   )

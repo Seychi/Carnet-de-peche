@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Loader2, Wind } from 'lucide-react'
+import { ArrowRight, Check, Loader2, Wind } from 'lucide-react'
 import { createOuting } from '@/lib/outings/actions'
 import { COASTAL_DEPARTMENTS, DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES } from '@/lib/seo/programmatic'
+import { ShareButton } from '@/components/share/ShareButton'
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -37,6 +39,7 @@ export function OutingForm({ defaultDepartment }: { defaultDepartment?: string |
   const [species, setSpecies] = useState<string[]>([])
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [savedId, setSavedId] = useState<string | null>(null)
 
   function toggleSpecies(v: string) {
     setSpecies((prev) => (prev.includes(v) ? prev.filter((s) => s !== v) : prev.length < 6 ? [...prev, v] : prev))
@@ -62,8 +65,43 @@ export function OutingForm({ defaultDepartment }: { defaultDepartment?: string |
       return
     }
     toast.success('Sortie enregistrée, même bredouille, ça compte.')
-    router.push('/carnet')
+    // Au lieu de rediriger sec, on propose de partager la sortie (opt-in, sprint 38).
     router.refresh()
+    setSavedId(res.id)
+    setSubmitting(false)
+  }
+
+  // ── État de succès : sortie loguée → proposer le partage (opt-in) ──
+  if (savedId) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-[14px] border border-teal-500/30 bg-teal-50/60 px-5 py-4">
+          <Check size={20} className="mt-0.5 shrink-0 text-teal-600" aria-hidden="true" />
+          <div>
+            <p className="text-[15px] font-semibold text-navy-900">Sortie enregistrée.</p>
+            <p className="mt-0.5 text-[13.5px] text-ink-600">
+              Tu veux la partager ? On crée une carte publique (sans aucune coordonnée), tu la
+              supprimes quand tu veux.
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <ShareButton
+            input={{ kind: 'outing', outingId: savedId }}
+            title="Ma sortie — Carnet de Pêche"
+            text="Ma sortie de pêche, loguée sur Carnet de Pêche."
+            label="Partager ma sortie"
+            variant="solid"
+          />
+          <Link
+            href="/carnet"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-sand-300 bg-white px-4 text-[14px] font-semibold text-ink-700 transition-colors hover:border-teal-500/50"
+          >
+            Voir mon carnet <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (

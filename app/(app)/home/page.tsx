@@ -14,6 +14,7 @@ import {
   SectionSkeleton,
 } from "@/components/home/home-ui";
 import { TagData } from "@/components/ui-v2/tag-data";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -97,9 +98,23 @@ export default async function HomePage() {
 
         {/* Ta progression — gamification (déplacée du carnet, sprint 30). Aucun dépt requis. */}
         <section>
-          <TagData variant="teal" className="mb-3 inline-flex items-center gap-1.5">
-            <TrendingUp size={13} aria-hidden="true" /> TA PROGRESSION
-          </TagData>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <TagData variant="teal" className="inline-flex items-center gap-1.5">
+              <TrendingUp size={13} aria-hidden="true" /> TA PROGRESSION
+            </TagData>
+            {/* Partager ses conditions gagnantes (sprint 38) — gardé sur le seuil de
+                tendances (3 prises) ; l'action revalide et refuse une carte vide. */}
+            {total >= 3 ? (
+              <ShareButton
+                input={{ kind: "conditions" }}
+                title="Mes conditions gagnantes — Carnet de Pêche"
+                text="Voici quand et dans quelles conditions je sors le plus."
+                label="Partager mes conditions"
+                variant="ghost"
+                className="shrink-0"
+              />
+            ) : null}
+          </div>
           <Suspense fallback={<SectionSkeleton lines={3} label="Ta progression" />}>
             <GamificationHub />
           </Suspense>

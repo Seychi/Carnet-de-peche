@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreHorizontal, Pencil, Share2, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useShareCard } from '@/components/share/use-share-card'
+import { ShareOptInDialog } from '@/components/share/ShareOptInDialog'
 import { catchActionsTriggerClass } from './catch-actions-trigger'
 
 /**
@@ -22,6 +23,11 @@ import { catchActionsTriggerClass } from './catch-actions-trigger'
  * effet, pour déclencher la vraie transition d'ouverture Base UI (focus,
  * animation, aria-expanded) comme un clic natif sur le trigger. Le composant
  * reste ensuite monté : ouvertures/fermetures suivantes 100 % natives.
+ *
+ * Partage (sprint 38 WS-C) : « Partager » ne partage PLUS l'URL privée de la
+ * prise. Il crée une carte PUBLIQUE geom-free (/c/{slug}) après un avertissement
+ * opt-in, puis ouvre le partage natif AVEC l'image (story) ou retombe sur copie +
+ * téléchargement. Jamais l'URL de la prise privée.
  */
 export default function CatchActionsDropdown({
   catchId,
@@ -32,62 +38,71 @@ export default function CatchActionsDropdown({
 }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const { share, sharing } = useShareCard()
 
   useEffect(() => {
     setOpen(true)
   }, [])
 
-  async function handleShare() {
-    const url = window.location.href
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Ma prise — Carnet de Pêche', url })
-      } else {
-        await navigator.clipboard.writeText(url)
-        toast.success('Lien copié !')
-      }
-    } catch {
-      // Annulé par l'utilisateur
-    }
+  async function handleConfirmShare() {
+    await share(
+      { kind: 'catch', catchId },
+      'Ma prise — Carnet de Pêche',
+      'Ma prise sur Carnet de Pêche.',
+    )
+    setShareOpen(false)
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger
-        aria-label="Plus d'options"
-        className={catchActionsTriggerClass}
-      >
-        <MoreHorizontal size={18} />
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="end" className="w-44 bg-white shadow-lg">
-        <DropdownMenuItem
-          className="flex items-center gap-2.5 cursor-pointer"
-          onClick={() => router.push(`/carnet/${catchId}/modifier`)}
+    <>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger
+          aria-label="Plus d'options"
+          className={catchActionsTriggerClass}
         >
-          <Pencil size={14} className="text-ink-500" />
-          Modifier
-        </DropdownMenuItem>
+          <MoreHorizontal size={18} />
+        </DropdownMenuTrigger>
 
-        <DropdownMenuItem
-          className="flex items-center gap-2.5 cursor-pointer"
-          onClick={handleShare}
-        >
-          <Share2 size={14} className="text-ink-500" />
-          Partager
-        </DropdownMenuItem>
+        <DropdownMenuContent align="end" className="w-44 bg-white shadow-lg">
+          <DropdownMenuItem
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={() => router.push(`/carnet/${catchId}/modifier`)}
+          >
+            <Pencil size={14} className="text-ink-500" />
+            Modifier
+          </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={() => setShareOpen(true)}
+          >
+            <Share2 size={14} className="text-ink-500" />
+            Partager
+          </DropdownMenuItem>
 
-        <DropdownMenuItem
-          variant="destructive"
-          className="flex items-center gap-2.5 cursor-pointer"
-          onClick={onDeleteRequest}
-        >
-          <Trash2 size={14} />
-          Supprimer
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            variant="destructive"
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={onDeleteRequest}
+          >
+            <Trash2 size={14} />
+            Supprimer
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ShareOptInDialog
+        kind="catch"
+        open={shareOpen}
+        onOpenChange={(v) => {
+          if (!sharing) setShareOpen(v)
+        }}
+        onConfirm={handleConfirmShare}
+        working={sharing}
+      />
+    </>
   )
 }
