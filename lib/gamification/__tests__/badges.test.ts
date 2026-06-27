@@ -7,11 +7,12 @@ import { recomputeMyBadges, getMyBadges, BADGES, BADGE_BY_SLUG } from '../badges
 beforeEach(() => vi.clearAllMocks())
 
 describe('BADGES (référentiel)', () => {
-  it('contient les 6 badges SQL-dérivables, slugs uniques', () => {
+  it('contient les 7 badges SQL-dérivables, slugs uniques', () => {
     const slugs = BADGES.map((b) => b.slug)
-    expect(slugs).toHaveLength(6)
-    expect(new Set(slugs).size).toBe(6)
+    expect(slugs).toHaveLength(7)
+    expect(new Set(slugs).size).toBe(7)
     expect(BADGE_BY_SLUG['pokedex_complete'].label).toBe('Pokédex complet')
+    expect(BADGE_BY_SLUG['prise_mesuree'].label).toBe('Prise mesurée')
   })
 })
 

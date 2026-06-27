@@ -24,6 +24,17 @@ const envSchema = z
     SUPABASE_SERVICE_ROLE_KEY: isProd ? z.string().min(1) : z.string().min(1).optional(),
     CRON_SECRET: isProd ? z.string().min(8) : z.string().optional(),
 
+    // Web Push VAPID (sprint 39) — canal push « fenêtre optimale ».
+    // OPTIONNELLES même en prod (choix volontaire) : sans elles, le push est INACTIF
+    // (sendPushToUser no-op, l'abonnement client no-op) mais l'app fonctionne. Les
+    // rendre `min(1)` en prod ferait throw env.ts au chargement → toute l'app casserait
+    // tant que les clés ne sont pas posées dans Vercel. Désactivation propre > fail-fast.
+    // `NEXT_PUBLIC_VAPID_PUBLIC_KEY` est une clé publique (inline côté client OK) ;
+    // `VAPID_PRIVATE_KEY` reste serveur uniquement (jamais exposée au client).
+    VAPID_PRIVATE_KEY: z.string().optional(),
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
+    VAPID_SUBJECT: z.string().optional(),
+
     // Emails transactionnels (sprint 11 Bloc C) — requis en prod
     RESEND_API_KEY: isProd ? z.string().startsWith("re_") : z.string().optional(),
     // Monitoring (sprint 11 Bloc D) — requis en prod (DSN public, pas un secret)
@@ -91,6 +102,9 @@ const _env = envSchema.safeParse({
   SUPABASE_PROJECT_REF: process.env.SUPABASE_PROJECT_REF,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   CRON_SECRET: process.env.CRON_SECRET,
+  VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  VAPID_SUBJECT: process.env.VAPID_SUBJECT,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,

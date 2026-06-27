@@ -5,7 +5,10 @@ import { toCatchSamples, type DbCatchRow } from '@/lib/scoring/personal/buckets'
 import { computePersonalTendencies } from '@/lib/scoring/personal/tendencies'
 import { matchPersonalWindow } from '@/lib/scoring/personal/window-match'
 import { getDeptNextWindow } from '@/lib/conditions/dept-window'
+import { sendPushToUser } from '@/lib/push/send'
 
+// Runtime Node implicite (aucun `export const runtime = 'edge'`) : requis car
+// createAdminClient + web-push (via sendPushToUser) ont besoin du crypto Node.
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
@@ -126,6 +129,21 @@ export async function GET(request: NextRequest) {
         skipped++
         continue
       }
+
+      // 7. Push (best-effort) EN PLUS de la notif in-app. Suit la notif in-app
+      // (donc gate de tier + idempotence/jour déjà respectés → 1 push/jour max).
+      // Un échec d'envoi ne casse ni la boucle ni l'insert in-app (try/catch isolé ;
+      // sendPushToUser ne throw déjà jamais et no-op sans clés VAPID).
+      try {
+        await sendPushToUser(admin, userId, {
+          title: 'Carnet de Pêche',
+          body: match.previewText,
+          url: '/carte',
+        })
+      } catch (e) {
+        console.error('[cron personal-window] push best-effort', e)
+      }
+
       notified++
     }
 

@@ -1,4 +1,4 @@
-import { Award, Calendar, Layers, Leaf, List, Sparkles, Trophy, Check } from 'lucide-react'
+import { Award, Calendar, Layers, Leaf, List, Ruler, Sparkles, Trophy, Check } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BADGES, type BadgeDef, type UserBadgeRow } from '@/lib/gamification/badges'
 import { TagData } from '@/components/ui-v2/tag-data'
@@ -15,6 +15,7 @@ const ICONS: Record<BadgeDef['icon'], LucideIcon> = {
   trophy: Trophy,
   leaf: Leaf,
   calendar: Calendar,
+  ruler: Ruler,
 }
 
 // Badges dont le critère repose sur des données DÉCLARATIVES (l'utilisateur saisit

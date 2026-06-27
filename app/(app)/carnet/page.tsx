@@ -17,6 +17,7 @@ import { OutingStats } from '@/components/outings/OutingStats'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { ShareButton } from '@/components/share/ShareButton'
 import { ManageShareCards } from '@/components/share/ManageShareCards'
+import { EnablePushAlerts } from '@/components/push/EnablePushAlerts'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,6 +121,10 @@ export default async function CarnetPage({ searchParams }: Props) {
 
         {/* Stats synthétiques */}
         {stats && <CatchStatsRow stats={stats} className="mb-3" />}
+
+        {/* Opt-in alertes push « fenêtre optimale » — proposé seulement quand le
+            carnet a au moins une prise (pas à froid). Permission demandée sur geste. */}
+        {totalCount > 0 && <EnablePushAlerts className="mb-3" />}
 
         {/* Sorties (dont bredouilles) — dénominateur honnête */}
         {outingStats && <OutingStats data={outingStats} className="mb-3" />}

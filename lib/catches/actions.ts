@@ -67,6 +67,15 @@ export async function createCatch(
       ? toEwkt(data.latitude, data.longitude)
       : undefined
 
+  // Prise « mesurée » (WS-D, sprint 39) : auto-déclarée mesurée par le pêcheur
+  // (longueur réelle + objet de référence visible). `photo_verified_at` n'est posé
+  // QUE si la case est cochée ET les deux champs renseignés (jamais à tort). C'est
+  // la donnée que le mobile remplira automatiquement (caméra + IA) sans migration.
+  const isMeasured =
+    data.is_measured === true &&
+    data.measured_length_cm !== undefined &&
+    !!data.reference_object
+
   const { data: row, error } = await supabase
     .from('catches')
     .insert({
@@ -74,6 +83,9 @@ export async function createCatch(
       species: data.species,
       caught_at: data.caught_at,
       size_cm: data.size_cm ?? null,
+      measured_length_cm: data.measured_length_cm ?? null,
+      reference_object: data.reference_object ?? null,
+      photo_verified_at: isMeasured ? new Date().toISOString() : null,
       weight_g: data.weight_kg !== undefined ? Math.round(data.weight_kg * 1000) : null,
       technique: data.technique,
       lure_brand: data.lure_brand ?? null,
@@ -128,7 +140,7 @@ export async function updateCatch(
 
   const { data: existing, error: fetchError } = await supabase
     .from('catches')
-    .select('id, photo_path')
+    .select('id, photo_path, measured_length_cm, reference_object, photo_verified_at')
     .eq('id', id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -161,6 +173,28 @@ export async function updateCatch(
   if (data.lure_model !== undefined) payload.lure_model = data.lure_model
   if (data.bait_type !== undefined) payload.bait_type = data.bait_type
   if (data.gear_id !== undefined) payload.gear_id = data.gear_id
+
+  // Prise « mesurée » (WS-D, sprint 39). On ne recalcule `photo_verified_at` QUE si
+  // l'un des champs de mesure est soumis (sinon on ne touche pas à une valeur déjà
+  // posée — cohérent avec le legacy `declared`/`declared_at`). Quand on recalcule, on
+  // raisonne sur les valeurs EFFECTIVES (soumises sinon existantes).
+  if (data.measured_length_cm !== undefined) payload.measured_length_cm = data.measured_length_cm
+  if (data.reference_object !== undefined) payload.reference_object = data.reference_object
+  const measurementTouched =
+    data.is_measured !== undefined ||
+    data.measured_length_cm !== undefined ||
+    data.reference_object !== undefined
+  if (measurementTouched) {
+    const effLength =
+      data.measured_length_cm !== undefined ? data.measured_length_cm : existing.measured_length_cm
+    const effReference =
+      data.reference_object !== undefined ? data.reference_object : existing.reference_object
+    // `is_measured` non soumis = on conserve l'état antérieur (déjà mesurée si déjà daté).
+    const wantsMeasured =
+      data.is_measured !== undefined ? data.is_measured : existing.photo_verified_at !== null
+    payload.photo_verified_at =
+      wantsMeasured && effLength != null && !!effReference ? new Date().toISOString() : null
+  }
   if (data.released !== undefined) payload.released = data.released
   if (data.water_temperature_c !== undefined) payload.water_temperature_c = data.water_temperature_c
   if (data.notes !== undefined) payload.notes = data.notes

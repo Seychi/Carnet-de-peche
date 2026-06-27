@@ -31,12 +31,15 @@ export type Database = {
           location_method: string
           lure_brand: string | null
           lure_model: string | null
+          measured_length_cm: number | null
           notes: string | null
           outing_id: string | null
           photo_path: string | null
+          photo_verified_at: string | null
           precise_for_friends: boolean
           privacy: string
           recfishing_reminded_at: string | null
+          reference_object: string | null
           released: boolean
           reveal_precise_to_public: boolean
           size_cm: number | null
@@ -67,12 +70,15 @@ export type Database = {
           location_method?: string
           lure_brand?: string | null
           lure_model?: string | null
+          measured_length_cm?: number | null
           notes?: string | null
           outing_id?: string | null
           photo_path?: string | null
+          photo_verified_at?: string | null
           precise_for_friends?: boolean
           privacy?: string
           recfishing_reminded_at?: string | null
+          reference_object?: string | null
           released?: boolean
           reveal_precise_to_public?: boolean
           size_cm?: number | null
@@ -103,12 +109,15 @@ export type Database = {
           location_method?: string
           lure_brand?: string | null
           lure_model?: string | null
+          measured_length_cm?: number | null
           notes?: string | null
           outing_id?: string | null
           photo_path?: string | null
+          photo_verified_at?: string | null
           precise_for_friends?: boolean
           privacy?: string
           recfishing_reminded_at?: string | null
+          reference_object?: string | null
           released?: boolean
           reveal_precise_to_public?: boolean
           size_cm?: number | null
@@ -707,6 +716,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          ua: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          ua?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          ua?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
@@ -1125,11 +1164,14 @@ export type Database = {
           location_method: string | null
           lure_brand: string | null
           lure_model: string | null
+          measured_length_cm: number | null
           notes: string | null
           outing_id: string | null
           photo_path: string | null
+          photo_verified_at: string | null
           precise_for_friends: boolean | null
           privacy: string | null
+          reference_object: string | null
           released: boolean | null
           reveal_precise_to_public: boolean | null
           size_cm: number | null

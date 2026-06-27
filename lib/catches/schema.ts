@@ -36,6 +36,13 @@ const catchFieldsNoDefaults = z.object({
   caught_at: z.string().datetime(),
   size_cm: z.number().min(10).max(200).optional(),
   weight_kg: z.number().min(0.05).max(30).optional(),
+  // Aide à la mesure honnête (WS-D, sprint 39). Longueur réellement mesurée +
+  // objet de référence visible sur la photo. Cohérent avec le CHECK DB (0 < x < 300).
+  // `is_measured` est un champ de FORMULAIRE (pas une colonne) : il déclenche la
+  // sémantique « prise mesurée » côté action, qui dérive `photo_verified_at`.
+  measured_length_cm: z.number().int().min(1).max(299).optional(),
+  reference_object: z.string().trim().max(120).optional(),
+  is_measured: z.boolean().optional(),
   technique: catchTechniqueEnum,
   lure_brand: z.string().max(60).optional(),
   lure_model: z.string().max(100).optional(),

@@ -17,12 +17,13 @@ export type BadgeSlug =
   | 'pokedex_complete'
   | 'release_friendly'
   | 'regular_4w'
+  | 'prise_mesuree'
 
 export type BadgeDef = {
   slug: BadgeSlug
   label: string
   description: string
-  icon: 'sparkle' | 'list' | 'layers' | 'trophy' | 'leaf' | 'calendar'
+  icon: 'sparkle' | 'list' | 'layers' | 'trophy' | 'leaf' | 'calendar' | 'ruler'
 }
 
 /**
@@ -65,6 +66,12 @@ export const BADGES: BadgeDef[] = [
     label: 'Régulier',
     description: 'Tu as pêché sur au moins 4 semaines différentes.',
     icon: 'calendar',
+  },
+  {
+    slug: 'prise_mesuree',
+    label: 'Prise mesurée',
+    description: 'Tu as mesuré une prise avec une référence.',
+    icon: 'ruler',
   },
 ]
 

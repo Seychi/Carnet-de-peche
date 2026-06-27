@@ -85,6 +85,10 @@ function rowToDefaults(row: CatchRow): Partial<CreateCatchInput> {
     caught_at: row.caught_at ? new Date(row.caught_at).toISOString() : new Date().toISOString(),
     size_cm: row.size_cm ?? undefined,
     weight_kg: row.weight_g != null ? row.weight_g / 1000 : undefined,
+    measured_length_cm: row.measured_length_cm ?? undefined,
+    reference_object: row.reference_object ?? undefined,
+    // « Mesurée » est dérivé : une prise déjà datée (photo_verified_at) l'est.
+    is_measured: row.photo_verified_at != null,
     technique: (row.technique as CreateCatchInput['technique']) ?? undefined,
     lure_brand: row.lure_brand ?? undefined,
     lure_model: row.lure_model ?? undefined,
@@ -231,6 +235,12 @@ export function CatchForm(props: CatchFormProps) {
   const watchedLabel = watch('location_label') ?? ''
 
   const watchedReleased = watch('released')
+
+  // Aide à la mesure honnête (WS-D, sprint 39). « Mesurée » = case + longueur réelle
+  // + objet de référence. Honnêteté : libellé « mesurée », jamais « vérifiée ».
+  const watchedIsMeasured = watch('is_measured') ?? false
+  const watchedMeasuredLength = watch('measured_length_cm')
+  const watchedReferenceObject = watch('reference_object') ?? ''
 
   // Façade de la prise : spot (département) prioritaire, sinon géoloc, sinon
   // INCONNUE (null) → on n'affiche AUCUN verdict de maille faux (sprint 24).
@@ -639,6 +649,78 @@ export function CatchForm(props: CatchFormProps) {
               </span>
             </p>
           )}
+
+          {/* ── Aide à la mesure honnête (WS-D, sprint 39) ──
+              « Mesurée », JAMAIS « vérifiée » : la vérif IA arrive sur mobile.
+              Case + longueur réelle + objet de référence visible sur la photo. */}
+          <div className="mt-5 border-t border-sand-200 pt-4">
+            <Controller
+              name="is_measured"
+              control={control}
+              render={({ field }) => (
+                <ToggleRow
+                  label="Prise mesurée"
+                  checked={field.value ?? false}
+                  onChange={(v) => field.onChange(v)}
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
+            <p className="mt-1.5 text-[11px] leading-snug text-ink-400">
+              Tu as posé la prise à côté d&rsquo;une référence de taille connue sur la photo. Honnête : auto-déclaré, pas vérifié.
+            </p>
+
+            {watchedIsMeasured && (
+              <div className="mt-3 space-y-3">
+                <div>
+                  <label htmlFor="measured_length_cm" className="text-[13px] text-ink-600">
+                    Longueur mesurée (cm)
+                  </label>
+                  <input
+                    id="measured_length_cm"
+                    type="number"
+                    min={1}
+                    max={299}
+                    step={1}
+                    inputMode="numeric"
+                    placeholder="ex : 42"
+                    value={watchedMeasuredLength ?? ''}
+                    onChange={(e) =>
+                      setValue(
+                        'measured_length_cm',
+                        e.target.value ? Number(e.target.value) : (undefined as unknown as number),
+                        { shouldValidate: true }
+                      )
+                    }
+                    {...trackFocus('measured_length_cm')}
+                    className={`mt-1.5 min-h-[44px] ${inputCls}`}
+                  />
+                  <FieldError error={errors.measured_length_cm?.message} />
+                </div>
+
+                <div>
+                  <label htmlFor="reference_object" className="text-[13px] text-ink-600">
+                    Objet de référence
+                  </label>
+                  <input
+                    id="reference_object"
+                    type="text"
+                    maxLength={120}
+                    placeholder="ex : un Black Minnow 120 dans la photo, ma main"
+                    {...register('reference_object')}
+                    {...trackFocus('reference_object')}
+                    className={`mt-1.5 min-h-[44px] ${inputCls}`}
+                  />
+                  <FieldError error={errors.reference_object?.message} />
+                  {watchedReferenceObject.trim().length === 0 && (
+                    <p className="mt-1.5 text-[11px] leading-snug text-ink-400">
+                      Renseigne la longueur et la référence pour valider la mesure.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-4">

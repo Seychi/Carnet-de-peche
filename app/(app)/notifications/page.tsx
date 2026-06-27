@@ -6,6 +6,7 @@ import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { getNotifications, type AppNotification } from '@/app/actions/notifications'
 import { MarkAllRead } from './MarkAllRead'
+import { PushSettingsToggle } from '@/components/notifications/PushSettingsToggle'
 
 export const metadata = {
   title: 'Notifications · Carnet de Pêche',
@@ -151,6 +152,13 @@ export default async function NotificationsPage() {
           })}
         </ul>
       )}
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-display text-lg font-bold text-navy-900">Réglages</h2>
+        <div className="rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+          <PushSettingsToggle />
+        </div>
+      </section>
     </div>
   )
 }

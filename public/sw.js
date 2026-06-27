@@ -7,7 +7,7 @@
  * par le toast « Mettre à jour » côté client (pas de skipWaiting auto :
  * évite les versions fantômes mi-anciennes mi-nouvelles).
  */
-const CACHE_VERSION = 'cdp-v1'
+const CACHE_VERSION = 'cdp-v2'
 const SHELL_CACHE = `${CACHE_VERSION}-shell`
 const PAGES_CACHE = `${CACHE_VERSION}-pages`
 const ASSETS_CACHE = `${CACHE_VERSION}-assets`
@@ -41,6 +41,45 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting()
+})
+
+// ── Web Push (sprint 39) ────────────────────────────────────────────────────
+// Réception d'un push : on affiche la notification. Le payload est un JSON
+// { title, body, url } envoyé par lib/push/send.ts (sendPushToUser).
+self.addEventListener('push', (event) => {
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch {
+    // Payload non-JSON (improbable) : on retombe sur un texte brut si présent.
+    data = { body: event.data ? event.data.text() : '' }
+  }
+
+  const title = data.title || 'Carnet de Pêche'
+  const options = {
+    body: data.body || '',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    data: { url: data.url || '/' },
+  }
+
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+// Clic sur la notification : on focalise un onglet déjà ouvert sur la cible, ou
+// on en ouvre un nouveau (deep-link vers /carte ou la cible du push).
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/'
+
+  event.waitUntil(
+    (async () => {
+      const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const hit = wins.find((w) => w.url.includes(targetUrl))
+      if (hit) return hit.focus()
+      return self.clients.openWindow(targetUrl)
+    })(),
+  )
 })
 
 // Jamais de cache : API, auth, Supabase, Stripe, webhooks.
