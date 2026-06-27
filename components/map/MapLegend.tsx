@@ -39,10 +39,13 @@ export default function MapLegend() {
           >
             ✓
           </span>
-          Vérifié (curé)
+          Coordonnée vérifiée
         </span>
         <span className="whitespace-nowrap text-ink-400">Communautaire / Importé : sans badge</span>
       </div>
+      <p className="text-[10px] text-ink-400">
+        Le badge ✓ marque une coordonnée vérifiée à la main, fixe. Pas un point communautaire approximatif.
+      </p>
 
       <p className="text-[10px] text-ink-400">
         Structures ©{' '}

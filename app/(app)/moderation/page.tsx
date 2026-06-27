@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { moderatorDeletePost, moderatorDeleteComment, dismissReport } from '@/app/actions/feed'
-import { moderateApproveSpot, moderateRejectSpot, moderateMergeSpot } from '@/app/actions/spots'
+import { moderateApproveSpot, moderateRejectSpot, moderateMergeSpot, moderateVerifySpot } from '@/app/actions/spots'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
-import { Shield, Trash2, X, Check, GitMerge, MapPin } from 'lucide-react'
+import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck } from 'lucide-react'
 
 export const metadata = { title: 'Modération — Carnet de Pêche' }
 export const dynamic = 'force-dynamic'
@@ -66,6 +66,10 @@ async function rejectSpotAction(formData: FormData) {
 async function mergeSpotAction(formData: FormData) {
   'use server'
   await moderateMergeSpot(formData.get('spotId') as string)
+}
+async function verifySpotAction(formData: FormData) {
+  'use server'
+  await moderateVerifySpot(formData.get('spotId') as string)
 }
 
 // ---------------------------------------------------------------------------
@@ -219,6 +223,17 @@ function PendingSpotRow({ spot }: { spot: PendingSpot }) {
           >
             <Check size={13} aria-hidden="true" />
             Approuver
+          </button>
+        </form>
+        <form action={verifySpotAction}>
+          <input type="hidden" name="spotId" value={spot.id} />
+          <button
+            type="submit"
+            className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10"
+            title="Atteste que la coordonnée a été vérifiée à la main (GPS fixe). Approuve aussi le spot et lui donne le badge « Coordonnée vérifiée »."
+          >
+            <BadgeCheck size={13} aria-hidden="true" />
+            Marquer vérifié
           </button>
         </form>
         <form action={mergeSpotAction}>

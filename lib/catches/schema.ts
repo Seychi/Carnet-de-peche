@@ -40,6 +40,9 @@ const catchFieldsNoDefaults = z.object({
   lure_brand: z.string().max(60).optional(),
   lure_model: z.string().max(100).optional(),
   bait_type: z.string().max(60).optional(),
+  // Matériel structuré depuis « ma boîte » (gear_items). Coexiste avec la saisie
+  // texte legacy (lure_brand/model/bait_type) gardée en fallback rétro-compat.
+  gear_id: z.string().uuid({ error: 'Matériel invalide' }).optional(),
   released: z.boolean(),
   water_temperature_c: z.number().min(0).max(35).optional(),
   notes: z.string().max(1000).optional(),

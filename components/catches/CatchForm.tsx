@@ -13,9 +13,11 @@ import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LA
 import { CARNET_SPECIES_OPTIONS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 import { PhotoInput } from '@/components/forms/PhotoInput'
 import { CityAutocomplete } from '@/components/catches/CityAutocomplete'
+import { GearPicker } from '@/components/catches/GearPicker'
 import { geocodeMunicipality } from '@/lib/geo/geocode'
 import { analytics } from '@/lib/analytics'
 import type { CatchRow } from '@/lib/catches/queries'
+import type { GearItem, GearKind } from '@/app/actions/gear'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -87,6 +89,7 @@ function rowToDefaults(row: CatchRow): Partial<CreateCatchInput> {
     lure_brand: row.lure_brand ?? undefined,
     lure_model: row.lure_model ?? undefined,
     bait_type: row.bait_type ?? undefined,
+    gear_id: row.gear_id ?? undefined,
     released: row.released ?? false,
     notes: row.notes ?? undefined,
     location_method: (row.location_method as CreateCatchInput['location_method']) ?? 'gps',
@@ -111,7 +114,7 @@ export type SpotContext = {
   lng: number
 }
 
-type CatchFormProps =
+type CatchFormProps = (
   | { mode: 'create'; spotContext?: SpotContext }
   | {
       mode: 'edit'
@@ -119,6 +122,16 @@ type CatchFormProps =
       initialValues: CatchRow
       existingPhotoUrl: string | null
     }
+) & {
+  /** Boîte à matériel de l'utilisateur (gear_items non archivés), fournie par la page serveur. */
+  gearItems?: GearItem[]
+}
+
+// Types de matériel proposés selon la technique : un leurre/montage pour les
+// leurres, un appât pour les techniques d'appât.
+function gearKindsForTechnique(technique: string | undefined): GearKind[] {
+  return technique === 'leurres' ? ['leurre', 'montage'] : ['appat']
+}
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -131,6 +144,7 @@ export function CatchForm(props: CatchFormProps) {
   const initialValues = props.mode === 'edit' ? props.initialValues : undefined
   const existingPhotoUrl = props.mode === 'edit' ? props.existingPhotoUrl : null
   const spotContext = props.mode === 'create' ? props.spotContext : undefined
+  const gearItems = props.gearItems ?? []
 
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [geoLoading, setGeoLoading] = useState(false)
@@ -189,6 +203,7 @@ export function CatchForm(props: CatchFormProps) {
         lure_brand: draft?.lure_brand,
         lure_model: draft?.lure_model,
         bait_type: draft?.bait_type,
+        gear_id: draft?.gear_id,
       }
 
   const {
@@ -207,6 +222,7 @@ export function CatchForm(props: CatchFormProps) {
 
   const watchedSpecies = watch('species')
   const watchedTechnique = watch('technique')
+  const watchedGearId = watch('gear_id')
   const watchedSizeCm = watch('size_cm')
   const watchedNotes = watch('notes') ?? ''
   const watchedPrivacy = watch('privacy') ?? 'private'
@@ -276,6 +292,10 @@ export function CatchForm(props: CatchFormProps) {
       setValue('lure_brand', undefined, { shouldDirty: true })
       setValue('lure_model', undefined, { shouldDirty: true })
     }
+    // Matériel de « ma boîte » : un leurre ne doit pas rester sélectionné si on
+    // passe en surfcasting (et inversement). On remet gear_id à zéro à chaque
+    // changement de technique, le picker repropose le bon type.
+    setValue('gear_id', undefined, { shouldDirty: true })
   }, [watchedTechnique, setValue])
 
   // Brouillon (création uniquement)
@@ -695,39 +715,72 @@ export function CatchForm(props: CatchFormProps) {
         />
         <FieldError error={errors.technique?.message} />
 
-        {watchedTechnique === 'leurres' && (
+        {watchedTechnique && (
           <div className="mt-4 space-y-3">
-            <input
-              {...register('lure_brand')}
-              {...trackFocus('lure_brand')}
-              placeholder="Marque du leurre (BlackMinnow, Fiiish…)"
-              className={inputCls}
+            <p className="text-[12px] font-medium text-ink-500">
+              {watchedTechnique === 'leurres' ? 'Leurre depuis ta boîte' : 'Appât depuis ta boîte'}
+            </p>
+            <Controller
+              name="gear_id"
+              control={control}
+              render={({ field }) => (
+                <GearPicker
+                  items={gearItems}
+                  value={field.value}
+                  onChange={(id) => { field.onChange(id); field.onBlur() }}
+                  allowedKinds={gearKindsForTechnique(watchedTechnique)}
+                  ariaLabel={
+                    watchedTechnique === 'leurres'
+                      ? 'Leurre ou montage de ta boîte'
+                      : 'Appât de ta boîte'
+                  }
+                />
+              )}
             />
-            <input
-              {...register('lure_model')}
-              {...trackFocus('lure_model')}
-              placeholder="Modèle / coloris"
-              className={inputCls}
-            />
-          </div>
-        )}
 
-        {(watchedTechnique === 'surfcasting' ||
-          watchedTechnique === 'vif' ||
-          watchedTechnique === 'flottante') && (
-          <div className="mt-4">
-            <input
-              {...register('bait_type')}
-              {...trackFocus('bait_type')}
-              list="bait-suggestions"
-              placeholder="Appât (arénicole, crevette…)"
-              className={inputCls}
-            />
-            <datalist id="bait-suggestions">
-              {BAIT_SUGGESTIONS.map((b) => (
-                <option key={b} value={b} />
-              ))}
-            </datalist>
+            {/* Saisie texte ponctuelle (fallback rétro-compat) : visible tant qu'aucun
+                matériel de la boîte n'est sélectionné. */}
+            {!watchedGearId && watchedTechnique === 'leurres' && (
+              <div className="space-y-3 border-t border-sand-200 pt-3">
+                <p className="text-[12px] text-ink-400">Ou saisis-le à la volée :</p>
+                <input
+                  {...register('lure_brand')}
+                  {...trackFocus('lure_brand')}
+                  placeholder="Marque du leurre (BlackMinnow, Fiiish…)"
+                  aria-label="Marque du leurre (saisie ponctuelle)"
+                  className={inputCls}
+                />
+                <input
+                  {...register('lure_model')}
+                  {...trackFocus('lure_model')}
+                  placeholder="Modèle / coloris"
+                  aria-label="Modèle ou coloris du leurre (saisie ponctuelle)"
+                  className={inputCls}
+                />
+              </div>
+            )}
+
+            {!watchedGearId &&
+              (watchedTechnique === 'surfcasting' ||
+                watchedTechnique === 'vif' ||
+                watchedTechnique === 'flottante') && (
+                <div className="border-t border-sand-200 pt-3">
+                  <p className="mb-2 text-[12px] text-ink-400">Ou saisis-le à la volée :</p>
+                  <input
+                    {...register('bait_type')}
+                    {...trackFocus('bait_type')}
+                    list="bait-suggestions"
+                    placeholder="Appât (arénicole, crevette…)"
+                    aria-label="Appât (saisie ponctuelle)"
+                    className={inputCls}
+                  />
+                  <datalist id="bait-suggestions">
+                    {BAIT_SUGGESTIONS.map((b) => (
+                      <option key={b} value={b} />
+                    ))}
+                  </datalist>
+                </div>
+              )}
           </div>
         )}
       </Card>

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getCatchById } from '@/lib/catches/queries'
 import { CatchForm } from '@/components/catches/CatchForm'
 import { BackButton } from '@/components/layout/BackButton'
+import { listMyGear } from '@/app/actions/gear'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -27,6 +28,11 @@ export default async function ModifierPrisePage({ params }: Props) {
     existingPhotoUrl = signed?.signedUrl ?? null
   }
 
+  // Boîte à matériel (gear_items non archivés) pour le picker. Le gear_id existant
+  // de la prise est pré-sélectionné via initialValues (rowToDefaults).
+  const gearResult = await listMyGear()
+  const gearItems = gearResult.ok ? gearResult.data : []
+
   return (
     <div className="min-h-screen bg-sand-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -42,6 +48,7 @@ export default async function ModifierPrisePage({ params }: Props) {
           catchId={id}
           initialValues={c}
           existingPhotoUrl={existingPhotoUrl}
+          gearItems={gearItems}
         />
       </div>
     </div>

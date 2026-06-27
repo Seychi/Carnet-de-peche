@@ -179,6 +179,8 @@ type ModSpot = {
   name: string
   created_by: string | null
   moderation_status: string
+  source: string
+  verified: boolean
 }
 
 async function loadSpotForModeration(
@@ -187,7 +189,7 @@ async function loadSpotForModeration(
 ): Promise<ModSpot | null> {
   const { data } = await supabase
     .from('spots')
-    .select('id, name, created_by, moderation_status')
+    .select('id, name, created_by, moderation_status, source, verified')
     .eq('id', spotId)
     .maybeSingle()
   return (data as ModSpot | null) ?? null
@@ -226,6 +228,78 @@ export async function moderateApproveSpot(spotId: string): Promise<ActionResult>
   }
   revalidatePath('/moderation')
   revalidatePath('/carte') // approuvé → apparaît sur la carte
+  return ok(undefined)
+}
+
+// ---------------------------------------------------------------------------
+// « Marquer vérifié » (sprint 37 WS-F) — un modérateur atteste que la
+// coordonnée du spot a été vérifiée à la main (GPS fixe, pas un point
+// communautaire approximatif). Pose verified=true + traçabilité
+// verified_at/verified_by (migration 060).
+//
+// ⚠️ CHECK spots_verified_only_curated (043) : verified ⇒ source='curated'.
+//   Un spot communautaire ne peut donc PAS être marqué vérifié en restant
+//   `community`. Sens métier le plus sûr (choisi ici) : vérifier la coordonnée
+//   d'un spot communautaire la fait PASSER en `source='curated'` (elle devient
+//   une coordonnée vérifiée à la main = socle curé), ce qui satisfait le CHECK
+//   ET lui donne le badge carte (conditionné sur source==='curated'). Les
+//   spots déjà curés ne changent pas de source.
+//
+// ⚠️ DEMANDER À JOHN : l'onglet modération ne liste que les spots `pending`.
+//   Vérifier la coordonnée = forme forte d'approbation (le modérateur a contrôlé
+//   le GPS à la main). Pour qu'un spot vérifié soit visible sur la carte, on
+//   l'APPROUVE aussi (moderation_status='approved') dans le même geste. Si John
+//   préfère dissocier (vérifier ≠ approuver), retirer la ligne moderation_status.
+//
+// Backstop : RLS spots_update_moderator (043) — même si ce gate applicatif
+// était contourné, seul un is_moderator() peut UPDATE le spot.
+// ---------------------------------------------------------------------------
+export async function moderateVerifySpot(spotId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(MOD_MSG)
+
+  const spot = await loadSpotForModeration(supabase, spotId)
+  if (!spot) return fail('Spot introuvable.')
+
+  // Déjà vérifié → no-op idempotent (pas de double notif).
+  if (spot.verified) return ok(undefined)
+
+  // verified ⇒ source='curated' (CHECK spots_verified_only_curated). On force la
+  // source à 'curated' pour les communautaires/importés afin de respecter la
+  // contrainte ET d'allumer le badge carte. Vérifier vaut approbation forte → on
+  // approuve aussi (sinon un spot vérifié resterait invisible sur la carte).
+  const { error } = await supabase
+    .from('spots')
+    .update({
+      verified: true,
+      verified_at: new Date().toISOString(),
+      verified_by: user.id,
+      source: 'curated',
+      moderation_status: 'approved',
+    })
+    .eq('id', spotId)
+  if (error) {
+    console.error('[moderateVerifySpot]', error.message)
+    return fail('Impossible de marquer ce spot comme vérifié.')
+  }
+
+  if (spot.created_by) {
+    await createNotification({
+      userId: spot.created_by,
+      type: 'spot_verified',
+      actorId: user.id,
+      targetType: 'spot',
+      targetId: spotId,
+      previewText: spot.name,
+    })
+  }
+  revalidatePath('/moderation')
+  revalidatePath('/carte') // vérifié → badge « Coordonnée vérifiée » sur la carte
   return ok(undefined)
 }
 

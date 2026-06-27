@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       catches: {
@@ -48,6 +23,7 @@ export type Database = {
           created_at: string
           declared: boolean
           declared_at: string | null
+          gear_id: string | null
           geom: unknown
           geom_public: unknown
           id: string
@@ -83,6 +59,7 @@ export type Database = {
           created_at?: string
           declared?: boolean
           declared_at?: string | null
+          gear_id?: string | null
           geom?: unknown
           geom_public?: unknown
           id?: string
@@ -118,6 +95,7 @@ export type Database = {
           created_at?: string
           declared?: boolean
           declared_at?: string | null
+          gear_id?: string | null
           geom?: unknown
           geom_public?: unknown
           id?: string
@@ -146,6 +124,13 @@ export type Database = {
           wind_speed_kmh?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "catches_gear_id_fkey"
+            columns: ["gear_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "catches_outing_id_fkey"
             columns: ["outing_id"]
@@ -392,6 +377,45 @@ export type Database = {
           created_at?: string
           follower_id?: string
           following_id?: string
+        }
+        Relationships: []
+      }
+      gear_items: {
+        Row: {
+          archived: boolean
+          brand: string | null
+          color: string | null
+          created_at: string
+          id: string
+          kind: string
+          model: string | null
+          notes: string | null
+          size_mm: number | null
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          model?: string | null
+          notes?: string | null
+          size_mm?: number | null
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          model?: string | null
+          notes?: string | null
+          size_mm?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -834,6 +858,8 @@ export type Database = {
           techniques: string[]
           updated_at: string
           verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
           visibility: string
         }
         Insert: {
@@ -857,6 +883,8 @@ export type Database = {
           techniques?: string[]
           updated_at?: string
           verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
           visibility?: string
         }
         Update: {
@@ -880,6 +908,8 @@ export type Database = {
           techniques?: string[]
           updated_at?: string
           verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
           visibility?: string
         }
         Relationships: [
@@ -1013,6 +1043,8 @@ export type Database = {
           created_at: string | null
           department: string | null
           display_name: string | null
+          gear_id: string | null
+          gear_label: string | null
           geom_visible: unknown
           id: string | null
           lat: number | null
@@ -1041,6 +1073,13 @@ export type Database = {
           wind_speed_kmh: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "catches_gear_id_fkey"
+            columns: ["gear_id"]
+            isOneToOne: false
+            referencedRelation: "gear_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "catches_spot_id_fkey"
             columns: ["spot_id"]
@@ -1719,8 +1758,10 @@ export type Database = {
           name: string
           perso_catches: number
           slug: string
+          source: string
           species_catches: number
           structure: string
+          verified: boolean
         }[]
       }
       gettransactionid: { Args: never; Returns: unknown }
@@ -1743,8 +1784,10 @@ export type Database = {
           id: string
           name: string
           slug: string
+          source: string
           species: string[]
           techniques: string[]
+          verified: boolean
         }[]
       }
       populate_geometry_columns:
@@ -2537,9 +2580,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

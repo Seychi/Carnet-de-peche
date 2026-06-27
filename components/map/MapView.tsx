@@ -86,8 +86,20 @@ function createPinElement(spot: SpotMarker): HTMLElement {
   // anneaux enfants (en position: absolute) même sans `position` explicite.
   wrapper.style.cssText =
     'cursor: pointer; width: 26px; height: 26px; background: none; border: none; padding: 0;'
-  wrapper.title = spot.name
-  wrapper.setAttribute('aria-label', `Spot : ${spot.name}`)
+  // Tooltip/label enrichi pour les spots curés : le badge ✓ = « coordonnée
+  // vérifiée à la main, fixe » (pas un point communautaire approximatif). On
+  // double l'info couleur du badge par du TEXTE (daltonisme) au survol + lecteur
+  // d'écran.
+  const isVerifiedCoord = spot.source === 'curated'
+  wrapper.title = isVerifiedCoord
+    ? `${spot.name} · ✓ Coordonnée vérifiée à la main`
+    : spot.name
+  wrapper.setAttribute(
+    'aria-label',
+    isVerifiedCoord
+      ? `Spot : ${spot.name}. Coordonnée vérifiée à la main, fixe.`
+      : `Spot : ${spot.name}`,
+  )
 
   // Couleur de base selon la qualité — mémorisée pour la restaurer après un
   // highlight nearby (cf. dataset.qcolor dans l'effet nearby).
@@ -124,6 +136,7 @@ function createPinElement(spot: SpotMarker): HTMLElement {
     const badge = document.createElement('div')
     badge.className = 'marker-verified-badge'
     badge.setAttribute('aria-hidden', 'true')
+    badge.title = 'Coordonnée vérifiée à la main, fixe'
     badge.textContent = '✓'
     wrapper.appendChild(badge)
   }

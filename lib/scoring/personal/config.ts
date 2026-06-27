@@ -70,4 +70,5 @@ export const FACTOR_LABELS: Record<string, string> = {
   season: 'Saison',
   wind: 'Vent',
   tide: 'Marée',
+  gear: 'Leurre',
 }

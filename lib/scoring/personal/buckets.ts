@@ -8,6 +8,11 @@ export type DbCatchRow = {
   wind_speed_kmh?: number | null
   tide_state?: string | null
   conditions?: unknown
+  // Matériel : libellé dénormalisé exposé par catches_for_viewer (WS A, sprint 37),
+  // avec fallback sur la saisie texte legacy pour les prises antérieures.
+  gear_label?: string | null
+  lure_model?: string | null
+  lure_brand?: string | null
 }
 
 export type WindBucket = 'calm' | 'light' | 'moderate' | 'strong' | 'gale'
@@ -77,6 +82,21 @@ function isOutOfCoverage(row: DbCatchRow): boolean {
   return c?.out_of_coverage === true
 }
 
+// ─── Matériel : libellé dénormalisé, fallback texte legacy ────────────────────
+// On préfère le libellé de la boîte (gear_label, rattaché à un gear_item), puis on
+// retombe sur la saisie texte one-shot (lure_model, puis lure_brand). null = pas de
+// matériel renseigné → exclu du facteur « leurre » (absence ≠ valeur, comme le vent).
+function gearFromRow(row: DbCatchRow): string | null {
+  const candidates = [row.gear_label, row.lure_model, row.lure_brand]
+  for (const c of candidates) {
+    if (typeof c === 'string') {
+      const trimmed = c.trim()
+      if (trimmed) return trimmed
+    }
+  }
+  return null
+}
+
 // ─── DB → CatchSample ─────────────────────────────────────────────────────────
 export function toCatchSamples(rows: DbCatchRow[]): CatchSample[] {
   return rows
@@ -92,6 +112,7 @@ export function toCatchSamples(rows: DbCatchRow[]): CatchSample[] {
         caughtAt: d,
         windSpeedKmh: windFromRow(r),
         tideState: ts === 'rising' || ts === 'falling' || ts === 'slack' ? ts : null,
+        gear: gearFromRow(r),
         hourLocal: hour,
         monthLocal: month,
         weekdayLocal: weekday,

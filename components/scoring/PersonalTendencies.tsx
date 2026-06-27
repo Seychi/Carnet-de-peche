@@ -98,7 +98,7 @@ export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, cl
   }
 
   // ── État PLEIN : tendances descriptives ─────────────────────────────────────
-  const rows = data.tendencies.slice(0, compact ? 3 : 5)
+  const rows = data.tendencies.slice(0, compact ? 3 : 6)
   return (
     <div className={wrap}>
       <Header compact={compact} suffix={suffix} sampleCount={data.sampleCount} />

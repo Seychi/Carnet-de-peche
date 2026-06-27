@@ -30,6 +30,9 @@ export type NotificationType =
   // conditions. Émise par le cron en service_role (PAS via createNotification : pas
   // d'acteur humain → le no-op actorId casserait l'envoi). Réservée Local/Itinérant.
   | 'optimal_window'
+  // Modération (sprint 37 WS-F) : un modérateur a vérifié la coordonnée d'un spot
+  // proposé. Notifié au proposeur (created_by). CHECK DB étendu en migration 060.
+  | 'spot_verified'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

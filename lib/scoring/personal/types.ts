@@ -4,7 +4,7 @@
 // gravée : DESCRIPTIF (« où/quand tombent tes prises »), JAMAIS prédictif
 // (« tu pêches mieux »). Aucun chiffre 0-100 perso. Toujours sampleCount + confiance.
 
-export type TendencyFactor = 'hour' | 'weekday' | 'season' | 'wind' | 'tide'
+export type TendencyFactor = 'hour' | 'weekday' | 'season' | 'wind' | 'tide' | 'gear'
 
 export type Confidence = 'low' | 'medium' | 'high'
 
@@ -15,6 +15,7 @@ export type CatchSample = {
   caughtAt: Date
   windSpeedKmh: number | null
   tideState: 'rising' | 'falling' | 'slack' | null
+  gear: string | null // libellé du matériel rattaché (ex. « Fiiish Black Minnow chartreuse »), null si non renseigné
   hourLocal: number // 0-23, Europe/Paris
   monthLocal: number // 1-12
   weekdayLocal: number // 0 = dimanche … 6 = samedi

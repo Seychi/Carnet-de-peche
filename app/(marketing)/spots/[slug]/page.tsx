@@ -2,7 +2,7 @@ import { cache } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock } from 'lucide-react'
+import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock, BadgeCheck } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -355,10 +355,11 @@ export default async function SpotPage({
 
           <div className="mb-3 flex flex-wrap items-start gap-2">
             {/* Provenance (C2) : « Vérifié » réservé aux curés ; communautaire /
-                importé portent leur propre badge (label + couleur distincte). */}
-            {spot.source === 'curated' && (
+                importé portent leur propre badge (label + couleur distincte).
+                Le badge ✓ = coordonnée vérifiée à la main (sprint 37). */}
+            {spot.verified && (
               <span className="rounded-full border border-teal-500/30 bg-teal-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
-                ✓ Vérifié
+                ✓ Coordonnée vérifiée
               </span>
             )}
             {spot.source === 'community' && (
@@ -605,6 +606,25 @@ export default async function SpotPage({
                 )}
               </dl>
             </div>
+
+            {/* Coordonnée vérifiée (sprint 37) — munition anti-Decathlon : un spot
+                vérifié = GPS fixe contrôlé à la main, pas un point communautaire
+                qui bouge. L'info passe par l'icône (forme) + texte, pas la couleur
+                seule (daltonisme). verified_at non lisible côté client (verrou
+                colonne 028b/041) → on n'affiche pas de date ici. */}
+            {spot.verified && (
+              <div className="rounded-[18px] border border-teal-500/30 bg-teal-500/[0.06] p-6">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-teal-800">
+                  <BadgeCheck size={18} className="text-teal-600" aria-hidden="true" />
+                  Coordonnée vérifiée à la main
+                </h3>
+                <p className="text-[13px] leading-relaxed text-ink-600">
+                  Ce point a été pointé et contrôlé à la main. C&apos;est une
+                  coordonnée fixe, pas un point communautaire approximatif qui bouge
+                  d&apos;une fois sur l&apos;autre.
+                </p>
+              </div>
+            )}
 
             {/* Réglementation par espèce (sprint 24) — maille façade-aware + repères */}
             {spot.species.length > 0 && (

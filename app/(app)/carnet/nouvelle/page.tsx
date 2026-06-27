@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { CatchForm } from '@/components/catches/CatchForm'
+import { listMyGear } from '@/app/actions/gear'
 
 type SpotRow = {
   id: string
@@ -49,6 +50,10 @@ export default async function NouvellePrisePage({
     .eq('user_id', user.id)
   const isFirstCatch = (count ?? 0) === 0
 
+  // Boîte à matériel (gear_items non archivés) pour le picker du form.
+  const gearResult = await listMyGear()
+  const gearItems = gearResult.ok ? gearResult.data : []
+
   return (
     <div className="min-h-screen bg-sand-50">
       {/* Header modal navy (réf mobile.html 05) — le flow Loguer est plein écran */}
@@ -89,6 +94,7 @@ export default async function NouvellePrisePage({
         <CatchForm
           mode="create"
           spotContext={spot ?? undefined}
+          gearItems={gearItems}
         />
       </div>
     </div>

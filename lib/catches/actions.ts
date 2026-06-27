@@ -79,6 +79,7 @@ export async function createCatch(
       lure_brand: data.lure_brand ?? null,
       lure_model: data.lure_model ?? null,
       bait_type: data.bait_type ?? null,
+      gear_id: data.gear_id ?? null,
       released: data.released,
       water_temperature_c: data.water_temperature_c ?? null,
       notes: data.notes ?? null,
@@ -159,6 +160,7 @@ export async function updateCatch(
   if (data.lure_brand !== undefined) payload.lure_brand = data.lure_brand
   if (data.lure_model !== undefined) payload.lure_model = data.lure_model
   if (data.bait_type !== undefined) payload.bait_type = data.bait_type
+  if (data.gear_id !== undefined) payload.gear_id = data.gear_id
   if (data.released !== undefined) payload.released = data.released
   if (data.water_temperature_c !== undefined) payload.water_temperature_c = data.water_temperature_c
   if (data.notes !== undefined) payload.notes = data.notes

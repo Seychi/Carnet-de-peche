@@ -32,7 +32,7 @@ export async function getPersonalTendencies(scope: TendencyScope = {}): Promise<
 
   const { data, error } = await supabase
     .from('catches_for_viewer')
-    .select('species, spot_id, caught_at, wind_speed_kmh, tide_state, conditions')
+    .select('species, spot_id, caught_at, wind_speed_kmh, tide_state, conditions, gear_label, lure_model, lure_brand')
     .eq('user_id', user.id)
     .limit(2000)
 

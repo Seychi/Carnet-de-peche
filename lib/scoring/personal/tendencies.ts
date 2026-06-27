@@ -63,6 +63,12 @@ export function computeTendencies(samples: CatchSample[]): Tendency[] {
   for (const s of samples) {
     if (s.tideState) tide.push(TIDE_LABELS[s.tideState])
   }
+  // Leurre/matériel : seulement les prises renseignées (absence ≠ valeur). Le
+  // libellé est déjà lisible (« Fiiish Black Minnow »), pas de bucketization.
+  const gear: string[] = []
+  for (const s of samples) {
+    if (s.gear) gear.push(s.gear)
+  }
 
   return [
     tendencyFromLabels('hour', hour),
@@ -70,6 +76,7 @@ export function computeTendencies(samples: CatchSample[]): Tendency[] {
     tendencyFromLabels('season', season),
     tendencyFromLabels('wind', wind),
     tendencyFromLabels('tide', tide),
+    tendencyFromLabels('gear', gear),
   ]
 }
 
