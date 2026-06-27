@@ -33,6 +33,12 @@ export type NotificationType =
   // Modération (sprint 37 WS-F) : un modérateur a vérifié la coordonnée d'un spot
   // proposé. Notifié au proposeur (created_by). CHECK DB étendu en migration 060.
   | 'spot_verified'
+  // Co-pêchage musclé (sprint 40, « La meute ») : sortie complète, annulée, nouveau
+  // message de chat, rappel la veille. CHECK DB étendu en migration 067. target_type='outing'.
+  | 'outing_full'
+  | 'outing_cancelled'
+  | 'outing_message'
+  | 'outing_reminder'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

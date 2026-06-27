@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Loader2, Users } from 'lucide-react'
+import { Loader2, Users, Check } from 'lucide-react'
 import { proposeOuting } from '@/lib/cofishing/actions'
 import { COASTAL_DEPARTMENTS, DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
 
 const inputCls =
   'w-full min-h-11 border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 bg-white'
@@ -23,8 +24,13 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
   const [areaLabel, setAreaLabel] = useState('')
   const [plannedAt, setPlannedAt] = useState(nowLocalPlus(24))
   const [capacity, setCapacity] = useState('')
+  const [species, setSpecies] = useState<string[]>([])
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  function toggleSpecies(key: string) {
+    setSpecies((prev) => (prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -38,6 +44,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
       area_label: areaLabel.trim() || undefined,
       planned_at: new Date(plannedAt).toISOString(),
       capacity: capacity ? Number(capacity) : undefined,
+      species: species.length > 0 ? species : undefined,
       notes: notes.trim() || undefined,
     })
     setSubmitting(false)
@@ -49,6 +56,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
     setAreaLabel('')
     setNotes('')
     setCapacity('')
+    setSpecies([])
     setOpen(false)
     router.refresh()
   }
@@ -100,6 +108,34 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
         Pas de coordonnées GPS : juste un repère libre. Tu donnes le point de RDV précis aux
         participants acceptés.
       </p>
+
+      <div>
+        <p className="mb-1.5 text-[12px] font-medium text-ink-600">Espèces ciblées (optionnel)</p>
+        <div className="flex flex-wrap gap-1.5">
+          {CARNET_SPECIES_OPTIONS.map((s) => {
+            const active = species.includes(s.value)
+            return (
+              <button
+                key={s.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggleSpecies(s.value)}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[12.5px] transition-colors ${
+                  active
+                    ? 'border-teal-500 bg-teal-500 text-navy-950 font-medium'
+                    : 'border-sand-200 bg-white text-ink-600 hover:border-teal-300'
+                }`}
+              >
+                {active && <Check size={12} aria-hidden />}
+                {s.label}
+              </button>
+            )
+          })}
+        </div>
+        <p className="mt-1.5 text-[11px] text-ink-400">
+          Les pêcheurs qui filtrent par ces espèces verront ta sortie.
+        </p>
+      </div>
 
       <input
         type="number"

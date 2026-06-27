@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getDeptProposals, getMyParticipationMap, getProposalParticipants } from '@/lib/cofishing/queries'
 import { OutingComposer } from '@/components/cofishing/OutingComposer'
 import { ProposalCard } from '@/components/cofishing/ProposalCard'
+import { OutingFilters } from '@/components/cofishing/OutingFilters'
 import { departmentArticle } from '@/lib/geo/departments'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +14,11 @@ export const metadata = {
   title: 'Co-pêchage — sorties à plusieurs · Carnet de Pêche',
 }
 
-export default async function SortiesPage() {
+export default async function SortiesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ species?: string; from?: string }>
+}) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -28,7 +33,19 @@ export default async function SortiesPage() {
 
   const dept = profile?.home_department?.trim() ?? null
 
-  const proposals = dept ? await getDeptProposals(dept) : []
+  // Filtres de matching (espèce + date plancher) lus depuis l'URL.
+  const sp = await searchParams
+  const speciesFilter = sp.species ? sp.species.split(',').filter(Boolean) : []
+  const fromFilter = sp.from
+    ? (() => {
+        const d = new Date(`${sp.from}T00:00:00`)
+        return Number.isNaN(d.getTime()) ? undefined : d.toISOString()
+      })()
+    : undefined
+
+  const proposals = dept
+    ? await getDeptProposals(dept, { species: speciesFilter, from: fromFilter })
+    : []
   const participation = await getMyParticipationMap(proposals.map((p) => p.id))
 
   // Participants (demandes) seulement pour les sorties que J'héberge.
@@ -64,14 +81,27 @@ export default async function SortiesPage() {
               <OutingComposer defaultDepartment={dept} />
             </div>
 
+            <OutingFilters selectedSpecies={speciesFilter} from={sp.from} />
+
             {proposals.length === 0 ? (
               <div className="rounded-[14px] border border-dashed border-sand-300 bg-white px-5 py-10 text-center">
-                <p className="text-[15px] text-ink-600">
-                  Aucune sortie prévue {departmentArticle(dept, 'dans')} pour l’instant.
-                </p>
-                <p className="mt-1 text-[13px] text-ink-400">
-                  Sois le premier à en proposer une, les pêcheurs de ton coin recevront le signal.
-                </p>
+                {speciesFilter.length > 0 || fromFilter ? (
+                  <>
+                    <p className="text-[15px] text-ink-600">Aucune sortie ne correspond à ces filtres.</p>
+                    <p className="mt-1 text-[13px] text-ink-400">
+                      Élargis ta recherche ou réinitialise les filtres.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[15px] text-ink-600">
+                      Aucune sortie prévue {departmentArticle(dept, 'dans')} pour l’instant.
+                    </p>
+                    <p className="mt-1 text-[13px] text-ink-400">
+                      Sois le premier à en proposer une, les pêcheurs de ton coin recevront le signal.
+                    </p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="space-y-3">

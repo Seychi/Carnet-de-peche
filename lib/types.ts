@@ -518,6 +518,45 @@ export type Database = {
         }
         Relationships: []
       }
+      outing_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          proposal_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          proposal_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          proposal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outing_messages_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outing_messages_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       outing_participants: {
         Row: {
           created_at: string
@@ -564,6 +603,8 @@ export type Database = {
           id: string
           notes: string | null
           planned_at: string
+          reminded_at: string | null
+          species: string[] | null
           status: string
         }
         Insert: {
@@ -575,6 +616,8 @@ export type Database = {
           id?: string
           notes?: string | null
           planned_at: string
+          reminded_at?: string | null
+          species?: string[] | null
           status?: string
         }
         Update: {
@@ -586,6 +629,8 @@ export type Database = {
           id?: string
           notes?: string | null
           planned_at?: string
+          reminded_at?: string | null
+          species?: string[] | null
           status?: string
         }
         Relationships: []

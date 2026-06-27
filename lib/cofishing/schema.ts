@@ -20,9 +20,12 @@ export const proposeOutingSchema = z.object({
     .string()
     .max(120)
     .optional()
-    .refine(noCoord, { error: 'Pas de coordonnées GPS — donne un repère (« digue nord », « plage de X »).' }),
+    .refine(noCoord, { error: 'Pas de coordonnées GPS, donne un repère (« digue nord », « plage de X »).' }),
   planned_at: z.string().datetime(),
   capacity: z.number().int().min(1).max(20).optional(),
+  // Espèces ciblées (matching). Clés DB (snake_case) issues du référentiel SPECIES.
+  // Optionnel : une sortie peut ne viser aucune espèce précise.
+  species: z.array(z.string().max(40)).max(20).optional(),
   notes: z
     .string()
     .max(1000)
@@ -31,3 +34,17 @@ export const proposeOutingSchema = z.object({
 })
 
 export type ProposeOutingInput = z.infer<typeof proposeOutingSchema>
+
+// ─── Chat de sortie ───────────────────────────────────────────────────────────
+// Garde-fou anti spot-burning : on REFUSE une coordonnée tapée dans le chat aussi
+// (le RDV précis se cale en privé). Même regex LOOKS_LIKE_COORD que les propositions.
+export const outingMessageSchema = z.object({
+  body: z
+    .string()
+    .trim()
+    .min(1, { error: 'Écris un message.' })
+    .max(1000, { error: 'Message trop long (1000 caractères max).' })
+    .refine(noCoord, { error: 'Pas de coordonnées GPS dans le chat : cale le point de RDV en privé.' }),
+})
+
+export type OutingMessageInput = z.infer<typeof outingMessageSchema>
