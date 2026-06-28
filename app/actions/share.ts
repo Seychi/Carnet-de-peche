@@ -27,6 +27,8 @@ const CATCH_404_MSG = 'Prise introuvable.'
 const OUTING_404_MSG = 'Sortie introuvable.'
 const NOT_ENOUGH_MSG =
   'Logue au moins 3 prises pour partager tes conditions gagnantes.'
+const NO_GEAR_CATCHES_MSG =
+  'Rattache du matériel à tes prises pour partager ta boîte qui pêche.'
 
 // Fenêtre de déduplication best-effort : une carte identique (même user + kind +
 // même source) créée dans les dernières 24h est réutilisée plutôt que dupliquée.
@@ -79,10 +81,28 @@ export type OutingCardPayload = {
   blank: boolean
 }
 
+// Un leurre qui pêche : libellé + type + nombre de prises + espèce dominante.
+// PUREMENT TEXTUEL : aucune clé géo (spot_id / lat / lng / geom) et aucune URL de
+// photo. Décision John D3 = on partage le NOMBRE de prises (pas un « taux de
+// réussite » %, faute de dénominateur de sorties par leurre). D4 = aucune photo.
+type GearboxTopGear = {
+  label: string
+  kind: string
+  catchCount: number
+  topSpecies: string | null
+}
+
+export type GearboxCardPayload = {
+  kind: 'gearbox'
+  topGear: GearboxTopGear[]
+  totalCatchesWithGear: number
+}
+
 export type ShareCardInput =
   | { kind: 'catch'; catchId: string }
   | { kind: 'conditions' }
   | { kind: 'outing'; outingId: string }
+  | { kind: 'gearbox' }
 
 const uuid = z.string().uuid()
 
@@ -186,6 +206,8 @@ export async function createShareCard(
       return createConditionsCard(supabase, user.id)
     case 'outing':
       return createOutingCard(supabase, user.id, input.outingId)
+    case 'gearbox':
+      return createGearboxCard(supabase, user.id)
     default:
       return fail('Type de carte inconnu.')
   }
@@ -393,6 +415,132 @@ async function createOutingCard(
   )
 }
 
+// ─── kind 'gearbox' ──────────────────────────────────────────────────────────
+// Boîte à matériel partageable (sprint 46). Le payload PUBLIC est PUREMENT TEXTUEL :
+// pour chaque leurre qui pêche, son libellé + son type + le nombre de prises + son
+// espèce dominante. Aucune coordonnée, aucun spot, aucun geom, AUCUNE photo (les
+// photos de leurres vivent dans un bucket privé et ne transitent jamais ici).
+async function createGearboxCard(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<ActionResult<{ slug: string }>> {
+  // Prises de l'utilisateur rattachées à un matériel, lues via catches_for_viewer
+  // (JAMAIS la table). On ne SELECT que des champs textuels (gear_id de groupage,
+  // gear_label dénormalisé, species) — aucune coordonnée. Scopé auth.uid().
+  const { data: catches, error } = await supabase
+    .from('catches_for_viewer')
+    .select('gear_id, gear_label, species')
+    .eq('user_id', userId)
+    .not('gear_id', 'is', null)
+
+  if (error) {
+    console.error('[share/createGearboxCard]', error.message)
+    return fail(SAVE_MSG)
+  }
+  const rows: Array<{
+    gear_id: string | null
+    gear_label: string | null
+    species: string | null
+  }> = catches ?? []
+
+  // totalCatchesWithGear = nombre de prises ayant un matériel rattaché.
+  const totalCatchesWithGear = rows.length
+  if (totalCatchesWithGear === 0) return fail(NO_GEAR_CATCHES_MSG)
+
+  // Le type (kind : leurre / montage / appat) n'est pas exposé par la vue. On le
+  // lit via gear_items (RLS owner-only → uniquement MES items). Map gear_id → kind.
+  const { data: gearRows, error: gErr } = await supabase
+    .from('gear_items')
+    .select('id, kind')
+    .eq('user_id', userId)
+  if (gErr) {
+    console.error('[share/createGearboxCard:gear]', gErr.message)
+    return fail(SAVE_MSG)
+  }
+  const kindById = new Map<string, string>()
+  for (const g of gearRows ?? []) {
+    if (g.id) kindById.set(g.id, g.kind ?? 'leurre')
+  }
+
+  // Agrégation par gear_id : nombre de prises + comptage par espèce (→ dominante).
+  type Agg = {
+    label: string | null
+    kind: string
+    catchCount: number
+    speciesCounts: Map<string, number>
+  }
+  const byGear = new Map<string, Agg>()
+  for (const r of rows) {
+    if (!r.gear_id) continue
+    let agg = byGear.get(r.gear_id)
+    if (!agg) {
+      agg = {
+        label: r.gear_label,
+        kind: kindById.get(r.gear_id) ?? 'leurre',
+        catchCount: 0,
+        speciesCounts: new Map(),
+      }
+      byGear.set(r.gear_id, agg)
+    }
+    // Le libellé peut varier d'une prise à l'autre (édité depuis) : on garde le
+    // premier non vide rencontré.
+    if (!agg.label && r.gear_label) agg.label = r.gear_label
+    agg.catchCount += 1
+    if (r.species) {
+      agg.speciesCounts.set(r.species, (agg.speciesCounts.get(r.species) ?? 0) + 1)
+    }
+  }
+
+  // Espèce dominante = la plus fréquente pour ce leurre (null si aucune renseignée).
+  function dominantSpecies(counts: Map<string, number>): string | null {
+    let best: string | null = null
+    let bestN = 0
+    for (const [sp, n] of counts) {
+      if (n > bestN) {
+        best = sp
+        bestN = n
+      }
+    }
+    return best
+  }
+
+  const topGear: GearboxTopGear[] = [...byGear.values()]
+    // Un leurre sans aucun libellé exploitable n'est pas montrable → on l'écarte.
+    .filter((a) => !!a.label?.trim())
+    .map((a) => ({
+      label: a.label!.trim().slice(0, 80),
+      kind: a.kind,
+      catchCount: a.catchCount,
+      topSpecies: dominantSpecies(a.speciesCounts),
+    }))
+    .sort((x, y) => y.catchCount - x.catchCount)
+    .slice(0, 8)
+
+  if (topGear.length === 0) return fail(NO_GEAR_CATCHES_MSG)
+
+  const payload: GearboxCardPayload = {
+    kind: 'gearbox',
+    topGear,
+    totalCatchesWithGear,
+  }
+
+  // Dédup : une boîte déjà partagée récemment avec le même top → on réutilise son
+  // slug (signature = libellés + comptes des leurres, dans l'ordre).
+  const signature = topGear.map((g) => `${g.label}:${g.catchCount}`).join('|')
+  const existing = await findRecentSlug(supabase, userId, 'gearbox', (p) => {
+    const prev = (p.topGear as GearboxTopGear[] | undefined) ?? []
+    return prev.map((g) => `${g.label}:${g.catchCount}`).join('|') === signature
+  })
+  if (existing) return ok({ slug: existing })
+
+  return insertCard(
+    supabase,
+    userId,
+    'gearbox',
+    payload as unknown as Record<string, unknown>,
+  )
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // Gestion / révocation des cartes (sprint 38 WS-C). Owner-only : la RLS
 // (061) garantit DELETE/SELECT sur SES lignes uniquement, on double le filtre
@@ -403,7 +551,7 @@ async function createOutingCard(
 // libellé humain dérivé du payload (geom-free, déjà public). Pas de re-calcul.
 export type ShareCardSummary = {
   slug: string
-  kind: 'catch' | 'conditions' | 'outing'
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox'
   title: string
   createdAt: string
 }
@@ -429,10 +577,17 @@ function summarizePayload(
     const count = typeof payload.catchCount === 'number' ? payload.catchCount : 0
     return `Sortie · ${count} prise${count > 1 ? 's' : ''}`
   }
+  if (kind === 'gearbox') {
+    const gear = Array.isArray(payload.topGear) ? payload.topGear : []
+    const n = gear.length
+    return n > 0
+      ? `Ma boîte · ${n} leurre${n > 1 ? 's' : ''} qui pêche${n > 1 ? 'nt' : ''}`
+      : 'Ma boîte à pêche'
+  }
   return 'Carte partagée'
 }
 
-const KNOWN_KINDS = new Set(['catch', 'conditions', 'outing'])
+const KNOWN_KINDS = new Set(['catch', 'conditions', 'outing', 'gearbox'])
 
 // listMyShareCards — toutes MES cartes (les plus récentes d'abord) pour l'écran
 // de gestion/révocation. Lecture scopée auth.uid().

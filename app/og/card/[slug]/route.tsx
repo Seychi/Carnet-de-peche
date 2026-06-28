@@ -25,13 +25,30 @@ import type {
 
 export const runtime = 'edge'
 
+// ─── Payload gearbox (miroir local edge-safe) ─────────────────────────────────
+// Même découplage volontaire que lib/og/types.ts : la route edge ne lit que
+// shared_cards par slug et narrowe sur payload.kind. Le payload gearbox est
+// PUREMENT TEXTUEL (libellés + comptes + espèces), AUCUNE clé géo, AUCUNE photo.
+type OgGearboxTopGear = {
+  label?: string | null
+  kind?: string | null
+  catchCount?: number | null
+  topSpecies?: string | null
+}
+
+type OgGearboxPayload = {
+  kind: 'gearbox'
+  topGear?: OgGearboxTopGear[]
+  totalCatchesWithGear?: number
+}
+
 // ─── Lecture de la carte (edge → anon, UNIQUEMENT shared_cards) ───────────────
 // La route edge ne lit QUE shared_cards par slug, en client anon (RLS select public).
 // Aucune lecture de catches_for_viewer ni appel server-only ici (garde-fou n°1).
 
 type SharedCardRow = {
-  payload: OgCardPayload
-  kind: 'catch' | 'conditions' | 'outing'
+  payload: OgCardPayload | OgGearboxPayload
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox'
 }
 
 async function fetchCard(slug: string): Promise<SharedCardRow | null> {
@@ -506,6 +523,97 @@ function OutingCard({ p, format }: { p: OgOutingPayload; format: OgFormat }) {
   )
 }
 
+// ─── Layout GEARBOX (boîte à matériel : les leurres qui pêchent) ──────────────
+// PUREMENT TEXTUEL : libellés + comptes + espèces. Aucune photo de leurre (l'edge
+// ne peut pas signer une URL de bucket privé, et le payload n'en porte aucune).
+
+function GearboxCard({ p, format }: { p: OgGearboxPayload; format: OgFormat }) {
+  const story = format === 'story'
+  const gear = (p.topGear ?? [])
+    .filter((g) => g && (g.label ?? '').trim())
+    .slice(0, story ? 6 : 5)
+  const total = p.totalCatchesWithGear ?? 0
+
+  return (
+    <>
+      <OgKicker label="Carnet de Pêche · ma boîte" marginBottom={story ? 36 : 24} />
+
+      <div
+        style={{
+          fontSize: story ? '60px' : '52px',
+          fontWeight: 800,
+          color: WHITE,
+          lineHeight: 1.05,
+          marginBottom: '12px',
+        }}
+      >
+        Ma boîte à pêche
+      </div>
+      <div style={{ display: 'flex', marginBottom: story ? '44px' : '30px' }}>
+        <span style={{ fontSize: story ? '26px' : '21px', color: 'rgba(255,255,255,0.55)' }}>
+          {total > 0
+            ? `Les leurres qui pêchent, sur ${total} prise${total > 1 ? 's' : ''} loguée${total > 1 ? 's' : ''}`
+            : 'Les leurres qui pêchent'}
+        </span>
+      </div>
+
+      {/* Liste des leurres : libellé + nombre de prises + espèce dominante. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: story ? '18px' : '14px' }}>
+        {gear.map((g, i) => {
+          const label = (g.label ?? '').trim()
+          const count = g.catchCount ?? 0
+          const sp = g.topSpecies ? speciesLabel(g.topSpecies) : null
+          return (
+            <div
+              key={`${label}-${i}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '24px',
+                background: 'rgba(20,184,166,0.07)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(94,234,212,0.22)',
+                borderRadius: '14px',
+                padding: story ? '22px 28px' : '16px 24px',
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <span
+                  style={{
+                    fontSize: story ? '32px' : '26px',
+                    fontWeight: 700,
+                    color: SAND50,
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {label}
+                </span>
+                {sp ? (
+                  <span style={{ fontSize: story ? '21px' : '17px', color: 'rgba(94,234,212,0.75)', marginTop: '6px' }}>
+                    surtout {sp}
+                  </span>
+                ) : null}
+              </div>
+              <span style={{ display: 'flex', alignItems: 'baseline' }}>
+                <span style={{ ...MONO_STYLE, fontSize: story ? '44px' : '36px', fontWeight: 800, color: TEAL300, lineHeight: 1 }}>
+                  {count}
+                </span>
+                <span style={{ fontSize: story ? '22px' : '18px', color: 'rgba(255,255,255,0.6)', marginLeft: '8px' }}>
+                  {count > 1 ? 'prises' : 'prise'}
+                </span>
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ flex: 1, display: 'flex' }} />
+    </>
+  )
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(
@@ -530,6 +638,8 @@ export async function GET(
     body = <ConditionsCard p={payload as OgConditionsPayload} format={format} />
   } else if (kind === 'outing') {
     body = <OutingCard p={payload as OgOutingPayload} format={format} />
+  } else if (kind === 'gearbox') {
+    body = <GearboxCard p={payload as OgGearboxPayload} format={format} />
   } else {
     return new Response('Not found', { status: 404 })
   }

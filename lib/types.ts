@@ -399,6 +399,9 @@ export type Database = {
           kind: string
           model: string | null
           notes: string | null
+          photo_path: string | null
+          retired_at: string | null
+          retired_reason: string | null
           size_mm: number | null
           user_id: string
         }
@@ -411,6 +414,9 @@ export type Database = {
           kind: string
           model?: string | null
           notes?: string | null
+          photo_path?: string | null
+          retired_at?: string | null
+          retired_reason?: string | null
           size_mm?: number | null
           user_id: string
         }
@@ -423,6 +429,9 @@ export type Database = {
           kind?: string
           model?: string | null
           notes?: string | null
+          photo_path?: string | null
+          retired_at?: string | null
+          retired_reason?: string | null
           size_mm?: number | null
           user_id?: string
         }

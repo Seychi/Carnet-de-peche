@@ -31,6 +31,14 @@ const gearKindEnum = z.enum(['leurre', 'montage', 'appat'], {
 })
 export type GearKind = z.infer<typeof gearKindEnum>
 
+// Raison de retrait d'un leurre (perte, casse, usure). Posée au moment où le
+// pêcheur déclare avoir perdu/cassé son leurre (sprint 46 WS B). Le CHECK DB de
+// la migration 078 garantit déjà la valeur ; on la valide aussi côté action.
+const retiredReasonEnum = z.enum(['perdu', 'casse', 'use'], {
+  error: () => 'Choisis une raison (perdu, cassé ou usé).',
+})
+export type RetiredReason = z.infer<typeof retiredReasonEnum>
+
 export type GearItem = {
   id: string
   kind: GearKind
@@ -39,6 +47,12 @@ export type GearItem = {
   color: string | null
   size_mm: number | null
   notes: string | null
+  /** Chemin de la photo dans le bucket PRIVÉ 'catches' (jamais une URL publique). */
+  photo_path: string | null
+  /** Daté quand le leurre a été perdu/cassé/usé (au cimetière). null = actif. */
+  retired_at: string | null
+  /** Raison du retrait (perdu/casse/use) ou null si actif. */
+  retired_reason: RetiredReason | null
 }
 
 // Au moins un libellé exploitable (marque OU modèle) pour ne pas créer un item vide.
@@ -50,6 +64,8 @@ const gearFieldsSchema = z
     color: z.string().trim().max(60).optional(),
     size_mm: z.number().int().min(1).max(1000).optional(),
     notes: z.string().trim().max(500).optional(),
+    // Chemin storage (bucket PRIVÉ 'catches', sous-dossier gear/), jamais une URL.
+    photo_path: z.string().trim().max(300).optional(),
   })
   .superRefine((data, ctx) => {
     const hasLabel = !!data.brand?.trim() || !!data.model?.trim()
@@ -72,6 +88,7 @@ const updateGearSchema = z.object({
   color: z.string().trim().max(60).nullable().optional(),
   size_mm: z.number().int().min(1).max(1000).nullable().optional(),
   notes: z.string().trim().max(500).nullable().optional(),
+  photo_path: z.string().trim().max(300).nullable().optional(),
 })
 
 export type UpdateGearPatch = z.infer<typeof updateGearSchema>
@@ -112,6 +129,7 @@ export async function createGearItem(
       color: emptyToNull(d.color),
       size_mm: d.size_mm ?? null,
       notes: emptyToNull(d.notes),
+      photo_path: emptyToNull(d.photo_path),
     })
     .select('id')
     .single()
@@ -143,7 +161,7 @@ export async function listMyGear(
 
   let query = supabase
     .from('gear_items')
-    .select('id, kind, brand, model, color, size_mm, notes')
+    .select('id, kind, brand, model, color, size_mm, notes, photo_path, retired_at, retired_reason')
     .eq('user_id', user.id)
     .eq('archived', false)
     .order('created_at', { ascending: false })
@@ -157,6 +175,37 @@ export async function listMyGear(
   if (error) {
     console.error('[gear/listMyGear]', error.message)
     return fail('Impossible de charger ta boîte à matériel.')
+  }
+
+  return ok((data ?? []) as GearItem[])
+}
+
+// ─── listMyRetiredGear (le cimetière des leurres) ─────────────────────────────
+
+/**
+ * Liste les leurres RETIRÉS de l'utilisateur courant (perdus/cassés/usés). Un
+ * retrait archive l'item (décision John D2), donc `listMyGear` (qui filtre
+ * archived=false) ne les renvoie plus. Le cimetière les ramène en lecture seule :
+ * archived=true ET retired_at non null. Owner-only (RLS gear_items_select_own).
+ */
+export async function listMyRetiredGear(): Promise<ActionResult<GearItem[]>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  const { data, error } = await supabase
+    .from('gear_items')
+    .select('id, kind, brand, model, color, size_mm, notes, photo_path, retired_at, retired_reason')
+    .eq('user_id', user.id)
+    .eq('archived', true)
+    .not('retired_at', 'is', null)
+    .order('retired_at', { ascending: false })
+
+  if (error) {
+    console.error('[gear/listMyRetiredGear]', error.message)
+    return fail('Impossible de charger le cimetière des leurres.')
   }
 
   return ok((data ?? []) as GearItem[])
@@ -219,6 +268,8 @@ export async function updateGearItem(
   if (parsed.data.color !== undefined) payload.color = emptyToNull(parsed.data.color ?? undefined)
   if (parsed.data.size_mm !== undefined) payload.size_mm = parsed.data.size_mm ?? null
   if (parsed.data.notes !== undefined) payload.notes = emptyToNull(parsed.data.notes ?? undefined)
+  if (parsed.data.photo_path !== undefined)
+    payload.photo_path = emptyToNull(parsed.data.photo_path ?? undefined)
 
   if (Object.keys(payload).length === 0) return fail('Aucune modification à enregistrer.')
 
@@ -235,4 +286,138 @@ export async function updateGearItem(
 
   revalidatePath('/carnet/boite')
   return ok(undefined)
+}
+
+// ─── markGearRetired (perdu / cassé / usé → au cimetière) ─────────────────────
+
+/**
+ * Marque un leurre comme perdu/cassé/usé : pose retired_at = now + retired_reason
+ * ET l'archive (décision John D2) pour le sortir de la boîte et du sélecteur. Les
+ * prises déjà loguées avec gardent leur libellé (catches.gear_id intact). Le
+ * cimetière (listMyRetiredGear) le ramène en lecture seule. Owner-only.
+ */
+export async function markGearRetired(
+  id: string,
+  reason: RetiredReason
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+  if (!z.string().uuid().safeParse(id).success) return fail(ID_MSG)
+
+  const parsedReason = retiredReasonEnum.safeParse(reason)
+  if (!parsedReason.success) return fail(firstZodError(parsedReason.error))
+
+  const { error } = await supabase
+    .from('gear_items')
+    .update({
+      retired_at: new Date().toISOString(),
+      retired_reason: parsedReason.data,
+      archived: true,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('[gear/markGearRetired]', error.message)
+    return fail('Impossible d’enregistrer ce retrait. Réessaie.')
+  }
+
+  revalidatePath('/carnet/boite')
+  return ok(undefined)
+}
+
+// ─── uploadGearPhoto (bucket PRIVÉ 'catches', sous-dossier gear/) ──────────────
+
+// Aligné SOUS la limite framework des Server Actions (bodySizeLimit = 2 Mo, cf
+// next.config.ts), comme uploadCatchPhoto : un fichier 1,8–2 Mo renvoie ce message
+// FR propre au lieu d'un 500 « Body exceeded ».
+const MAX_GEAR_PHOTO_BYTES = 1.8 * 1024 * 1024 // 1.8 MB
+
+/**
+ * Upload de la photo d'un leurre. Modèle EXACT d'uploadCatchPhoto (lib/catches/
+ * actions.ts) : on reçoit un WebP DÉJÀ redimensionné côté client (resizeImageToWebp,
+ * EXIF strippé au ré-encodage), on le pousse dans le bucket PRIVÉ 'catches'
+ * (public=false) au chemin `${user.id}/gear/${uuid}.webp`. La policy storage 006
+ * autorise l'écriture car (storage.foldername(name))[1] = auth.uid() (le sous-dossier
+ * gear/ est foldername[2], sans incidence). DÉCISION JOHN D1 : on réutilise le bucket
+ * catches, pas de nouveau bucket. La photo n'est JAMAIS servie en URL publique : la
+ * vignette passe par une signed URL côté serveur (lib/catches/queries.ts).
+ */
+export async function uploadGearPhoto(
+  formData: FormData
+): Promise<ActionResult<{ path: string }>> {
+  const file = formData.get('file')
+  if (!(file instanceof File)) return fail('Fichier manquant.')
+
+  if (file.size > MAX_GEAR_PHOTO_BYTES) {
+    return fail('La photo dépasse 1,8 Mo. Redimensionne-la avant l’envoi.')
+  }
+  if (file.type !== 'image/webp') {
+    return fail('Format invalide. Seul le format WebP est accepté.')
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  // Bucket PRIVÉ 'catches' ; sous-dossier gear/ pour ne pas mêler aux photos de prises.
+  const storagePath = `${user.id}/gear/${crypto.randomUUID()}.webp`
+
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = new Uint8Array(arrayBuffer)
+
+  const { error } = await supabase.storage
+    .from('catches')
+    .upload(storagePath, buffer, {
+      contentType: 'image/webp',
+      upsert: false,
+    })
+
+  if (error) {
+    console.error('[gear/uploadGearPhoto]', error.message)
+    return fail('Upload échoué. Réessaie.')
+  }
+
+  return ok({ path: storagePath })
+}
+
+// ─── signMyGearPhoto (vignette via signed URL owner-only) ─────────────────────
+
+/**
+ * Signe l'URL d'une photo de leurre pour l'afficher en vignette. La photo vit dans
+ * le bucket PRIVÉ 'catches' : JAMAIS d'URL publique. On exige que le chemin commence
+ * par `${user.id}/gear/` (le pêcheur ne signe que SES propres photos) ; la policy
+ * storage 006 (foldername[1] = auth.uid()) est le backstop. Utilisé côté client par
+ * le sélecteur de matériel (la page boîte signe directement côté serveur).
+ */
+export async function signMyGearPhoto(
+  path: string,
+  expiresInSec = 3600
+): Promise<ActionResult<{ url: string }>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  // Garde-fou : on ne signe que les photos de SES leurres (préfixe owner + gear/).
+  if (typeof path !== 'string' || !path.startsWith(`${user.id}/gear/`)) {
+    return fail(ID_MSG)
+  }
+
+  const { data, error } = await supabase.storage
+    .from('catches')
+    .createSignedUrl(path, expiresInSec)
+
+  if (error || !data) {
+    console.error('[gear/signMyGearPhoto]', error?.message)
+    return fail('Aperçu indisponible pour le moment.')
+  }
+
+  return ok({ url: data.signedUrl })
 }

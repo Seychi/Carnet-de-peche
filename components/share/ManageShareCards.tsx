@@ -17,6 +17,7 @@ const KIND_LABEL: Record<ShareCardSummary['kind'], string> = {
   catch: 'Prise',
   conditions: 'Conditions',
   outing: 'Sortie',
+  gearbox: 'Boîte',
 }
 
 function fmtDate(iso: string): string {

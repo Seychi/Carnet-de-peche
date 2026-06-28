@@ -17,7 +17,7 @@ import {
 // explicitement à chaque fois (jamais de partage automatique).
 
 const COPY: Record<
-  'catch' | 'conditions' | 'outing',
+  'catch' | 'conditions' | 'outing' | 'gearbox',
   { title: string; description: string }
 > = {
   catch: {
@@ -35,6 +35,11 @@ const COPY: Record<
     description:
       'On crée une carte publique de ta sortie (durée, prises, meilleure prise). Aucune coordonnée n’est partagée, seulement le département. Tu peux la supprimer quand tu veux.',
   },
+  gearbox: {
+    title: 'Partager ma boîte ?',
+    description:
+      'On crée une carte publique de tes leurres qui pêchent : leur libellé, le nombre de prises et l’espèce dominante. Aucune coordonnée, aucun spot, aucune photo. Tu peux la supprimer quand tu veux.',
+  },
 }
 
 export function ShareOptInDialog({
@@ -44,7 +49,7 @@ export function ShareOptInDialog({
   onConfirm,
   working,
 }: {
-  kind: 'catch' | 'conditions' | 'outing'
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox'
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void

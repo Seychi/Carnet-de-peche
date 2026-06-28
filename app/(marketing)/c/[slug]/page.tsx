@@ -9,6 +9,7 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import type {
   CatchCardPayload,
   ConditionsCardPayload,
+  GearboxCardPayload,
   OutingCardPayload,
 } from '@/app/actions/share'
 
@@ -28,7 +29,11 @@ type SharedCardRow = {
   payload: unknown
 }
 
-type AnyPayload = CatchCardPayload | ConditionsCardPayload | OutingCardPayload
+type AnyPayload =
+  | CatchCardPayload
+  | ConditionsCardPayload
+  | OutingCardPayload
+  | GearboxCardPayload
 
 function anonClient() {
   return createClient(
@@ -109,6 +114,9 @@ function cardHeadline(kind: string, payload: AnyPayload): string {
     const p = payload as OutingCardPayload
     return `Sortie : ${p.catchCount} prise${p.catchCount > 1 ? 's' : ''}`
   }
+  if (kind === 'gearbox') {
+    return 'Ma boîte à pêche'
+  }
   return 'Carnet de Pêche'
 }
 
@@ -130,6 +138,13 @@ function cardDescription(kind: string, payload: AnyPayload): string {
     return where
       ? `Ma sortie de pêche dans ${where}, loguée sur Carnet de Pêche.`
       : 'Ma sortie de pêche loguée sur Carnet de Pêche.'
+  }
+  if (kind === 'gearbox') {
+    const p = payload as GearboxCardPayload
+    const n = p.topGear?.length ?? 0
+    return n > 0
+      ? `Les ${n} leurre${n > 1 ? 's' : ''} qui pêchent le plus dans ma boîte, sur ${p.totalCatchesWithGear} prise${p.totalCatchesWithGear > 1 ? 's' : ''} loguée${p.totalCatchesWithGear > 1 ? 's' : ''}. Crée ton carnet et suis le tien.`
+      : 'Les leurres qui pêchent le plus dans ma boîte, sur Carnet de Pêche.'
   }
   return 'Le carnet de pêche numérique des pêcheurs du bord.'
 }
@@ -247,6 +262,8 @@ function CardRecap({ kind, payload }: { kind: string; payload: AnyPayload }) {
     return <ConditionsRecap payload={payload as ConditionsCardPayload} />
   if (kind === 'outing')
     return <OutingRecap payload={payload as OutingCardPayload} />
+  if (kind === 'gearbox')
+    return <GearboxRecap payload={payload as GearboxCardPayload} />
   return null
 }
 
@@ -411,6 +428,45 @@ function OutingRecap({ payload: p }: { payload: OutingCardPayload }) {
       {dateLabel(p.started_at) && (
         <RecapRow icon={<span aria-hidden="true">🗓️</span>} label="Date" value={dateLabel(p.started_at)!} />
       )}
+    </div>
+  )
+}
+
+function GearboxRecap({ payload: p }: { payload: GearboxCardPayload }) {
+  const gear = (p.topGear ?? []).filter((g) => g.label?.trim()).slice(0, 8)
+  return (
+    <div>
+      <p className="flex items-center gap-2 text-[13px] font-semibold text-teal-700">
+        <span aria-hidden="true">🎣</span> Mes leurres qui pêchent, sur{' '}
+        {p.totalCatchesWithGear} prise{p.totalCatchesWithGear > 1 ? 's' : ''} loguée
+        {p.totalCatchesWithGear > 1 ? 's' : ''}
+      </p>
+      <ul className="mt-3 flex flex-col gap-2.5">
+        {gear.map((g, i) => (
+          <li
+            key={`${g.label}-${i}`}
+            className="flex items-center justify-between gap-3 rounded-[12px] bg-sand-50 px-3.5 py-2.5"
+          >
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-[14px] font-medium text-navy-900">
+                {g.label}
+              </span>
+              {g.topSpecies && (
+                <span className="text-[12.5px] text-ink-400">
+                  surtout {speciesLabel(g.topSpecies)}
+                </span>
+              )}
+            </span>
+            <span className="shrink-0 font-mono text-[14px] font-bold text-teal-700 tabular-nums">
+              {g.catchCount} prise{g.catchCount > 1 ? 's' : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-[12.5px] leading-relaxed text-ink-400">
+        Le nombre de prises par leurre, jamais un classement ni un taux. Aucune
+        coordonnée, aucun spot, aucune photo n&rsquo;est partagé.
+      </p>
     </div>
   )
 }

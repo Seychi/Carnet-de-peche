@@ -1,9 +1,16 @@
 'use client'
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { Check, ChevronDown, Loader2, Plus, X } from 'lucide-react'
+import { Check, ChevronDown, ImageIcon, Loader2, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { createGearItem, type GearItem, type GearKind } from '@/app/actions/gear'
+import {
+  createGearItem,
+  signMyGearPhoto,
+  uploadGearPhoto,
+  type GearItem,
+  type GearKind,
+} from '@/app/actions/gear'
+import { PhotoInput } from '@/components/forms/PhotoInput'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -152,6 +159,7 @@ export function GearPicker({
       <div className={className}>
         <div className="flex items-center justify-between gap-3 rounded-[10px] border border-teal-200 bg-teal-50 px-3 py-2.5">
           <div className="flex min-w-0 items-center gap-2">
+            <GearThumb path={selected.photo_path} alt={gearLabel(selected)} />
             <Check size={15} className="shrink-0 text-teal-600" aria-hidden />
             <span className="truncate text-[14px] font-medium text-teal-900">
               {gearLabel(selected)}
@@ -209,6 +217,9 @@ export function GearPicker({
             color: input.color ?? null,
             size_mm: input.size_mm ?? null,
             notes: input.notes ?? null,
+            photo_path: input.photo_path ?? null,
+            retired_at: null,
+            retired_reason: null,
           }
           setLocalItems((prev) => [newItem, ...prev])
           onChange(newItem.id)
@@ -277,7 +288,10 @@ export function GearPicker({
                     i === active ? 'bg-teal-50 text-teal-800' : 'text-ink-700 hover:bg-sand-50'
                   }`}
                 >
-                  <span className="truncate">{gearLabel(item)}</span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <GearThumb path={item.photo_path} alt={gearLabel(item)} />
+                    <span className="truncate">{gearLabel(item)}</span>
+                  </span>
                   <span className="shrink-0 font-mono text-[11px] uppercase tracking-wide text-ink-400">
                     {KIND_LABELS[item.kind]}
                   </span>
@@ -323,6 +337,7 @@ function GearCreateForm({
     color?: string
     size_mm?: number
     notes?: string
+    photo_path?: string
   }) => void
   onCancel: () => void
   className?: string
@@ -333,12 +348,32 @@ function GearCreateForm({
   const [color, setColor] = useState('')
   const [sizeMm, setSizeMm] = useState('')
   const [notes, setNotes] = useState('')
+  // Photo du leurre : on garde le WebP redimensionné côté client, on l'upload au
+  // submit (bucket PRIVÉ via uploadGearPhoto) puis on transmet son photo_path.
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [uploading, setUploading] = useState(false)
 
+  const busy = pending || uploading
   const canSubmit = brand.trim().length > 0 || model.trim().length > 0
 
-  function submit() {
-    if (!canSubmit || pending) return
+  async function submit() {
+    if (!canSubmit || busy) return
     const parsedSize = sizeMm.trim() ? Number.parseInt(sizeMm, 10) : undefined
+
+    let photoPath: string | undefined
+    if (photoFile) {
+      setUploading(true)
+      const fd = new FormData()
+      fd.append('file', photoFile)
+      const up = await uploadGearPhoto(fd)
+      setUploading(false)
+      if (!up.ok) {
+        toast.error(up.error)
+        return
+      }
+      photoPath = up.data.path
+    }
+
     onCreate({
       kind: selKind,
       brand: brand.trim() || undefined,
@@ -346,6 +381,7 @@ function GearCreateForm({
       color: color.trim() || undefined,
       size_mm: Number.isFinite(parsedSize) ? parsedSize : undefined,
       notes: notes.trim() || undefined,
+      photo_path: photoPath,
     })
   }
 
@@ -430,6 +466,10 @@ function GearCreateForm({
           maxLength={500}
           className={inputCls}
         />
+        <div>
+          <p className="mb-1.5 text-[12px] font-medium text-ink-500">Photo du leurre (optionnel)</p>
+          <PhotoInput onChange={setPhotoFile} />
+        </div>
       </div>
 
       <div className="mt-3 flex gap-2">
@@ -443,11 +483,11 @@ function GearCreateForm({
         <button
           type="button"
           onClick={submit}
-          disabled={!canSubmit || pending}
+          disabled={!canSubmit || busy}
           className="flex min-h-11 flex-[1.5] items-center justify-center gap-2 rounded-[10px] bg-teal-500 py-2.5 text-[14px] font-bold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-60"
         >
-          {pending && <Loader2 size={16} className="animate-spin" />}
-          Ajouter à ma boîte
+          {busy && <Loader2 size={16} className="animate-spin" />}
+          {uploading ? 'Envoi de la photo…' : 'Ajouter à ma boîte'}
         </button>
       </div>
       {!canSubmit && (
@@ -456,5 +496,48 @@ function GearCreateForm({
         </p>
       )}
     </div>
+  )
+}
+
+// ─── Vignette de leurre (signed URL, jamais publique) ─────────────────────────
+
+/**
+ * Vignette carrée d'une photo de leurre. La photo vit dans le bucket PRIVÉ
+ * 'catches' : on demande une signed URL au serveur (signMyGearPhoto, owner-only)
+ * à l'affichage, JAMAIS une URL publique. Sans photo, on n'affiche rien (le
+ * libellé porte déjà l'item).
+ */
+function GearThumb({ path, alt }: { path: string | null; alt: string }) {
+  const [url, setUrl] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    if (!path) return
+    let alive = true
+    signMyGearPhoto(path)
+      .then((res) => {
+        if (!alive) return
+        if (res.ok) setUrl(res.data.url)
+        else setFailed(true)
+      })
+      .catch(() => {
+        if (alive) setFailed(true)
+      })
+    return () => {
+      alive = false
+    }
+  }, [path])
+
+  if (!path) return null
+
+  return (
+    <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-[6px] border border-sand-200 bg-slate-100 text-ink-300">
+      {url && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt={alt} className="size-full object-cover" />
+      ) : (
+        <ImageIcon size={14} aria-hidden />
+      )}
+    </span>
   )
 }
