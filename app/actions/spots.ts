@@ -7,6 +7,7 @@ import { regionForDepartment } from '@/lib/geo/departments'
 import { createNotification } from '@/lib/notifications/create'
 import { proposeSpotSchema, type ProposeSpotInput } from '@/lib/spots/propose-schema'
 import { curateSpotSchema, type CurateSpotInput } from '@/lib/spots/curate-schema'
+import { SPOT_REPORT_REASONS, type SpotReportReason } from '@/lib/spots/report-reasons'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -154,6 +155,117 @@ export async function proposeSpot(
 }
 
 // ===========================================================================
+// Sprint 48 « Confiance visible » — signaler une coordonnée + compteur de
+// confirmations communautaires. ZÉRO coordonnée n'est jamais transmise : un
+// report ne porte que (target_type, target_id, reason, details) ; une
+// confirmation ne porte que (spot_id, user_id). Le floutage GPS reste intact.
+// ===========================================================================
+
+// D1 — raisons de signalement d'une coordonnée de spot. reports.reason est
+// `text not null` en DB : l'enum zod cadenasse les valeurs acceptées. L'array,
+// le type et les libellés vivent dans lib/spots/report-reasons.ts (un fichier
+// 'use server' ne peut pas exporter de const objet).
+const spotReportSchema = z.object({
+  reason: z.enum(SPOT_REPORT_REASONS),
+  details: z.string().trim().max(1000, 'Ta précision est trop longue (max 1000).').optional(),
+})
+
+const REPORT_AUTH_MSG = 'Connecte-toi pour signaler un spot.'
+
+// ---------------------------------------------------------------------------
+// reportSpotCoordinate — signale un problème sur la coordonnée d'un spot
+// (calqué sur reportPost, app/actions/feed.ts). Insère un report
+// target_type='spot' SANS aucune géométrie. Modération libre au lancement.
+// ---------------------------------------------------------------------------
+export async function reportSpotCoordinate(
+  spotId: string,
+  reason: SpotReportReason,
+  details?: string,
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(REPORT_AUTH_MSG)
+
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+  const parsed = spotReportSchema.safeParse({ reason, details })
+  if (!parsed.success) return fail(firstZodError(parsed.error))
+
+  // Aucune coordonnée dans le report : uniquement la cible + la raison.
+  const { error } = await supabase.from('reports').insert({
+    reporter_id: user.id,
+    target_type: 'spot',
+    target_id: spotId,
+    reason: parsed.data.reason,
+    details: parsed.data.details ?? null,
+  })
+  if (error) {
+    console.error('[reportSpotCoordinate]', error.message)
+    return fail('Impossible d’envoyer ton signalement. Réessaie.')
+  }
+
+  // Alerte volume (même logique que reportPost) : > 3 signalements sur le même
+  // spot → log pour priorisation modération.
+  const { count } = await supabase
+    .from('reports')
+    .select('id', { count: 'exact', head: true })
+    .eq('target_type', 'spot')
+    .eq('target_id', spotId)
+  if ((count ?? 0) > 3) {
+    console.warn(`[reportSpotCoordinate] spot ${spotId} a ${count} signalements, à re-vérifier.`)
+  }
+
+  return ok(undefined)
+}
+
+// ---------------------------------------------------------------------------
+// confirmSpot / unconfirmSpot (D2) — « K pêcheurs confirment cette position ».
+// Insert / delete dans spot_confirmations (RLS own = backstop). confirmSpot est
+// idempotent (ON CONFLICT do nothing via upsert sur la contrainte unique
+// (spot_id, user_id)). Aucune coordonnée : seulement (spot_id, user_id).
+// ---------------------------------------------------------------------------
+export async function confirmSpot(spotId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail('Connecte-toi pour confirmer un spot.')
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+
+  // Upsert idempotent : si l'utilisateur a déjà confirmé, on ne refait rien
+  // (ignoreDuplicates s'appuie sur la contrainte unique (spot_id, user_id)).
+  const { error } = await supabase
+    .from('spot_confirmations')
+    .upsert({ spot_id: spotId, user_id: user.id }, { onConflict: 'spot_id,user_id', ignoreDuplicates: true })
+  if (error) {
+    console.error('[confirmSpot]', error.message)
+    return fail('Impossible de confirmer ce spot. Réessaie.')
+  }
+  return ok(undefined)
+}
+
+export async function unconfirmSpot(spotId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail('Connecte-toi pour gérer ta confirmation.')
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+
+  const { error } = await supabase
+    .from('spot_confirmations')
+    .delete()
+    .eq('spot_id', spotId)
+    .eq('user_id', user.id)
+  if (error) {
+    console.error('[unconfirmSpot]', error.message)
+    return fail('Impossible de retirer ta confirmation. Réessaie.')
+  }
+  return ok(undefined)
+}
+
+// ===========================================================================
 // Modération des spots (Bloc C) — réservé aux modérateurs (is_moderator).
 // L'UPDATE/DELETE passe par le client authenticated → la RLS
 // spots_update_moderator / spots_delete_moderator (is_moderator()) reste le
@@ -274,12 +386,16 @@ export async function moderateVerifySpot(spotId: string): Promise<ActionResult> 
   // source à 'curated' pour les communautaires/importés afin de respecter la
   // contrainte ET d'allumer le badge carte. Vérifier vaut approbation forte → on
   // approuve aussi (sinon un spot vérifié resterait invisible sur la carte).
+  // L'action est modérateur-gated → le vérificateur EST l'équipe (sprint 48 :
+  // verification_level='equipe'). Les niveaux 'ambassadeur'/'communaute' sont
+  // réservés à une future extension de rôles, pas un autre chemin de vérif.
   const { error } = await supabase
     .from('spots')
     .update({
       verified: true,
       verified_at: new Date().toISOString(),
       verified_by: user.id,
+      verification_level: 'equipe',
       source: 'curated',
       moderation_status: 'approved',
     })
@@ -301,6 +417,51 @@ export async function moderateVerifySpot(spotId: string): Promise<ActionResult> 
   }
   revalidatePath('/moderation')
   revalidatePath('/carte') // vérifié → badge « Coordonnée vérifiée » sur la carte
+  return ok(undefined)
+}
+
+// ---------------------------------------------------------------------------
+// moderateReverifySpot (sprint 48) — RE-vérifie un spot DÉJÀ vérifié pour
+// répondre à un signalement « coordonnée fausse / accès changé ». Contrairement
+// à moderateVerifySpot, PAS de garde idempotente : on RE-HORODATE verified_at à
+// maintenant (le badge « vérifié le … » repart à zéro, signal de fraîcheur).
+// Modérateur-gated (viewerIsModerator + backstop RLS spots_update_moderator).
+// Respecte verified⇒source='curated' (on force source='curated' comme la vérif).
+// ---------------------------------------------------------------------------
+export async function moderateReverifySpot(spotId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(MOD_MSG)
+
+  const spot = await loadSpotForModeration(supabase, spotId)
+  if (!spot) return fail('Spot introuvable.')
+
+  // Re-horodatage SANS garde idempotente : même si déjà vérifié, on rafraîchit
+  // verified_at (preuve que la coordonnée a été re-contrôlée après signalement).
+  // verification_level='equipe' (un modérateur re-vérifie). On garantit le CHECK
+  // spots_verified_only_curated en posant source='curated' + approved.
+  const { error } = await supabase
+    .from('spots')
+    .update({
+      verified: true,
+      verified_at: new Date().toISOString(),
+      verified_by: user.id,
+      verification_level: 'equipe',
+      source: 'curated',
+      moderation_status: 'approved',
+    })
+    .eq('id', spotId)
+  if (error) {
+    console.error('[moderateReverifySpot]', error.message)
+    return fail('Impossible de re-vérifier ce spot.')
+  }
+
+  revalidatePath('/moderation')
+  revalidatePath('/carte') // badge « vérifié le … » rafraîchi
   return ok(undefined)
 }
 
@@ -331,12 +492,14 @@ export async function curateSpot(
   if (!spot) return fail('Spot introuvable.')
 
   // UPDATE atomique : enrichissement + vérification + publication ensemble.
+  // Curer = vérifier par l'équipe → verification_level='equipe' (sprint 48).
   const update: Record<string, unknown> = {
     structure: d.structure,
     source: 'curated',
     verified: true,
     verified_at: new Date().toISOString(),
     verified_by: user.id,
+    verification_level: 'equipe',
     moderation_status: 'approved',
   }
   if (d.name) update.name = d.name

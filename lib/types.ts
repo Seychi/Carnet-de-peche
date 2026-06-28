@@ -908,6 +908,42 @@ export type Database = {
         }
         Relationships: []
       }
+      spot_confirmations: {
+        Row: {
+          created_at: string
+          id: string
+          spot_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          spot_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          spot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spot_confirmations_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spot_confirmations_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spot_scores: {
         Row: {
           computed_at: string
@@ -980,6 +1016,7 @@ export type Database = {
           structure: string | null
           techniques: string[]
           updated_at: string
+          verification_level: string | null
           verified: boolean | null
           verified_at: string | null
           verified_by: string | null
@@ -1005,6 +1042,7 @@ export type Database = {
           structure?: string | null
           techniques?: string[]
           updated_at?: string
+          verification_level?: string | null
           verified?: boolean | null
           verified_at?: string | null
           verified_by?: string | null
@@ -1030,6 +1068,7 @@ export type Database = {
           structure?: string | null
           techniques?: string[]
           updated_at?: string
+          verification_level?: string | null
           verified?: boolean | null
           verified_at?: string | null
           verified_by?: string | null
@@ -1903,10 +1942,15 @@ export type Database = {
           species: string[]
           structure: string
           techniques: string[]
+          verification_level: string
           verified: boolean
           verified_at: string
           visibility: string
         }[]
+      }
+      get_spot_confirmation_count: {
+        Args: { p_spot_id: string }
+        Returns: number
       }
       get_spots_for_map: {
         Args: {

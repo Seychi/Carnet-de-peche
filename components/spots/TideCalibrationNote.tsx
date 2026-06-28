@@ -1,11 +1,18 @@
 import { Waves } from 'lucide-react'
-import { getTideCalibration } from '@/lib/conditions/tide-calibration'
+import { getTideCalibration, monthsAgo } from '@/lib/conditions/tide-calibration'
 
 function formatAuditDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+/** Fraîcheur relative « il y a N mois » de l'audit (sprint 48, WS C). null si trop récent. */
+function formatAuditFreshness(iso: string | null): string | null {
+  const m = monthsAgo(iso)
+  if (m == null || m < 1) return null
+  return `il y a ${m} mois`
 }
 
 /**
@@ -21,6 +28,7 @@ export async function TideCalibrationNote({ department }: { department: string }
   if (!cal) return null
 
   const auditDate = formatAuditDate(cal.verifiedAt)
+  const auditFreshness = formatAuditFreshness(cal.verifiedAt)
   // Résidu mesuré après correction du biais ; fallback sur l'écart brut si absent.
   const residual = cal.residualMin ?? cal.medianErrorMin
   const residualMin = Math.round(residual)
@@ -38,6 +46,11 @@ export async function TideCalibrationNote({ department }: { department: string }
         <span className="font-mono font-medium text-navy-900">{residualMin} min</span> vs
         SHOM{auditDate ? `, audité le ${auditDate}` : ''}.
       </p>
+      {auditFreshness && (
+        <p className="mt-1.5 text-[12px] text-ink-500">
+          Calibration auditée {auditFreshness}.
+        </p>
+      )}
       <p className="mt-2 text-[11px] text-ink-400">
         {cal.source ?? 'SHOM vs Open-Meteo Marine'}
       </p>

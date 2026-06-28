@@ -2,12 +2,19 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { moderatorDeletePost, moderatorDeleteComment, dismissReport } from '@/app/actions/feed'
-import { moderateApproveSpot, moderateRejectSpot, moderateMergeSpot, moderateVerifySpot } from '@/app/actions/spots'
+import {
+  moderateApproveSpot,
+  moderateRejectSpot,
+  moderateMergeSpot,
+  moderateVerifySpot,
+  moderateReverifySpot,
+} from '@/app/actions/spots'
+import { SPOT_REPORT_REASON_LABELS } from '@/lib/spots/report-reasons'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
 import ImportsCurationList from '@/components/spots/ImportsCurationList'
 import type { ImportToCurate } from '@/components/spots/CurateSpotForm'
-import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor } from 'lucide-react'
+import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor, RotateCw } from 'lucide-react'
 
 export const metadata = { title: 'Modération — Carnet de Pêche' }
 export const dynamic = 'force-dynamic'
@@ -27,6 +34,23 @@ type Report = {
   post_text: string | null
   post_region: string | null
   post_author_id: string | null
+  // Contexte spot (sprint 48) : pour les reports target_type='spot'.
+  spot_name: string | null
+  spot_slug: string | null
+  spot_department: string | null
+}
+
+// Ligne de la vue « Re-vérifier » (tous les spots, pas seulement les pending).
+type ReverifySpot = {
+  id: string
+  name: string
+  slug: string
+  department: string
+  source: string
+  moderation_status: string
+  verified: boolean
+  verified_at: string | null
+  verification_level: string | null
 }
 
 type PendingSpot = {
@@ -73,6 +97,10 @@ async function verifySpotAction(formData: FormData) {
   'use server'
   await moderateVerifySpot(formData.get('spotId') as string)
 }
+async function reverifySpotAction(formData: FormData) {
+  'use server'
+  await moderateReverifySpot(formData.get('spotId') as string)
+}
 
 // ---------------------------------------------------------------------------
 // Lignes
@@ -85,12 +113,20 @@ function ReportRow({ report }: { report: Report }) {
     hour: '2-digit',
     minute: '2-digit',
   })
+  // Libellés de raison : fil (post/commentaire) + spot (sprint 48).
   const reasonLabels: Record<string, string> = {
     spam: 'Spam',
     inapproprie: 'Contenu inapproprié',
     spot_burning: 'Spot burning',
+    ...SPOT_REPORT_REASON_LABELS,
     autre: 'Autre',
   }
+  const typeLabel =
+    report.target_type === 'post'
+      ? 'Post'
+      : report.target_type === 'spot'
+        ? 'Spot'
+        : 'Commentaire'
   return (
     <div className="flex flex-col gap-3 rounded-[14px] border border-sand-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -104,12 +140,22 @@ function ReportRow({ report }: { report: Report }) {
           {report.post_text}
         </p>
       )}
+      {/* Contexte spot : nom + lien vers la fiche (aucune coordonnée). */}
+      {report.target_type === 'spot' && report.spot_name && (
+        <p className="inline-flex items-center gap-1.5 rounded-[8px] border border-sand-200 bg-sand-50 px-3 py-2 text-[13px] font-medium text-navy-900">
+          <MapPin size={14} className="text-teal-600" aria-hidden="true" />
+          {report.spot_slug ? (
+            <Link href={`/spots/${report.spot_slug}`} className="underline-offset-2 hover:underline">
+              {report.spot_name}
+            </Link>
+          ) : (
+            report.spot_name
+          )}
+        </p>
+      )}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-ink-400">
         <span>
-          Type :{' '}
-          <span className="font-medium text-ink-600">
-            {report.target_type === 'post' ? 'Post' : 'Commentaire'}
-          </span>
+          Type : <span className="font-medium text-ink-600">{typeLabel}</span>
         </span>
         {report.reporter_username && (
           <span>
@@ -121,10 +167,36 @@ function ReportRow({ report }: { report: Report }) {
             Département : <span className="font-mono font-medium text-ink-600">{report.post_region}</span>
           </span>
         )}
+        {report.target_type === 'spot' && report.spot_department && (
+          <span>
+            Département :{' '}
+            <span className="font-mono font-medium text-ink-600">{report.spot_department.trim()}</span>{' '}
+            {DEPARTMENT_LABELS[report.spot_department.trim()] ?? ''}
+          </span>
+        )}
       </div>
       {report.details && <p className="text-[12px] italic text-ink-500">{report.details}</p>}
       <div className="flex flex-wrap items-center gap-2 pt-1">
-        {report.target_type === 'post' ? (
+        {report.target_type === 'spot' ? (
+          <>
+            {report.spot_slug && (
+              <Link
+                href={`/spots/${report.spot_slug}`}
+                className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-sand-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-ink-300"
+              >
+                <MapPin size={13} aria-hidden="true" />
+                Ouvrir la fiche
+              </Link>
+            )}
+            <Link
+              href={`/moderation?tab=reverify&q=${encodeURIComponent(report.spot_name ?? '')}`}
+              className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10"
+            >
+              <RotateCw size={13} aria-hidden="true" />
+              Ouvrir en re-vérif
+            </Link>
+          </>
+        ) : report.target_type === 'post' ? (
           <form action={deletePostAction}>
             <input type="hidden" name="postId" value={report.target_id} />
             <button
@@ -264,6 +336,83 @@ function PendingSpotRow({ spot }: { spot: PendingSpot }) {
 }
 
 // ---------------------------------------------------------------------------
+// Ligne « Re-vérifier » : un spot (vérifié ou non), avec lien fiche + bouton
+// « re-vérifier la coordonnée » (moderateReverifySpot, re-horodate verified_at).
+// ---------------------------------------------------------------------------
+const SOURCE_LABELS: Record<string, string> = {
+  curated: 'Curé',
+  community: 'Communauté',
+  imported: 'Import',
+  osm: 'OSM',
+}
+
+function ReverifySpotRow({ spot }: { spot: ReverifySpot }) {
+  const dept = spot.department.trim()
+  const verifiedDate = spot.verified_at
+    ? new Date(spot.verified_at).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      })
+    : null
+  return (
+    <div className="flex flex-col gap-3 rounded-[14px] border border-sand-200 bg-white p-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-navy-900">
+            <MapPin size={14} className="text-teal-600" aria-hidden="true" />
+            <Link href={`/spots/${spot.slug}`} className="underline-offset-2 hover:underline">
+              {spot.name}
+            </Link>
+          </p>
+          <p className="mt-0.5 text-[12px] text-ink-400">
+            <span className="font-mono">{dept}</span> {DEPARTMENT_LABELS[dept] ?? ''}
+            {' · '}
+            {SOURCE_LABELS[spot.source] ?? spot.source}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          {spot.verified ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2 py-0.5 text-[11px] font-semibold text-teal-700">
+              <BadgeCheck size={12} aria-hidden="true" />
+              Vérifié{verifiedDate ? ` le ${verifiedDate}` : ''}
+            </span>
+          ) : (
+            <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-500">
+              Non vérifié
+            </span>
+          )}
+          <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink-400">
+            {spot.moderation_status}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <Link
+          href={`/spots/${spot.slug}`}
+          className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-sand-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-ink-300"
+        >
+          <MapPin size={13} aria-hidden="true" />
+          Ouvrir la fiche
+        </Link>
+        <form action={reverifySpotAction}>
+          <input type="hidden" name="spotId" value={spot.id} />
+          <button
+            type="submit"
+            className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10"
+            title="Re-contrôle la coordonnée à la main et rafraîchit la date de vérification (« vérifié le … » repart à aujourd'hui)."
+          >
+            <RotateCw size={13} aria-hidden="true" />
+            Re-vérifier la coordonnée
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 const IMPORTS_PER_PAGE = 25
@@ -271,10 +420,31 @@ const IMPORTS_PER_PAGE = 25
 export default async function ModerationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; dept?: string; page?: string }>
+  searchParams: Promise<{
+    tab?: string
+    dept?: string
+    page?: string
+    q?: string
+    source?: string
+    status?: string
+  }>
 }) {
-  const { tab, dept: deptParam, page: pageParam } = await searchParams
-  const activeTab = tab === 'spots' ? 'spots' : tab === 'imports' ? 'imports' : 'reports'
+  const {
+    tab,
+    dept: deptParam,
+    page: pageParam,
+    q: qParam,
+    source: sourceParam,
+    status: statusParam,
+  } = await searchParams
+  const activeTab =
+    tab === 'spots'
+      ? 'spots'
+      : tab === 'imports'
+        ? 'imports'
+        : tab === 'reverify'
+          ? 'reverify'
+          : 'reports'
 
   const supabase = await createClient()
   const {
@@ -302,6 +472,21 @@ export default async function ModerationPage({
   let reports: Report[] = []
   let pendingSpots: PendingSpot[] = []
   let imports: ImportToCurate[] = []
+  // Re-vérif : liste filtrable (nom/dépt/source/statut) + pagination.
+  let reverifySpots: ReverifySpot[] = []
+  let reverifyTotal = 0
+  const reverifyQuery = (qParam ?? '').trim().slice(0, 80)
+  const reverifySource =
+    sourceParam && ['curated', 'community', 'imported', 'osm'].includes(sourceParam)
+      ? sourceParam
+      : null
+  const reverifyStatus =
+    statusParam && ['pending', 'approved', 'rejected'].includes(statusParam)
+      ? statusParam
+      : null
+  const reverifyDept =
+    deptParam && COASTAL_DEPARTMENTS.includes(deptParam) ? deptParam : null
+  const reverifyPage = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
   // Curage : filtre dépt + pagination + progression.
   const selectedDept =
     deptParam && COASTAL_DEPARTMENTS.includes(deptParam) ? deptParam : null
@@ -380,8 +565,17 @@ export default async function ModerationPage({
       const { data } = await supabase.from('feed_posts').select('id, text, region, author_id').in('id', postIds)
       for (const p of data ?? []) posts.set(p.id, { text: p.text, region: p.region, author_id: p.author_id })
     }
+    // Contexte des reports target_type='spot' (sprint 48) : nom + slug + dépt
+    // pour relier le signalement à la fiche. Aucune coordonnée n'est lue ici.
+    const spotIds = [...new Set(rows.filter((r) => r.target_type === 'spot').map((r) => r.target_id))]
+    const reportedSpots = new Map<string, { name: string; slug: string; department: string }>()
+    if (spotIds.length > 0) {
+      const { data } = await supabase.from('spots').select('id, name, slug, department').in('id', spotIds)
+      for (const s of data ?? []) reportedSpots.set(s.id, { name: s.name, slug: s.slug, department: s.department })
+    }
     reports = rows.map((r) => {
       const post = r.target_type === 'post' ? posts.get(r.target_id) : undefined
+      const spot = r.target_type === 'spot' ? reportedSpots.get(r.target_id) : undefined
       return {
         id: r.id,
         created_at: r.created_at,
@@ -394,9 +588,12 @@ export default async function ModerationPage({
         post_text: post?.text ?? null,
         post_region: post?.region ?? null,
         post_author_id: post?.author_id ?? null,
+        spot_name: spot?.name ?? null,
+        spot_slug: spot?.slug ?? null,
+        spot_department: spot?.department ?? null,
       }
     })
-  } else {
+  } else if (activeTab === 'spots') {
     const { data: rawSpots } = await supabase
       .from('spots')
       .select('id, name, department, structure, species, techniques, description, access_notes, created_at, created_by')
@@ -423,6 +620,34 @@ export default async function ModerationPage({
       access_notes: s.access_notes,
       created_at: s.created_at,
       proposer_username: s.created_by ? (proposers.get(s.created_by) ?? null) : null,
+    }))
+  } else if (activeTab === 'reverify') {
+    // Vue « Re-vérifier » : TOUS les spots (au-delà des pending), filtrables.
+    // La page entière est déjà modérateur-only (gate is_moderator ci-dessus).
+    let q = supabase
+      .from('spots')
+      .select('id, name, slug, department, source, moderation_status, verified, verified_at, verification_level', {
+        count: 'exact',
+      })
+    if (reverifyQuery) q = q.ilike('name', `%${reverifyQuery}%`)
+    if (reverifyDept) q = q.eq('department', reverifyDept)
+    if (reverifySource) q = q.eq('source', reverifySource)
+    if (reverifyStatus) q = q.eq('moderation_status', reverifyStatus)
+    const from = (reverifyPage - 1) * IMPORTS_PER_PAGE
+    const { data: rawReverify, count } = await q
+      .order('name', { ascending: true })
+      .range(from, from + IMPORTS_PER_PAGE - 1)
+    reverifyTotal = count ?? 0
+    reverifySpots = (rawReverify ?? []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      department: s.department,
+      source: s.source,
+      moderation_status: s.moderation_status,
+      verified: s.verified,
+      verified_at: s.verified_at,
+      verification_level: s.verification_level,
     }))
   }
 
@@ -461,6 +686,9 @@ export default async function ModerationPage({
             </span>
           )}
         </Link>
+        <Link href="/moderation?tab=reverify" className={tabCls(activeTab === 'reverify')}>
+          Re-vérifier
+        </Link>
       </div>
 
       {activeTab === 'reports' ? (
@@ -483,6 +711,17 @@ export default async function ModerationPage({
             ))}
           </div>
         )
+      ) : activeTab === 'reverify' ? (
+        <ReverifyTab
+          spots={reverifySpots}
+          total={reverifyTotal}
+          query={reverifyQuery}
+          selectedDept={reverifyDept}
+          selectedSource={reverifySource}
+          selectedStatus={reverifyStatus}
+          page={reverifyPage}
+          perPage={IMPORTS_PER_PAGE}
+        />
       ) : (
         <ImportsTab
           imports={imports}
@@ -494,6 +733,154 @@ export default async function ModerationPage({
           page={importsPage}
           perPage={IMPORTS_PER_PAGE}
         />
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Onglet « Re-vérifier » : recherche par nom + filtres dépt/source/statut +
+// liste paginée de TOUS les spots, chacun re-vérifiable. Modérateur-only (la
+// page entière est gardée is_moderator).
+// ---------------------------------------------------------------------------
+function ReverifyTab({
+  spots,
+  total,
+  query,
+  selectedDept,
+  selectedSource,
+  selectedStatus,
+  page,
+  perPage,
+}: {
+  spots: ReverifySpot[]
+  total: number
+  query: string
+  selectedDept: string | null
+  selectedSource: string | null
+  selectedStatus: string | null
+  page: number
+  perPage: number
+}) {
+  const totalPages = Math.max(1, Math.ceil(total / perPage))
+  // Construit une URL de filtre en préservant les autres paramètres actifs.
+  const buildHref = (overrides: Record<string, string | null>) => {
+    const params = new URLSearchParams()
+    params.set('tab', 'reverify')
+    const merged: Record<string, string | null> = {
+      q: query || null,
+      dept: selectedDept,
+      source: selectedSource,
+      status: selectedStatus,
+      ...overrides,
+    }
+    for (const [k, v] of Object.entries(merged)) {
+      if (v) params.set(k, v)
+    }
+    return `/moderation?${params.toString()}`
+  }
+  const filterChip = (label: string, href: string, active: boolean) => (
+    <Link
+      href={href}
+      className={`min-h-[36px] rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+        active
+          ? 'border-navy-900 bg-navy-900 text-white'
+          : 'border-sand-200 bg-white text-ink-600 hover:border-ink-300'
+      }`}
+    >
+      {label}
+    </Link>
+  )
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Recherche par nom (form GET, conserve les filtres en hidden). */}
+      <form action="/moderation" method="get" className="flex flex-wrap items-center gap-2">
+        <input type="hidden" name="tab" value="reverify" />
+        {selectedDept && <input type="hidden" name="dept" value={selectedDept} />}
+        {selectedSource && <input type="hidden" name="source" value={selectedSource} />}
+        {selectedStatus && <input type="hidden" name="status" value={selectedStatus} />}
+        <input
+          type="search"
+          name="q"
+          defaultValue={query}
+          placeholder="Chercher un spot par nom"
+          className="min-h-[44px] flex-1 rounded-full border border-sand-200 bg-white px-4 py-2 text-[13px] text-ink-700 placeholder:text-ink-400 focus:border-navy-900 focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="min-h-[44px] rounded-full border border-navy-900 bg-navy-900 px-4 py-2 text-[13px] font-semibold text-white"
+        >
+          Chercher
+        </button>
+      </form>
+
+      {/* Filtres source + statut. */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          <span className="self-center text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-400">
+            Source
+          </span>
+          {filterChip('Toutes', buildHref({ source: null, page: null }), selectedSource === null)}
+          {(['curated', 'community', 'imported', 'osm'] as const).map((src) =>
+            filterChip(
+              SOURCE_LABELS[src] ?? src,
+              buildHref({ source: src, page: null }),
+              selectedSource === src,
+            ),
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="self-center text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-400">
+            Statut
+          </span>
+          {filterChip('Tous', buildHref({ status: null, page: null }), selectedStatus === null)}
+          {(['pending', 'approved', 'rejected'] as const).map((st) =>
+            filterChip(st, buildHref({ status: st, page: null }), selectedStatus === st),
+          )}
+        </div>
+      </div>
+
+      <p className="font-mono text-[12px] text-ink-400">{total} spot(s)</p>
+
+      {/* Liste */}
+      {spots.length === 0 ? (
+        <Empty label="Aucun spot ne correspond à ces filtres." />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {spots.map((s) => (
+            <ReverifySpotRow key={s.id} spot={s} />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-2">
+          {page > 1 ? (
+            <Link
+              href={buildHref({ page: String(page - 1) })}
+              className="min-h-[44px] rounded-full border border-sand-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink-600 hover:border-ink-300"
+            >
+              Précédent
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="font-mono text-[12px] text-ink-400">
+            page {page} / {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Link
+              href={buildHref({ page: String(page + 1) })}
+              className="min-h-[44px] rounded-full border border-sand-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink-600 hover:border-ink-300"
+            >
+              Suivant
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
       )}
     </div>
   )

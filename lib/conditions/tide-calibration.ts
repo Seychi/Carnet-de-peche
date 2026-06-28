@@ -121,3 +121,46 @@ export async function getTideCalibration(
     source: data.source,
   }
 }
+
+/**
+ * Données d'AFFICHAGE du chip compact « marées ±N min · calé SHOM » (sprint 48, WS D).
+ * Logique d'affichage pure : ne lit que la calibration déjà mesurée du port de
+ * référence (aucune donnée fabriquée, aucun port inventé). Renvoie null pour les
+ * départements non couverts (Méditerranée, table vide) → le chip ne s'affiche pas
+ * et le comportement actuel (TideCalibrationNote / note marnage faible) tient.
+ *
+ * `residualMin` = écart résiduel arrondi vs SHOM (la précision réelle, jamais « à la
+ * minute »). `auditedMonthsAgo` = fraîcheur relative dérivée de `verified_at`.
+ */
+export type TideAccuracyChip = {
+  port: string
+  residualMin: number
+  /** Nombre de mois écoulés depuis l'audit (>= 0), ou null si verified_at absent/invalide. */
+  auditedMonthsAgo: number | null
+}
+
+export async function getTideAccuracyChip(
+  department: string,
+): Promise<TideAccuracyChip | null> {
+  const cal = await getTideCalibration(department)
+  if (!cal) return null
+
+  // Résidu mesuré après correction du biais ; fallback sur l'écart brut si absent.
+  const residual = cal.residualMin ?? cal.medianErrorMin
+  return {
+    port: cal.port,
+    residualMin: Math.round(residual),
+    auditedMonthsAgo: monthsAgo(cal.verifiedAt),
+  }
+}
+
+/** Nombre de mois pleins écoulés depuis une date ISO (>= 0), null si absente/invalide. */
+export function monthsAgo(iso: string | null): number | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  const now = new Date()
+  const months =
+    (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
+  return Math.max(0, months)
+}

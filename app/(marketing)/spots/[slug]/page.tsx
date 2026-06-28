@@ -10,12 +10,13 @@ import { buildLoginRedirect } from '@/lib/auth/redirect'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { TideCalibrationNote } from '@/components/spots/TideCalibrationNote'
+import { SpotReportButton, SpotConfirmButton } from '@/components/spots/ReportSpotDialog'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { refineExtremumHour, formatHourFraction } from '@/lib/conditions/tide'
-import { getTideCalibration, isLowTidalRangeDepartment } from '@/lib/conditions/tide-calibration'
+import { getTideCalibration, isLowTidalRangeDepartment, getTideAccuracyChip, monthsAgo } from '@/lib/conditions/tide-calibration'
 import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
@@ -49,6 +50,8 @@ type SpotDetail = {
   verified: boolean
   /** Date de vérification manuelle de la coordonnée (timestamptz). Null si jamais vérifié. */
   verified_at: string | null
+  /** Niveau de vérification (migration 083) : 'communaute' | 'ambassadeur' | 'equipe' | null. */
+  verification_level: string | null
   source: string
   created_at: string
 }
@@ -80,6 +83,8 @@ const getSpotBySlug = cache(async (slug: string): Promise<SpotDetail | null> => 
     hazards: row.hazards ?? null,
     // Date de vérification (migration 075). verified_by reste fermé côté client.
     verified_at: row.verified_at ?? null,
+    // Niveau de vérification (migration 083) : communaute / ambassadeur / equipe.
+    verification_level: row.verification_level ?? null,
   } as SpotDetail
 })
 
@@ -159,6 +164,72 @@ function formatVerifiedDate(iso: string | null): string | null {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+}
+
+/** Fraîcheur relative « il y a N mois » de la vérification (WS C). null si < 1 mois. */
+function formatVerifiedFreshness(iso: string | null): string | null {
+  const m = monthsAgo(iso)
+  if (m == null || m < 1) return null
+  return `il y a ${m} mois`
+}
+
+// Niveau de vérification gradué (migration 083, WS B). v1 : presque tout = 'equipe'.
+// L'info passe par le libellé + l'icône (forme), jamais la couleur seule (daltonisme).
+const VERIFICATION_LEVELS: Record<
+  string,
+  { label: string; legend: string }
+> = {
+  equipe: {
+    label: 'Vérifié par l’équipe',
+    legend: 'Coordonnée pointée et contrôlée à la main par l’équipe.',
+  },
+  ambassadeur: {
+    label: 'Vérifié par un ambassadeur',
+    legend: 'Coordonnée contrôlée par un ambassadeur de la communauté.',
+  },
+  communaute: {
+    label: 'Vérifié par la communauté',
+    legend: 'Position confirmée par plusieurs pêcheurs de la communauté.',
+  },
+}
+
+/** Compteur de confirmations (D2) via RPC qui ne renvoie QU'un nombre (jamais qui). */
+async function fetchConfirmationCount(spotId: string): Promise<number> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc('get_spot_confirmation_count', { p_spot_id: spotId })
+  return typeof data === 'number' ? data : 0
+}
+
+/** L'utilisateur courant a-t-il confirmé ce spot ? Lecture RLS own (jamais d'autrui). */
+async function fetchViewerConfirmed(spotId: string, userId: string | undefined): Promise<boolean> {
+  if (!userId) return false
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('spot_confirmations')
+    .select('id')
+    .eq('spot_id', spotId)
+    .maybeSingle()
+  return data != null
+}
+
+/**
+ * Nombre de prises publiques loguées DEPUIS la vérification (WS C). Agrégé via la RPC
+ * k-anon get_spot_activity (lecture catches_for_viewer : privacy + floutage appliqués,
+ * AUCUNE coordonnée renvoyée), avec p_days = nombre de jours depuis verified_at.
+ */
+async function fetchCatchesSinceVerified(
+  spotId: string,
+  verifiedAt: string | null,
+): Promise<number | null> {
+  if (!verifiedAt) return null
+  const verifiedDate = new Date(verifiedAt)
+  if (Number.isNaN(verifiedDate.getTime())) return null
+  const days = Math.ceil((Date.now() - verifiedDate.getTime()) / (24 * 60 * 60 * 1000))
+  if (days <= 0) return 0
+  const supabase = await createClient()
+  const { data } = await supabase.rpc('get_spot_activity', { p_spot_id: spotId, p_days: days })
+  const row = Array.isArray(data) ? data[0] : data
+  return row?.catches_count ?? 0
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -265,7 +336,10 @@ export default async function SpotPage({
 
   if (!spot) notFound()
 
-  const [catches, catchCount, conditions, forecastWeek, allGuides, depth, substrate] = await Promise.all([
+  const [
+    catches, catchCount, conditions, forecastWeek, allGuides, depth, substrate,
+    confirmationCount, viewerConfirmed, catchesSinceVerified, tideChip,
+  ] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
@@ -273,6 +347,12 @@ export default async function SpotPage({
     getAllGuides().catch(() => []),
     fetchSpotDepth(spot.lat, spot.lng).catch(() => null),
     fetchSeabedSubstrate(spot.lat, spot.lng).catch(() => null),
+    // WS B (D2) compteur confirmations + confirmation propre (RLS own) ; WS C prises
+    // depuis vérif ; WS D chip précision marées. Tous agrégés / sans coordonnée.
+    fetchConfirmationCount(spot.id).catch(() => 0),
+    fetchViewerConfirmed(spot.id, user?.id).catch(() => false),
+    fetchCatchesSinceVerified(spot.id, spot.verified_at).catch(() => null),
+    getTideAccuracyChip(String(spot.department).trim()).catch(() => null),
   ])
 
   // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
@@ -391,10 +471,11 @@ export default async function SpotPage({
           <div className="mb-3 flex flex-wrap items-start gap-2">
             {/* Provenance (C2) : « Vérifié » réservé aux curés ; communautaire /
                 importé portent leur propre badge (label + couleur distincte).
-                Le badge ✓ = coordonnée vérifiée à la main (sprint 37). */}
+                Le badge ✓ = coordonnée vérifiée à la main (sprint 37). Niveau gradué
+                (WS B, migration 083) : le libellé porte l'info, pas la couleur seule. */}
             {spot.verified && (
               <span className="rounded-full border border-teal-500/30 bg-teal-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
-                ✓ Coordonnée vérifiée
+                ✓ {VERIFICATION_LEVELS[spot.verification_level ?? '']?.label ?? 'Coordonnée vérifiée'}
               </span>
             )}
             {spot.source === 'community' && (
@@ -410,6 +491,15 @@ export default async function SpotPage({
             {spot.visibility === 'subscriber' && (
               <span className="rounded-full border border-gold-500/35 bg-gold-500/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-500">
                 Premium
+              </span>
+            )}
+            {/* Chip précision marées (WS D) : écart résiduel mesuré vs SHOM, rendu
+                visible au moment de la décision. Données existantes (table calibrée),
+                rien d'inventé : masqué pour les façades non auditées (Méditerranée). */}
+            {tideChip && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300">
+                <Waves size={12} aria-hidden="true" />
+                Marées ±{tideChip.residualMin} min · calé SHOM
               </span>
             )}
           </div>
@@ -643,28 +733,69 @@ export default async function SpotPage({
               </dl>
             </div>
 
-            {/* Coordonnée vérifiée (sprint 37) — munition anti-Decathlon : un spot
+            {/* Coordonnée vérifiée (sprint 37 + 48) — munition anti-Decathlon : un spot
                 vérifié = GPS fixe contrôlé à la main, pas un point communautaire
                 qui bouge. L'info passe par l'icône (forme) + texte, pas la couleur
-                seule (daltonisme). verified_at (migration 075) = date seule, « par
-                l'équipe » (D3) ; verified_by reste fermé côté client. */}
+                seule (daltonisme). Niveau gradué (083) + fraîcheur relative (WS C) +
+                prises confirmées depuis la vérif (agrégé k-anon, 0 coordonnée) +
+                compteur de confirmations communautaires (D2). verified_by reste fermé. */}
             {spot.verified && (
               <div className="rounded-[18px] border border-teal-500/30 bg-teal-500/[0.06] p-6">
                 <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-teal-800">
                   <BadgeCheck size={18} className="text-teal-600" aria-hidden="true" />
-                  Coordonnée vérifiée à la main
+                  {VERIFICATION_LEVELS[spot.verification_level ?? '']?.label ?? 'Coordonnée vérifiée à la main'}
                 </h3>
                 <p className="text-[13px] leading-relaxed text-ink-600">
-                  Ce point a été pointé et contrôlé à la main. C&apos;est une
-                  coordonnée fixe, pas un point communautaire approximatif qui bouge
-                  d&apos;une fois sur l&apos;autre.
+                  {VERIFICATION_LEVELS[spot.verification_level ?? '']?.legend
+                    ?? 'Ce point a été pointé et contrôlé à la main. C’est une coordonnée fixe, pas un point communautaire approximatif qui bouge d’une fois sur l’autre.'}
                 </p>
+                {/* Fraîcheur : date absolue (JJ/MM) + relatif « il y a N mois » (WS C). */}
                 {formatVerifiedDate(spot.verified_at) && (
                   <p className="mt-2 font-mono text-[11px] text-teal-700">
-                    Vérifié le {formatVerifiedDate(spot.verified_at)} par l&apos;équipe
+                    Vérifié le {formatVerifiedDate(spot.verified_at)}
+                    {formatVerifiedFreshness(spot.verified_at)
+                      ? `, ${formatVerifiedFreshness(spot.verified_at)}`
+                      : ''}
                   </p>
                 )}
+                {/* Prises confirmées depuis la vérification (WS C) : agrégé via la RPC
+                    k-anon get_spot_activity, jamais une coordonnée. Masqué si 0. */}
+                {catchesSinceVerified != null && catchesSinceVerified > 0 && (
+                  <p className="mt-1 text-[12px] text-ink-600">
+                    <span className="font-mono font-medium text-navy-900">{catchesSinceVerified}</span>{' '}
+                    prise{catchesSinceVerified > 1 ? 's' : ''} loguée
+                    {catchesSinceVerified > 1 ? 's' : ''} ici depuis la vérification.
+                  </p>
+                )}
+
+                {/* Compteur de confirmations communautaires (D2) — descriptif, pas un
+                    classement. Le compteur ne renvoie qu'un nombre (RPC), aucune
+                    identité. Connecté → bouton confirmer/annuler ; sinon CTA login. */}
+                <SpotConfirmButton
+                  spotId={spot.id}
+                  initialCount={confirmationCount}
+                  initialConfirmed={viewerConfirmed}
+                  loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
+                />
+
+                {/* Signaler une erreur de position (WS A) — report sans coordonnée. */}
+                <div className="mt-3 border-t border-teal-500/15 pt-3">
+                  <SpotReportButton
+                    spotId={spot.id}
+                    loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
+                  />
+                </div>
               </div>
+            )}
+
+            {/* Signaler une erreur de position pour un spot NON vérifié (WS A) : le
+                report d'erreur de coordonnée reste utile sur les points communautaires /
+                importés qui n'ont pas d'encart « vérifié ». Sans coordonnée exposée. */}
+            {!spot.verified && (
+              <SpotReportButton
+                spotId={spot.id}
+                loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
+              />
             )}
 
             {/* Note marée Méditerranée / Corse (marnage faible, non auditée) : on
