@@ -1756,26 +1756,6 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
-      get_active_zones: {
-        Args: {
-          max_lat: number
-          max_lng: number
-          min_lat: number
-          min_lng: number
-          p_days?: number
-          p_zoom?: number
-          species_filter?: string[]
-          technique_filter?: string[]
-        }
-        Returns: {
-          catch_count: number
-          dominant_species: string
-          fishers_count: number
-          lat: number
-          lng: number
-          rank: number
-        }[]
-      }
       get_catch_heatmap: {
         Args: {
           max_lat: number
@@ -1806,7 +1786,6 @@ export type Database = {
       get_department_stats: {
         Args: never
         Returns: {
-          active_zone_count: number
           community_count: number
           curated_count: number
           department: string

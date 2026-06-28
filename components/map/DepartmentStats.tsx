@@ -6,9 +6,8 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
 // Sprint 41 / WS C — comptes par département. Lit la RPC get_department_stats
 // (agrégat PUBLIC, non gaté, 0 geom) : par dépt, N spots publics (détail curé /
-// communauté / importé) ET M zones actives k-anon. Spots et zones sont comptés
-// SÉPARÉMENT (décision John D2 : jamais fondre zones et spots). Comptes honnêtes :
-// si un dépt est maigre, le chiffre le dit (pas de gonflage).
+// communauté / importé). Comptes honnêtes : si un dépt est maigre, le chiffre le
+// dit (pas de gonflage).
 
 type DeptStat = {
   department: string
@@ -16,7 +15,6 @@ type DeptStat = {
   curated_count: number
   community_count: number
   imported_count: number
-  active_zone_count: number
 }
 
 function deptLabel(dep: string): string {
@@ -118,13 +116,9 @@ export default function DepartmentStats() {
                       <span className="text-[13px] font-medium text-ink-900 truncate">
                         {deptLabel(s.department)}
                       </span>
-                      {/* Spots et zones comptés SÉPARÉMENT (jamais fondus) */}
                       <span className="shrink-0 text-[11.5px] text-ink-600">
                         <span className="font-mono font-semibold text-ink-900">{s.spot_count}</span>
                         {' '}spot{s.spot_count > 1 ? 's' : ''}
-                        {' · '}
-                        <span className="font-mono font-semibold text-coral-600">{s.active_zone_count}</span>
-                        {' '}zone{s.active_zone_count > 1 ? 's' : ''}
                       </span>
                     </div>
                     {/* Détail honnête de la provenance des spots */}
@@ -142,7 +136,7 @@ export default function DepartmentStats() {
           </div>
 
           <p className="px-3.5 py-2 border-t border-ink-100 text-[10px] leading-snug text-ink-400">
-            Spots vérifiés et zones actives (densité anonyme des prises) comptés séparément.
+            Spots publics vérifiés par département.
           </p>
         </div>
       )}
