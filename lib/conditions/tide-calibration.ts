@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isCoastalDepartment } from '@/lib/geo/departments'
 
 // ── Calibration marées par port de référence (sprint 38, F3 + fix offset) ──────
 // Source unique du mapping département côtier → port de référence audité, et lecture
@@ -60,6 +61,17 @@ export function referencePortForDepartment(department: string): string | null {
     return ATLANTIC_PORT_BY_DEPARTMENT[dept] ?? FACADE_REFERENCE_PORT.atlantique
   }
   return FACADE_REFERENCE_PORT[facade]
+}
+
+/**
+ * Vrai pour un département côtier à FAIBLE marnage (Méditerranée + Corse) : pas de
+ * façade Manche/Atlantique mappée, donc marée surtout météo-dominée et non auditée.
+ * Sert à afficher une note honnête « marnage faible » au lieu d'un trou silencieux
+ * sur la fiche spot, là où l'encart de calibration ne s'applique pas.
+ */
+export function isLowTidalRangeDepartment(department: string): boolean {
+  const dept = String(department).trim()
+  return isCoastalDepartment(dept) && !DEPARTMENT_FACADE[dept]
 }
 
 export type TideCalibration = {

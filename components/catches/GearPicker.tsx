@@ -41,6 +41,17 @@ function gearLabel(item: GearItem): string {
   return base || KIND_LABELS[item.kind]
 }
 
+/** Clé de dédup insensible à la casse : kind + marque + modèle + couleur. */
+function dedupKey(parts: {
+  kind: GearKind
+  brand?: string | null
+  model?: string | null
+  color?: string | null
+}): string {
+  const norm = (s: string | null | undefined) => normalizeText((s ?? '').trim())
+  return [parts.kind, norm(parts.brand), norm(parts.model), norm(parts.color)].join('|')
+}
+
 const inputCls =
   'w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 placeholder:text-slate-400 bg-white'
 
@@ -171,6 +182,18 @@ export function GearPicker({
         pending={pending}
         onCancel={() => setCreating(false)}
         onCreate={async (input) => {
+          // Dédup côté UI : si un item équivalent (même kind + marque + modèle +
+          // couleur, insensible à la casse) existe déjà dans la boîte, on le
+          // sélectionne au lieu d'en créer un doublon. L'index unique 077 reste
+          // le backstop DB en dernier recours.
+          const key = dedupKey(input)
+          const dup = localItems.find((i) => dedupKey(i) === key)
+          if (dup) {
+            onChange(dup.id)
+            setCreating(false)
+            toast.success('Matériel déjà dans ta boîte, sélectionné')
+            return
+          }
           setPending(true)
           const res = await createGearItem(input)
           setPending(false)

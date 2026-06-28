@@ -123,8 +123,10 @@ export default async function CarnetPage({ searchParams }: Props) {
         {stats && <CatchStatsRow stats={stats} className="mb-3" />}
 
         {/* Opt-in alertes push « fenêtre optimale » — proposé seulement quand le
-            carnet a au moins une prise (pas à froid). Permission demandée sur geste. */}
-        {totalCount > 0 && <EnablePushAlerts className="mb-3" />}
+            carnet a au moins une prise (pas à froid). Permission demandée sur geste.
+            Le tier gate l'UI : un gratuit voit un upsell, pas un faux « activées »
+            (le cron ne notifie que Local / Itinérant). */}
+        {totalCount > 0 && <EnablePushAlerts tier={tier ?? 'discovery'} className="mb-3" />}
 
         {/* Sorties (dont bredouilles) — dénominateur honnête */}
         {outingStats && <OutingStats data={outingStats} className="mb-3" />}

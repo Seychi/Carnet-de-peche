@@ -39,6 +39,59 @@ async function safeConditions(
   }
 }
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>
+
+/**
+ * Vérifie qu'un gear_id appartient bien à l'utilisateur courant (boîte à matériel
+ * owner-only). Sans ce garde, un user pourrait rattacher sa prise au matériel
+ * d'autrui : `gear_label` (dénormalisé dans `catches_for_viewer`) exposerait alors
+ * la marque/modèle privés d'un tiers sur une prise publique. On scope la lecture
+ * sur user_id (modèle app/actions/gear.ts) ; absent = refus.
+ */
+async function assertGearOwnership(
+  supabase: SupabaseServerClient,
+  gearId: string,
+  userId: string
+): Promise<{ ok: true } | { error: string }> {
+  const { data, error } = await supabase
+    .from('gear_items')
+    .select('id')
+    .eq('id', gearId)
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) {
+    console.error('[catches/actions] assertGearOwnership error :', error)
+    return { error: 'Impossible de vérifier ton matériel. Réessaie.' }
+  }
+  if (!data) return { error: 'Ce matériel ne fait pas partie de ta boîte.' }
+  return { ok: true }
+}
+
+/**
+ * Vérifie qu'un spot_id est ACCESSIBLE à l'utilisateur courant (même trou que
+ * gear_id, décision John D2). La RLS `spots_select_visible` ne renvoie une ligne
+ * que pour un spot (approuvé ET visible selon tier) OU créé par lui OU s'il est
+ * modérateur : un simple SELECT scopé sur l'id reflète donc exactement la
+ * visibilité réelle. On ne lit QUE l'id (aucune colonne geom dé-verrouillée).
+ * Absent = spot non accessible → refus.
+ */
+async function assertSpotAccessible(
+  supabase: SupabaseServerClient,
+  spotId: string
+): Promise<{ ok: true } | { error: string }> {
+  const { data, error } = await supabase
+    .from('spots')
+    .select('id')
+    .eq('id', spotId)
+    .maybeSingle()
+  if (error) {
+    console.error('[catches/actions] assertSpotAccessible error :', error)
+    return { error: 'Impossible de vérifier ce spot. Réessaie.' }
+  }
+  if (!data) return { error: 'Ce spot n’est pas accessible.' }
+  return { ok: true }
+}
+
 // ─── createCatch ──────────────────────────────────────────────────────────────
 
 export async function createCatch(
@@ -56,6 +109,17 @@ export async function createCatch(
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
+
+  // Garde ownership/accessibilité AVANT l'insert : un gear_id ou spot_id non
+  // autorisé exposerait le matériel/spot d'autrui via les colonnes dénormalisées.
+  if (data.gear_id !== undefined) {
+    const check = await assertGearOwnership(supabase, data.gear_id, user.id)
+    if ('error' in check) return { error: check.error }
+  }
+  if (data.spot_id !== undefined) {
+    const check = await assertSpotAccessible(supabase, data.spot_id)
+    if ('error' in check) return { error: check.error }
+  }
 
   const caughtAt = new Date(data.caught_at)
   const conditions = await safeConditions(data.latitude, data.longitude, caughtAt)
@@ -150,6 +214,17 @@ export async function updateCatch(
     return { error: 'Prise introuvable.' }
   }
   if (!existing) return { error: 'Prise introuvable ou accès refusé.' }
+
+  // Garde ownership/accessibilité AVANT l'update (mêmes vecteurs qu'à la création).
+  // `null` = détachement explicite, autorisé sans vérification.
+  if (data.gear_id !== undefined && data.gear_id !== null) {
+    const check = await assertGearOwnership(supabase, data.gear_id, user.id)
+    if ('error' in check) return { error: check.error }
+  }
+  if (data.spot_id !== undefined && data.spot_id !== null) {
+    const check = await assertSpotAccessible(supabase, data.spot_id)
+    if ('error' in check) return { error: check.error }
+  }
 
   const geomChanged = data.latitude !== undefined || data.longitude !== undefined
   const geom =

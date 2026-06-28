@@ -7,6 +7,7 @@ import { isPersonalBest } from '@/lib/share/personal-best'
 import type { ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import type { Tendency } from '@/lib/scoring/personal/types'
 import type { Json } from '@/lib/types'
+import { LOOKS_LIKE_COORD } from '@/lib/cofishing/schema'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -87,6 +88,24 @@ const uuid = z.string().uuid()
 
 function monthStamp(d = new Date()): string {
   return d.toISOString().slice(0, 7) // 'YYYY-MM'
+}
+
+// ---------------------------------------------------------------------------
+// sanitizeLocationLabel — garde-fou anti spot-burning sur le payload PUBLIC.
+// `location_label` est du texte LIBRE éditable (le reverseGeocode vise la commune,
+// mais l'utilisateur peut y taper un lieu-dit précis ou une coordonnée). On ne
+// laisse sortir qu'une granularité sûre :
+//   • toute chaîne qui ressemble à une coordonnée (même motif LOOKS_LIKE_COORD que le
+//     co-pêchage : 1-2 entiers . 3+ décimales) est REJETÉE → on retombe sur null
+//     (la carte montre alors le département seul) ;
+//   • sinon on normalise (trim + longueur bornée). Le partage reste geom-free.
+// ---------------------------------------------------------------------------
+function sanitizeLocationLabel(raw: string | null): string | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  if (LOOKS_LIKE_COORD.test(trimmed)) return null
+  return trimmed.slice(0, 80)
 }
 
 // ---------------------------------------------------------------------------
@@ -222,7 +241,9 @@ async function createCatchCard(
     size_cm: row.size_cm,
     weight_g: row.weight_g,
     caught_at: row.caught_at,
-    location_label: row.location_label,
+    // Sanitisé : jamais une coordonnée ni un lieu-dit arbitrairement long dans le
+    // payload public (anti spot-burning). Null → la carte montre le département seul.
+    location_label: sanitizeLocationLabel(row.location_label),
     department: row.department,
     gear_label: row.gear_label,
     conditions: {

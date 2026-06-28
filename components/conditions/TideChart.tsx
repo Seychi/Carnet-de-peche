@@ -18,6 +18,7 @@ import {
   tideTrendAt,
   trendLabel,
   upcomingExtrema,
+  refineExtremumHour,
   formatHourFraction,
   formatCountdown,
   type TideTrend,
@@ -99,6 +100,24 @@ export default function TideChart({ points, extrema, currentHourIdx, offsetMinut
   const nextLow = low ? { ...low, hourFraction: low.hourFraction + offsetHours } : null
   const nowTrend = tideTrendAt(points, refHour)
   const NowTrendIcon = TREND_ICON[nowTrend]
+
+  // Extrêmes PM/BM dans le temps AFFICHÉ (corrigé du même offset que les cartes
+  // texte) : heure sub-horaire raffinée + offset. Sert le ReferenceDot du graphe
+  // ET la grille, pour que les heures coïncident partout sur le même écran.
+  const displayExtrema = extrema.map((ex) => {
+    const displayHour = refineExtremumHour(points, ex.hour) + offsetHours
+    const clamped = Math.max(0, Math.min(23, displayHour))
+    return {
+      type: ex.type,
+      height_m: ex.height_m,
+      // x sur le graphe (heure affichée), borné à l'axe 0-23.
+      x: clamped,
+      // La grille n'affiche que les heures paires : on rattache l'extremum à la
+      // ligne paire la plus proche de l'heure affichée (bornée à 0-22), pour que
+      // le tag PM/BM tombe au plus près du point du graphe.
+      hourBucket: Math.max(0, Math.min(22, Math.round(clamped / 2) * 2)),
+    }
+  })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderTooltip = ({ active, payload, label }: any) => {
@@ -223,11 +242,12 @@ export default function TideChart({ points, extrema, currentHourIdx, offsetMinut
               />
             )}
 
-            {/* Points extrêmes PM / BM */}
-            {extrema.map((ex, i) => (
+            {/* Points extrêmes PM / BM — placés sur l'heure AFFICHÉE (corrigée
+                de l'offset de calibration), pour coïncider avec les cartes texte. */}
+            {displayExtrema.map((ex, i) => (
               <ReferenceDot
                 key={i}
-                x={ex.hour}
+                x={ex.x}
                 y={ex.height_m}
                 r={5}
                 fill={ex.type === 'high' ? '#0A2F3D' : '#3B8AA8'}
@@ -268,7 +288,9 @@ export default function TideChart({ points, extrema, currentHourIdx, offsetMinut
               {points
                 .filter((p) => p.hour % 2 === 0)
                 .map((p) => {
-                  const ex = extrema.find((e) => e.hour === p.hour)
+                  // On matche l'extremum sur son bucket horaire AFFICHÉ (corrigé de
+                  // l'offset), cohérent avec le graphe et les cartes texte.
+                  const ex = displayExtrema.find((e) => e.hourBucket === p.hour)
                   const isCurrent = Math.floor(currentHour) === p.hour || Math.floor(currentHour) === p.hour + 1
                   return (
                     <tr

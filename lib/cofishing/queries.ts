@@ -36,10 +36,16 @@ export type ParticipantWithProfile = {
 }
 
 /**
- * Sorties à venir d'un département (ouvertes/pleines), via la vue (aucun geom).
+ * Sorties d'un département via la vue (aucun geom). `species` est désormais porté par
+ * la vue (migration 076) : une seule requête, fini le contournement 2-requêtes.
+ *
+ * Le board affiche les sorties ENCORE actives (`open`/`full`). En plus, les sorties
+ * dont l'utilisateur courant est MEMBRE (hôte ou participant accepté), notamment celles
+ * annulées ou passées, restent visibles (grisées) pour qu'il garde l'accès au chat en
+ * lecture seule. Un tiers ne voit jamais une sortie annulée (il n'en est pas membre).
+ *
  * Filtres optionnels : `species` (overlap, au moins une espèce en commun) et `from`
- * (date plancher ISO). La vue ne porte pas la colonne `species` (068 l'a ajoutée à la
- * table, pas à la vue) → on la lit sur la table `outing_proposals` et on la fusionne.
+ * (date plancher ISO).
  */
 export async function getDeptProposals(
   department: string,
@@ -48,7 +54,8 @@ export async function getDeptProposals(
   const supabase = await createClient()
   const floor = filters?.from ?? new Date(Date.now() - 12 * 3600 * 1000).toISOString()
 
-  const { data } = await supabase
+  // 1. Board des sorties actives (ouvertes/pleines).
+  const { data: boardData } = await supabase
     .from('outing_proposals_for_viewer')
     .select('*')
     .eq('department', department)
@@ -57,23 +64,47 @@ export async function getDeptProposals(
     .order('planned_at', { ascending: true })
     .limit(50)
 
-  const rows = (data ?? []) as Omit<OutingProposalView, 'species'>[]
-  if (rows.length === 0) return []
+  const byId = new Map<string, OutingProposalView>()
+  for (const r of (boardData ?? []) as OutingProposalView[]) byId.set(r.id, r)
 
-  // Espèces depuis la table (la vue ne les expose pas). RLS SELECT = authentifié (053).
-  const ids = rows.map((r) => r.id)
-  const { data: speciesRows } = await supabase
-    .from('outing_proposals')
-    .select('id, species')
-    .in('id', ids)
-  const speciesById = new Map(
-    ((speciesRows ?? []) as { id: string; species: string[] | null }[]).map((s) => [s.id, s.species]),
-  )
+  // 2. Sorties dont JE suis MEMBRE (hôte ou participant accepté) qui ne sont pas déjà
+  // sur le board : annulées/passées surtout, mais aussi une active aux dates ayant
+  // glissé sous le plancher. Elles restent visibles (grisées si closes) pour garder
+  // l'accès au chat. Un tiers n'obtient jamais ces sorties (il n'est pas membre).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (user) {
+    const memberProposalIds = new Set<string>()
 
-  let merged: OutingProposalView[] = rows.map((r) => ({
-    ...r,
-    species: speciesById.get(r.id) ?? null,
-  }))
+    // Sorties que j'héberge.
+    const { data: hosted } = await supabase
+      .from('outing_proposals')
+      .select('id')
+      .eq('host_id', user.id)
+      .eq('department', department)
+    for (const r of (hosted ?? []) as { id: string }[]) memberProposalIds.add(r.id)
+
+    // Sorties où ma participation est acceptée.
+    const { data: parts } = await supabase
+      .from('outing_participants')
+      .select('proposal_id')
+      .eq('user_id', user.id)
+      .eq('status', 'accepted')
+    for (const r of (parts ?? []) as { proposal_id: string }[]) memberProposalIds.add(r.proposal_id)
+
+    const extraIds = [...memberProposalIds].filter((id) => !byId.has(id))
+    if (extraIds.length > 0) {
+      const { data: extraData } = await supabase
+        .from('outing_proposals_for_viewer')
+        .select('*')
+        .in('id', extraIds)
+        .eq('department', department)
+      for (const r of (extraData ?? []) as OutingProposalView[]) byId.set(r.id, r)
+    }
+  }
+
+  let merged = [...byId.values()]
 
   // Filtre espèce (overlap) : on garde les sorties ciblant AU MOINS une des espèces.
   const wanted = filters?.species?.filter(Boolean) ?? []
@@ -81,6 +112,17 @@ export async function getDeptProposals(
     const set = new Set(wanted)
     merged = merged.filter((r) => (r.species ?? []).some((s) => set.has(s)))
   }
+
+  // Actives d'abord (planned_at croissant), closes ensuite (les plus récentes en tête).
+  const isClosed = (s: string) => s === 'cancelled' || s === 'done'
+  merged.sort((a, b) => {
+    const ca = isClosed(a.status) ? 1 : 0
+    const cb = isClosed(b.status) ? 1 : 0
+    if (ca !== cb) return ca - cb
+    const ta = new Date(a.planned_at).getTime()
+    const tb = new Date(b.planned_at).getTime()
+    return ca === 1 ? tb - ta : ta - tb
+  })
 
   return merged
 }

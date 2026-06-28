@@ -9,7 +9,10 @@ import { isCoastalDepartment } from '@/lib/geo/departments'
 // Garde-fou D-D3 : on ne laisse PAS écrire une coordonnée précise, même en texte
 // libre. Rejette un motif décimal type latitude/longitude (1-2 entiers . 3+ décimales,
 // ex. « 47.123 », « -1,4567 »). Une heure « 7.30 » (2 décimales) ne matche pas.
-const LOOKS_LIKE_COORD = /-?\d{1,2}[.,]\d{3,}/
+// Exporté (sprint 44) pour être RÉUTILISÉ tel quel par le partage (app/actions/share.ts)
+// et la saisie de prise (lib/catches/schema.ts) : un seul motif anti-coordonnée dans
+// tout le repo, jamais redéfini en double.
+export const LOOKS_LIKE_COORD = /-?\d{1,2}[.,]\d{3,}/
 const noCoord = (s: string | undefined) => !s || !LOOKS_LIKE_COORD.test(s)
 
 export const proposeOutingSchema = z.object({

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Fish, Lock, Users, Globe, MapPin } from 'lucide-react'
+import { Fish, Lock, Users, Globe, MapPin, Ruler } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { ElementType } from 'react'
@@ -28,6 +28,11 @@ export function CatchCard({
   const { Icon: PrivacyIcon } = privacy
   const location = c.location_label ?? c.spot_name ?? null
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
+
+  // Prise mesurée (photo_verified_at posé) → la longueur mesurée fait référence.
+  // Honnêteté (D1) : « mesurée », jamais « vérifiée ».
+  const isMeasured = c.photo_verified_at != null && c.measured_length_cm != null
+  const displaySizeCm = c.measured_length_cm ?? c.size_cm
 
   // Badge réglementaire (sprint 24) : un poisson CONSERVÉ sous la maille façade-aware.
   // Façade inconnue (ni dépt ni géoloc) → pas de badge (jamais de verdict faux).
@@ -95,12 +100,23 @@ export function CatchCard({
           </p>
         )}
 
-        {/* Taille / poids */}
-        {(c.size_cm || c.weight_g) && (
-          <p className="font-mono text-[13px] text-ink-600 font-medium mt-0.5">
-            {c.size_cm ? `${c.size_cm} cm` : ''}
-            {c.size_cm && c.weight_g ? ' · ' : ''}
-            {c.weight_g ? `${(c.weight_g / 1000).toFixed(2)} kg` : ''}
+        {/* Taille / poids.
+            Une prise mesurée (measured_length_cm) affiche la longueur mesurée comme
+            taille de référence + une pastille « Mesurée » (jamais « vérifiée », D1).
+            Sinon on retombe sur la taille déclarée (size_cm). */}
+        {(displaySizeCm != null || c.weight_g) && (
+          <p className="font-mono text-[13px] text-ink-600 font-medium mt-0.5 flex items-center gap-1.5">
+            <span>
+              {displaySizeCm != null ? `${displaySizeCm} cm` : ''}
+              {displaySizeCm != null && c.weight_g ? ' · ' : ''}
+              {c.weight_g ? `${(c.weight_g / 1000).toFixed(2)} kg` : ''}
+            </span>
+            {isMeasured && (
+              <span className="inline-flex items-center gap-0.5 font-sans text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                <Ruler size={9} aria-hidden="true" />
+                Mesurée
+              </span>
+            )}
           </p>
         )}
 

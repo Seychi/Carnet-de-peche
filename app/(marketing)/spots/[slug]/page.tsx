@@ -2,7 +2,7 @@ import { cache } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock, BadgeCheck } from 'lucide-react'
+import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock, BadgeCheck, Waves } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -14,6 +14,8 @@ import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
+import { refineExtremumHour, formatHourFraction } from '@/lib/conditions/tide'
+import { getTideCalibration, isLowTidalRangeDepartment } from '@/lib/conditions/tide-calibration'
 import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
@@ -45,6 +47,8 @@ type SpotDetail = {
   hazards: string[] | null
   visibility: string
   verified: boolean
+  /** Date de vérification manuelle de la coordonnée (timestamptz). Null si jamais vérifié. */
+  verified_at: string | null
   source: string
   created_at: string
 }
@@ -74,6 +78,8 @@ const getSpotBySlug = cache(async (slug: string): Promise<SpotDetail | null> => 
     description: row.description ?? null,
     access_notes: row.access_notes ?? null,
     hazards: row.hazards ?? null,
+    // Date de vérification (migration 075). verified_by reste fermé côté client.
+    verified_at: row.verified_at ?? null,
   } as SpotDetail
 })
 
@@ -143,6 +149,16 @@ export async function generateMetadata(
       canonical: canonicalUrl,
     },
   }
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/** Date FR courte « JJ/MM » d'une vérification de coordonnée (D3 : date seule). */
+function formatVerifiedDate(iso: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -279,6 +295,25 @@ export default async function SpotPage({
     ? await getPersonalTendencies({ spotId: spot.id }).catch(() => null)
     : null
 
+  const deptKey = String(spot.department).trim()
+
+  // Offset de calibration marée du port de référence du spot (sprint 38) : les
+  // heures de PM/BM du calendrier 7j doivent être calées sur le SHOM comme la
+  // courbe du jour (TideChart) et les cartes texte, sinon « PM 14h32 » sur la fiche
+  // ne coïnciderait pas avec le « ↑ 14h » du calendrier. 0 si façade non auditée.
+  const tideCal = await getTideCalibration(deptKey).catch(() => null)
+  const tideOffsetHours = (tideCal?.offsetMinutes ?? 0) / 60
+
+  // Heure d'un extremum calée : raffinée sub-horaire + offset, formatée « HHhMM »
+  // (même chaîne que les cartes texte). Bornée à l'axe 0-23.
+  const calibratedExtremumLabel = (
+    points: { hour: number; height_m: number }[],
+    hour: number,
+  ): string => {
+    const h = Math.max(0, Math.min(23, refineExtremumHour(points, hour) + tideOffsetHours))
+    return formatHourFraction(h)
+  }
+
   // WMO code par date pour les icônes météo du calendrier
   const weatherCodes: Record<string, number> = {}
   // PM/BM par date (1re pleine et 1re basse mer du jour) pour le calendrier 7j.
@@ -289,8 +324,8 @@ export default async function SpotPage({
     const lo = fc.tide.extrema.find((e) => e.type === 'low')
     if (hi || lo) {
       tidesByDate[fc.date] = {
-        high: hi ? `${hi.hour}h` : undefined,
-        low: lo ? `${lo.hour}h` : undefined,
+        high: hi ? calibratedExtremumLabel(fc.tide.points, hi.hour) : undefined,
+        low: lo ? calibratedExtremumLabel(fc.tide.points, lo.hour) : undefined,
       }
     }
   }
@@ -305,7 +340,6 @@ export default async function SpotPage({
   const wazeUrl = `https://waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`
 
   const structureLabel = STRUCTURE_LABELS[spot.structure ?? ''] ?? spot.structure ?? ''
-  const deptKey = String(spot.department).trim()
 
   // JSON-LD Place — tous les spots non-privés, coords toujours à 2dp (fuzzy safe pour le markup public)
   const jsonLd = spot.visibility !== 'private' ? {
@@ -612,8 +646,8 @@ export default async function SpotPage({
             {/* Coordonnée vérifiée (sprint 37) — munition anti-Decathlon : un spot
                 vérifié = GPS fixe contrôlé à la main, pas un point communautaire
                 qui bouge. L'info passe par l'icône (forme) + texte, pas la couleur
-                seule (daltonisme). verified_at non lisible côté client (verrou
-                colonne 028b/041) → on n'affiche pas de date ici. */}
+                seule (daltonisme). verified_at (migration 075) = date seule, « par
+                l'équipe » (D3) ; verified_by reste fermé côté client. */}
             {spot.verified && (
               <div className="rounded-[18px] border border-teal-500/30 bg-teal-500/[0.06] p-6">
                 <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-teal-800">
@@ -624,6 +658,27 @@ export default async function SpotPage({
                   Ce point a été pointé et contrôlé à la main. C&apos;est une
                   coordonnée fixe, pas un point communautaire approximatif qui bouge
                   d&apos;une fois sur l&apos;autre.
+                </p>
+                {formatVerifiedDate(spot.verified_at) && (
+                  <p className="mt-2 font-mono text-[11px] text-teal-700">
+                    Vérifié le {formatVerifiedDate(spot.verified_at)} par l&apos;équipe
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Note marée Méditerranée / Corse (marnage faible, non auditée) : on
+                explicite l'absence d'encart de calibration au lieu d'un blanc. */}
+            {isLowTidalRangeDepartment(deptKey) && (
+              <div className="rounded-[18px] border border-sand-200 bg-white p-6">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy-900">
+                  <Waves size={18} className="text-teal-600" aria-hidden="true" />
+                  Marées
+                </h3>
+                <p className="text-[13px] leading-relaxed text-ink-600">
+                  Sur cette façade, le marnage est faible : la marée est surtout
+                  météo-dominée (vent, pression). Les horaires de pleine et basse mer
+                  comptent moins qu&apos;en Manche ou en Atlantique.
                 </p>
               </div>
             )}

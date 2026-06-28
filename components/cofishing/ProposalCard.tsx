@@ -29,12 +29,24 @@ function name(p: { display_name: string | null; username: string | null }): stri
   return p.display_name || (p.username ? `@${p.username}` : 'Pêcheur')
 }
 
+// Statut effectif : « Passée » dérivé de planned_at quand la sortie est dans le passé
+// et toujours ouverte/complète (rien ne la passe en `done` côté DB). `cancelled` prime.
+function effectiveStatus(status: string, plannedAt: string): string {
+  if (status === 'cancelled') return 'cancelled'
+  if (new Date(plannedAt).getTime() < Date.now()) return 'done'
+  return status
+}
+
+// Une sortie close (annulée ou passée) reste visible mais grisée, sans contrôles ni
+// envoi de message (chat en lecture seule).
+function isClosedStatus(effective: string): boolean {
+  return effective === 'cancelled' || effective === 'done'
+}
+
 // Badge de statut. Daltonien-safe : icône + libellé portent l'info, la couleur n'est
-// qu'un renfort (John est daltonien). « Passée » dérivé de planned_at si la sortie est
-// dans le passé et toujours ouverte/complète.
+// qu'un renfort (John est daltonien).
 function StatusBadge({ status, plannedAt }: { status: string; plannedAt: string }) {
-  const isPast = new Date(plannedAt).getTime() < Date.now()
-  const effective = status === 'cancelled' ? 'cancelled' : isPast ? 'done' : status
+  const effective = effectiveStatus(status, plannedAt)
 
   const config: Record<string, { label: string; Icon: typeof Circle; cls: string }> = {
     open: { label: 'Ouverte', Icon: Circle, cls: 'bg-teal-50 text-teal-700 border-teal-200' },
@@ -68,6 +80,9 @@ export function ProposalCard({
   const [status, setStatus] = useState(participationStatus)
   const [chatOpen, setChatOpen] = useState(false)
 
+  // Sortie close (annulée ou passée) : grisée, sans contrôles, chat en lecture seule.
+  const closed = isClosedStatus(effectiveStatus(p.status, p.planned_at))
+
   // Accès chat = hôte OU participant accepté (miroir UI de la RLS 068). Si le viewer
   // se retire (status → undefined), l'accès disparaît immédiatement.
   const canChat = isHost || status === 'accepted'
@@ -87,7 +102,11 @@ export function ProposalCard({
   const accepted = (participants ?? []).filter((x) => x.status === 'accepted')
 
   return (
-    <div className="rounded-[14px] border border-sand-200 bg-white p-4">
+    <div
+      className={`rounded-[14px] border p-4 ${
+        closed ? 'border-sand-200 bg-slate-50/80' : 'border-sand-200 bg-white'
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <Avatar className="size-9 shrink-0">
@@ -141,48 +160,73 @@ export function ProposalCard({
         {p.notes && <p className="text-ink-600">{p.notes}</p>}
       </div>
 
-      {/* Contrôles hôte : demandes en attente + acceptés */}
+      {/* Contrôles hôte : demandes en attente + acceptés. Une sortie close ne propose
+          plus d'action (ni accepter/refuser, ni annuler) : juste le récap des acceptés. */}
       {isHost ? (
         <div className="mt-3 border-t border-sand-100 pt-3">
-          {requests.length === 0 && accepted.length === 0 && (
-            <p className="text-[12px] text-ink-400">Aucune demande pour l’instant.</p>
+          {closed ? (
+            accepted.length > 0 ? (
+              <p className="text-[12px] text-ink-500">
+                Acceptés : {accepted.map((a) => name(a)).join(', ')}
+              </p>
+            ) : (
+              <p className="text-[12px] text-ink-400">Aucun participant accepté.</p>
+            )
+          ) : (
+            <>
+              {requests.length === 0 && accepted.length === 0 && (
+                <p className="text-[12px] text-ink-400">Aucune demande pour l’instant.</p>
+              )}
+              {requests.map((r) => (
+                <div key={r.user_id} className="flex items-center justify-between gap-2 py-1.5">
+                  <span className="text-[13px] text-ink-700 truncate">{name(r)}</span>
+                  <div className="flex gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => run(() => respondToParticipant(p.id, r.user_id, true), () => toast.success('Participant accepté'))}
+                      className="flex min-h-11 items-center gap-1 rounded-full bg-teal-500 px-3.5 py-1.5 text-[12px] font-medium text-navy-950 disabled:opacity-60"
+                    >
+                      <Check size={14} /> Accepter
+                    </button>
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => run(() => respondToParticipant(p.id, r.user_id, false))}
+                      className="flex min-h-11 items-center gap-1 rounded-full border border-sand-200 px-3.5 py-1.5 text-[12px] text-ink-600 disabled:opacity-60"
+                    >
+                      <X size={14} /> Refuser
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {accepted.length > 0 && (
+                <p className="mt-1 text-[12px] text-ink-500">
+                  Acceptés : {accepted.map((a) => name(a)).join(', ')}
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => run(() => cancelOuting(p.id), () => toast.success('Sortie annulée'))}
+                className="mt-2 inline-flex min-h-11 items-center text-[12px] text-coral-500 hover:underline disabled:opacity-60"
+              >
+                Annuler la sortie
+              </button>
+            </>
           )}
-          {requests.map((r) => (
-            <div key={r.user_id} className="flex items-center justify-between gap-2 py-1.5">
-              <span className="text-[13px] text-ink-700 truncate">{name(r)}</span>
-              <div className="flex gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => run(() => respondToParticipant(p.id, r.user_id, true), () => toast.success('Participant accepté'))}
-                  className="flex min-h-11 items-center gap-1 rounded-full bg-teal-500 px-3.5 py-1.5 text-[12px] font-medium text-navy-950 disabled:opacity-60"
-                >
-                  <Check size={14} /> Accepter
-                </button>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => run(() => respondToParticipant(p.id, r.user_id, false))}
-                  className="flex min-h-11 items-center gap-1 rounded-full border border-sand-200 px-3.5 py-1.5 text-[12px] text-ink-600 disabled:opacity-60"
-                >
-                  <X size={14} /> Refuser
-                </button>
-              </div>
-            </div>
-          ))}
-          {accepted.length > 0 && (
-            <p className="mt-1 text-[12px] text-ink-500">
-              Acceptés : {accepted.map((a) => name(a)).join(', ')}
-            </p>
-          )}
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => run(() => cancelOuting(p.id), () => toast.success('Sortie annulée'))}
-            className="mt-2 inline-flex min-h-11 items-center text-[12px] text-coral-500 hover:underline disabled:opacity-60"
-          >
-            Annuler la sortie
-          </button>
+        </div>
+      ) : closed ? (
+        <div className="mt-3 border-t border-sand-100 pt-3">
+          <span className="text-[13px] text-ink-400">
+            {status === 'accepted'
+              ? p.status === 'cancelled'
+                ? 'Sortie annulée par l’organisateur.'
+                : 'Sortie passée.'
+              : p.status === 'cancelled'
+                ? 'Sortie annulée.'
+                : 'Sortie passée.'}
+          </span>
         </div>
       ) : (
         <div className="mt-3 border-t border-sand-100 pt-3">
@@ -240,9 +284,13 @@ export function ProposalCard({
             className="flex min-h-11 w-full items-center gap-2 text-[13px] font-medium text-teal-700"
           >
             <MessageCircle size={15} />
-            {chatOpen ? 'Masquer le chat' : 'Ouvrir le chat de la sortie'}
+            {chatOpen
+              ? 'Masquer le chat'
+              : closed
+                ? 'Relire la conversation'
+                : 'Ouvrir le chat de la sortie'}
           </button>
-          {chatOpen && <OutingChat proposalId={p.id} viewerId={viewerId} />}
+          {chatOpen && <OutingChat proposalId={p.id} viewerId={viewerId} readOnly={closed} />}
         </div>
       )}
     </div>

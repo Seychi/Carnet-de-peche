@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Pencil, Lock, Users, Globe, MapPin, Wind, Waves, Thermometer, Gauge, Cloud, Droplets } from 'lucide-react'
+import { Pencil, Lock, Users, Globe, MapPin, Wind, Waves, Thermometer, Gauge, Cloud, Droplets, Ruler } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getCatchById } from '@/lib/catches/queries'
 import type { ConditionsSnapshot } from '@/lib/conditions/openmeteo'
@@ -185,19 +185,53 @@ export default async function CatchDetailPage({ params }: Props) {
             </span>
           </div>
 
-          {/* Mesures */}
-          {(c.size_cm || c.weight_g) && (
-            <div className="flex gap-6 mt-5 pt-5 border-t border-slate-100">
-              {c.size_cm && (
+          {/* Mesures.
+              `measured_length_cm` = longueur réellement mesurée (déclarée par le
+              pêcheur avec un objet de référence). Honnêteté (décision John D1) : on
+              dit « mesurée », JAMAIS « vérifiée ». Quand elle diffère de la taille
+              déclarée (`size_cm`), on montre les deux, la mesure faisant référence. */}
+          {(c.size_cm || c.weight_g || c.measured_length_cm != null) && (
+            <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-slate-100">
+              {c.measured_length_cm != null ? (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">
-                    Taille
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">
+                      Taille mesurée
+                    </p>
+                    {c.photo_verified_at && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                        <Ruler size={10} aria-hidden="true" />
+                        Mesurée
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[26px] font-bold text-navy-900 leading-tight">
-                    {c.size_cm}
+                    {c.measured_length_cm}
                     <span className="text-[14px] font-normal text-ink-500 ml-1">cm</span>
                   </p>
+                  {c.size_cm != null && c.size_cm !== c.measured_length_cm && (
+                    <p className="text-[12px] text-ink-400 mt-0.5">
+                      Déclarée : {c.size_cm} cm
+                    </p>
+                  )}
+                  {c.reference_object && (
+                    <p className="text-[12px] text-ink-500 mt-0.5">
+                      Réf. : {c.reference_object}
+                    </p>
+                  )}
                 </div>
+              ) : (
+                c.size_cm != null && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">
+                      Taille
+                    </p>
+                    <p className="text-[26px] font-bold text-navy-900 leading-tight">
+                      {c.size_cm}
+                      <span className="text-[14px] font-normal text-ink-500 ml-1">cm</span>
+                    </p>
+                  </div>
+                )
               )}
               {c.weight_g && (
                 <div>

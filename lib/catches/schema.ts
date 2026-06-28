@@ -2,6 +2,12 @@ import '@/lib/zod-config'
 import { z } from 'zod'
 import { isCoastalDepartment } from '@/lib/geo/departments'
 import { CARNET_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
+import { LOOKS_LIKE_COORD } from '@/lib/cofishing/schema'
+
+// Garde-fou anti spot-burning : `location_label` est du texte libre éditable. On
+// refuse une coordonnée précise tapée à la main (même motif que le co-pêchage : 1-2
+// entiers . 3+ décimales). Cohérent avec la sanitisation du partage (app/actions/share.ts).
+const noCoordInLabel = (s: string | undefined) => !s || !LOOKS_LIKE_COORD.test(s)
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -37,10 +43,15 @@ const catchFieldsNoDefaults = z.object({
   size_cm: z.number().min(10).max(200).optional(),
   weight_kg: z.number().min(0.05).max(30).optional(),
   // Aide à la mesure honnête (WS-D, sprint 39). Longueur réellement mesurée +
-  // objet de référence visible sur la photo. Cohérent avec le CHECK DB (0 < x < 300).
-  // `is_measured` est un champ de FORMULAIRE (pas une colonne) : il déclenche la
-  // sémantique « prise mesurée » côté action, qui dérive `photo_verified_at`.
-  measured_length_cm: z.number().int().min(1).max(299).optional(),
+  // objet de référence visible sur la photo. Reste dans le CHECK DB (0 < x < 300).
+  // Borne basse alignée sur size_cm (10, fini le 1 cm absurde, décision John D4) ;
+  // borne haute large (250) pour les grosses espèces (congre). `is_measured` est un
+  // champ de FORMULAIRE (pas une colonne) : il déclenche la sémantique « prise
+  // mesurée » côté action, qui dérive `photo_verified_at`.
+  measured_length_cm: z.number().int()
+    .min(10, { error: 'La longueur mesurée doit faire au moins 10 cm.' })
+    .max(250, { error: 'La longueur mesurée doit faire au plus 250 cm.' })
+    .optional(),
   reference_object: z.string().trim().max(120).optional(),
   is_measured: z.boolean().optional(),
   technique: catchTechniqueEnum,
@@ -61,7 +72,8 @@ const catchFieldsNoDefaults = z.object({
   precise_for_friends: z.boolean(),
   reveal_precise_to_public: z.boolean(),
   photo_path: z.string().optional(),
-  location_label: z.string().max(120).optional(),
+  location_label: z.string().max(120).optional()
+    .refine(noCoordInLabel, { error: 'Pas de coordonnées GPS dans le lieu : donne un repère (commune, « digue nord »).' }),
 })
 
 // Objet de base AVEC defaults, réutilisé par le form et createCatchSchema

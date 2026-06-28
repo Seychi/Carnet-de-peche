@@ -11,9 +11,11 @@ import { useCallback, useEffect, useState } from 'react'
 //   (appelé depuis un onClick). Jamais au mount.
 // - `userVisibleOnly: true` obligatoire (Chrome refuse sinon).
 // - Dégradation propre : navigateur non supporté → `support = 'unsupported'` ;
-//   iOS Safari hors PWA → `support = 'ios-needs-pwa'` (pas de bouton mort).
+//   iOS Safari hors PWA → `support = 'ios-needs-pwa'` (pas de bouton mort) ;
+//   clé publique VAPID absente (dev/preview, ou prod mal configurée) →
+//   `support = 'unavailable'` pour que l'UI le dise au lieu d'un bouton muet.
 
-export type PushSupport = 'supported' | 'unsupported' | 'ios-needs-pwa'
+export type PushSupport = 'supported' | 'unsupported' | 'ios-needs-pwa' | 'unavailable'
 
 export type UsePushSubscription = {
   support: PushSupport
@@ -58,6 +60,12 @@ function detectSupport(): PushSupport {
 
   if (isIOS && !isStandalone) return 'ios-needs-pwa'
   if (!hasApis) return 'unsupported'
+
+  // Navigateur OK mais clé publique VAPID absente (dev/preview, ou prod sans la
+  // var Vercel) : l'abonnement échouerait silencieusement. On le signale en amont
+  // pour que l'UI affiche « indisponible » plutôt qu'un bouton mort.
+  if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) return 'unavailable'
+
   return 'supported'
 }
 

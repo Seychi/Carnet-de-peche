@@ -1362,6 +1362,7 @@ export type Database = {
           id: string | null
           notes: string | null
           planned_at: string | null
+          species: string[] | null
           status: string | null
         }
         Relationships: []
@@ -1891,6 +1892,7 @@ export type Database = {
           structure: string
           techniques: string[]
           verified: boolean
+          verified_at: string
           visibility: string
         }[]
       }

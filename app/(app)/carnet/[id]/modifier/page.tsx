@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getCatchById } from '@/lib/catches/queries'
 import { CatchForm } from '@/components/catches/CatchForm'
 import { BackButton } from '@/components/layout/BackButton'
-import { listMyGear } from '@/app/actions/gear'
+import { listMyGear, type GearItem } from '@/app/actions/gear'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -31,7 +31,21 @@ export default async function ModifierPrisePage({ params }: Props) {
   // Boîte à matériel (gear_items non archivés) pour le picker. Le gear_id existant
   // de la prise est pré-sélectionné via initialValues (rowToDefaults).
   const gearResult = await listMyGear()
-  const gearItems = gearResult.ok ? gearResult.data : []
+  const gearItems = gearResult.ok ? [...gearResult.data] : []
+
+  // Si la prise est rattachée à un matériel ARCHIVÉ (donc absent de listMyGear),
+  // on l'injecte dans la liste pour qu'il reste affiché et sélectionné. Lecture
+  // owner-scopée par id (RLS gear_items_select_own en backstop) ; on n'expose
+  // jamais le matériel d'autrui.
+  if (c.gear_id && !gearItems.some((g) => g.id === c.gear_id)) {
+    const { data: archived } = await supabase
+      .from('gear_items')
+      .select('id, kind, brand, model, color, size_mm, notes')
+      .eq('id', c.gear_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (archived) gearItems.unshift(archived as GearItem)
+  }
 
   return (
     <div className="min-h-screen bg-sand-50">

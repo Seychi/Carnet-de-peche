@@ -27,8 +27,19 @@ function authorName(m: { display_name: string | null; username: string | null })
  * Chat d'une sortie. À ne rendre QUE pour l'hôte ou un participant accepté (la RLS
  * 068 reste la vraie barrière : un tiers qui appellerait quand même n'obtient rien).
  * Charge l'historique au montage, puis écoute les INSERT en temps réel.
+ *
+ * `readOnly` (sortie annulée/passée) : la conversation reste lisible mais la saisie est
+ * fermée. La RLS 076 refuse déjà l'INSERT sur une sortie close ; ce flag est le miroir UI.
  */
-export function OutingChat({ proposalId, viewerId }: { proposalId: string; viewerId: string }) {
+export function OutingChat({
+  proposalId,
+  viewerId,
+  readOnly = false,
+}: {
+  proposalId: string
+  viewerId: string
+  readOnly?: boolean
+}) {
   const [messages, setMessages] = useState<OutingMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState('')
@@ -68,6 +79,7 @@ export function OutingChat({ proposalId, viewerId }: { proposalId: string; viewe
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
+    if (readOnly) return
     const body = draft.trim()
     if (!body || sending) return
     setSending(true)
@@ -118,30 +130,36 @@ export function OutingChat({ proposalId, viewerId }: { proposalId: string; viewe
         )}
       </div>
 
-      <form onSubmit={handleSend} className="mt-2.5 flex items-end gap-2">
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              void handleSend(e as unknown as React.FormEvent)
-            }
-          }}
-          rows={1}
-          maxLength={1000}
-          placeholder="Ton message…"
-          className="flex-1 resize-none rounded-[10px] border border-sand-200 bg-white px-3 py-2 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40"
-        />
-        <button
-          type="submit"
-          disabled={sending || !draft.trim()}
-          aria-label="Envoyer le message"
-          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-teal-500 text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-50"
-        >
-          {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-        </button>
-      </form>
+      {readOnly ? (
+        <p className="mt-2.5 rounded-[10px] border border-sand-200 bg-white/70 px-3 py-2 text-center text-[12px] text-ink-500">
+          Sortie annulée, conversation close. Tu peux relire les messages mais plus en envoyer.
+        </p>
+      ) : (
+        <form onSubmit={handleSend} className="mt-2.5 flex items-end gap-2">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                void handleSend(e as unknown as React.FormEvent)
+              }
+            }}
+            rows={1}
+            maxLength={1000}
+            placeholder="Ton message…"
+            className="flex-1 resize-none rounded-[10px] border border-sand-200 bg-white px-3 py-2 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40"
+          />
+          <button
+            type="submit"
+            disabled={sending || !draft.trim()}
+            aria-label="Envoyer le message"
+            className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-teal-500 text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-50"
+          >
+            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+          </button>
+        </form>
+      )}
     </div>
   )
 }

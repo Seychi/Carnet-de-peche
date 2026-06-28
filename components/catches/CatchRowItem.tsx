@@ -41,14 +41,21 @@ export function CatchRowItem({ catch: c, photoUrl }: { catch: CatchRow; photoUrl
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
   const location = c.location_label ?? c.spot_name ?? null
 
+  // Prise mesurée (photo_verified_at posé) → la longueur mesurée fait référence et
+  // remplace la taille déclarée dans le titre. Honnêteté (D1) : « mesurée », jamais
+  // « vérifiée » ; on signale la mesure par un tag distinct dans la méta.
+  const isMeasured = c.photo_verified_at != null && c.measured_length_cm != null
+  const displaySizeCm = c.measured_length_cm ?? c.size_cm
+
   const measures = [
-    c.size_cm ? `${c.size_cm} cm` : null,
+    displaySizeCm != null ? `${displaySizeCm} cm` : null,
     c.weight_g ? `${(c.weight_g / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} kg` : null,
   ].filter(Boolean) as string[]
 
   const meta: { text: string; variant?: 'teal' }[] = []
   if (c.caught_at) meta.push({ text: fmtDateTime(c.caught_at) })
   if (location) meta.push({ text: location })
+  if (isMeasured) meta.push({ text: 'MESURÉE', variant: 'teal' })
   if (c.tide_state && TIDE_LABELS[c.tide_state]) meta.push({ text: TIDE_LABELS[c.tide_state] })
   if (c.bait) meta.push({ text: c.bait })
   if (c.released) meta.push({ text: 'RELÂCHÉ', variant: 'teal' })
