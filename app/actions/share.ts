@@ -4,6 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 import { getPersonalTendencies } from '@/lib/scoring/personal/fetch'
 import { generateShareSlug } from '@/lib/share/slug'
 import { isPersonalBest } from '@/lib/share/personal-best'
+import {
+  getMyCatchStats,
+  getMyCatchesBreakdown,
+  getMyRecordsBySpecies,
+} from '@/lib/catches/queries'
+import {
+  publishSharePhoto,
+  deleteSharePhoto,
+  sharePhotoPathFromUrl,
+} from '@/lib/storage/public-share-photo'
 import type { ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import type { Tendency } from '@/lib/scoring/personal/types'
 import type { Json } from '@/lib/types'
@@ -49,6 +59,7 @@ type CatchCardConditions = {
 export type CatchCardPayload = {
   kind: 'catch'
   catch_id: string
+  username?: string | null
   species: string | null
   size_cm: number | null
   weight_g: number | null
@@ -58,10 +69,15 @@ export type CatchCardPayload = {
   gear_label: string | null
   conditions: CatchCardConditions
   is_personal_best: boolean
+  // URL publique de la photo NETTOYÉE (EXIF/GPS strippé serveur via publishSharePhoto).
+  // Absente/null si l'utilisateur n'a pas opt-in (includePhoto) ou si pas de photo.
+  // Ce n'est PAS une coordonnée : c'est une copie re-encodée dans le bucket public.
+  photo_url?: string | null
 }
 
 export type ConditionsCardPayload = {
   kind: 'conditions'
+  username?: string | null
   sampleCount: number
   tendencies: Array<Pick<Tendency, 'factor' | 'label' | 'share' | 'confidence'>>
   generatedFor: string // 'YYYY-MM'
@@ -72,6 +88,7 @@ type OutingBestCatch = { species: string | null; size_cm: number | null }
 export type OutingCardPayload = {
   kind: 'outing'
   outing_id: string
+  username?: string | null
   started_at: string
   ended_at: string | null
   department: string
@@ -94,20 +111,63 @@ type GearboxTopGear = {
 
 export type GearboxCardPayload = {
   kind: 'gearbox'
+  username?: string | null
   topGear: GearboxTopGear[]
   totalCatchesWithGear: number
 }
 
+// ─── Wrapped (kind 'recap') ──────────────────────────────────────────────────
+// Bilan annuel « à la Spotify Wrapped ». PUREMENT DESCRIPTIF et geom-free : aucune
+// coordonnée, aucun spot, aucun classement inter-pêcheurs. Tout vient du carnet de
+// l'utilisateur (catches_for_viewer scopé auth.uid()).
+export type RecapCardPayload = {
+  kind: 'recap'
+  username?: string | null
+  period: string // ex '2026'
+  totalCount: number
+  speciesCount: number
+  biggest: { species: string; size_cm: number } | null
+  topSpecies: string | null
+  topMonth: string | null // 'YYYY-MM'
+  releasedRate: number | null // 0-100
+}
+
+// ─── Records (kind 'records') ────────────────────────────────────────────────
+// Le tableau des records perso (taille max par espèce). DESCRIPTIF et PRIVÉ par
+// nature : c'est le record du pêcheur sur SON carnet, zéro classement inter-pêcheurs
+// (anti-leaderboard). Geom-free : que des libellés d'espèces et des tailles/poids.
+export type RecordsCardPayload = {
+  kind: 'records'
+  username?: string | null
+  records: Array<{ species: string; size_cm: number; weight_g: number | null }>
+}
+
 export type ShareCardInput =
-  | { kind: 'catch'; catchId: string }
+  | { kind: 'catch'; catchId: string; includePhoto?: boolean }
   | { kind: 'conditions' }
   | { kind: 'outing'; outingId: string }
   | { kind: 'gearbox' }
+  | { kind: 'recap'; period?: string }
+  | { kind: 'records' }
 
 const uuid = z.string().uuid()
 
 function monthStamp(d = new Date()): string {
   return d.toISOString().slice(0, 7) // 'YYYY-MM'
+}
+
+// Le @pseudo du partageur (profiles.username), affiché sur la carte (WS-D). Lecture
+// scopée à l'appelant ; jamais une donnée géo. Null tolérant (pseudo non encore posé).
+async function getUsername(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', userId)
+    .maybeSingle()
+  return data?.username ?? null
 }
 
 // ---------------------------------------------------------------------------
@@ -201,13 +261,22 @@ export async function createShareCard(
 
   switch (input.kind) {
     case 'catch':
-      return createCatchCard(supabase, user.id, input.catchId)
+      return createCatchCard(
+        supabase,
+        user.id,
+        input.catchId,
+        input.includePhoto ?? false,
+      )
     case 'conditions':
       return createConditionsCard(supabase, user.id)
     case 'outing':
       return createOutingCard(supabase, user.id, input.outingId)
     case 'gearbox':
       return createGearboxCard(supabase, user.id)
+    case 'recap':
+      return createRecapCard(supabase, user.id, input.period)
+    case 'records':
+      return createRecordsCard(supabase, user.id)
     default:
       return fail('Type de carte inconnu.')
   }
@@ -218,6 +287,7 @@ async function createCatchCard(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   catchId: string,
+  includePhoto: boolean,
 ): Promise<ActionResult<{ slug: string }>> {
   if (!uuid.safeParse(catchId).success) return fail(ID_MSG)
 
@@ -256,9 +326,32 @@ async function createCatchCard(
 
   const personalBest = await isPersonalBest(catchId, row.species, row.size_cm)
 
+  // Photo du poisson (WS-A) : opt-in STRICT. Si l'utilisateur a coché « inclure la
+  // photo » ET que la prise a bien une photo, on lit photo_path depuis la table
+  // `catches` OWNER-scopée (catches_for_viewer n'expose pas photo_path ; la table
+  // n'est lisible que par son propriétaire), puis publishSharePhoto copie une version
+  // EXIF/GPS strippée vers le bucket PUBLIC. Le bucket privé `catches` reste intact.
+  let photoUrl: string | null = null
+  if (includePhoto) {
+    const { data: catchRow } = await supabase
+      .from('catches')
+      .select('photo_path')
+      .eq('id', catchId)
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (catchRow?.photo_path) {
+      const published = await publishSharePhoto({
+        userId,
+        sourcePath: catchRow.photo_path,
+      })
+      photoUrl = published?.url ?? null
+    }
+  }
+
   const payload: CatchCardPayload = {
     kind: 'catch',
     catch_id: catchId,
+    username: await getUsername(supabase, userId),
     species: row.species,
     size_cm: row.size_cm,
     weight_g: row.weight_g,
@@ -275,6 +368,7 @@ async function createCatchCard(
       water_temperature_c: row.water_temperature_c,
     },
     is_personal_best: personalBest,
+    photo_url: photoUrl,
   }
 
   return insertCard(supabase, userId, 'catch', payload as unknown as Record<string, unknown>)
@@ -296,6 +390,7 @@ async function createConditionsCard(
 
   const payload: ConditionsCardPayload = {
     kind: 'conditions',
+    username: await getUsername(supabase, userId),
     sampleCount: t.sampleCount,
     tendencies: t.tendencies
       .filter((td) => td.hasData && td.label)
@@ -398,6 +493,7 @@ async function createOutingCard(
   const payload: OutingCardPayload = {
     kind: 'outing',
     outing_id: outingId,
+    username: await getUsername(supabase, userId),
     started_at: outing.started_at,
     ended_at: outing.ended_at,
     department: outing.department,
@@ -520,6 +616,7 @@ async function createGearboxCard(
 
   const payload: GearboxCardPayload = {
     kind: 'gearbox',
+    username: await getUsername(supabase, userId),
     topGear,
     totalCatchesWithGear,
   }
@@ -541,6 +638,127 @@ async function createGearboxCard(
   )
 }
 
+// ─── kind 'recap' (Wrapped, WS-B) ────────────────────────────────────────────
+// Bilan annuel « à la Wrapped ». PUREMENT DESCRIPTIF et GEOM-FREE : on agrège le
+// carnet de l'utilisateur (catches_for_viewer scopé auth.uid(), via getMyCatchStats
+// + getMyCatchesBreakdown qui résolvent auth.uid() côté serveur). Zéro coordonnée,
+// zéro spot, zéro classement inter-pêcheurs.
+async function createRecapCard(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  period?: string,
+): Promise<ActionResult<{ slug: string }>> {
+  // Période = année. Par défaut l'année courante. On borne à 4 chiffres pour rester
+  // un libellé sûr (jamais une donnée géo).
+  const resolvedPeriod = /^\d{4}$/.test(period ?? '')
+    ? (period as string)
+    : String(new Date().getFullYear())
+
+  let stats: Awaited<ReturnType<typeof getMyCatchStats>>
+  let breakdown: Awaited<ReturnType<typeof getMyCatchesBreakdown>>
+  try {
+    ;[stats, breakdown] = await Promise.all([
+      getMyCatchStats(),
+      getMyCatchesBreakdown(),
+    ])
+  } catch (e) {
+    console.error('[share/createRecapCard]', (e as Error).message)
+    return fail(SAVE_MSG)
+  }
+
+  if (stats.totalCount === 0) return fail(NOT_ENOUGH_MSG)
+
+  // speciesCount = nombre d'espèces distinctes loguées (ventilation par espèce).
+  const speciesCount = breakdown.bySpecies?.length ?? 0
+
+  // topMonth = le mois le plus prolifique (max de prises), 'YYYY-MM' (null si vide).
+  let topMonth: string | null = null
+  let topMonthCount = 0
+  for (const m of breakdown.byMonth ?? []) {
+    if (m.count > topMonthCount) {
+      topMonthCount = m.count
+      topMonth = m.month
+    }
+  }
+
+  const payload: RecapCardPayload = {
+    kind: 'recap',
+    username: await getUsername(supabase, userId),
+    period: resolvedPeriod,
+    totalCount: stats.totalCount,
+    speciesCount,
+    biggest: stats.biggestCatch,
+    topSpecies: stats.favoriteSpecies,
+    topMonth,
+    releasedRate: stats.releasedRate,
+  }
+
+  // Dédup : un récap de la même période déjà partagé récemment → on réutilise son slug.
+  const existing = await findRecentSlug(
+    supabase,
+    userId,
+    'recap',
+    (p) => p.period === resolvedPeriod,
+  )
+  if (existing) return ok({ slug: existing })
+
+  return insertCard(
+    supabase,
+    userId,
+    'recap',
+    payload as unknown as Record<string, unknown>,
+  )
+}
+
+// ─── kind 'records' (carte SÉPARÉE, WS-C, décision John D2) ───────────────────
+// Le tableau des records perso (taille max par espèce, top ~8). DESCRIPTIF et PRIVÉ
+// par construction : c'est le record du pêcheur sur SON carnet, zéro classement
+// inter-pêcheurs (anti-leaderboard). On RÉUTILISE getMyRecordsBySpecies (déjà scopée
+// auth.uid()). Geom-free : que des libellés d'espèces et des tailles/poids.
+async function createRecordsCard(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<ActionResult<{ slug: string }>> {
+  let records: Awaited<ReturnType<typeof getMyRecordsBySpecies>>
+  try {
+    records = await getMyRecordsBySpecies()
+  } catch (e) {
+    console.error('[share/createRecordsCard]', (e as Error).message)
+    return fail(SAVE_MSG)
+  }
+
+  // getMyRecordsBySpecies est déjà trié par taille décroissante : on garde le top 8.
+  const top = records.slice(0, 8).map((r) => ({
+    species: r.species,
+    size_cm: r.maxSizeCm,
+    weight_g: r.maxWeightG,
+  }))
+
+  if (top.length === 0) return fail(NOT_ENOUGH_MSG)
+
+  const payload: RecordsCardPayload = {
+    kind: 'records',
+    username: await getUsername(supabase, userId),
+    records: top,
+  }
+
+  // Dédup : un tableau de records identique déjà partagé récemment → on réutilise son
+  // slug (signature = espèce+taille de chaque ligne, dans l'ordre).
+  const signature = top.map((r) => `${r.species}:${r.size_cm}`).join('|')
+  const existing = await findRecentSlug(supabase, userId, 'records', (p) => {
+    const prev = (p.records as RecordsCardPayload['records'] | undefined) ?? []
+    return prev.map((r) => `${r.species}:${r.size_cm}`).join('|') === signature
+  })
+  if (existing) return ok({ slug: existing })
+
+  return insertCard(
+    supabase,
+    userId,
+    'records',
+    payload as unknown as Record<string, unknown>,
+  )
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // Gestion / révocation des cartes (sprint 38 WS-C). Owner-only : la RLS
 // (061) garantit DELETE/SELECT sur SES lignes uniquement, on double le filtre
@@ -551,7 +769,7 @@ async function createGearboxCard(
 // libellé humain dérivé du payload (geom-free, déjà public). Pas de re-calcul.
 export type ShareCardSummary = {
   slug: string
-  kind: 'catch' | 'conditions' | 'outing' | 'gearbox'
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records'
   title: string
   createdAt: string
 }
@@ -584,10 +802,31 @@ function summarizePayload(
       ? `Ma boîte · ${n} leurre${n > 1 ? 's' : ''} qui pêche${n > 1 ? 'nt' : ''}`
       : 'Ma boîte à pêche'
   }
+  if (kind === 'recap') {
+    const period = typeof payload.period === 'string' ? payload.period : null
+    const count = typeof payload.totalCount === 'number' ? payload.totalCount : 0
+    return period
+      ? `Mon année ${period} · ${count} prise${count > 1 ? 's' : ''}`
+      : 'Mon bilan de pêche'
+  }
+  if (kind === 'records') {
+    const records = Array.isArray(payload.records) ? payload.records : []
+    const n = records.length
+    return n > 0
+      ? `Mes records · ${n} espèce${n > 1 ? 's' : ''}`
+      : 'Mes records de pêche'
+  }
   return 'Carte partagée'
 }
 
-const KNOWN_KINDS = new Set(['catch', 'conditions', 'outing', 'gearbox'])
+const KNOWN_KINDS = new Set([
+  'catch',
+  'conditions',
+  'outing',
+  'gearbox',
+  'recap',
+  'records',
+])
 
 // listMyShareCards — toutes MES cartes (les plus récentes d'abord) pour l'écran
 // de gestion/révocation. Lecture scopée auth.uid().
@@ -642,6 +881,16 @@ export async function deleteShareCard(
   } = await supabase.auth.getUser()
   if (!user) return fail(AUTH_MSG)
 
+  // Avant de supprimer la ligne, on récupère le payload (owner-scopé) pour savoir si
+  // une photo PUBLIQUE est rattachée : la révocation doit aussi purger le bucket
+  // `share-photos` (sinon orphelin public toujours accessible par URL).
+  const { data: existing } = await supabase
+    .from('shared_cards')
+    .select('payload')
+    .eq('slug', slug)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
   const { error } = await supabase
     .from('shared_cards')
     .delete()
@@ -652,5 +901,13 @@ export async function deleteShareCard(
     console.error('[share/deleteShareCard]', error.message)
     return fail(SAVE_MSG)
   }
+
+  // Best-effort : supprime la photo publique copiée si la carte en portait une.
+  const payload = (existing?.payload ?? {}) as Record<string, unknown>
+  const photoUrl =
+    typeof payload.photo_url === 'string' ? payload.photo_url : null
+  const photoPath = sharePhotoPathFromUrl(photoUrl)
+  if (photoPath) await deleteSharePhoto(photoPath)
+
   return ok({ slug })
 }

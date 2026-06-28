@@ -717,6 +717,7 @@ export type Database = {
           marketing_email_optin: boolean
           onboarded: boolean
           onboarded_at: string | null
+          share_skip_optin: boolean
           techniques: string[] | null
           updated_at: string
           username: string | null
@@ -740,6 +741,7 @@ export type Database = {
           marketing_email_optin?: boolean
           onboarded?: boolean
           onboarded_at?: string | null
+          share_skip_optin?: boolean
           techniques?: string[] | null
           updated_at?: string
           username?: string | null
@@ -763,6 +765,7 @@ export type Database = {
           marketing_email_optin?: boolean
           onboarded?: boolean
           onboarded_at?: string | null
+          share_skip_optin?: boolean
           techniques?: string[] | null
           updated_at?: string
           username?: string | null

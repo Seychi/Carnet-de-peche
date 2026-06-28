@@ -10,6 +10,10 @@
 import type { CSSProperties, ReactNode } from 'react'
 
 // ── Charte DA v2 « Instrument de précision marine » ───────────────────────────
+// Palette par défaut (thème « marine »). Exportée pour compat ascendante : les
+// layouts existants (CatchCard, ConditionsCard…) importent ces constantes
+// directement. Les thèmes (cf OG_THEMES plus bas) reprennent ces mêmes clés et
+// ne changent QUE les couleurs (edge-safe : aucune logique, aucune police).
 export const NAVY950 = '#04141C'
 export const NAVY700 = '#155A73'
 export const TEAL = '#14B8A6'
@@ -17,6 +21,60 @@ export const TEAL300 = '#5EEAD4'
 export const SAND50 = '#FBF8F2'
 export const WHITE = '#FFFFFF'
 export const CORAL = '#E5604F'
+
+// ── Thèmes de carte (D3 : marine défaut + sombre + saison) ────────────────────
+// Un thème = un jeu de couleurs. Tout le reste (layout, espacements, polices)
+// est identique. `bg` = fond du cadre, `iso` = isobathes décoratives, `accent` =
+// teal d'accent (kicker, chiffres), `accentSoft` = variante claire, `coral` =
+// pastille record perso, `sand`/`white` = textes. Edge-safe (juste des chaînes).
+export type OgTheme = {
+  bg: string
+  iso: string
+  accent: string
+  accentSoft: string
+  coral: string
+  sand: string
+  white: string
+}
+
+export type OgThemeName = 'marine' | 'sombre' | 'saison'
+
+export const OG_THEMES: Record<OgThemeName, OgTheme> = {
+  // Marine (défaut) : la charte DA v2 historique.
+  marine: {
+    bg: NAVY950,
+    iso: NAVY700,
+    accent: TEAL,
+    accentSoft: TEAL300,
+    coral: CORAL,
+    sand: SAND50,
+    white: WHITE,
+  },
+  // Sombre : noir profond, accent teal plus froid, contraste maximal.
+  sombre: {
+    bg: '#0A0F12',
+    iso: '#22343D',
+    accent: '#2DD4BF',
+    accentSoft: '#7FE9DC',
+    coral: '#F2745F',
+    sand: '#F4F6F6',
+    white: '#FFFFFF',
+  },
+  // Saison : ambiance crépuscule chaud (couchant au bord), accent ambré.
+  saison: {
+    bg: '#1B1014',
+    iso: '#5A2E32',
+    accent: '#E8A04A',
+    accentSoft: '#F4C77E',
+    coral: '#E5604F',
+    sand: '#FBF3EC',
+    white: '#FFFFFF',
+  },
+}
+
+export function parseTheme(value: string | null | undefined): OgThemeName {
+  return value === 'sombre' || value === 'saison' ? value : 'marine'
+}
 
 // Stack monospace pour les CHIFFRES métier (DA : tout chiffre passe en font-mono).
 // Satori n'embarque pas la vraie JetBrains Mono, mais `tabular-nums` donne
@@ -50,20 +108,20 @@ export function parseFormat(value: string | null | undefined): OgFormat {
 // ── Logo « carnet qui ferre » (Satori-safe, variante dark fond navy-950) ──────
 // source: public/logo/logo-icon.svg — Satori ne supporte pas <mask>, l'échancrure
 // de l'hameçon est émulée par un trait couleur du fond.
-export function OgLogoMark({ size = 44 }: { size?: number }) {
+export function OgLogoMark({ size = 44, theme = OG_THEMES.marine }: { size?: number; theme?: OgTheme }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <g stroke={SAND50} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+      <g stroke={theme.sand} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
         <rect x="11" y="6" width="26" height="29" rx="5" />
         <path d="M16 13.5h10" />
         <path d="M16 19.5h10" />
         <path d="M16 25.5h6" />
       </g>
       {/* échancrure : repeint le fond par-dessus le bord du carnet */}
-      <path d="M31 33v4" stroke={NAVY950} strokeWidth={5} strokeLinecap="butt" />
+      <path d="M31 33v4" stroke={theme.bg} strokeWidth={5} strokeLinecap="butt" />
       <path
         d="M31 6v31a4.5 4.5 0 1 1-9 0v-2"
-        stroke={TEAL300}
+        stroke={theme.accentSoft}
         strokeWidth={3}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -92,10 +150,22 @@ export function OgKicker({ label, marginBottom = 28 }: { label: string; marginBo
   )
 }
 
-// ── Footer marque + URL ───────────────────────────────────────────────────────
+// ── Footer marque + URL (+ handle @username quand fourni) ─────────────────────
 // La marque est TOUJOURS présente (logo + URL) : même une capture d'écran fait de
 // l'acquisition (« via Carnet de Pêche »). `url` personnalisable selon la page.
-export function OgFooter({ url = 'carnet-de-peche.com' }: { url?: string }) {
+// Quand `username` est fourni, on affiche « via @{username} · {url} » à droite
+// (handle du partageur, jamais de coordonnée). `theme` colore logo + textes.
+export function OgFooter({
+  url = 'carnet-de-peche.com',
+  username,
+  theme = OG_THEMES.marine,
+}: {
+  url?: string
+  username?: string | null
+  theme?: OgTheme
+}) {
+  const handle = (username ?? '').trim()
+  const rightText = handle ? `via @${handle} · ${url}` : url
   return (
     <div
       style={{
@@ -109,11 +179,11 @@ export function OgFooter({ url = 'carnet-de-peche.com' }: { url?: string }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <OgLogoMark size={44} />
-        <span style={{ fontSize: '24px', fontWeight: 700, color: WHITE }}>Carnet de Pêche</span>
+        <OgLogoMark size={44} theme={theme} />
+        <span style={{ fontSize: '24px', fontWeight: 700, color: theme.white }}>Carnet de Pêche</span>
       </div>
       <span style={{ fontSize: '16px', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.35)' }}>
-        {url}
+        {rightText}
       </span>
     </div>
   )
@@ -129,6 +199,8 @@ export function OgFrame({
   footerUrl,
   withFooter = true,
   rootOverlay,
+  theme = OG_THEMES.marine,
+  username,
 }: {
   format: OgFormat
   children: ReactNode
@@ -138,6 +210,10 @@ export function OgFrame({
   // Utilisé pour les labels de profondeur décoratifs dont les coordonnées sont
   // calées sur le viewport plein (1200×630), comme dans /og/spot historique.
   rootOverlay?: ReactNode
+  // Thème de couleurs (marine défaut). Colore fond, isobathes et footer.
+  theme?: OgTheme
+  // Handle du partageur affiché dans le footer (« via @username »).
+  username?: string | null
 }) {
   const { width, height } = OG_DIMENSIONS[format]
   const padding = format === 'story' ? '96px 80px' : '64px 72px'
@@ -149,7 +225,7 @@ export function OgFrame({
         flexDirection: 'column',
         width: `${width}px`,
         height: `${height}px`,
-        background: NAVY950,
+        background: theme.bg,
         padding,
         fontFamily: 'sans-serif',
         position: 'relative',
@@ -164,7 +240,7 @@ export function OgFrame({
         style={{ position: 'absolute', top: format === 'story' ? '520px' : '0px', left: '-30px' }}
       >
         {ISOBATHS.map((p, i) => (
-          <path key={i} d={p.d} fill="none" stroke={NAVY700} strokeWidth={2} opacity={p.opacity} />
+          <path key={i} d={p.d} fill="none" stroke={theme.iso} strokeWidth={2} opacity={p.opacity} />
         ))}
       </svg>
 
@@ -178,7 +254,7 @@ export function OgFrame({
 
       {withFooter ? (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <OgFooter url={footerUrl} />
+          <OgFooter url={footerUrl} username={username} theme={theme} />
         </div>
       ) : null}
     </div>

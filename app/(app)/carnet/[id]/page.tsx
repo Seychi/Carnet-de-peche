@@ -143,7 +143,7 @@ export default async function CatchDetailPage({ params }: Props) {
                 <Pencil size={13} />
                 Modifier
               </Link>
-              <CatchActionsMenu catchId={id} />
+              <CatchActionsMenu catchId={id} hasPhoto={!!c.photo_path} />
             </div>
           )}
         </div>

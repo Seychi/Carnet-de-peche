@@ -124,6 +124,25 @@ export default async function CarnetPage({ searchParams }: Props) {
         {/* Stats synthétiques */}
         {stats && <CatchStatsRow stats={stats} className="mb-3" />}
 
+        {/* Partager « mon année de pêche » (sprint 47, Wrapped) — dès qu'il y a au
+            moins une prise. Carte publique geom-free (bilan : nombre de prises,
+            espèces, plus beau poisson), jamais un spot ni une coordonnée. */}
+        {totalCount > 0 && (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-sand-200 bg-white px-4 py-3">
+            <p className="text-[13.5px] text-ink-600">
+              <span className="font-medium text-navy-900">Ton année {season}</span>{' '}
+              en une carte, à partager sans montrer tes spots.
+            </p>
+            <ShareButton
+              input={{ kind: 'recap', period: String(season) }}
+              title={`Mon année de pêche ${season} — Carnet de Pêche`}
+              text="Voici mon bilan de pêche de l'année."
+              label="Mon année de pêche"
+              variant="ghost"
+            />
+          </div>
+        )}
+
         {/* Opt-in alertes push « fenêtre optimale » — proposé seulement quand le
             carnet a au moins une prise (pas à froid). Permission demandée sur geste.
             Le tier gate l'UI : un gratuit voit un upsell, pas un faux « activées »
@@ -172,8 +191,23 @@ export default async function CarnetPage({ searchParams }: Props) {
         {/* Stats détaillées repliables */}
         {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-3" />}
 
-        {/* Tes records par espèce (privé, app-side) — ton plus beau poisson par espèce */}
-        {records && <RecordsBySpecies records={records} className="mb-5" />}
+        {/* Tes records par espèce (privé, app-side) — ton plus beau poisson par espèce.
+            Partageables (sprint 47) : carte publique geom-free, descriptive, sans
+            classement inter-pêcheurs. */}
+        {records && records.length > 0 && (
+          <div className="mb-5">
+            <RecordsBySpecies records={records} />
+            <div className="mt-2 flex justify-end">
+              <ShareButton
+                input={{ kind: 'records' }}
+                title="Mes records — Carnet de Pêche"
+                text="Mes plus beaux poissons par espèce."
+                label="Partager mes records"
+                variant="ghost"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Tes tendances perso (calculées depuis tes prises réelles) — « ce que ton
             journal t'apprend ». La gamification (Pokédex/streak/badges) vit désormais

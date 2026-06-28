@@ -10,10 +10,13 @@ import {
   CORAL,
   MONO_STYLE,
   OG_DIMENSIONS,
+  OG_THEMES,
   OgFrame,
   OgKicker,
   parseFormat,
+  parseTheme,
   type OgFormat,
+  type OgTheme,
 } from '@/lib/og/template'
 import type {
   OgCardPayload,
@@ -42,13 +45,51 @@ type OgGearboxPayload = {
   totalCatchesWithGear?: number
 }
 
+// ─── Payload recap « Wrapped » (miroir local edge-safe) ───────────────────────
+// Bilan descriptif d'une période (façon Spotify Wrapped). PUREMENT TEXTUEL :
+// comptes + espèce/mois dominants + plus grosse prise. AUCUNE clé géo, AUCUNE photo.
+type OgRecapPayload = {
+  kind: 'recap'
+  period?: string | null
+  totalCount?: number | null
+  speciesCount?: number | null
+  biggest?: { species?: string | null; size_cm?: number | null } | null
+  topSpecies?: string | null
+  topMonth?: string | null
+  releasedRate?: number | null
+}
+
+// ─── Payload records « Mes records » (miroir local edge-safe) ─────────────────
+// Liste DESCRIPTIVE des meilleures prises perso par taille (zéro classement
+// inter-pêcheurs). PUREMENT TEXTUEL : espèce + taille + poids. Aucune clé géo.
+type OgRecordEntry = {
+  species?: string | null
+  size_cm?: number | null
+  weight_g?: number | null
+}
+
+type OgRecordsPayload = {
+  kind: 'records'
+  records?: OgRecordEntry[]
+}
+
+// ─── Handle du partageur (tous kinds) ─────────────────────────────────────────
+// Le @pseudo arrive dans le payload (champ `username` ajouté côté WS A/D). On le
+// lit de façon défensive (le JSON vient de la base, peut être absent/null).
+function payloadUsername(payload: { username?: string | null } | null | undefined): string | null {
+  const raw = payload?.username
+  if (typeof raw !== 'string') return null
+  const trimmed = raw.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 // ─── Lecture de la carte (edge → anon, UNIQUEMENT shared_cards) ───────────────
 // La route edge ne lit QUE shared_cards par slug, en client anon (RLS select public).
 // Aucune lecture de catches_for_viewer ni appel server-only ici (garde-fou n°1).
 
 type SharedCardRow = {
-  payload: OgCardPayload | OgGearboxPayload
-  kind: 'catch' | 'conditions' | 'outing' | 'gearbox'
+  payload: OgCardPayload | OgGearboxPayload | OgRecapPayload | OgRecordsPayload
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records'
 }
 
 async function fetchCard(slug: string): Promise<SharedCardRow | null> {
@@ -228,6 +269,12 @@ function CatchCard({ p, format }: { p: OgCatchPayload; format: OgFormat }) {
   const place = (p.location_label ?? '').trim() || null
   const date = frDate(p.caught_at)
   const gear = (p.gear_label ?? '').trim() || null
+  // Photo nettoyée (EXIF strippé serveur) : URL PUBLIQUE bucket share-photos.
+  // next/og rend les images distantes. Absente/null → rendu texte inchangé.
+  const photoUrl = (() => {
+    const raw = (p as { photo_url?: string | null }).photo_url
+    return typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null
+  })()
 
   const cond = p.conditions ?? {}
   const tide = tideLabel(cond.tide_state ?? null)
@@ -248,9 +295,35 @@ function CatchCard({ p, format }: { p: OgCatchPayload; format: OgFormat }) {
 
   return (
     <>
-      <OgKicker label="Carnet de Pêche · canne du bord" marginBottom={story ? 36 : 24} />
+      <OgKicker label="Carnet de Pêche · canne du bord" marginBottom={photoUrl ? (story ? 24 : 16) : story ? 36 : 24} />
 
       {p.is_personal_best ? <PersonalBestBadge story={story} /> : null}
+
+      {/* Photo du poisson (opt-in, EXIF strippé serveur, URL publique). En HERO. */}
+      {photoUrl ? (
+        <div
+          style={{
+            display: 'flex',
+            width: '100%',
+            height: story ? '760px' : '300px',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            marginBottom: story ? '32px' : '20px',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'rgba(94,234,212,0.28)',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoUrl}
+            alt=""
+            width={story ? 920 : 1056}
+            height={story ? 760 : 300}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+      ) : null}
 
       {/* Héro : ESPÈCE · TAILLE cm */}
       <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: '8px' }}>
@@ -614,6 +687,259 @@ function GearboxCard({ p, format }: { p: OgGearboxPayload; format: OgFormat }) {
   )
 }
 
+// ─── Layout RECAP (« Wrapped » : bilan descriptif d'une période) ──────────────
+// Gros chiffres façon Spotify Wrapped, DESCRIPTIF (zéro classement, zéro prédictif).
+// PUREMENT TEXTUEL : comptes + espèce/mois dominants + plus grosse prise.
+
+function BigStat({
+  label,
+  value,
+  unit,
+  story,
+}: {
+  label: string
+  value: string
+  unit?: string | null
+  story: boolean
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'rgba(20,184,166,0.07)',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: 'rgba(94,234,212,0.22)',
+        borderRadius: '16px',
+        padding: story ? '26px 30px' : '20px 26px',
+        minWidth: story ? '280px' : '230px',
+        flex: 1,
+      }}
+    >
+      <span
+        style={{
+          fontSize: story ? '18px' : '16px',
+          letterSpacing: '0.10em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.50)',
+          marginBottom: '10px',
+        }}
+      >
+        {label}
+      </span>
+      <span style={{ display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ ...MONO_STYLE, fontSize: story ? '64px' : '54px', fontWeight: 800, color: TEAL300, lineHeight: 1 }}>
+          {value}
+        </span>
+        {unit ? (
+          <span style={{ fontSize: story ? '26px' : '22px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginLeft: '10px' }}>
+            {unit}
+          </span>
+        ) : null}
+      </span>
+    </div>
+  )
+}
+
+function RecapCard({ p, format }: { p: OgRecapPayload; format: OgFormat }) {
+  const story = format === 'story'
+  const period = (p.period ?? '').trim() || null
+  const total = p.totalCount ?? 0
+  const speciesCount = p.speciesCount ?? 0
+  const biggestSize = numFmt(p.biggest?.size_cm ?? null)
+  const biggestSpecies = p.biggest?.species ? speciesLabel(p.biggest.species) : null
+  const topSpecies = p.topSpecies ? speciesLabel(p.topSpecies) : null
+  // topMonth = libellé texte (« juin 2026 » ou « juin »). Si c'est un stamp
+  // 'YYYY-MM', on l'embellit ; sinon on garde le texte tel quel.
+  const rawMonth = (p.topMonth ?? '').trim() || null
+  const topMonth = monthYearFr(rawMonth ?? undefined) ?? rawMonth
+  const released =
+    p.releasedRate != null && !Number.isNaN(p.releasedRate)
+      ? Math.round(Math.max(0, Math.min(1, p.releasedRate)) * 100)
+      : null
+
+  return (
+    <>
+      <OgKicker label="Carnet de Pêche · mon bilan" marginBottom={story ? 32 : 22} />
+
+      <div
+        style={{
+          fontSize: story ? '62px' : '54px',
+          fontWeight: 800,
+          color: WHITE,
+          lineHeight: 1.04,
+          marginBottom: '10px',
+        }}
+      >
+        Mon année de pêche
+      </div>
+      <div style={{ display: 'flex', marginBottom: story ? '44px' : '30px' }}>
+        <span style={{ fontSize: story ? '26px' : '21px', color: 'rgba(255,255,255,0.55)' }}>
+          {period ? `Ce que dit ${period}` : 'Ce que dit mon carnet'}
+        </span>
+      </div>
+
+      {/* Rangée 1 : prises + espèces */}
+      <div style={{ display: 'flex', gap: story ? '20px' : '16px', marginBottom: story ? '20px' : '16px' }}>
+        <BigStat label="Prises loguées" value={String(total)} story={story} />
+        <BigStat label="Espèces" value={String(speciesCount)} story={story} />
+      </div>
+
+      {/* Rangée 2 : plus grosse prise (si dispo) + relâché (si dispo) */}
+      {(biggestSize || released != null) ? (
+        <div style={{ display: 'flex', gap: story ? '20px' : '16px', marginBottom: story ? '32px' : '22px' }}>
+          {biggestSize ? (
+            <BigStat
+              label={biggestSpecies ? `Plus belle · ${biggestSpecies}` : 'Plus belle'}
+              value={biggestSize}
+              unit="cm"
+              story={story}
+            />
+          ) : null}
+          {released != null ? (
+            <BigStat label="Relâchées" value={String(released)} unit="%" story={story} />
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* Faits marquants : espèce + mois dominants (texte) */}
+      {(topSpecies || topMonth) ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          {topSpecies ? (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(20,184,166,0.10)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(94,234,212,0.32)',
+                borderRadius: '10px',
+                padding: story ? '14px 24px' : '12px 20px',
+              }}
+            >
+              <span style={{ fontSize: story ? '20px' : '17px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Espèce reine
+              </span>
+              <span style={{ fontSize: story ? '24px' : '20px', fontWeight: 700, color: TEAL300 }}>{topSpecies}</span>
+            </div>
+          ) : null}
+          {topMonth ? (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(20,184,166,0.10)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(94,234,212,0.32)',
+                borderRadius: '10px',
+                padding: story ? '14px 24px' : '12px 20px',
+              }}
+            >
+              <span style={{ fontSize: story ? '20px' : '17px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Meilleur mois
+              </span>
+              <span style={{ fontSize: story ? '24px' : '20px', fontWeight: 700, color: SAND50 }}>{topMonth}</span>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div style={{ flex: 1, display: 'flex' }} />
+    </>
+  )
+}
+
+// ─── Layout RECORDS (« Mes records » : liste perso par taille, anti-leaderboard) ─
+// Liste DESCRIPTIVE des meilleures prises perso (façon « segments »). Zéro
+// classement inter-pêcheurs. PUREMENT TEXTUEL : espèce + taille + poids.
+
+function RecordsCard({ p, format }: { p: OgRecordsPayload; format: OgFormat }) {
+  const story = format === 'story'
+  const records = (p.records ?? [])
+    .filter((r) => r && (r.species ?? '').trim() && r.size_cm != null)
+    .slice(0, story ? 8 : 6)
+
+  return (
+    <>
+      <OgKicker label="Carnet de Pêche · mes records" marginBottom={story ? 32 : 22} />
+
+      <div
+        style={{
+          fontSize: story ? '62px' : '54px',
+          fontWeight: 800,
+          color: WHITE,
+          lineHeight: 1.04,
+          marginBottom: '10px',
+        }}
+      >
+        Mes records perso
+      </div>
+      <div style={{ display: 'flex', marginBottom: story ? '40px' : '28px' }}>
+        <span style={{ fontSize: story ? '26px' : '21px', color: 'rgba(255,255,255,0.55)' }}>
+          Mes plus belles prises, espèce par espèce
+        </span>
+      </div>
+
+      {/* Liste « segments » : espèce — taille cm (+ poids si dispo) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: story ? '14px' : '11px' }}>
+        {records.map((r, i) => {
+          const sp = speciesLabel(r.species)
+          const size = numFmt(r.size_cm ?? null)
+          const weight = numFmt(r.weight_g ?? null)
+          return (
+            <div
+              key={`${sp}-${i}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '24px',
+                background: 'rgba(20,184,166,0.07)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(94,234,212,0.22)',
+                borderRadius: '12px',
+                padding: story ? '18px 26px' : '14px 22px',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: story ? '30px' : '25px',
+                  fontWeight: 700,
+                  color: SAND50,
+                  letterSpacing: '0.01em',
+                }}
+              >
+                {sp}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
+                {weight ? (
+                  <span style={{ fontSize: story ? '20px' : '17px', color: 'rgba(255,255,255,0.5)' }}>
+                    <span style={MONO_STYLE}>{weight}</span> g
+                  </span>
+                ) : null}
+                <span style={{ display: 'flex', alignItems: 'baseline' }}>
+                  <span style={{ ...MONO_STYLE, fontSize: story ? '40px' : '34px', fontWeight: 800, color: TEAL300, lineHeight: 1 }}>
+                    {size}
+                  </span>
+                  <span style={{ fontSize: story ? '22px' : '18px', color: 'rgba(255,255,255,0.6)', marginLeft: '8px' }}>cm</span>
+                </span>
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ flex: 1, display: 'flex' }} />
+    </>
+  )
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(
@@ -626,10 +952,14 @@ export async function GET(
 
   const url = new URL(req.url)
   const format = parseFormat(url.searchParams.get('format'))
+  const themeName = parseTheme(url.searchParams.get('theme'))
+  const theme: OgTheme = OG_THEMES[themeName]
   const { width, height } = OG_DIMENSIONS[format]
 
   const payload = card.payload
   const kind = payload.kind ?? card.kind
+  // Handle du partageur (tous kinds) : affiché en footer « via @username ».
+  const username = payloadUsername(payload as { username?: string | null })
 
   let body
   if (kind === 'catch') {
@@ -640,9 +970,18 @@ export async function GET(
     body = <OutingCard p={payload as OgOutingPayload} format={format} />
   } else if (kind === 'gearbox') {
     body = <GearboxCard p={payload as OgGearboxPayload} format={format} />
+  } else if (kind === 'recap') {
+    body = <RecapCard p={payload as OgRecapPayload} format={format} />
+  } else if (kind === 'records') {
+    body = <RecordsCard p={payload as OgRecordsPayload} format={format} />
   } else {
     return new Response('Not found', { status: 404 })
   }
 
-  return new ImageResponse(<OgFrame format={format}>{body}</OgFrame>, { width, height })
+  return new ImageResponse(
+    <OgFrame format={format} theme={theme} username={username}>
+      {body}
+    </OgFrame>,
+    { width, height },
+  )
 }

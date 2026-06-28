@@ -31,9 +31,11 @@ import { catchActionsTriggerClass } from './catch-actions-trigger'
  */
 export default function CatchActionsDropdown({
   catchId,
+  hasPhoto = false,
   onDeleteRequest,
 }: {
   catchId: string
+  hasPhoto?: boolean
   onDeleteRequest: () => void
 }) {
   const router = useRouter()
@@ -45,10 +47,13 @@ export default function CatchActionsDropdown({
     setOpen(true)
   }, [])
 
-  async function handleConfirmShare() {
+  // includePhoto : choix de l'utilisateur dans le dialog (toggle coché par défaut
+  // quand la prise a une photo, mais décochable). La photo n'est publiée que sur
+  // ce choix explicite ; le serveur la copie EXIF-strippée vers le bucket public.
+  async function handleConfirmShare(opts: { includePhoto: boolean }) {
     await share(
-      { kind: 'catch', catchId },
-      'Ma prise — Carnet de Pêche',
+      { kind: 'catch', catchId, includePhoto: opts.includePhoto },
+      'Ma prise, Carnet de Pêche',
       'Ma prise sur Carnet de Pêche.',
     )
     setShareOpen(false)
@@ -96,6 +101,7 @@ export default function CatchActionsDropdown({
 
       <ShareOptInDialog
         kind="catch"
+        hasPhoto={hasPhoto}
         open={shareOpen}
         onOpenChange={(v) => {
           if (!sharing) setShareOpen(v)

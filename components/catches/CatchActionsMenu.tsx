@@ -47,7 +47,13 @@ function preloadDeleteDialog() {
   void import('./CatchDeleteDialog')
 }
 
-export function CatchActionsMenu({ catchId }: { catchId: string }) {
+export function CatchActionsMenu({
+  catchId,
+  hasPhoto = false,
+}: {
+  catchId: string
+  hasPhoto?: boolean
+}) {
   const router = useRouter()
   // Menu monté au premier clic, puis laissé monté (fermeture/réouverture et
   // retour focus 100 % natifs Base UI ensuite).
@@ -84,6 +90,7 @@ export function CatchActionsMenu({ catchId }: { catchId: string }) {
       {menuMounted ? (
         <CatchActionsDropdown
           catchId={catchId}
+          hasPhoto={hasPhoto}
           onDeleteRequest={openDeleteFlow}
         />
       ) : (

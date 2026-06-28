@@ -1,15 +1,15 @@
 'use client'
 
-import { useState } from 'react'
 import { Share2 } from 'lucide-react'
 import type { ShareCardInput } from '@/app/actions/share'
 import { useShareCard } from './use-share-card'
 import { ShareOptInDialog } from './ShareOptInDialog'
 
-// Bouton de partage réutilisable (sprint 38 WS-C). Opt-in strict : clic → dialog
-// d'avertissement (carte publique, sans coordonnées) → création + Web Share. Sert
-// pour les conditions (cockpit/carnet) et une sortie. La prise a son propre point
-// d'entrée dans le menu « ⋯ » de la fiche (CatchActionsDropdown).
+// Bouton de partage réutilisable (sprint 38 WS-C, étendu sprint 47). Opt-in strict :
+// clic → soit 1-tap si l'utilisateur a coché « ne plus me demander » (D4), soit dialog
+// d'avertissement (carte publique, sans coordonnées) → création + Web Share. Sert pour
+// les conditions / la sortie / le récap d'année / les records. La prise a son propre
+// point d'entrée dans le menu « ⋯ » de la fiche (CatchActionsDropdown).
 
 type Variant = 'solid' | 'ghost' | 'card'
 
@@ -29,6 +29,7 @@ export function ShareButton({
   label = 'Partager',
   variant = 'ghost',
   className,
+  hasPhoto = false,
 }: {
   input: ShareCardInput
   title: string
@@ -36,20 +37,25 @@ export function ShareButton({
   label?: string
   variant?: Variant
   className?: string
+  // Vrai pour une prise avec photo : active la case d'inclusion photo du dialog.
+  hasPhoto?: boolean
 }) {
-  const [open, setOpen] = useState(false)
-  const { share, sharing } = useShareCard()
-
-  async function handleConfirm() {
-    await share(input, title, text)
-    setOpen(false)
-  }
+  const {
+    requestShare,
+    confirmShare,
+    sharing,
+    dialogOpen,
+    setDialogOpen,
+    pendingKind,
+    pendingHasPhoto,
+  } = useShareCard()
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => requestShare(input, title, text, hasPhoto)}
+        disabled={sharing}
         className={`inline-flex min-h-11 items-center gap-2 rounded-full transition-colors disabled:opacity-60 ${VARIANT_CLS[variant]} ${className ?? ''}`}
       >
         <Share2 size={15} aria-hidden="true" />
@@ -57,12 +63,13 @@ export function ShareButton({
       </button>
 
       <ShareOptInDialog
-        kind={input.kind}
-        open={open}
+        kind={pendingKind ?? input.kind}
+        hasPhoto={pendingHasPhoto}
+        open={dialogOpen}
         onOpenChange={(v) => {
-          if (!sharing) setOpen(v)
+          if (!sharing) setDialogOpen(v)
         }}
-        onConfirm={handleConfirm}
+        onConfirm={confirmShare}
         working={sharing}
       />
     </>

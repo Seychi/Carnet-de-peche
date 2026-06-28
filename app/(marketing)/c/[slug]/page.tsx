@@ -11,6 +11,8 @@ import type {
   ConditionsCardPayload,
   GearboxCardPayload,
   OutingCardPayload,
+  RecapCardPayload,
+  RecordsCardPayload,
 } from '@/app/actions/share'
 
 // Page PUBLIQUE (groupe marketing) : accessible sans login (le middleware
@@ -34,6 +36,8 @@ type AnyPayload =
   | ConditionsCardPayload
   | OutingCardPayload
   | GearboxCardPayload
+  | RecapCardPayload
+  | RecordsCardPayload
 
 function anonClient() {
   return createClient(
@@ -63,6 +67,15 @@ const TIDE_LABELS: Record<string, string> = {
 function speciesLabel(key: string | null): string {
   if (!key) return 'Prise'
   return SPECIES_LABELS[key] ?? key
+}
+
+// @pseudo du partageur (présent sur tous les payloads sprint 47, optionnel sur
+// l'historique). Borné et préfixé d'un seul @.
+function handleLabel(username: string | null | undefined): string | null {
+  if (!username) return null
+  const clean = username.trim().replace(/^@+/, '')
+  if (!clean) return null
+  return `@${clean.slice(0, 40)}`
 }
 
 function deptLabel(dept: string | null): string | null {
@@ -117,6 +130,13 @@ function cardHeadline(kind: string, payload: AnyPayload): string {
   if (kind === 'gearbox') {
     return 'Ma boîte à pêche'
   }
+  if (kind === 'recap') {
+    const p = payload as RecapCardPayload
+    return `Mon année de pêche ${p.period}`
+  }
+  if (kind === 'records') {
+    return 'Mes records'
+  }
   return 'Carnet de Pêche'
 }
 
@@ -146,6 +166,17 @@ function cardDescription(kind: string, payload: AnyPayload): string {
       ? `Les ${n} leurre${n > 1 ? 's' : ''} qui pêchent le plus dans ma boîte, sur ${p.totalCatchesWithGear} prise${p.totalCatchesWithGear > 1 ? 's' : ''} loguée${p.totalCatchesWithGear > 1 ? 's' : ''}. Crée ton carnet et suis le tien.`
       : 'Les leurres qui pêchent le plus dans ma boîte, sur Carnet de Pêche.'
   }
+  if (kind === 'recap') {
+    const p = payload as RecapCardPayload
+    return `Mon bilan de pêche ${p.period} : ${p.totalCount} prise${p.totalCount > 1 ? 's' : ''}, ${p.speciesCount} espèce${p.speciesCount > 1 ? 's' : ''}. Crée ton carnet, fais le tien.`
+  }
+  if (kind === 'records') {
+    const p = payload as RecordsCardPayload
+    const n = p.records.length
+    return n > 0
+      ? `Mes plus beaux poissons par espèce, sur ${n} record${n > 1 ? 's' : ''} logué${n > 1 ? 's' : ''}. Crée ton carnet et suis les tiens.`
+      : 'Mes plus beaux poissons par espèce, sur Carnet de Pêche.'
+  }
   return 'Le carnet de pêche numérique des pêcheurs du bord.'
 }
 
@@ -158,8 +189,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const row = await fetchCard(slug)
+  // D4 (sprint 47) : les cartes de partage ne sont PAS indexées (contenu perso,
+  // éphémère, révocable). On garde une preview sociale riche (OG/Twitter) mais on
+  // sort ces URLs de l'index moteur.
+  const noindex = { index: false, follow: false } as const
   if (!row) {
-    return { title: 'Carte introuvable · Carnet de Pêche' }
+    return { title: 'Carte introuvable · Carnet de Pêche', robots: noindex }
   }
   const payload = row.payload as AnyPayload
   const headline = cardHeadline(row.kind, payload)
@@ -170,6 +205,7 @@ export async function generateMetadata({
   return {
     title: `${headline} · Carnet de Pêche`,
     description,
+    robots: noindex,
     alternates: { canonical: url },
     openGraph: {
       title: headline,
@@ -202,6 +238,11 @@ export default async function SharedCardPage({
 
   const payload = row.payload as AnyPayload
   const headline = cardHeadline(row.kind, payload)
+  const handle = handleLabel(payload.username)
+  // Photo de prise partagée (geom-free, EXIF strippé serveur) : présente uniquement
+  // si la prise en a une et que l'utilisateur a accepté de l'inclure.
+  const photoUrl =
+    row.kind === 'catch' ? (payload as CatchCardPayload).photo_url ?? null : null
 
   return (
     <div className="bg-sand-50">
@@ -212,6 +253,25 @@ export default async function SharedCardPage({
         <h1 className="mt-2 text-center font-display text-[26px] leading-tight text-navy-900 sm:text-[32px]">
           {headline}
         </h1>
+        {handle && (
+          <p className="mt-1.5 text-center font-mono text-[13px] text-ink-500">
+            {handle}
+          </p>
+        )}
+
+        {/* Photo de la prise (quand partagée) : affichée au-dessus de la carte
+            générée. Servie depuis le bucket public share-photos (EXIF/GPS déjà
+            retirés côté serveur). */}
+        {photoUrl && (
+          <div className="mt-6 overflow-hidden rounded-[18px] border border-sand-200 shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photoUrl}
+              alt={`Photo de la prise : ${headline}`}
+              className="block h-auto max-h-[560px] w-full object-cover"
+            />
+          </div>
+        )}
 
         {/* La carte image (générée server-side, geom-free). On garde le ratio
             1200×630 pour le rendu inline ; ?format=story sert au Web Share mobile. */}
@@ -264,6 +324,10 @@ function CardRecap({ kind, payload }: { kind: string; payload: AnyPayload }) {
     return <OutingRecap payload={payload as OutingCardPayload} />
   if (kind === 'gearbox')
     return <GearboxRecap payload={payload as GearboxCardPayload} />
+  if (kind === 'recap')
+    return <RecapRecap payload={payload as RecapCardPayload} />
+  if (kind === 'records')
+    return <RecordsRecap payload={payload as RecordsCardPayload} />
   return null
 }
 
@@ -466,6 +530,104 @@ function GearboxRecap({ payload: p }: { payload: GearboxCardPayload }) {
       <p className="mt-4 text-[12.5px] leading-relaxed text-ink-400">
         Le nombre de prises par leurre, jamais un classement ni un taux. Aucune
         coordonnée, aucun spot, aucune photo n&rsquo;est partagé.
+      </p>
+    </div>
+  )
+}
+
+// ─── kind 'recap' (Wrapped : mon année de pêche, sprint 47) ────────────────────
+// Bilan DESCRIPTIF de l'année, geom-free : compteurs + plus beau poisson. Aucun
+// classement inter-pêcheurs, aucun spot.
+const MONTH_STAMP_RE = /^\d{4}-\d{2}$/
+
+function topMonthLabel(raw: string | null): string | null {
+  if (!raw) return null
+  return MONTH_STAMP_RE.test(raw) ? monthLabel(raw) : raw
+}
+
+function RecapRecap({ payload: p }: { payload: RecapCardPayload }) {
+  const month = topMonthLabel(p.topMonth)
+  return (
+    <div className="flex flex-col">
+      <RecapRow
+        icon={<Fish size={14} className="text-teal-600" aria-hidden="true" />}
+        label="Prises loguées"
+        value={String(p.totalCount)}
+      />
+      <RecapRow
+        icon={<span aria-hidden="true">🐟</span>}
+        label="Espèces"
+        value={String(p.speciesCount)}
+      />
+      {p.biggest && p.biggest.size_cm != null && (
+        <RecapRow
+          icon={<Award size={14} className="text-gold-500" aria-hidden="true" />}
+          label="Plus beau poisson"
+          value={`${speciesLabel(p.biggest.species)} · ${p.biggest.size_cm} cm`}
+        />
+      )}
+      {p.topSpecies && (
+        <RecapRow
+          icon={<span aria-hidden="true">🎣</span>}
+          label="Espèce phare"
+          value={speciesLabel(p.topSpecies)}
+        />
+      )}
+      {month && (
+        <RecapRow
+          icon={<span aria-hidden="true">🗓️</span>}
+          label="Meilleur mois"
+          value={month}
+        />
+      )}
+      {p.releasedRate != null && (
+        <RecapRow
+          icon={<span aria-hidden="true">🌊</span>}
+          label="Prises relâchées"
+          value={`${Math.round(p.releasedRate * 100)} %`}
+        />
+      )}
+      <p className="mt-4 text-[12.5px] leading-relaxed text-ink-400">
+        Le bilan d&rsquo;une année de pêche, sans aucune coordonnée ni spot. Aucune
+        comparaison, aucun classement.
+      </p>
+    </div>
+  )
+}
+
+// ─── kind 'records' (mes records par espèce, sprint 47) ────────────────────────
+// Le plus beau poisson par espèce, DESCRIPTIF et geom-free. Zéro classement
+// inter-pêcheurs (anti-leaderboard).
+function RecordsRecap({ payload: p }: { payload: RecordsCardPayload }) {
+  const records = (p.records ?? []).slice(0, 8)
+  return (
+    <div>
+      <p className="flex items-center gap-2 text-[13px] font-semibold text-teal-700">
+        <Award size={15} aria-hidden="true" /> Mes plus beaux poissons par espèce
+      </p>
+      <ul className="mt-3 flex flex-col gap-2.5">
+        {records.map((r, i) => (
+          <li
+            key={`${r.species}-${i}`}
+            className="flex items-center justify-between gap-3 rounded-[12px] bg-sand-50 px-3.5 py-2.5"
+          >
+            <span className="text-[14px] text-navy-900">{speciesLabel(r.species)}</span>
+            <span className="flex items-baseline gap-2 text-right">
+              <span className="font-mono text-[14px] font-bold text-teal-700 tabular-nums">
+                {r.size_cm} cm
+              </span>
+              {r.weight_g != null && (
+                <span className="font-mono text-[12px] text-ink-400 tabular-nums">
+                  {(r.weight_g / 1000).toFixed(2).replace('.', ',')} kg
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-[12.5px] leading-relaxed text-ink-400">
+        Le plus beau poisson par espèce de ce pêcheur. Aucune comparaison avec les
+        autres, aucune coordonnée, aucun spot.
       </p>
     </div>
   )
