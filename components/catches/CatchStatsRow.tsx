@@ -1,13 +1,5 @@
 import type { MyCatchStats } from '@/lib/catches/queries'
-
-const SPECIES_LABELS: Record<string, string> = {
-  bar: 'Bar',
-  dorade_royale: 'Dorade royale',
-  lieu_jaune: 'Lieu jaune',
-  maquereau: 'Maquereau',
-  sar: 'Sar',
-  orphie: 'Orphie',
-}
+import { SPECIES_LABELS } from '@/lib/labels'
 
 export function CatchStatsRow({
   stats,

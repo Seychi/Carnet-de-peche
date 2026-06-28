@@ -3,24 +3,9 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { CatchBreakdown } from '@/lib/catches/queries'
+import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 
 // ─── Dictionnaires ────────────────────────────────────────────────────────────
-
-const SPECIES_LABELS: Record<string, string> = {
-  bar: 'Bar',
-  dorade_royale: 'Dorade royale',
-  lieu_jaune: 'Lieu jaune',
-  maquereau: 'Maquereau',
-  sar: 'Sar',
-  orphie: 'Orphie',
-}
-
-const TECHNIQUE_LABELS: Record<string, string> = {
-  leurres: 'Leurres',
-  surfcasting: 'Surfcasting',
-  flottante: 'Flottante',
-  vif: 'Vif',
-}
 
 const TABS = [
   { id: 'species' as const, label: 'Espèces' },

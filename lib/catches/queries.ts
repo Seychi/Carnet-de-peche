@@ -77,6 +77,68 @@ export async function getMyCatchStats(): Promise<MyCatchStats> {
   return data as MyCatchStats
 }
 
+// ─── getMyRecordsBySpecies ────────────────────────────────────────────────────
+
+/** Record perso pour une espèce. Privé (scopé serveur via RLS auth.uid()). */
+export type SpeciesRecord = {
+  species: string
+  /** Plus grande taille loguée (cm), tous champs taille confondus. */
+  maxSizeCm: number
+  /** Plus grand poids logué (g), si renseigné. */
+  maxWeightG: number | null
+}
+
+/**
+ * Le record (taille max) de chaque espèce pêchée, app-side (décision John D1 : pas
+ * de RPC, 0 migration). On lit les prises depuis `catches_for_viewer` (déjà scopée
+ * `auth.uid()` par la RLS) et on réduit en JS. DESCRIPTIF et PRIVÉ : zéro classement
+ * inter-pêcheurs, c'est le record du pêcheur sur SON carnet.
+ *
+ * `size_cm` est la taille de référence ; `measured_length_cm` (prise mesurée à l'objet
+ * de référence) est prise en compte quand elle dépasse `size_cm`. Une espèce sans
+ * aucune taille loguée n'apparaît pas.
+ */
+export async function getMyRecordsBySpecies(): Promise<SpeciesRecord[]> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error('Non authentifié')
+
+  const { data, error } = await supabase
+    .from('catches_for_viewer')
+    .select('species, size_cm, measured_length_cm, weight_g')
+    .eq('user_id', user.id)
+
+  if (error) throw error
+
+  const bySpecies = new Map<string, SpeciesRecord>()
+
+  for (const row of data ?? []) {
+    if (!row.species) continue
+    const size = Math.max(row.size_cm ?? 0, row.measured_length_cm ?? 0)
+    if (size <= 0) continue // pas de taille loguée pour cette prise
+
+    const current = bySpecies.get(row.species)
+    if (!current) {
+      bySpecies.set(row.species, {
+        species: row.species,
+        maxSizeCm: size,
+        maxWeightG: row.weight_g ?? null,
+      })
+      continue
+    }
+    if (size > current.maxSizeCm) current.maxSizeCm = size
+    if (row.weight_g != null && (current.maxWeightG == null || row.weight_g > current.maxWeightG)) {
+      current.maxWeightG = row.weight_g
+    }
+  }
+
+  // Tri par taille décroissante : le plus beau poisson en premier.
+  return [...bySpecies.values()].sort((a, b) => b.maxSizeCm - a.maxSizeCm)
+}
+
 // ─── getMyCatchesBreakdown ────────────────────────────────────────────────────
 
 export type CatchBreakdown = {

@@ -2,13 +2,14 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Box, ChevronRight, Wind } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown } from '@/lib/catches/queries'
+import { getMyCatches, getMyCatchStats, getMyCatchesBreakdown, getMyRecordsBySpecies } from '@/lib/catches/queries'
 import { getMyOutingStats } from '@/lib/outings/queries'
 import { getPersonalTendencies } from '@/lib/scoring/personal'
 import { getUserTier } from '@/lib/auth/tier'
 import { catchFiltersSchema } from '@/lib/catches/schema'
 import { CatchStatsRow } from '@/components/catches/CatchStatsRow'
 import { CatchStatsDetailed } from '@/components/catches/CatchStatsDetailed'
+import { RecordsBySpecies } from '@/components/catches/RecordsBySpecies'
 import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { CatchFiltersBar } from '@/components/catches/CatchFiltersBar'
 import { CatchGrid } from '@/components/catches/CatchGrid'
@@ -65,10 +66,11 @@ export default async function CarnetPage({ searchParams }: Props) {
 
   // ── Fetch parallèle : prises + stats + dépt du profil (insight) ──────────
 
-  const [{ catches, totalCount }, stats, breakdown, personalTendencies, outingStats, tier, { data: profile }] = await Promise.all([
+  const [{ catches, totalCount }, stats, breakdown, records, personalTendencies, outingStats, tier, { data: profile }] = await Promise.all([
     getMyCatches(filters),
     getMyCatchStats().catch(() => null),
     getMyCatchesBreakdown().catch(() => null),
+    getMyRecordsBySpecies().catch(() => null),
     getPersonalTendencies().catch(() => null),
     getMyOutingStats().catch(() => null),
     getUserTier().catch(() => undefined),
@@ -168,7 +170,10 @@ export default async function CarnetPage({ searchParams }: Props) {
         </Link>
 
         {/* Stats détaillées repliables */}
-        {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-5" />}
+        {breakdown && <CatchStatsDetailed breakdown={breakdown} className="mb-3" />}
+
+        {/* Tes records par espèce (privé, app-side) — ton plus beau poisson par espèce */}
+        {records && <RecordsBySpecies records={records} className="mb-5" />}
 
         {/* Tes tendances perso (calculées depuis tes prises réelles) — « ce que ton
             journal t'apprend ». La gamification (Pokédex/streak/badges) vit désormais

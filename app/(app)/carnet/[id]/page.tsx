@@ -11,6 +11,7 @@ import { CatchRegulationSection } from '@/components/regulation/CatchRegulationS
 import { RecfishingNotice } from '@/components/catches/RecfishingNotice'
 import { getFacadeForCatch } from '@/lib/regulation'
 import { isDeclarable, getDeclarableInfo } from '@/lib/regulation/recfishing'
+import { estimateWeightG } from '@/lib/species/morphometry'
 
 // Sûreté-cache (sprint 16) : page GPS-dépendante — la geom affichée est adaptée
 // au viewer (catches_for_viewer). Jamais de cache CDN/ISR partagé sinon un autre
@@ -86,6 +87,17 @@ export default async function CatchDetailPage({ params }: Props) {
   const privacy = PRIVACY_CONFIG[c.privacy as keyof typeof PRIVACY_CONFIG] ?? PRIVACY_CONFIG.private
   const speciesLabel = SPECIES_LABELS[c.species ?? ''] ?? c.species ?? '—'
   const location = c.location_label ?? c.spot_name ?? null
+
+  // Poids estimé (morphométrie FishBase). Honnêteté : c'est une ESTIMATION, jamais
+  // une pesée. On part de la taille mesurée si dispo, sinon la taille déclarée.
+  // Espèce non couverte → null → rien affiché. Si un poids réel est saisi, c'est
+  // lui qui prime ; l'estimé reste un complément discret (cf bloc Mesures).
+  const lengthForEstimate = c.measured_length_cm ?? c.size_cm ?? null
+  const estimatedWeightG = estimateWeightG(c.species, lengthForEstimate)
+  const estimatedWeightKg =
+    estimatedWeightG != null
+      ? (estimatedWeightG / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+      : null
   // Pour le propriétaire, geom_visible (donc lng/lat) est le point PRÉCIS → pin sans
   // disque de flou. Pour autrui, précis uniquement si la prise révèle ses coords.
   const isOwner = user.id === c.user_id
@@ -190,7 +202,7 @@ export default async function CatchDetailPage({ params }: Props) {
               pêcheur avec un objet de référence). Honnêteté (décision John D1) : on
               dit « mesurée », JAMAIS « vérifiée ». Quand elle diffère de la taille
               déclarée (`size_cm`), on montre les deux, la mesure faisant référence. */}
-          {(c.size_cm || c.weight_g || c.measured_length_cm != null) && (
+          {(c.size_cm || c.weight_g || c.measured_length_cm != null || estimatedWeightKg != null) && (
             <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-slate-100">
               {c.measured_length_cm != null ? (
                 <div>
@@ -233,7 +245,7 @@ export default async function CatchDetailPage({ params }: Props) {
                   </div>
                 )
               )}
-              {c.weight_g && (
+              {c.weight_g ? (
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">
                     Poids
@@ -242,7 +254,30 @@ export default async function CatchDetailPage({ params }: Props) {
                     {(c.weight_g / 1000).toFixed(2)}
                     <span className="text-[14px] font-normal text-ink-500 ml-1">kg</span>
                   </p>
+                  {/* Poids réel saisi → l'estimation reste un complément discret. */}
+                  {estimatedWeightKg != null && (
+                    <p className="text-[12px] text-ink-400 mt-0.5">
+                      Estimé d&apos;après la taille : ~{estimatedWeightKg} kg
+                    </p>
+                  )}
                 </div>
+              ) : (
+                /* Pas de pesée → poids estimé d'après la taille (morphométrie FishBase).
+                   Toujours « estimé », jamais présenté comme une pesée. */
+                estimatedWeightKg != null && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">
+                      Poids estimé
+                    </p>
+                    <p className="text-[26px] font-bold text-navy-900 leading-tight">
+                      ~{estimatedWeightKg}
+                      <span className="text-[14px] font-normal text-ink-500 ml-1">kg</span>
+                    </p>
+                    <p className="text-[12px] text-ink-400 mt-0.5">
+                      Estimé d&apos;après la taille
+                    </p>
+                  </div>
+                )
               )}
             </div>
           )}

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Fish } from 'lucide-react'
 import type { CatchRow } from '@/lib/catches/queries'
 import { SPECIES_LABELS } from '@/lib/labels'
+import { estimateWeightG } from '@/lib/species/morphometry'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { Chip } from '@/components/ui-v2/chip'
 
@@ -47,9 +48,18 @@ export function CatchRowItem({ catch: c, photoUrl }: { catch: CatchRow; photoUrl
   const isMeasured = c.photo_verified_at != null && c.measured_length_cm != null
   const displaySizeCm = c.measured_length_cm ?? c.size_cm
 
+  // Poids estimé (morphométrie FishBase) quand aucune pesée n'est saisie. Toujours
+  // « estimé », jamais une pesée ; rien si l'espèce n'est pas couverte.
+  const estimatedWeightG = c.weight_g ? null : estimateWeightG(c.species, displaySizeCm)
+  const estimatedWeightKg =
+    estimatedWeightG != null
+      ? (estimatedWeightG / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+      : null
+
   const measures = [
     displaySizeCm != null ? `${displaySizeCm} cm` : null,
     c.weight_g ? `${(c.weight_g / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} kg` : null,
+    estimatedWeightKg != null ? `~${estimatedWeightKg} kg (estimé)` : null,
   ].filter(Boolean) as string[]
 
   const meta: { text: string; variant?: 'teal' }[] = []
