@@ -4,8 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { moderatorDeletePost, moderatorDeleteComment, dismissReport } from '@/app/actions/feed'
 import { moderateApproveSpot, moderateRejectSpot, moderateMergeSpot, moderateVerifySpot } from '@/app/actions/spots'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
-import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
-import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck } from 'lucide-react'
+import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
+import ImportsCurationList from '@/components/spots/ImportsCurationList'
+import type { ImportToCurate } from '@/components/spots/CurateSpotForm'
+import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor } from 'lucide-react'
 
 export const metadata = { title: 'Modération — Carnet de Pêche' }
 export const dynamic = 'force-dynamic'
@@ -264,13 +266,15 @@ function PendingSpotRow({ spot }: { spot: PendingSpot }) {
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
+const IMPORTS_PER_PAGE = 25
+
 export default async function ModerationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; dept?: string; page?: string }>
 }) {
-  const { tab } = await searchParams
-  const activeTab = tab === 'spots' ? 'spots' : 'reports'
+  const { tab, dept: deptParam, page: pageParam } = await searchParams
+  const activeTab = tab === 'spots' ? 'spots' : tab === 'imports' ? 'imports' : 'reports'
 
   const supabase = await createClient()
   const {
@@ -287,11 +291,75 @@ export default async function ModerationPage({
     .eq('moderation_status', 'pending')
     .eq('source', 'community')
 
+  // Compteur d'imports OSM à curer (badge d'onglet + progression).
+  const { count: pendingImportsCount } = await supabase
+    .from('spots')
+    .select('id', { count: 'exact', head: true })
+    .eq('moderation_status', 'pending')
+    .eq('source', 'imported')
+
   // ---- Données selon l'onglet ----
   let reports: Report[] = []
   let pendingSpots: PendingSpot[] = []
+  let imports: ImportToCurate[] = []
+  // Curage : filtre dépt + pagination + progression.
+  const selectedDept =
+    deptParam && COASTAL_DEPARTMENTS.includes(deptParam) ? deptParam : null
+  let importsTotalForFilter = 0
+  let curatedTotalCount = 0
+  let importsDeptCounts: { department: string; count: number }[] = []
+  const importsPage = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
 
-  if (activeTab === 'reports') {
+  if (activeTab === 'imports') {
+    // Total curés depuis le départ (dénominateur de progression).
+    const { count: curated } = await supabase
+      .from('spots')
+      .select('id', { count: 'exact', head: true })
+      .eq('source', 'curated')
+    curatedTotalCount = curated ?? 0
+
+    // Comptes d'imports pending PAR département (façades maigres d'abord côté UI).
+    // PostgREST ne fait pas de GROUP BY → on compte dépt par dépt (24 requêtes
+    // légères, count head:true, exécutées en parallèle).
+    const deptCountPairs = await Promise.all(
+      COASTAL_DEPARTMENTS.map(async (code) => {
+        const { count } = await supabase
+          .from('spots')
+          .select('id', { count: 'exact', head: true })
+          .eq('moderation_status', 'pending')
+          .eq('source', 'imported')
+          .eq('department', code)
+        return { department: code, count: count ?? 0 }
+      }),
+    )
+    importsDeptCounts = deptCountPairs.filter((d) => d.count > 0)
+
+    // Liste paginée des imports (filtrée par dépt si demandé).
+    let q = supabase
+      .from('spots')
+      .select('id, name, department, structure, species, techniques, description, access_notes', {
+        count: 'exact',
+      })
+      .eq('moderation_status', 'pending')
+      .eq('source', 'imported')
+    if (selectedDept) q = q.eq('department', selectedDept)
+    const from = (importsPage - 1) * IMPORTS_PER_PAGE
+    const { data: rawImports, count: filterCount } = await q
+      .order('department', { ascending: true })
+      .order('name', { ascending: true })
+      .range(from, from + IMPORTS_PER_PAGE - 1)
+    importsTotalForFilter = filterCount ?? 0
+    imports = (rawImports ?? []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      department: s.department,
+      structure: s.structure,
+      species: s.species,
+      techniques: s.techniques,
+      description: s.description,
+      access_notes: s.access_notes,
+    }))
+  } else if (activeTab === 'reports') {
     const { data: rawReports } = await supabase
       .from('reports')
       .select('id, created_at, reason, details, target_type, target_id, status, reporter_id')
@@ -385,6 +453,14 @@ export default async function ModerationPage({
             </span>
           )}
         </Link>
+        <Link href="/moderation?tab=imports" className={tabCls(activeTab === 'imports')}>
+          Imports à curer
+          {(pendingImportsCount ?? 0) > 0 && (
+            <span className="ml-1.5 rounded-full bg-navy-900 px-1.5 py-0.5 font-mono text-[10px] text-white">
+              {pendingImportsCount}
+            </span>
+          )}
+        </Link>
       </div>
 
       {activeTab === 'reports' ? (
@@ -397,13 +473,155 @@ export default async function ModerationPage({
             ))}
           </div>
         )
-      ) : pendingSpots.length === 0 ? (
-        <Empty label="Aucun spot en attente de validation." />
+      ) : activeTab === 'spots' ? (
+        pendingSpots.length === 0 ? (
+          <Empty label="Aucun spot en attente de validation." />
+        ) : (
+          <div className="flex flex-col gap-3">
+            {pendingSpots.map((s) => (
+              <PendingSpotRow key={s.id} spot={s} />
+            ))}
+          </div>
+        )
       ) : (
-        <div className="flex flex-col gap-3">
-          {pendingSpots.map((s) => (
-            <PendingSpotRow key={s.id} spot={s} />
-          ))}
+        <ImportsTab
+          imports={imports}
+          selectedDept={selectedDept}
+          deptCounts={importsDeptCounts}
+          curatedTotal={curatedTotalCount}
+          pendingImportsTotal={pendingImportsCount ?? 0}
+          filterTotal={importsTotalForFilter}
+          page={importsPage}
+          perPage={IMPORTS_PER_PAGE}
+        />
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Onglet « Imports à curer » : progression + filtre dépt + liste paginée.
+// ---------------------------------------------------------------------------
+function ImportsTab({
+  imports,
+  selectedDept,
+  deptCounts,
+  curatedTotal,
+  pendingImportsTotal,
+  filterTotal,
+  page,
+  perPage,
+}: {
+  imports: ImportToCurate[]
+  selectedDept: string | null
+  deptCounts: { department: string; count: number }[]
+  curatedTotal: number
+  pendingImportsTotal: number
+  filterTotal: number
+  page: number
+  perPage: number
+}) {
+  const grandTotal = curatedTotal + pendingImportsTotal
+  const pct = grandTotal > 0 ? Math.round((curatedTotal / grandTotal) * 100) : 0
+  const totalPages = Math.max(1, Math.ceil(filterTotal / perPage))
+  const deptHref = (code: string | null) =>
+    `/moderation?tab=imports${code ? `&dept=${code}` : ''}`
+  const pageHref = (p: number) =>
+    `/moderation?tab=imports${selectedDept ? `&dept=${selectedDept}` : ''}&page=${p}`
+  // Façades maigres d'abord (D2) : tri par nombre d'imports croissant.
+  const sortedDepts = [...deptCounts].sort(
+    (a, b) => a.count - b.count || a.department.localeCompare(b.department),
+  )
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Progression */}
+      <div className="rounded-[14px] border border-sand-200 bg-white p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-navy-900">
+            <Anchor size={15} className="text-navy-900" aria-hidden="true" />
+            Curage des spots importés
+          </span>
+          <span className="font-mono text-[13px] text-ink-600">
+            <span className="font-semibold text-teal-700">{curatedTotal}</span> curés ·{' '}
+            <span className="font-semibold text-navy-900">{pendingImportsTotal}</span> restants
+          </span>
+        </div>
+        <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-ink-100">
+          <div
+            className="h-full rounded-full bg-teal-500"
+            style={{ width: `${pct}%` }}
+            aria-hidden="true"
+          />
+        </div>
+        <p className="mt-1.5 text-[11px] text-ink-400">
+          {pct}% du catalogue est curé. Chaque import validé passe « vérifié » et apparaît sur la carte.
+        </p>
+      </div>
+
+      {/* Filtre par département (façades maigres en tête) */}
+      {deptCounts.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={deptHref(null)}
+            className={`min-h-[36px] rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+              selectedDept === null
+                ? 'border-navy-900 bg-navy-900 text-white'
+                : 'border-sand-200 bg-white text-ink-600 hover:border-ink-300'
+            }`}
+          >
+            Tous
+          </Link>
+          {sortedDepts.map((d) => {
+            const code = d.department.trim()
+            const on = selectedDept === code
+            return (
+              <Link
+                key={code}
+                href={deptHref(code)}
+                className={`min-h-[36px] rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  on
+                    ? 'border-navy-900 bg-navy-900 text-white'
+                    : 'border-sand-200 bg-white text-ink-600 hover:border-ink-300'
+                }`}
+              >
+                <span className="font-mono">{code}</span> {DEPARTMENT_LABELS[code] ?? ''}
+                <span className={`ml-1.5 font-mono ${on ? 'text-white/80' : 'text-ink-400'}`}>{d.count}</span>
+              </Link>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Liste à curer */}
+      <ImportsCurationList imports={imports} />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-2">
+          {page > 1 ? (
+            <Link
+              href={pageHref(page - 1)}
+              className="min-h-[44px] rounded-full border border-sand-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink-600 hover:border-ink-300"
+            >
+              Précédent
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="font-mono text-[12px] text-ink-400">
+            page {page} / {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Link
+              href={pageHref(page + 1)}
+              className="min-h-[44px] rounded-full border border-sand-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink-600 hover:border-ink-300"
+            >
+              Suivant
+            </Link>
+          ) : (
+            <span />
+          )}
         </div>
       )}
     </div>

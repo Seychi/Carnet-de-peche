@@ -36,6 +36,19 @@ export const STRUCTURE_LABELS: Record<string, string> = {
   cassure: 'Cassure',
 }
 
+// Dangers d'un spot (sprint 43, curage). Renseignés à la curation, affichés sur la
+// fiche spot. Clé snake_case (stockée dans spots.hazards text[]) → label FR.
+export const HAZARDS_LABELS: Record<string, string> = {
+  ressac: 'Ressac et retour de vague',
+  vagues_scelerates: 'Vagues scélérates',
+  courants_forts: 'Courants forts',
+  roches_glissantes: 'Roches glissantes',
+  maree_montante_rapide: 'Marée montante rapide',
+  rochers_immerges: 'Rochers immergés',
+  acces_falaise: 'Accès par la falaise',
+  isolement: 'Zone isolée',
+}
+
 // Provenance d'un spot (migration 041) — source unique pour les badges
 // carte / fiche. Le badge « Vérifié » (garantie éditoriale) reste réservé aux
 // spots `curated`. cf docs/carte-v2/RECAP-C2.md.

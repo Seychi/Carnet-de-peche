@@ -1825,6 +1825,13 @@ export type Database = {
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_my_outing_stats: { Args: never; Returns: Json }
       get_my_streak: { Args: never; Returns: Json }
+      get_pending_import_location: {
+        Args: { p_spot_id: string }
+        Returns: {
+          lat: number
+          lng: number
+        }[]
+      }
       get_pending_recfishing_catches: {
         Args: { p_since: string; p_species: string[] }
         Returns: {

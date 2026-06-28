@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { regionForDepartment } from '@/lib/geo/departments'
 import { createNotification } from '@/lib/notifications/create'
 import { proposeSpotSchema, type ProposeSpotInput } from '@/lib/spots/propose-schema'
+import { curateSpotSchema, type CurateSpotInput } from '@/lib/spots/curate-schema'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -300,6 +301,78 @@ export async function moderateVerifySpot(spotId: string): Promise<ActionResult> 
   }
   revalidatePath('/moderation')
   revalidatePath('/carte') // vérifié → badge « Coordonnée vérifiée » sur la carte
+  return ok(undefined)
+}
+
+// ─── Curage d'un import (sprint 43) ────────────────────────────────────────────
+// Curer = ENRICHIR + VÉRIFIER : on enrichit le spot ET on le pose source='curated'
+// + verified=true + approved dans le MÊME UPDATE (contrainte spots_verified_only_curated).
+// Modérateur-only (garde serveur viewerIsModerator + backstop RLS spots_update_moderator).
+// Modèle moderateVerifySpot. Pas d'invention : le modérateur saisit + vérifie la coord.
+export async function curateSpot(
+  spotId: string,
+  input: CurateSpotInput,
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+  if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+  if (!(await viewerIsModerator(supabase, user.id))) return fail(MOD_MSG)
+
+  const parsed = curateSpotSchema.safeParse(input)
+  if (!parsed.success) {
+    return fail(parsed.error.issues[0]?.message ?? 'Données invalides.')
+  }
+  const d = parsed.data
+
+  const spot = await loadSpotForModeration(supabase, spotId)
+  if (!spot) return fail('Spot introuvable.')
+
+  // UPDATE atomique : enrichissement + vérification + publication ensemble.
+  const update: Record<string, unknown> = {
+    structure: d.structure,
+    source: 'curated',
+    verified: true,
+    verified_at: new Date().toISOString(),
+    verified_by: user.id,
+    moderation_status: 'approved',
+  }
+  if (d.name) update.name = d.name
+  if (d.species) update.species = d.species
+  if (d.techniques) update.techniques = d.techniques
+  if (d.difficulty != null) update.difficulty = d.difficulty
+  if (d.hazards) update.hazards = d.hazards
+  if (d.visibility) update.visibility = d.visibility
+  if (d.access_notes != null) update.access_notes = d.access_notes
+  if (d.description != null) update.description = d.description
+  // Correction de coordonnée (EWKT, comme proposeSpot) : le trigger blur_spot_geom
+  // recalcule geom_public (flou) automatiquement.
+  if (d.latitude != null && d.longitude != null) {
+    update.geom = `SRID=4326;POINT(${d.longitude} ${d.latitude})`
+  }
+
+  const { error } = await supabase.from('spots').update(update).eq('id', spotId)
+  if (error) {
+    console.error('[curateSpot]', error.message)
+    return fail('Impossible de curer ce spot. Réessaie.')
+  }
+
+  // Import OSM : created_by IS NULL → pas de notif. Spot communautaire curé →
+  // on notifie son proposeur (la vérification vaut validation forte).
+  if (spot.created_by) {
+    await createNotification({
+      userId: spot.created_by,
+      type: 'spot_verified',
+      actorId: user.id,
+      targetType: 'spot',
+      targetId: spotId,
+      previewText: d.name ?? spot.name,
+    })
+  }
+  revalidatePath('/moderation')
+  revalidatePath('/carte')
   return ok(undefined)
 }
 
