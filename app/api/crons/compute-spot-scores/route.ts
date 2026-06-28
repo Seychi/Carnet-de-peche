@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { computeAndStoreSpotScores } from '@/lib/scoring/spot-scores-job'
 
 export const dynamic = 'force-dynamic'
+// Borne du plan Hobby (60 s). Depuis le sprint 42, get_spots_for_scoring est scopée
+// aux curés + communautaires (~215 spots, vs 1158 après l'import OSM qui timeoutait) :
+// le job tient très largement sous 60 s. Les imports bruts sont hors périmètre.
 export const maxDuration = 60
 
 // Cron quotidien à 05:00 UTC (déclaré dans vercel.json — le plan Hobby de Vercel

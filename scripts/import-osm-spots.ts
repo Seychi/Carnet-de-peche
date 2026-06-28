@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // ===========================================================================
 // Import OSM des structures de pêche du bord publiques (sprint Carte-v2 / C2,
 // Bloc D). Interroge l'API Overpass par département côtier, mappe vers notre
@@ -178,7 +177,9 @@ function renderSql(rows: Candidate[]): string {
 -- GÉNÉRÉ par scripts/import-osm-spots.ts — ⚠️ À RELIRE avant insertion.
 -- Source des positions : OpenStreetMap, sous licence ODbL v1.0.
 --   © OpenStreetMap contributors — https://www.openstreetmap.org/copyright
--- Chaque ligne : source='imported', verified=false, moderation_status='approved'.
+-- Chaque ligne : source='imported', verified=false, moderation_status='pending'.
+-- (sprint 42 : les imports bruts entrent en BACKLOG de curation, masqués de la carte
+--  publique jusqu'à validation au sprint 43 — toutes les lectures filtrent 'approved'.)
 -- Le NOT EXISTS ST_DWithin(${DEDUP_RADIUS_M} m) déduplique contre l'existant
 -- (curated + community + imported) AU MOMENT de l'insertion.
 -- Le trigger spots_blur recalcule geom_public (flou) automatiquement.
@@ -202,7 +203,7 @@ insert into public.spots (name, slug, department, region, geom, source, moderati
 select
   c.name, c.slug, c.department, c.region,
   ST_SetSRID(ST_MakePoint(c.lng::double precision, c.lat::double precision), 4326)::geography,
-  'imported', 'approved', false, 'public', c.structure::text
+  'imported', 'pending', false, 'public', c.structure::text
 from (values
 ${values}
 ) as c(name, slug, department, region, lng, lat, structure)

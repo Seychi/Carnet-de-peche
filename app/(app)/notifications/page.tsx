@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -34,6 +34,22 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: MapPinX, label: 'Ta proposition de spot n’a pas été retenue' }
     case 'optimal_window':
       return { icon: Sparkles, label: 'Créneau favorable près de chez toi' }
+    case 'spot_verified':
+      return { icon: MapPinCheck, label: 'La coordonnée de ton spot a été vérifiée 🎣' }
+    case 'recfishing_reminder':
+      return { icon: Fish, label: 'Pense à déclarer ta prise (RecFishing)' }
+    case 'outing_join':
+      return { icon: Users, label: `${who} a demandé à rejoindre ta sortie` }
+    case 'outing_accepted':
+      return { icon: Users, label: 'Ta demande de sortie a été acceptée 🎣' }
+    case 'outing_full':
+      return { icon: Users, label: 'Ta sortie est complète' }
+    case 'outing_cancelled':
+      return { icon: Users, label: 'Une sortie a été annulée' }
+    case 'outing_message':
+      return { icon: MessageCircle, label: 'Nouveau message dans la sortie' }
+    case 'outing_reminder':
+      return { icon: CalendarClock, label: 'Ta sortie est demain' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -77,8 +93,16 @@ export default async function NotificationsPage() {
     if (n.type === 'new_follower') {
       return n.actor_username ? `/u/${n.actor_username}` : '/follows'
     }
-    if (n.type === 'spot_approved' || n.type === 'spot_rejected') {
+    if (n.type === 'spot_approved' || n.type === 'spot_rejected' || n.type === 'spot_verified') {
       return '/spots/mes-propositions'
+    }
+    // Co-pêchage (sprint 40) : toutes les notifs de sortie mènent au board des sorties.
+    if (n.target_type === 'outing' || n.type.startsWith('outing_')) {
+      return '/sorties'
+    }
+    // Rappel RecFishing : déclarer ses prises depuis le carnet.
+    if (n.type === 'recfishing_reminder') {
+      return '/carnet'
     }
     // Créneau favorable du jour → la carte (couche « Ton score » + spots près de chez toi).
     if (n.type === 'optimal_window') {
