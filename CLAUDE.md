@@ -355,6 +355,16 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 
 ## 8. Décisions produit verrouillées
 
+### ★ PIVOT ADN — « produit dopamine / compétition » (décision John 2026-06-28)
+
+> **Changement de cap majeur, assumé.** L'ADN « anti-comparaison / anti-dopamine » des sprints 1-48 (zéro leaderboard, gamification 100 % privée) **est ABANDONNÉ**. Nouveau cap : **produit dopamine, compétitif, gamifié à fond**, pensé pour la nouvelle génération « addict » à ces mécaniques.
+>
+> **Concrètement, c'est désormais autorisé / recherché** : leaderboards (classements par dépt, espèce, saison), XP / niveaux / rangs, streaks et badges **publics** (plus seulement privés), défis compétitifs, événements saisonniers, notifications d'engagement (rang qui bouge, défi qui se termine), records **comparés** entre pêcheurs.
+>
+> **Ce qui NE change PAS** (garde-fous toujours fermes) : floutage GPS / anti spot-burning (jamais de coordonnée exposée, même dans un classement), RLS, honnêteté des données (pas de chiffre inventé), conformité RGPD. La compétition se fait sur des métriques **sans fuite de spot**.
+>
+> Les anciennes mentions « zéro leaderboard / gamification anti-comparaison » (lignes historiques §2, Chantier G, mémoire sprint-26) sont **périmées** : ne plus les invoquer comme invariant. Plan d'exécution dopamine : à cadrer en brief dédié.
+
 ### Floutage GPS
 - **Spots** : utilisateurs **gratuits** voient `geom_public` (jitter recentré **~500-900 m**, migration 028 — plus « 1 km » fixe). **Abonnés** Local/Itinérant voient `geom` précis. Géré par la vue `spots_for_viewer` + RPC gatées au tier (`current_tier`). Verrou colonne : `geom` non lisible par `anon`/`authenticated` (028b/041).
 - **Catches** : par défaut **non-amis** voient `geom_public` (jitter **~500-900 m**). **Amis** voient `geom` précis SI `precise_for_friends=true` (default). Le pêcheur peut activer `reveal_precise_to_public` pour partager précisément à tous. Toujours passer par la vue `catches_for_viewer`.
@@ -440,7 +450,7 @@ const { data } = await supabase.from('spots_for_viewer').select('*');
 - ★ **Chantier D — « Amorçage & Lancement »** : remplir le réservoir (beta « fondateurs », seed honnête ?) + **log de la bredouille** + time-to-value à froid.
 - **Chantier E — « Croissance SEO + contenu »** (parallèle) : 5-6 → 20+ guides phares + pages programmatiques deep.
 - **Chantier F — « Monétisation »** : faire du scoring perso l'argument de conversion (après A/B).
-- ★ **Chantier G — « Communauté vivante & prises vérifiées »** : mesure taille/poids par photo, co-pêchage, gamification anti-comparaison.
+- ★ **Chantier G — « Communauté vivante & prises vérifiées »** : mesure taille/poids par photo, co-pêchage, gamification compétitive (cf §8 pivot ADN dopamine).
 
 **Séquencement (phases) :** **P1** Socle (sprint 21 = Chantier 0) → **P2** Le moat réel (A puis B) → **P3** Conformité (C + G1) → **P4** Lancement (D + G2) → **P5** Monétisation (F + G3) → puis **Mobile** (Expo iOS/Android, IAP — la PWA fait le pont). Le Chantier **E** (SEO/contenu, lane éditoriale + César) tourne **en parallèle** de P1→P5.
 
