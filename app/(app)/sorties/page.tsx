@@ -17,7 +17,7 @@ export const metadata = {
 export default async function SortiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ species?: string; from?: string }>
+  searchParams: Promise<{ species?: string; from?: string; level?: string; neighbors?: string }>
 }) {
   const supabase = await createClient()
   const {
@@ -27,15 +27,21 @@ export default async function SortiesPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('home_department')
+    .select('home_department, is_moderator')
     .eq('id', user.id)
     .maybeSingle()
 
   const dept = profile?.home_department?.trim() ?? null
+  const isModerator = profile?.is_moderator === true
 
-  // Filtres de matching (espèce + date plancher) lus depuis l'URL.
+  // Filtres de matching (espèce + date plancher + niveau hôte + dépts voisins) lus de l'URL.
   const sp = await searchParams
   const speciesFilter = sp.species ? sp.species.split(',').filter(Boolean) : []
+  const levelFilter =
+    sp.level === 'debutant' || sp.level === 'intermediaire' || sp.level === 'expert'
+      ? sp.level
+      : undefined
+  const includeNeighbors = sp.neighbors === '1'
   const fromFilter = sp.from
     ? (() => {
         const d = new Date(`${sp.from}T00:00:00`)
@@ -44,7 +50,12 @@ export default async function SortiesPage({
     : undefined
 
   const proposals = dept
-    ? await getDeptProposals(dept, { species: speciesFilter, from: fromFilter })
+    ? await getDeptProposals(dept, {
+        species: speciesFilter,
+        from: fromFilter,
+        level: levelFilter,
+        includeNeighbors,
+      })
     : []
   const participation = await getMyParticipationMap(proposals.map((p) => p.id))
 
@@ -81,7 +92,12 @@ export default async function SortiesPage({
               <OutingComposer defaultDepartment={dept} />
             </div>
 
-            <OutingFilters selectedSpecies={speciesFilter} from={sp.from} />
+            <OutingFilters
+              selectedSpecies={speciesFilter}
+              from={sp.from}
+              level={sp.level}
+              includeNeighbors={includeNeighbors}
+            />
 
             {proposals.length === 0 ? (
               <div className="rounded-[14px] border border-dashed border-sand-300 bg-white px-5 py-10 text-center">
@@ -110,6 +126,7 @@ export default async function SortiesPage({
                     key={p.id}
                     proposal={p}
                     viewerId={user.id}
+                    isModerator={isModerator}
                     participationStatus={participation[p.id]}
                     participants={p.host_id === user.id ? participantsByProposal[p.id] : undefined}
                   />

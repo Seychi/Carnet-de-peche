@@ -1,11 +1,25 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { createNotification } from '@/lib/notifications/create'
-import { proposeOutingSchema, type ProposeOutingInput, outingMessageSchema } from './schema'
+import { createNotification, getNotificationPrefs } from '@/lib/notifications/create'
+import { isNotificationPrefEnabled } from '@/lib/notifications/prefs-meta'
+import { sendPushToUser } from '@/lib/push/send'
+import { departmentArticle } from '@/lib/geo/departments'
+import {
+  proposeOutingSchema,
+  type ProposeOutingInput,
+  outingMessageSchema,
+  outingReviewSchema,
+} from './schema'
 import { getOutingMessages, type OutingMessage } from './queries'
 import { ALL_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
+
+// Les helpers photo de chat (uploadOutingPhoto, getOutingPhotoSignedUrl) vivent dans
+// lib/cofishing/outing-photo.ts ('use server') et s'importent DIRECTEMENT de là : un
+// fichier 'use server' ne peut pas RÉEXPORTER (seules des fn async définies localement
+// sont exportables). Gotcha sprint 48/50.
 
 // Co-pêchage. AUCUNE coordonnée précise n'est jamais lue/écrite (D-D3).
 
@@ -63,8 +77,95 @@ export async function proposeOuting(input: ProposeOutingInput): Promise<Result<{
     return { error: 'Impossible de proposer la sortie. Réessaie.' }
   }
 
+  // Best-effort : prévenir les pêcheurs du département qu'une sortie vient d'ouvrir
+  // près de chez eux. Ne casse JAMAIS la création (try/catch interne).
+  await notifyNearbyOfNewOuting({
+    proposalId: data.id as string,
+    hostId: user.id,
+    department: d.department,
+    areaLabel: d.area_label ?? null,
+  })
+
   revalidatePath('/sorties')
   return { id: data.id as string }
+}
+
+/**
+ * Notifie les pêcheurs dont le département de résidence (profiles.home_department)
+ * est celui de la sortie qu'une sortie vient d'ouvrir. BEST-EFFORT total : avale
+ * toute erreur, isolé par destinataire. ZÉRO coordonnée : on ne transmet que le
+ * département + un éventuel repère LIBRE (area_label, déjà nettoyé anti-coord à
+ * l'écriture). Push gaté par la pref 'nearby_outing' de chaque destinataire.
+ */
+async function notifyNearbyOfNewOuting(params: {
+  proposalId: string
+  hostId: string
+  department: string
+  areaLabel: string | null
+}): Promise<void> {
+  const { proposalId, hostId, department, areaLabel } = params
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+
+    // Destinataires = pêcheurs résidant dans le département de la sortie, sauf l'hôte.
+    const { data: rows, error } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('home_department', department)
+      .neq('id', hostId)
+      .limit(500)
+    if (error) {
+      console.error('[cofishing] nearby_outing lecture profils :', error.message)
+      return
+    }
+
+    const recipientIds = (rows ?? [])
+      .map((r) => r.id as string | null)
+      .filter((id): id is string => Boolean(id) && id !== hostId)
+    if (recipientIds.length === 0) return
+
+    // Texte SANS coordonnée : « du Finistère » + éventuel repère libre.
+    const where = departmentArticle(department, 'de')
+    const preview = areaLabel
+      ? `a proposé une sortie ${where} (${areaLabel})`
+      : `a proposé une sortie ${where}`
+    const pushBody = areaLabel
+      ? `Nouvelle sortie ${where} : ${areaLabel}.`
+      : `Une sortie vient d’ouvrir ${where}.`
+
+    for (const userId of recipientIds) {
+      // IN-APP toujours (createNotification est best-effort + anti-auto-notif).
+      try {
+        await createNotification({
+          userId,
+          type: 'nearby_outing',
+          actorId: hostId,
+          targetType: 'outing',
+          targetId: proposalId,
+          previewText: preview,
+        })
+      } catch (e) {
+        console.error('[cofishing] nearby_outing in-app (non bloquant) :', e)
+      }
+
+      // PUSH seulement si la pref 'nearby_outing' est active (no-op sans clés VAPID).
+      try {
+        const prefs = await getNotificationPrefs(admin, userId)
+        if (!isNotificationPrefEnabled(prefs, 'nearby_outing')) continue
+        await sendPushToUser(admin, userId, {
+          title: 'Carnet de Pêche',
+          body: pushBody,
+          url: '/sorties',
+        })
+      } catch (e) {
+        console.error('[cofishing] nearby_outing push (non bloquant) :', e)
+      }
+    }
+  } catch (e) {
+    // Filet global : admin indisponible, etc. Jamais de throw.
+    console.error('[cofishing] notifyNearbyOfNewOuting indisponible :', e)
+  }
 }
 
 /** Demander à rejoindre une sortie. Notifie l'hôte. */
@@ -275,6 +376,7 @@ export async function loadOutingMessages(proposalId: string): Promise<OutingMess
 export async function sendOutingMessage(
   proposalId: string,
   body: string,
+  photoPath?: string,
 ): Promise<Result<{ ok: true }>> {
   const u = await getUserId()
   if ('error' in u) return u
@@ -282,10 +384,23 @@ export async function sendOutingMessage(
   const parsed = outingMessageSchema.safeParse({ body })
   if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') }
 
+  // Un message doit porter du texte OU une photo (jamais les deux vides).
+  const cleanBody = parsed.data.body
+  const photo = photoPath?.trim() || null
+  if (!cleanBody && !photo) return { error: 'Écris un message ou ajoute une photo.' }
+
+  // Garde-fou : un photo_path doit pointer dans le bucket privé, dossier de l'auteur
+  // (`<uid>/...`). On REFUSE tout chemin qui n'est pas scopé à l'expéditeur (anti
+  // injection d'un chemin arbitraire). La lecture restera de toute façon gatée par
+  // l'appartenance via getOutingPhotoSignedUrl.
+  if (photo && !photo.startsWith(`${u.id}/`)) {
+    return { error: 'Photo invalide.' }
+  }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('outing_messages')
-    .insert({ proposal_id: proposalId, user_id: u.id, body: parsed.data.body })
+    .insert({ proposal_id: proposalId, user_id: u.id, body: cleanBody, photo_path: photo })
   if (error) {
     // RLS (non-membre) ou autre : message propre, on ne révèle pas le détail.
     console.error('[cofishing] sendOutingMessage error :', error)
@@ -326,5 +441,217 @@ export async function sendOutingMessage(
     console.error('[cofishing] sendOutingMessage notif :', e)
   }
 
+  return { ok: true }
+}
+
+// ─── Sur place (D) ─────────────────────────────────────────────────────────────
+/**
+ * Un participant accepté pointe SA présence sur la sortie (RPC mark_on_site, 089).
+ * La RPC vérifie côté DB que l'appelant est bien participant accepté → un tiers
+ * obtient une erreur. AUCUNE coordonnée : on ne fait qu'horodater on_site_at.
+ */
+export async function markOnSite(proposalId: string): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(proposalId).success) return { error: 'Sortie invalide.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('mark_on_site', { p_proposal_id: proposalId })
+  if (error) {
+    console.error('[cofishing] markOnSite error :', error.message)
+    return { error: 'Impossible de pointer ta présence (réservé aux participants acceptés).' }
+  }
+
+  revalidatePath('/sorties')
+  return { ok: true }
+}
+
+// ─── Avis co-pêchage (B) ─────────────────────────────────────────────────────
+/**
+ * Laisser un avis sur un AUTRE membre d'une sortie PASSÉE. La RLS (087) cadenasse :
+ * INSERT autorisé seulement si l'auteur ET la cible sont membres d'une même sortie
+ * passée (un tiers ou un avis sur une sortie à venir échoue à la DB). Le schéma borne
+ * la note (1-5) et le commentaire (≤ 500 + anti-coord). DESCRIPTIF, jamais classant.
+ */
+export async function createOutingReview(
+  proposalId: string,
+  revieweeId: string,
+  rating: number,
+  comment?: string,
+): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(proposalId).success) return { error: 'Sortie invalide.' }
+  if (!z.string().uuid().safeParse(revieweeId).success) return { error: 'Pêcheur invalide.' }
+  if (revieweeId === u.id) return { error: 'Tu ne peux pas t’évaluer toi-même.' }
+
+  const parsed = outingReviewSchema.safeParse({ rating, comment })
+  if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('outing_reviews').insert({
+    proposal_id: proposalId,
+    reviewer_id: u.id,
+    reviewee_id: revieweeId,
+    rating: parsed.data.rating,
+    comment: parsed.data.comment ?? null,
+  })
+  if (error) {
+    if (String(error.message).includes('duplicate')) {
+      return { error: 'Tu as déjà laissé un avis à ce pêcheur pour cette sortie.' }
+    }
+    // RLS (pas membre / sortie pas passée) ou autre : message propre.
+    console.error('[cofishing] createOutingReview error :', error.message)
+    return { error: 'Avis impossible (réservé aux membres d’une sortie déjà passée).' }
+  }
+
+  revalidatePath('/sorties')
+  return { ok: true }
+}
+
+/** Supprimer SON propre avis (la RLS DELETE 087 = own uniquement). */
+export async function deleteOutingReview(reviewId: string): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(reviewId).success) return { error: 'Avis invalide.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('outing_reviews')
+    .delete()
+    .eq('id', reviewId)
+    .eq('reviewer_id', u.id)
+  if (error) {
+    console.error('[cofishing] deleteOutingReview error :', error.message)
+    return { error: 'Impossible de supprimer cet avis.' }
+  }
+
+  revalidatePath('/sorties')
+  return { ok: true }
+}
+
+// ─── Modération du chat / des avis (D) ───────────────────────────────────────
+/** L'utilisateur courant est-il modérateur (profiles.is_moderator) ? */
+async function viewerIsModerator(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('is_moderator')
+    .eq('id', userId)
+    .maybeSingle()
+  return data?.is_moderator === true
+}
+
+/**
+ * Signaler un message de chat (modèle reportPost). Insère un report
+ * target_type='outing_message' (accepté par la migration 089) SANS aucune donnée
+ * sensible : seulement (target_id, reason, details). Modération libre au lancement.
+ */
+export async function reportOutingMessage(
+  messageId: string,
+  reason: string,
+  details?: string,
+): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(messageId).success) return { error: 'Message invalide.' }
+
+  const parsed = z
+    .object({
+      reason: z.enum(['spam', 'inapproprie', 'spot_burning', 'autre']),
+      details: z.string().trim().max(1000, 'Ta précision est trop longue (max 1000).').optional(),
+    })
+    .safeParse({ reason, details })
+  if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('reports').insert({
+    reporter_id: u.id,
+    target_type: 'outing_message',
+    target_id: messageId,
+    reason: parsed.data.reason,
+    details: parsed.data.details ?? null,
+  })
+  if (error) {
+    console.error('[cofishing] reportOutingMessage error :', error.message)
+    return { error: 'Impossible d’envoyer ton signalement. Réessaie.' }
+  }
+  return { ok: true }
+}
+
+/**
+ * Suppression d'un message de chat par un modérateur. Le chat est append-only (pas
+ * de policy DELETE) → on passe en service-role. Gate is_moderator. Résout aussi les
+ * signalements en attente sur ce message (trace d'audit).
+ */
+export async function moderatorDeleteOutingMessage(
+  messageId: string,
+): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(messageId).success) return { error: 'Message invalide.' }
+
+  const supabase = await createClient()
+  if (!(await viewerIsModerator(supabase, u.id))) {
+    return { error: 'Action réservée aux modérateurs.' }
+  }
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const { error } = await admin.from('outing_messages').delete().eq('id', messageId)
+    if (error) {
+      console.error('[cofishing] moderatorDeleteOutingMessage error :', error.message)
+      return { error: 'Suppression impossible.' }
+    }
+    // Résout les signalements en attente sur ce message (best-effort).
+    const now = new Date().toISOString()
+    await admin
+      .from('reports')
+      .update({ status: 'resolved', resolved_by: u.id, resolved_at: now })
+      .eq('target_type', 'outing_message')
+      .eq('target_id', messageId)
+      .eq('status', 'pending')
+  } catch (e) {
+    console.error('[cofishing] moderatorDeleteOutingMessage indisponible :', e)
+    return { error: 'Suppression indisponible.' }
+  }
+
+  revalidatePath('/sorties')
+  return { ok: true }
+}
+
+/**
+ * Suppression d'un avis par un modérateur (service-role, gate is_moderator). Sert à
+ * retirer un avis abusif sans toucher à la RLS DELETE own. Résout les signalements.
+ */
+export async function moderatorDeleteOutingReview(
+  reviewId: string,
+): Promise<Result<{ ok: true }>> {
+  const u = await getUserId()
+  if ('error' in u) return u
+  if (!z.string().uuid().safeParse(reviewId).success) return { error: 'Avis invalide.' }
+
+  const supabase = await createClient()
+  if (!(await viewerIsModerator(supabase, u.id))) {
+    return { error: 'Action réservée aux modérateurs.' }
+  }
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    const { error } = await admin.from('outing_reviews').delete().eq('id', reviewId)
+    if (error) {
+      console.error('[cofishing] moderatorDeleteOutingReview error :', error.message)
+      return { error: 'Suppression impossible.' }
+    }
+  } catch (e) {
+    console.error('[cofishing] moderatorDeleteOutingReview indisponible :', e)
+    return { error: 'Suppression indisponible.' }
+  }
+
+  revalidatePath('/sorties')
   return { ok: true }
 }

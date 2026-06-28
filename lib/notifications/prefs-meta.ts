@@ -19,6 +19,7 @@ export const NOTIFICATION_PREF_KEYS = [
   'followed_catch',
   'species_closure',
   'weekly_digest',
+  'nearby_outing',
 ] as const
 
 export type NotificationPrefKey = (typeof NOTIFICATION_PREF_KEYS)[number]
@@ -60,6 +61,12 @@ export const NOTIFICATION_PREF_META: readonly NotificationPrefMeta[] = [
     label: 'Récap hebdo',
     description:
       'Ton résumé de la semaine : tes prises, l’activité près de chez toi, les bons créneaux à venir.',
+  },
+  {
+    key: 'nearby_outing',
+    label: 'Sortie près de toi',
+    description:
+      'Quand un pêcheur propose une sortie à plusieurs dans ton département, pour te joindre à la partie.',
   },
 ] as const
 

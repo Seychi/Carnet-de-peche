@@ -51,6 +51,10 @@ export type NotificationType =
   | 'followed_catch'
   | 'species_closure'
   | 'weekly_digest'
+  // Co-pêchage v2 (sprint 50) : une sortie vient d'ouvrir dans le département de
+  // résidence du destinataire. CHECK DB étendu en migration 090. target_type='outing'.
+  // 0 coordonnée : le preview ne porte que le département + un repère libre.
+  | 'nearby_outing'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

@@ -1,16 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm, Controller, type SubmitHandler, type SubmitErrorHandler, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { MapPin, Loader2, Fish, Search, ChevronDown } from 'lucide-react'
+import { MapPin, Loader2, Fish, Search, ChevronDown, Users } from 'lucide-react'
 
 import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
 import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LABELS } from '@/lib/regulation'
-import { CARNET_SPECIES_OPTIONS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
+import { CARNET_SPECIES_OPTIONS, CARNET_SPECIES_DB_KEYS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
+import { DEPARTMENT_LABELS, isCoastalDepartment } from '@/lib/geo/departments'
 import { PhotoInput } from '@/components/forms/PhotoInput'
 import { CityAutocomplete } from '@/components/catches/CityAutocomplete'
 import { GearPicker } from '@/components/catches/GearPicker'
@@ -33,6 +34,12 @@ const DRAFT_TTL_MS = 30 * 60 * 1000
 const CORE_KEYS = new Set(CORE_SPECIES_DB_KEYS)
 const QUICK_SPECIES = CARNET_SPECIES_OPTIONS.filter((o) => CORE_KEYS.has(o.value))
 const OTHER_SPECIES = CARNET_SPECIES_OPTIONS.filter((o) => !CORE_KEYS.has(o.value))
+
+// Espèces loguables valides — borne ce qu'on accepte du query param `?species=`.
+const CARNET_SPECIES_KEY_SET = new Set(CARNET_SPECIES_DB_KEYS)
+// Note pré-remplie quand on logue depuis une sortie partagée (sprint 50). Sert
+// aussi de garde anti-doublon (on ne ré-injecte pas la note si déjà présente).
+const SHARED_OUTING_NOTE = 'Sortie partagée'
 
 const TECHNIQUES = [
   { value: 'leurres', label: 'Leurres' },
@@ -118,6 +125,29 @@ export type SpotContext = {
   lng: number
 }
 
+// Contexte « loguer à plusieurs » (sprint 50) lu depuis les query params
+// `?outing=&dept=&species=`. SANS FK (D1) : on ne LIE rien en base, on pré-remplit
+// seulement. Surtout : AUCUNE coordonnée — on ne partage que le département (donc la
+// façade) et l'espèce ciblée. Les coords de la prise restent celles, privées, de
+// l'utilisateur (GPS/ville/manuel), jamais celles de la sortie ni des autres membres.
+export type OutingContext = {
+  proposalId: string
+  department: string | null
+  species: string | null
+}
+
+// Parse les query params en contexte de sortie partagée. On valide le département
+// (côtier connu) et l'espèce (loguable) pour ne jamais injecter de valeur aberrante.
+function parseOutingContext(params: URLSearchParams): OutingContext | null {
+  const proposalId = params.get('outing')
+  if (!proposalId) return null
+  const rawDept = (params.get('dept') ?? '').trim()
+  const department = rawDept && isCoastalDepartment(rawDept) ? rawDept : null
+  const rawSpecies = (params.get('species') ?? '').trim()
+  const species = rawSpecies && CARNET_SPECIES_KEY_SET.has(rawSpecies) ? rawSpecies : null
+  return { proposalId, department, species }
+}
+
 type CatchFormProps = (
   | { mode: 'create'; spotContext?: SpotContext }
   | {
@@ -141,6 +171,7 @@ function gearKindsForTechnique(technique: string | undefined): GearKind[] {
 
 export function CatchForm(props: CatchFormProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const isEdit = props.mode === 'edit'
 
   // Extraits ici pour que les closures y accèdent sans problème de narrowing TypeScript
@@ -149,6 +180,20 @@ export function CatchForm(props: CatchFormProps) {
   const existingPhotoUrl = props.mode === 'edit' ? props.existingPhotoUrl : null
   const spotContext = props.mode === 'create' ? props.spotContext : undefined
   const gearItems = props.gearItems ?? []
+
+  // Contexte « loguer à plusieurs » (sprint 50) : pré-remplissage SANS FK ni coord.
+  // Ignoré en édition et quand un spot pilote déjà le flow (le spot prime). La prise
+  // garde les coords privées de l'utilisateur ; la sortie n'apporte que dept + espèce.
+  const outingContext = useMemo(
+    () => (isEdit || spotContext ? null : parseOutingContext(searchParams)),
+    [isEdit, spotContext, searchParams],
+  )
+  const outingDeptLabel = outingContext?.department
+    ? (DEPARTMENT_LABELS[outingContext.department] ?? outingContext.department)
+    : null
+  const outingFacade = outingContext?.department
+    ? getFacadeForCatch({ department: outingContext.department })
+    : null
 
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [geoLoading, setGeoLoading] = useState(false)
@@ -186,6 +231,15 @@ export function CatchForm(props: CatchFormProps) {
     return draft?.location_method === 'manual' ? 'manual' : 'gps'
   })
 
+  // Note de départ : la note du brouillon a priorité ; à défaut, si on logue depuis
+  // une sortie partagée, on amorce avec « Sortie partagée » (jamais de doublon).
+  const outingNotes = (() => {
+    const existing = draft?.notes ?? ''
+    if (!outingContext) return existing
+    if (existing.includes(SHARED_OUTING_NOTE)) return existing
+    return existing ? `${SHARED_OUTING_NOTE}. ${existing}` : SHARED_OUTING_NOTE
+  })()
+
   const defaultValues: Partial<CreateCatchInput> = initialValues
     ? rowToDefaults(initialValues)
     : {
@@ -199,11 +253,12 @@ export function CatchForm(props: CatchFormProps) {
         privacy: draft?.privacy ?? 'private',
         precise_for_friends: draft?.precise_for_friends ?? true,
         reveal_precise_to_public: draft?.reveal_precise_to_public ?? false,
-        species: draft?.species,
+        // Espèce : pré-remplie depuis la sortie si fournie, sinon depuis le brouillon.
+        species: outingContext?.species ?? draft?.species,
         technique: draft?.technique,
         size_cm: draft?.size_cm,
         weight_kg: draft?.weight_kg,
-        notes: draft?.notes,
+        notes: outingNotes || undefined,
         lure_brand: draft?.lure_brand,
         lure_model: draft?.lure_model,
         bait_type: draft?.bait_type,
@@ -530,6 +585,29 @@ export function CatchForm(props: CatchFormProps) {
 
   return (
     <form onSubmit={handleFormSubmit} autoComplete="off" className="space-y-4 pb-32">
+
+      {/* ── Bandeau sortie partagée (sprint 50, « loguer à plusieurs ») ──
+          Pré-remplissage SANS coordonnée : on n'affiche que le département et la
+          façade ciblés. Chacun garde ses coords privées, jamais partagées. */}
+      {outingContext && (
+        <div className="rounded-[14px] border border-teal-200 bg-teal-50 px-4 py-3">
+          <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-teal-600">
+            Prise depuis une sortie partagée
+          </p>
+          <div className="flex items-center gap-2">
+            <Users size={14} className="shrink-0 text-teal-600" />
+            <p className="text-[13px] text-teal-900">
+              {outingDeptLabel
+                ? `Sortie ${outingDeptLabel}${outingFacade ? ` (${FACADE_LABELS[outingFacade]})` : ''}`
+                : 'Sortie à plusieurs'}
+            </p>
+          </div>
+          <p className="mt-1.5 text-[11px] leading-snug text-teal-700">
+            Espèce et façade pré-remplies. Renseigne TON lieu de prise comme d&rsquo;habitude :
+            tes coordonnées restent privées, jamais celles de la sortie.
+          </p>
+        </div>
+      )}
 
       {/* ── Bandeau spot pré-sélectionné ── */}
       {spotContext && (

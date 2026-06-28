@@ -41,13 +41,37 @@ export type ProposeOutingInput = z.infer<typeof proposeOutingSchema>
 // ─── Chat de sortie ───────────────────────────────────────────────────────────
 // Garde-fou anti spot-burning : on REFUSE une coordonnée tapée dans le chat aussi
 // (le RDV précis se cale en privé). Même regex LOOKS_LIKE_COORD que les propositions.
+// Le body est désormais facultatif (sprint 50) : un message peut être une PHOTO seule
+// (légende vide). La validation « au moins photo OU texte » se fait dans l'action, qui
+// connaît la présence du photoPath. Le LOOKS_LIKE_COORD s'applique à la légende aussi.
 export const outingMessageSchema = z.object({
   body: z
     .string()
     .trim()
-    .min(1, { error: 'Écris un message.' })
     .max(1000, { error: 'Message trop long (1000 caractères max).' })
     .refine(noCoord, { error: 'Pas de coordonnées GPS dans le chat : cale le point de RDV en privé.' }),
 })
 
 export type OutingMessageInput = z.infer<typeof outingMessageSchema>
+
+// ─── Avis co-pêchage (réputation descriptive) ─────────────────────────────────
+// Sprint 50. Un membre d'une sortie PASSÉE laisse un avis sur un autre membre.
+// La RLS (087) vérifie l'appartenance + la sortie passée ; le schéma cadenasse la
+// note (1-5) et la longueur du commentaire (≤ 500). Anti spot-burning : un
+// commentaire ne doit pas contenir de coordonnée précise (LOOKS_LIKE_COORD).
+// DESCRIPTIF, jamais classant.
+export const outingReviewSchema = z.object({
+  rating: z
+    .number({ error: 'Donne une note.' })
+    .int({ error: 'Note invalide.' })
+    .min(1, { error: 'Note minimale : 1.' })
+    .max(5, { error: 'Note maximale : 5.' }),
+  comment: z
+    .string()
+    .trim()
+    .max(500, { error: 'Commentaire trop long (500 caractères max).' })
+    .optional()
+    .refine(noCoord, { error: 'Pas de coordonnées GPS dans un avis.' }),
+})
+
+export type OutingReviewInput = z.infer<typeof outingReviewSchema>

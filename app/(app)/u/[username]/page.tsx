@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Fish } from 'lucide-react'
+import { Fish, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
@@ -14,6 +14,7 @@ import { ProfileFollowStats } from '@/components/feed/ProfileFollowStats'
 import { PostCard } from '@/components/feed/PostCard'
 import { attachPostMedia } from '@/lib/feed/media'
 import { getProfileCatches, type ProfileCatch } from '@/lib/catches/media'
+import { getUserReputation } from '@/lib/cofishing/queries'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
 
@@ -120,6 +121,12 @@ export default async function PublicProfilePage({
   // par la vue ; jamais de prise privée d'autrui, ni de geom précis pour les non-abonnés).
   const catches = await getProfileCatches(profile.id, supabase, 12)
 
+  // Réputation co-pêchage (sprint 50) — avis nominatifs PUBLICS laissés après une
+  // sortie passée. DESCRIPTIF, jamais un classement : on affiche la moyenne, le
+  // nombre d'avis et les commentaires nominatifs, masqué si aucun avis. Lu via la
+  // query (jamais la table outing_reviews directement).
+  const reputation = await getUserReputation(profile.id)
+
   const name = profile.display_name || `@${profile.username}`
   // char(3) Postgres → '29 ' paddé : trim avant lookup (cf. backlog ROADMAP)
   const dept = profile.home_department
@@ -172,6 +179,16 @@ export default async function PublicProfilePage({
               followingCount={followingCount ?? 0}
               initialViewerFollowingIds={viewerFollowingIds}
             />
+            {reputation.count > 0 && reputation.average != null && (
+              <p className="mt-2 flex items-center gap-1.5 font-mono text-[12px] text-white/70">
+                <Star size={13} className="shrink-0 text-gold-400" aria-hidden />
+                <span>
+                  <span className="font-semibold text-white">{reputation.average.toFixed(1)}</span>/5
+                  {' · '}
+                  {reputation.count} avis de co-pêchage
+                </span>
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-5">
             <div className="text-center">
@@ -190,6 +207,41 @@ export default async function PublicProfilePage({
       </header>
 
       <div className="mx-auto flex max-w-[680px] flex-col gap-6 px-4 py-6">
+
+        {/* Avis de co-pêchage (sprint 50) — nominatifs et PUBLICS, laissés après une
+            sortie passée. DESCRIPTIF, pas un classement : on liste « @pêcheur : note +
+            commentaire », jamais de « meilleur pêcheur ». Masqué si aucun avis. */}
+        {reputation.count > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-ink-400">
+              Avis de co-pêchage
+            </h2>
+            <div className="flex flex-col gap-2">
+              {reputation.reviews
+                .filter((r) => (r.comment ?? '').trim().length > 0)
+                .map((r, i) => (
+                  <article
+                    key={`${r.reviewerUsername ?? 'anon'}-${i}`}
+                    className="rounded-[14px] border border-sand-200 bg-white px-4 py-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-[13px] font-semibold text-navy-900">
+                        @{r.reviewerUsername ?? 'pêcheur'}
+                      </span>
+                      <span
+                        className="flex shrink-0 items-center gap-1 font-mono text-[12px] text-gold-600"
+                        aria-label={`Note ${r.rating} sur 5`}
+                      >
+                        <Star size={12} className="text-gold-400" aria-hidden />
+                        {r.rating}/5
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">{r.comment}</p>
+                  </article>
+                ))}
+            </div>
+          </section>
+        )}
 
         {/* Prises */}
         <section className="flex flex-col gap-3">

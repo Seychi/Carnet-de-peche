@@ -532,6 +532,7 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          photo_path: string | null
           proposal_id: string
           user_id: string
         }
@@ -539,6 +540,7 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          photo_path?: string | null
           proposal_id: string
           user_id: string
         }
@@ -546,6 +548,7 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          photo_path?: string | null
           proposal_id?: string
           user_id?: string
         }
@@ -569,18 +572,21 @@ export type Database = {
       outing_participants: {
         Row: {
           created_at: string
+          on_site_at: string | null
           proposal_id: string
           status: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          on_site_at?: string | null
           proposal_id: string
           status?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          on_site_at?: string | null
           proposal_id?: string
           status?: string
           user_id?: string
@@ -643,6 +649,51 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      outing_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          proposal_id: string
+          rating: number
+          reviewee_id: string
+          reviewer_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          proposal_id: string
+          rating: number
+          reviewee_id: string
+          reviewer_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          proposal_id?: string
+          rating?: number
+          reviewee_id?: string
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outing_reviews_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outing_reviews_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "outing_proposals_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       outings: {
         Row: {
@@ -1412,6 +1463,7 @@ export type Database = {
           host_avatar_url: string | null
           host_display_name: string | null
           host_id: string | null
+          host_level: string | null
           host_username: string | null
           id: string | null
           notes: string | null
@@ -2014,6 +2066,7 @@ export type Database = {
       is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }
       is_moderator: { Args: { uid?: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
+      mark_on_site: { Args: { p_proposal_id: string }; Returns: string }
       nearby_spots: {
         Args: {
           lat: number

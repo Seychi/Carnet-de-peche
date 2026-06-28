@@ -2,7 +2,10 @@ import { notFound, redirect } from 'next/navigation'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
+import { Ruler } from 'lucide-react'
 import { isCoastalDepartment, DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
+import { SPECIES_LABELS } from '@/lib/labels'
 import { getFeedPage } from '@/app/actions/feed'
 import { FeedTabs } from '@/components/feed/FeedTabs'
 import { type RecentCatch } from '@/components/feed/PostComposer'
@@ -81,6 +84,28 @@ export default async function DepartmentFeedPage({
 
   const deptName = DEPARTMENT_LABELS[department] ?? department
 
+  // Les plus belles prises MESURÉES du département (sprint 50). DESCRIPTIF, jamais un
+  // classement compétitif : on met en avant de belles prises, pas un « meilleur pêcheur ».
+  // On lit catches_for_viewer (la vue gère privacy + floutage) et on ne sélectionne
+  // QUE des champs non géo : surtout PAS geom_visible / lat / lng. Filtres : prise
+  // publique, mesurée (measured_length_cm non nul), du département courant.
+  const { data: rawMeasured } = await supabase
+    .from('catches_for_viewer')
+    .select('id, species, measured_length_cm, username, spot_name, department')
+    .eq('department', department)
+    .eq('privacy', 'public')
+    .not('measured_length_cm', 'is', null)
+    .order('measured_length_cm', { ascending: false })
+    .limit(10)
+  const measuredCatches = (rawMeasured ?? []) as Array<{
+    id: string
+    species: string | null
+    measured_length_cm: number | null
+    username: string | null
+    spot_name: string | null
+    department: string | null
+  }>
+
   // Onglet « Tes follows » : distinguer « tu ne suis personne » (CTA découverte)
   // de « tes follows n'ont rien posté » (calme plat). getFeedPage renvoie [] dans
   // les deux cas → on tranche ici via le nombre d'abonnements (Bloc F).
@@ -107,6 +132,51 @@ export default async function DepartmentFeedPage({
         </header>
 
         <FeedTabs current={tab} />
+
+        {/* Les plus belles prises mesurées du coin (sprint 50). DESCRIPTIF, jamais un
+            classement : pas de rang affiché, pas de « meilleur pêcheur ». On célèbre de
+            belles prises auto-déclarées « mesurées ». Aucune coordonnée n'est exposée. */}
+        {measuredCatches.length > 0 && (
+          <section className="rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Ruler size={15} className="shrink-0 text-teal-600" aria-hidden />
+              <h2 className="font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+                Les plus belles prises mesurées du coin
+              </h2>
+            </div>
+            <ul className="flex flex-col divide-y divide-sand-200">
+              {measuredCatches.map((c) => {
+                const speciesLabel = c.species ? (SPECIES_LABELS[c.species] ?? c.species) : 'Prise'
+                return (
+                  <li key={c.id} className="flex items-baseline justify-between gap-3 py-2 first:pt-0 last:pb-0">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/carnet/${c.id}`}
+                        className="text-[14px] font-semibold text-navy-900 hover:text-teal-700"
+                      >
+                        {speciesLabel}{' '}
+                        <span className="font-mono text-teal-700">{c.measured_length_cm} cm</span>
+                      </Link>
+                      <p className="mt-0.5 truncate text-[12px] text-ink-500">
+                        {c.username ? (
+                          <Link href={`/u/${c.username}`} className="hover:text-teal-700">
+                            @{c.username}
+                          </Link>
+                        ) : (
+                          'Un pêcheur'
+                        )}
+                        {c.spot_name ? ` · ${c.spot_name}` : ''}
+                      </p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+            <p className="mt-3 text-[11px] leading-snug text-ink-400">
+              Tailles auto-déclarées « mesurées » par leurs auteurs, sans coordonnée de spot.
+            </p>
+          </section>
+        )}
 
         <FeedClient
           initialPosts={posts}

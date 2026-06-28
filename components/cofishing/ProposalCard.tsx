@@ -1,14 +1,24 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { toast } from 'sonner'
-import { MapPin, Users, Check, X, Calendar, MessageCircle, Circle, CheckCircle2, Ban, Clock } from 'lucide-react'
+import { MapPin, Users, Check, X, Calendar, MessageCircle, Circle, CheckCircle2, Ban, Clock, Star, NotebookPen } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { requestJoin, withdrawJoin, respondToParticipant, cancelOuting } from '@/lib/cofishing/actions'
 import type { OutingProposalView, ParticipantWithProfile } from '@/lib/cofishing/queries'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { OutingChat } from './OutingChat'
+import { OutingReviewDialog, type ReviewableMember } from './OutingReviewDialog'
+
+// Libellés FR des niveaux d'expérience (référentiel profiles.level, exposé par la
+// vue en 088). Pas de module central de labels de niveau dans le repo.
+const LEVEL_LABELS: Record<string, string> = {
+  debutant: 'Débutant',
+  intermediaire: 'Intermédiaire',
+  expert: 'Expert',
+}
 
 function fmt(iso: string): string {
   try {
@@ -69,23 +79,54 @@ export function ProposalCard({
   viewerId,
   participationStatus,
   participants,
+  isModerator = false,
 }: {
   proposal: OutingProposalView
   viewerId: string
   participationStatus?: string
   participants?: ParticipantWithProfile[]
+  /** Le viewer est-il modérateur ? Active l'action « retirer » dans le chat. */
+  isModerator?: boolean
 }) {
   const isHost = p.host_id === viewerId
   const [pending, start] = useTransition()
   const [status, setStatus] = useState(participationStatus)
   const [chatOpen, setChatOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
 
+  const effective = effectiveStatus(p.status, p.planned_at)
   // Sortie close (annulée ou passée) : grisée, sans contrôles, chat en lecture seule.
-  const closed = isClosedStatus(effectiveStatus(p.status, p.planned_at))
+  const closed = isClosedStatus(effective)
+  // Sortie réellement passée (≠ annulée) : ouvre l'avis et le « loguer cette sortie ».
+  const isPast = effective === 'done'
 
   // Accès chat = hôte OU participant accepté (miroir UI de la RLS 068). Si le viewer
   // se retire (status → undefined), l'accès disparaît immédiatement.
   const canChat = isHost || status === 'accepted'
+  // Membre de la sortie (hôte ou accepté) : seul un membre note / logue la sortie.
+  const isMember = isHost || status === 'accepted'
+
+  // Membres notables = les AUTRES membres de la sortie (jamais soi-même). L'hôte note
+  // les participants acceptés (il en a la liste) ; un participant accepté note l'hôte
+  // (les autres acceptés ne lui sont pas exposés côté card). La RLS 087 garde de toute
+  // façon : avis seulement de membre à autre membre d'une sortie passée.
+  const reviewables: ReviewableMember[] = isHost
+    ? (participants ?? [])
+        .filter((x) => x.status === 'accepted' && x.user_id !== viewerId)
+        .map((x) => ({ user_id: x.user_id, username: x.username, display_name: x.display_name }))
+    : p.host_id !== viewerId
+      ? [{ user_id: p.host_id, username: p.host_username, display_name: p.host_display_name }]
+      : []
+
+  const canReview = isPast && isMember && reviewables.length > 0
+
+  // Prefill « loguer à plusieurs » (D1, SANS FK) : on passe proposalId + dept + 1ʳᵉ
+  // espèce en query params. Le CatchForm pré-remplit (façade + espèce + note sortie).
+  // Coords privées de chacun : aucune coordonnée n'est jamais passée ici.
+  const firstSpecies = p.species && p.species.length > 0 ? p.species[0] : ''
+  const logHref = `/carnet/nouvelle?outing=${encodeURIComponent(p.id)}&dept=${encodeURIComponent(
+    p.department,
+  )}${firstSpecies ? `&species=${encodeURIComponent(firstSpecies)}` : ''}`
 
   function run(fn: () => Promise<{ ok: true } | { error: string }>, onOk?: () => void) {
     start(async () => {
@@ -120,8 +161,15 @@ export function ProposalCard({
               {name({ display_name: p.host_display_name, username: p.host_username })}
               {isHost && <span className="ml-1.5 text-[11px] font-normal text-teal-600">· tu organises</span>}
             </p>
-            <p className="flex items-center gap-1 text-[12px] text-ink-500">
-              <Calendar size={11} /> {fmt(p.planned_at)}
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-ink-500">
+              <span className="flex items-center gap-1">
+                <Calendar size={11} /> {fmt(p.planned_at)}
+              </span>
+              {p.host_level && LEVEL_LABELS[p.host_level] && (
+                <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10.5px] font-medium text-ink-600">
+                  {LEVEL_LABELS[p.host_level]}
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -290,8 +338,47 @@ export function ProposalCard({
                 ? 'Relire la conversation'
                 : 'Ouvrir le chat de la sortie'}
           </button>
-          {chatOpen && <OutingChat proposalId={p.id} viewerId={viewerId} readOnly={closed} />}
+          {chatOpen && (
+            <OutingChat
+              proposalId={p.id}
+              viewerId={viewerId}
+              readOnly={closed}
+              isModerator={isModerator}
+            />
+          )}
         </div>
+      )}
+
+      {/* Sortie passée : noter les autres membres + loguer la sortie dans le carnet.
+          Réservé aux membres (hôte ou accepté). Aucune coordonnée n'est partagée :
+          le log pré-rempli n'embarque que dépt + 1ʳᵉ espèce + une note de contexte. */}
+      {isPast && isMember && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-sand-100 pt-3">
+          {canReview && (
+            <button
+              type="button"
+              onClick={() => setReviewOpen(true)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-sand-200 px-3 py-1.5 text-[12.5px] font-medium text-ink-700 transition-colors hover:border-teal-300 hover:text-teal-700"
+            >
+              <Star size={14} /> Noter cette sortie
+            </button>
+          )}
+          <Link
+            href={logHref}
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-sand-200 px-3 py-1.5 text-[12.5px] font-medium text-ink-700 transition-colors hover:border-teal-300 hover:text-teal-700"
+          >
+            <NotebookPen size={14} /> Loguer cette sortie
+          </Link>
+        </div>
+      )}
+
+      {canReview && (
+        <OutingReviewDialog
+          proposalId={p.id}
+          members={reviewables}
+          open={reviewOpen}
+          onOpenChange={setReviewOpen}
+        />
       )}
     </div>
   )

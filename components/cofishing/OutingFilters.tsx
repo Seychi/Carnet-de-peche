@@ -5,24 +5,43 @@ import { useCallback } from 'react'
 import { Filter, X } from 'lucide-react'
 import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
 
+// Niveaux d'expérience de l'hôte (référentiel profiles.level, exposé par la vue en 088).
+// Libellés FR locaux : pas de module central de labels de niveau dans le repo.
+const LEVEL_OPTIONS: { value: string; label: string }[] = [
+  { value: 'debutant', label: 'Débutant' },
+  { value: 'intermediaire', label: 'Intermédiaire' },
+  { value: 'expert', label: 'Expert' },
+]
+
 /**
- * Filtres de matching du board de co-pêchage : espèce + date plancher. L'état vit
- * dans l'URL (?species=bar,sar&from=YYYY-MM-DD) → le Server Component refiltre la
- * query `getDeptProposals`. Aucune coordonnée, jamais : on filtre sur espèce + date.
+ * Filtres de matching du board de co-pêchage : espèce + date plancher + niveau de
+ * l'hôte + extension aux départements voisins. L'état vit dans l'URL
+ * (?species=bar,sar&from=YYYY-MM-DD&level=expert&neighbors=1) → le Server Component
+ * refiltre la query `getDeptProposals`. Aucune coordonnée, jamais : on filtre sur
+ * espèce + date + niveau + département (jamais un point GPS).
  */
 export function OutingFilters({
   selectedSpecies,
   from,
+  level,
+  includeNeighbors = false,
 }: {
   selectedSpecies: string[]
   from?: string
+  level?: string
+  includeNeighbors?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
 
   const apply = useCallback(
-    (next: { species?: string[]; from?: string | null }) => {
+    (next: {
+      species?: string[]
+      from?: string | null
+      level?: string | null
+      neighbors?: boolean
+    }) => {
       const sp = new URLSearchParams(params.toString())
       if (next.species !== undefined) {
         if (next.species.length > 0) sp.set('species', next.species.join(','))
@@ -31,6 +50,14 @@ export function OutingFilters({
       if (next.from !== undefined) {
         if (next.from) sp.set('from', next.from)
         else sp.delete('from')
+      }
+      if (next.level !== undefined) {
+        if (next.level) sp.set('level', next.level)
+        else sp.delete('level')
+      }
+      if (next.neighbors !== undefined) {
+        if (next.neighbors) sp.set('neighbors', '1')
+        else sp.delete('neighbors')
       }
       const qs = sp.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
@@ -45,7 +72,7 @@ export function OutingFilters({
     apply({ species: next })
   }
 
-  const hasFilters = selectedSpecies.length > 0 || !!from
+  const hasFilters = selectedSpecies.length > 0 || !!from || !!level || includeNeighbors
 
   return (
     <div className="mb-4 rounded-[14px] border border-sand-200 bg-white p-3.5">
@@ -56,7 +83,7 @@ export function OutingFilters({
         {hasFilters && (
           <button
             type="button"
-            onClick={() => apply({ species: [], from: null })}
+            onClick={() => apply({ species: [], from: null, level: null, neighbors: false })}
             className="inline-flex min-h-11 items-center gap-1 text-[12px] text-ink-500 hover:underline"
           >
             <X size={12} /> Réinitialiser
@@ -85,14 +112,42 @@ export function OutingFilters({
         })}
       </div>
 
-      <label className="mt-3 flex items-center gap-2 text-[12px] text-ink-600">
-        <span className="shrink-0">À partir du</span>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-[12px] text-ink-600">
+          <span className="shrink-0">À partir du</span>
+          <input
+            type="date"
+            value={from ?? ''}
+            onChange={(e) => apply({ from: e.target.value || null })}
+            className="min-h-11 rounded-[10px] border border-sand-200 px-2.5 py-1.5 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40"
+          />
+        </label>
+
+        <label className="flex items-center gap-2 text-[12px] text-ink-600">
+          <span className="shrink-0">Niveau de l’hôte</span>
+          <select
+            value={level ?? ''}
+            onChange={(e) => apply({ level: e.target.value || null })}
+            className="min-h-11 rounded-[10px] border border-sand-200 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40"
+          >
+            <option value="">Tous</option>
+            {LEVEL_OPTIONS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 text-[12.5px] text-ink-600">
         <input
-          type="date"
-          value={from ?? ''}
-          onChange={(e) => apply({ from: e.target.value || null })}
-          className="min-h-11 rounded-[10px] border border-sand-200 px-2.5 py-1.5 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40"
+          type="checkbox"
+          checked={includeNeighbors}
+          onChange={(e) => apply({ neighbors: e.target.checked })}
+          className="size-4 shrink-0 rounded border-sand-300 text-teal-500 focus:ring-2 focus:ring-teal-500/40"
         />
+        Inclure les départements voisins
       </label>
     </div>
   )

@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import {
   COASTAL_DEPARTMENTS,
+  DEPARTMENT_ADJACENCY,
   DEPARTMENT_LABELS,
   DEPARTMENT_OPTIONS,
   departmentArticle,
   isCoastalDepartment,
+  neighborDepartments,
 } from '@/lib/geo/departments'
 
 // Ancrage anti-régression de la divergence des listes (BUG-05).
@@ -122,5 +124,68 @@ describe('departmentArticle — article + préposition accordés (Bloc B sprint 
 
   it('tolère les espaces parasites autour du code', () => {
     expect(departmentArticle(' 29 ', 'de')).toBe('du Finistère')
+  })
+})
+
+describe('DEPARTMENT_ADJACENCY — adjacence des départements côtiers (sprint 50)', () => {
+  it('toutes les clés sont des départements côtiers connus', () => {
+    for (const code of Object.keys(DEPARTMENT_ADJACENCY)) {
+      expect(isCoastalDepartment(code), `clé ${code} non côtière`).toBe(true)
+    }
+  })
+
+  it('chaque département côtier a une entrée (même vide)', () => {
+    for (const code of COASTAL_DEPARTMENTS) {
+      expect(DEPARTMENT_ADJACENCY[code], `manque l'entrée ${code}`).toBeDefined()
+    }
+  })
+
+  it('toutes les valeurs (voisins) sont des départements côtiers connus', () => {
+    for (const [code, neighbors] of Object.entries(DEPARTMENT_ADJACENCY)) {
+      for (const n of neighbors) {
+        expect(isCoastalDepartment(n), `${code} → voisin ${n} non côtier`).toBe(true)
+      }
+    }
+  })
+
+  it('relation SYMÉTRIQUE : si A voisin de B alors B voisin de A', () => {
+    for (const [code, neighbors] of Object.entries(DEPARTMENT_ADJACENCY)) {
+      for (const n of neighbors) {
+        expect(
+          DEPARTMENT_ADJACENCY[n],
+          `${n} doit lister ${code} (symétrie)`,
+        ).toContain(code)
+      }
+    }
+  })
+
+  it('aucun département n’est son propre voisin et pas de doublon', () => {
+    for (const [code, neighbors] of Object.entries(DEPARTMENT_ADJACENCY)) {
+      expect(neighbors, `${code} se référence lui-même`).not.toContain(code)
+      expect(new Set(neighbors).size, `doublon de voisin pour ${code}`).toBe(neighbors.length)
+    }
+  })
+
+  it('quelques frontières terrestres réelles connues', () => {
+    expect(neighborDepartments('29')).toEqual(expect.arrayContaining(['22', '56']))
+    expect(neighborDepartments('56')).toEqual(expect.arrayContaining(['29', '44']))
+    expect(neighborDepartments('44')).toEqual(expect.arrayContaining(['56', '85']))
+    expect(neighborDepartments('85')).toEqual(expect.arrayContaining(['44', '17']))
+    expect(neighborDepartments('17')).toEqual(expect.arrayContaining(['85', '33']))
+    expect(neighborDepartments('33')).toEqual(expect.arrayContaining(['17', '40']))
+    expect(neighborDepartments('40')).toEqual(expect.arrayContaining(['33', '64']))
+    expect(neighborDepartments('50')).toEqual(expect.arrayContaining(['14', '35']))
+    expect(neighborDepartments('2A')).toEqual(['2B'])
+    expect(neighborDepartments('2B')).toEqual(['2A'])
+  })
+
+  it('un Finistère (29) n’est PAS frontalier de la Gironde (33)', () => {
+    expect(neighborDepartments('29')).not.toContain('33')
+  })
+
+  it('code inconnu ou isolé → tableau vide, jamais undefined', () => {
+    expect(neighborDepartments('99')).toEqual([])
+    expect(neighborDepartments('')).toEqual([])
+    expect(neighborDepartments('76')).toEqual([]) // Seine-Maritime isolée (voisins inland)
   })
 })
