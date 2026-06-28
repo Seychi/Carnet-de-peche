@@ -75,5 +75,26 @@ export function useNotificationRealtime(userId: string, initialCount: number): n
     }
   }, [userId])
 
+  // App badge PWA (sprint 49 WS D) : le compteur non lu pilote le badge sur
+  // l'icône de l'app installée. Feature-detect strict (Android/desktop le
+  // supportent ; iOS = phase mobile → no-op propre, jamais d'erreur). Remis à
+  // zéro dès que unread vaut 0 (clearAppBadge). Aucune coordonnée en jeu.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('setAppBadge' in navigator)) return
+    const nav = navigator as Navigator & {
+      setAppBadge?: (count?: number) => Promise<void>
+      clearAppBadge?: () => Promise<void>
+    }
+    try {
+      if (unread > 0) {
+        void nav.setAppBadge?.(unread)?.catch(() => {})
+      } else {
+        void nav.clearAppBadge?.()?.catch(() => {})
+      }
+    } catch {
+      // setAppBadge peut throw sur certains contextes non installés : on ignore.
+    }
+  }, [unread])
+
   return unread
 }

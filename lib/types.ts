@@ -715,6 +715,7 @@ export type Database = {
           is_moderator: boolean
           level: string | null
           marketing_email_optin: boolean
+          notification_prefs: Json
           onboarded: boolean
           onboarded_at: string | null
           share_skip_optin: boolean
@@ -739,6 +740,7 @@ export type Database = {
           is_moderator?: boolean
           level?: string | null
           marketing_email_optin?: boolean
+          notification_prefs?: Json
           onboarded?: boolean
           onboarded_at?: string | null
           share_skip_optin?: boolean
@@ -763,6 +765,7 @@ export type Database = {
           is_moderator?: boolean
           level?: string | null
           marketing_email_optin?: boolean
+          notification_prefs?: Json
           onboarded?: boolean
           onboarded_at?: string | null
           share_skip_optin?: boolean

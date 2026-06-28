@@ -91,8 +91,34 @@ const { adminMock, insertSpy, setProfiles, setTierByUser, setCatchesByUser, setD
 
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => adminMock }))
 
-const { getDeptNextWindowMock } = vi.hoisted(() => ({ getDeptNextWindowMock: vi.fn() }))
-vi.mock('@/lib/conditions/dept-window', () => ({ getDeptNextWindow: getDeptNextWindowMock }))
+const { getDeptNextWindowMock, getDeptUpcomingWindowsMock } = vi.hoisted(() => ({
+  getDeptNextWindowMock: vi.fn(),
+  getDeptUpcomingWindowsMock: vi.fn(),
+}))
+vi.mock('@/lib/conditions/dept-window', () => ({
+  getDeptNextWindow: getDeptNextWindowMock,
+  // Greffon digest (sprint 49) : neutre par défaut (aucune fenêtre à venir).
+  getDeptUpcomingWindows: getDeptUpcomingWindowsMock,
+}))
+
+// Greffons sprint 49 (push & engagement) : on isole leur logique métier de ce test
+// (couverte par leurs propres tests unitaires). big-tide neutralisé (pas de grande
+// marée par défaut) → n'ajoute aucun insert ni log server-only ; la fermeture d'espèce
+// est déjà inerte ici (profils de test sans favorite_species).
+const { getBigTideForDayMock } = vi.hoisted(() => ({ getBigTideForDayMock: vi.fn() }))
+vi.mock('@/lib/notifications/big-tide', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/notifications/big-tide')>()
+  return { ...actual, getBigTideForDay: getBigTideForDayMock }
+})
+
+// Récap hebdo : on neutralise la COMPOSITION (renvoie null = rien à dire) pour que ce
+// test reste déterministe quel que soit le jour de la semaine où il tourne. Le contenu
+// du digest est couvert par les tests unitaires de composeWeeklyDigest.
+const { composeWeeklyDigestMock } = vi.hoisted(() => ({ composeWeeklyDigestMock: vi.fn() }))
+vi.mock('@/lib/notifications/weekly-digest', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/notifications/weekly-digest')>()
+  return { ...actual, composeWeeklyDigest: composeWeeklyDigestMock }
+})
 
 import { GET } from '@/app/api/crons/personal-window/route'
 
@@ -128,6 +154,10 @@ beforeEach(() => {
   setCatchesByUser({})
   setDupCount(0)
   getDeptNextWindowMock.mockResolvedValue(morningWindow)
+  // Greffons sprint 49 neutres par défaut : pas de grande marée, pas de fenêtre à venir.
+  getBigTideForDayMock.mockResolvedValue(null)
+  getDeptUpcomingWindowsMock.mockResolvedValue([])
+  composeWeeklyDigestMock.mockReturnValue(null)
 })
 
 describe('cron personal-window — sécurité', () => {

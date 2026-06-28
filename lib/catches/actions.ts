@@ -6,6 +6,7 @@ import { createCatchSchema, updateCatchSchema, bulkCatchSchema, isInFranceMetro 
 import type { CreateCatchInput, UpdateCatchInput, BulkCatchInput } from './schema'
 import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
 import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
+import { notifyFollowersOfPublicCatch } from './notify-followers'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -180,6 +181,17 @@ export async function createCatch(
     return { error: 'Impossible de créer la prise. Réessaie.' }
   }
 
+  // Notif event-driven « prise d'un pêcheur suivi » (sprint 49, tâche 4) : seulement
+  // si la prise est PUBLIQUE. Best-effort STRICT — le helper ne throw jamais, mais on
+  // l'isole pour garantir que rien ne casse la création réussie (action déjà OK ici).
+  if (data.privacy === 'public') {
+    try {
+      await notifyFollowersOfPublicCatch({ authorId: user.id, catchId: row.id })
+    } catch (e) {
+      console.error('[catches/actions] notifyFollowers (createCatch, non bloquant) :', e)
+    }
+  }
+
   revalidatePath('/carnet')
   return { id: row.id }
 }
@@ -204,7 +216,7 @@ export async function updateCatch(
 
   const { data: existing, error: fetchError } = await supabase
     .from('catches')
-    .select('id, photo_path, measured_length_cm, reference_object, photo_verified_at')
+    .select('id, photo_path, measured_length_cm, reference_object, photo_verified_at, privacy')
     .eq('id', id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -311,6 +323,19 @@ export async function updateCatch(
       .remove([existing.photo_path])
     if (storageError) {
       console.error('[catches/actions] updateCatch storage remove error :', storageError)
+    }
+  }
+
+  // Notif event-driven « prise d'un pêcheur suivi » (sprint 49, tâche 4) : UNIQUEMENT
+  // sur la TRANSITION vers public (l'ancienne valeur n'était pas 'public', la nouvelle
+  // l'est). On ne notifie pas à chaque édition d'une prise déjà publique → pas de spam.
+  // Best-effort STRICT, isolé (l'update a déjà réussi).
+  const becamePublic = data.privacy === 'public' && existing.privacy !== 'public'
+  if (becamePublic) {
+    try {
+      await notifyFollowersOfPublicCatch({ authorId: user.id, catchId: id })
+    } catch (e) {
+      console.error('[catches/actions] notifyFollowers (updateCatch, non bloquant) :', e)
     }
   }
 

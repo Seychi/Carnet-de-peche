@@ -39,6 +39,18 @@ export type NotificationType =
   | 'outing_cancelled'
   | 'outing_message'
   | 'outing_reminder'
+  // Rappel RecFishing (sprint 24, cron recfishing-reminders) : la prise d'une espèce
+  // sensible n'est pas encore déclarée. Type DÉJÀ émis en DB/UI mais absent de ce union
+  // jusqu'au sprint 49 (discordance corrigée). target_type='catch'.
+  | 'recfishing_reminder'
+  // Push & engagement (sprint 49) : grande marée du jour (tous tiers), prise d'un
+  // pêcheur suivi (event-driven), fermeture d'espèce imminente, récap hebdo. CHECK DB
+  // étendu en migration 085 (20 types). Voir lib/notifications/prefs-meta.ts pour les
+  // clés de préférence associées (gate par type + master switch push).
+  | 'big_tide'
+  | 'followed_catch'
+  | 'species_closure'
+  | 'weekly_digest'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 
@@ -103,5 +115,41 @@ export async function createNotification(input: CreateNotificationInput): Promis
   } catch (e) {
     // Pas de clé service_role (dev) ou hors runtime serveur (test) → on continue.
     console.error('[createNotification] indisponible', input.type, e)
+  }
+}
+
+// ─── Préférences de notification push (sprint 49) ──────────────────────────────
+// Lecture des préférences d'un destinataire pour gater les PUSH par type. La règle
+// (clé absente ou != 'false' → activé) est partagée avec l'UI Réglages via
+// isNotificationPrefEnabled (lib/notifications/prefs-meta.ts). Best-effort : en cas
+// d'échec de lecture on renvoie {} (= tous les types activés par défaut) plutôt que
+// de bloquer un envoi légitime.
+
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+/**
+ * Charge l'objet `notification_prefs` (jsonb) d'un utilisateur via un client admin
+ * (service_role, bypass RLS). Renvoie un objet plat clé→valeur, ou {} si absent /
+ * lecture impossible. À combiner avec isNotificationPrefEnabled pour décider d'un push.
+ */
+export async function getNotificationPrefs(
+  admin: SupabaseClient,
+  userId: string,
+): Promise<Record<string, unknown>> {
+  if (!userId) return {}
+  try {
+    const { data, error } = await admin
+      .from('profiles')
+      .select('notification_prefs')
+      .eq('id', userId)
+      .maybeSingle()
+    if (error || !data) return {}
+    const prefs = data.notification_prefs
+    return prefs && typeof prefs === 'object' && !Array.isArray(prefs)
+      ? (prefs as Record<string, unknown>)
+      : {}
+  } catch (e) {
+    console.error('[getNotificationPrefs] indisponible', e)
+    return {}
   }
 }

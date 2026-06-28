@@ -5,8 +5,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { getNotifications, type AppNotification } from '@/app/actions/notifications'
+import { getNotificationPrefs } from '@/app/actions/notification-prefs'
 import { MarkAllRead } from './MarkAllRead'
 import { PushSettingsToggle } from '@/components/notifications/PushSettingsToggle'
+import { NotificationTypeToggles } from '@/components/notifications/NotificationTypeToggles'
 
 export const metadata = {
   title: 'Notifications · Carnet de Pêche',
@@ -65,6 +67,9 @@ export default async function NotificationsPage() {
   const res = await getNotifications(50)
   const notifications = res.ok ? res.data : []
   const hasUnread = notifications.some((n) => !n.read_at)
+
+  // Préférences par type de push (sprint 49 WS C). Scopé au viewer (auth.uid()).
+  const notificationPrefs = await getNotificationPrefs()
 
   // Résolution des liens : pour les notifs liées à un post/prise, on retrouve
   // le département du post (route /fil/<dept>). Le post appartient au viewer
@@ -181,6 +186,16 @@ export default async function NotificationsPage() {
         <h2 className="mb-3 font-display text-lg font-bold text-navy-900">Réglages</h2>
         <div className="rounded-[14px] border border-sand-200 bg-white px-4 py-4">
           <PushSettingsToggle />
+        </div>
+
+        <div className="mt-4 rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+          <p className="mb-1 text-sm font-semibold text-navy-900">Quelles alertes recevoir</p>
+          <p className="mb-4 text-xs text-ink-500 leading-relaxed">
+            Choisis les push qui t&rsquo;intéressent. L&rsquo;interrupteur principal
+            ci-dessus reste maître : s&rsquo;il est éteint, aucune alerte n&rsquo;arrive,
+            quels que soient ces réglages.
+          </p>
+          <NotificationTypeToggles prefs={notificationPrefs} />
         </div>
       </section>
     </div>
