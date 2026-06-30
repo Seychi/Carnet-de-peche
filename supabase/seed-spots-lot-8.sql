@@ -29,8 +29,9 @@
 --   • Courants landais (Soustons, Contis…), passes (Arcachon, Maumusson),
 --     embouchures (Gironde, Adour) = courants_forts toujours signalés.
 --   • Espèces : bar, dorade_royale, maquereau, sar, orphie, + sole, mulet, congre,
---     maigre, alose (déjà dans SPECIES_LABELS depuis le lot 3). AUCUN lieu_jaune
---     (rare au sud de la Loire), AUCUNE vieille au sud.
+--     maigre. (alose retirée au sprint 53 : hors référentiel des 26, aucune fiche ;
+--     elle n'a JAMAIS été dans SPECIES_LABELS, contrairement à ce que disait ce
+--     commentaire.) AUCUN lieu_jaune (rare au sud de la Loire), AUCUNE vieille au sud.
 --
 -- Conventions (identiques aux lots 1-7) :
 --   • geom GEOGRAPHY : ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography.

@@ -1,6 +1,7 @@
 import '@/lib/zod-config'
 import { z } from 'zod'
 import { isCoastalDepartment } from '@/lib/geo/departments'
+import { notPast } from '@/lib/validation/date-guards'
 
 // ─── Co-pêchage — proposer une sortie à plusieurs ─────────────────────────────
 // 🔴 AUCUNE coordonnée : localisation = département + libellé LIBRE (D-D3). Le
@@ -24,7 +25,7 @@ export const proposeOutingSchema = z.object({
     .max(120)
     .optional()
     .refine(noCoord, { error: 'Pas de coordonnées GPS, donne un repère (« digue nord », « plage de X »).' }),
-  planned_at: z.string().datetime(),
+  planned_at: z.string().datetime().refine(notPast, { error: 'La sortie doit être à venir (pas dans le passé).' }),
   capacity: z.number().int().min(1).max(20).optional(),
   // Espèces ciblées (matching). Clés DB (snake_case) issues du référentiel SPECIES.
   // Optionnel : une sortie peut ne viser aucune espèce précise.

@@ -45,4 +45,9 @@ describe('createOutingSchema', () => {
     const r = createOutingSchema.safeParse({ ...base, technique: 'dynamite' })
     expect(r.success).toBe(false)
   })
+
+  it('refuse une sortie dans le futur (garde notFuture, sprint 53)', () => {
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    expect(createOutingSchema.safeParse({ ...base, started_at: future }).success).toBe(false)
+  })
 })

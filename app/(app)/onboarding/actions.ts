@@ -49,10 +49,14 @@ export async function checkUsernameAvailable(username: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Unicité insensible à la casse (alignée sur l'index profiles_username_lower_key,
+  // migration 096). On échappe %, _ et \ pour que ilike se comporte en égalité
+  // littérale : un pseudo « bob_x » ne doit pas matcher « bobax ».
+  const pattern = username.replace(/[\\%_]/g, "\\$&");
   const { data } = await supabase
     .from("profiles")
     .select("id")
-    .eq("username", username)
+    .ilike("username", pattern)
     .neq("id", user?.id ?? "")
     .maybeSingle();
 

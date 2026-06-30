@@ -131,6 +131,7 @@ export function OutingForm({ defaultDepartment }: { defaultDepartment?: string |
         <input
           type="datetime-local"
           value={startedAt}
+          max={nowLocal()}
           onChange={(e) => setStartedAt(e.target.value)}
           className={`mt-2 ${inputCls}`}
         />

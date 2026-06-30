@@ -52,10 +52,13 @@ export async function updateProfile(formData: FormData) {
 
   // Vérifier que le pseudo n'est pas déjà pris par quelqu'un d'autre
   if (parsed.data.username) {
+    // Unicité insensible à la casse (index profiles_username_lower_key, migration 096).
+    // Échappe %, _ et \ pour que ilike reste une égalité littérale.
+    const pattern = parsed.data.username.replace(/[\\%_]/g, '\\$&')
     const { data: existing } = await supabase
       .from('profiles')
       .select('id')
-      .eq('username', parsed.data.username)
+      .ilike('username', pattern)
       .neq('id', user.id)
       .maybeSingle()
 

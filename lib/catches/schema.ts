@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { isCoastalDepartment } from '@/lib/geo/departments'
 import { CARNET_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 import { LOOKS_LIKE_COORD } from '@/lib/cofishing/schema'
+import { notFuture } from '@/lib/validation/date-guards'
 
 // Garde-fou anti spot-burning : `location_label` est du texte libre éditable. On
 // refuse une coordonnée précise tapée à la main (même motif que le co-pêchage : 1-2
@@ -39,7 +40,7 @@ export const catchLocationMethodEnum = z.enum(['gps', 'manual', 'spot'])
 // écraserait alors released/privacy/caught_at non soumis (bug audit 2026-06-11).
 const catchFieldsNoDefaults = z.object({
   species: catchSpeciesEnum,
-  caught_at: z.string().datetime(),
+  caught_at: z.string().datetime().refine(notFuture, { error: 'La date de la prise ne peut pas être dans le futur.' }),
   size_cm: z.number().min(10).max(200).optional(),
   weight_kg: z.number().min(0.05).max(30).optional(),
   // Aide à la mesure honnête (WS-D, sprint 39). Longueur réellement mesurée +
@@ -78,7 +79,7 @@ const catchFieldsNoDefaults = z.object({
 
 // Objet de base AVEC defaults, réutilisé par le form et createCatchSchema
 const baseCatchObject = catchFieldsNoDefaults.extend({
-  caught_at: z.string().datetime().default(() => new Date().toISOString()),
+  caught_at: z.string().datetime().refine(notFuture, { error: 'La date de la prise ne peut pas être dans le futur.' }).default(() => new Date().toISOString()),
   released: z.boolean().default(false),
   location_method: catchLocationMethodEnum.default('gps'),
   privacy: catchPrivacyEnum.default('private'),
@@ -86,10 +87,35 @@ const baseCatchObject = catchFieldsNoDefaults.extend({
   reveal_precise_to_public: z.boolean().default(false),
 })
 
+// Garde « prise mesurée » (WS-E, sprint 53) : si la case est cochée, longueur ET
+// objet de référence deviennent requis. Honnêteté : pas de prise « mesurée » sans
+// donnée réelle. Appliquée en création comme en édition (jamais sur l'update partiel).
+function refineMeasured(
+  data: { is_measured?: boolean; measured_length_cm?: number; reference_object?: string },
+  ctx: z.RefinementCtx,
+) {
+  if (!data.is_measured) return
+  if (data.measured_length_cm === undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Renseigne la longueur mesurée (ou décoche « Prise mesurée »).',
+      path: ['measured_length_cm'],
+    })
+  }
+  if (!data.reference_object || data.reference_object.trim().length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Indique l’objet de référence visible sur la photo (ou décoche « Prise mesurée »).',
+      path: ['reference_object'],
+    })
+  }
+}
+
 // Schéma de base exporté pour le form en mode édition (pas de validation lat/lng requise)
-export const catchBaseSchema = baseCatchObject
+export const catchBaseSchema = baseCatchObject.superRefine(refineMeasured)
 
 export const createCatchSchema = baseCatchObject.superRefine((data, ctx) => {
+  refineMeasured(data, ctx)
   if (data.location_method === 'gps' || data.location_method === 'manual') {
     if (data.latitude === undefined) {
       ctx.addIssue({
@@ -167,7 +193,7 @@ export type CatchFilters = z.infer<typeof catchFiltersSchema>
 // quelle date passée (aucune borne max).
 export const bulkCatchRowSchema = z.object({
   species: catchSpeciesEnum,
-  caught_at: z.string().datetime(),
+  caught_at: z.string().datetime().refine(notFuture, { error: 'La date de la prise ne peut pas être dans le futur.' }),
   size_cm: z.number().min(10).max(200).optional(),
   department: z.string().refine((d) => isCoastalDepartment(d), {
     error: 'Choisis un département côtier pour chaque prise',

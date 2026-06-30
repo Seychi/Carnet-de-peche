@@ -757,8 +757,8 @@ export function CatchForm(props: CatchFormProps) {
                   <input
                     id="measured_length_cm"
                     type="number"
-                    min={1}
-                    max={299}
+                    min={10}
+                    max={250}
                     step={1}
                     inputMode="numeric"
                     placeholder="ex : 42"
@@ -1116,6 +1116,7 @@ export function CatchForm(props: CatchFormProps) {
             <input
               type="datetime-local"
               value={isoToLocal(field.value ?? new Date().toISOString())}
+              max={isoToLocal(new Date().toISOString())}
               onChange={(e) => field.onChange(localToIso(e.target.value))}
               onBlur={field.onBlur}
               {...trackFocus('caught_at')}

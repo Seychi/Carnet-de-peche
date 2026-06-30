@@ -101,3 +101,44 @@ describe('messages de validation en français', () => {
     }
   })
 })
+
+// ─── Gardes de date + prise mesurée (sprint 53 WS-D / WS-E) ──────────────────
+
+const validCatchBase = {
+  species: 'bar',
+  technique: 'leurres',
+  latitude: 48.0,
+  longitude: -4.7,
+}
+
+describe('createCatchSchema — garde de date (WS-D)', () => {
+  it('refuse une prise dans le futur', () => {
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    expect(createCatchSchema.safeParse({ ...validCatchBase, caught_at: future }).success).toBe(false)
+  })
+
+  it('accepte une prise dans le passé', () => {
+    const past = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    expect(createCatchSchema.safeParse({ ...validCatchBase, caught_at: past }).success).toBe(true)
+  })
+})
+
+describe('createCatchSchema — prise mesurée (WS-E)', () => {
+  it('refuse « mesurée » sans longueur ni objet de référence', () => {
+    expect(createCatchSchema.safeParse({ ...validCatchBase, is_measured: true }).success).toBe(false)
+  })
+
+  it('accepte « mesurée » avec longueur + objet de référence', () => {
+    const r = createCatchSchema.safeParse({
+      ...validCatchBase,
+      is_measured: true,
+      measured_length_cm: 42,
+      reference_object: 'Black Minnow 120 sur la photo',
+    })
+    expect(r.success).toBe(true)
+  })
+
+  it('ignore la garde mesurée si la case n’est pas cochée', () => {
+    expect(createCatchSchema.safeParse({ ...validCatchBase, is_measured: false }).success).toBe(true)
+  })
+})

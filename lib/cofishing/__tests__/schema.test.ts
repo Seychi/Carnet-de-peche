@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { proposeOutingSchema } from '../schema'
 
-const base = { department: '56', planned_at: '2026-07-01T06:00:00.000Z' }
+// planned_at RELATIF (sprint 53) : doit rester dans le futur pour passer la garde
+// notPast, sinon le test casserait mécaniquement avec le temps (date fixe → passé).
+const base = {
+  department: '56',
+  planned_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+}
 
 describe('proposeOutingSchema (co-pêchage)', () => {
   it('accepte une proposition minimale (dépt + date)', () => {
@@ -45,5 +50,10 @@ describe('proposeOutingSchema (co-pêchage)', () => {
 
   it('autorise un repère libre et une heure (pas un motif de coordonnée)', () => {
     expect(proposeOutingSchema.safeParse({ ...base, area_label: 'Digue nord, RDV 7.30' }).success).toBe(true)
+  })
+
+  it('refuse une proposition dans le passé (garde notPast, sprint 53)', () => {
+    const past = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    expect(proposeOutingSchema.safeParse({ ...base, planned_at: past }).success).toBe(false)
   })
 })

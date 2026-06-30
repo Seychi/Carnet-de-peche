@@ -2,6 +2,7 @@ import '@/lib/zod-config'
 import { z } from 'zod'
 import { isCoastalDepartment } from '@/lib/geo/departments'
 import { catchTechniqueEnum, catchSpeciesEnum } from '@/lib/catches/schema'
+import { notFuture } from '@/lib/validation/date-guards'
 
 // ─── Sortie (outing) — y compris bredouille (0 prise) ─────────────────────────
 // Une sortie ne porte JAMAIS de coordonnée précise : département + label seulement
@@ -9,7 +10,7 @@ import { catchTechniqueEnum, catchSpeciesEnum } from '@/lib/catches/schema'
 
 export const createOutingSchema = z
   .object({
-    started_at: z.string().datetime(),
+    started_at: z.string().datetime().refine(notFuture, { error: 'Une sortie ne peut pas être dans le futur.' }),
     ended_at: z.string().datetime().optional(),
     department: z
       .string()

@@ -173,7 +173,10 @@ function formatVerifiedFreshness(iso: string | null): string | null {
   return `il y a ${m} mois`
 }
 
-// Niveau de vérification gradué (migration 083, WS B). v1 : presque tout = 'equipe'.
+// Niveau de vérification gradué (migration 083, WS B). En prod, verification_level
+// ne vaut jamais que 'equipe' (ou null). Les niveaux 'communaute'/'ambassadeur' ont
+// été retirés au sprint 53 (code mort, jamais atteint, honnêteté) : ils reviendront
+// avec leur câblage réel dans un sprint communauté. Le fallback côté lecture couvre null.
 // L'info passe par le libellé + l'icône (forme), jamais la couleur seule (daltonisme).
 const VERIFICATION_LEVELS: Record<
   string,
@@ -182,14 +185,6 @@ const VERIFICATION_LEVELS: Record<
   equipe: {
     label: 'Vérifié par l’équipe',
     legend: 'Coordonnée pointée et contrôlée à la main par l’équipe.',
-  },
-  ambassadeur: {
-    label: 'Vérifié par un ambassadeur',
-    legend: 'Coordonnée contrôlée par un ambassadeur de la communauté.',
-  },
-  communaute: {
-    label: 'Vérifié par la communauté',
-    legend: 'Position confirmée par plusieurs pêcheurs de la communauté.',
   },
 }
 

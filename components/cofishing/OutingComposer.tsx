@@ -91,6 +91,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
         <input
           type="datetime-local"
           value={plannedAt}
+          min={nowLocalPlus(0)}
           onChange={(e) => setPlannedAt(e.target.value)}
           className={inputCls}
         />
