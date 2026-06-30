@@ -19,18 +19,18 @@ export function useCatchHeatRealtime(onPing: (department: string) => void) {
     let cancelled = false
     let cleanup: (() => void) | undefined
 
-    void import('@/lib/supabase/client').then(({ createClient }) => {
+    void Promise.all([
+      import('@/lib/supabase/client'),
+      import('@/lib/supabase/resilient-channel'),
+    ]).then(([{ createClient }, { subscribeResilient }]) => {
       if (cancelled) return
       const supabase = createClient()
-      const channel = supabase
-        .channel('catch-heat')
-        .on('broadcast', { event: 'new-catch' }, (msg) => {
+      cleanup = subscribeResilient(supabase, (c) =>
+        c.channel('catch-heat').on('broadcast', { event: 'new-catch' }, (msg) => {
           const dept = (msg.payload as { department?: string } | undefined)?.department ?? ''
           onPingRef.current(dept)
-        })
-        .subscribe()
-
-      cleanup = () => { supabase.removeChannel(channel) }
+        }),
+      )
     })
 
     return () => {

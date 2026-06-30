@@ -44,36 +44,37 @@ export function usePostInteractionsRealtime(postId: string, handlers: PostIntera
     let cancelled = false
     let cleanup: (() => void) | undefined
 
-    void import('@/lib/supabase/client').then(({ createClient }) => {
+    void Promise.all([
+      import('@/lib/supabase/client'),
+      import('@/lib/supabase/resilient-channel'),
+    ]).then(([{ createClient }, { subscribeResilient }]) => {
       if (cancelled) return
       const supabase = createClient()
-      const channel = supabase
-        .channel(`post:${postId}`)
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
-          (payload) => handlersRef.current.onLikeDelta?.(1, actorFromPayload(payload, 'user_id')),
-        )
-        .on(
-          'postgres_changes',
-          { event: 'DELETE', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
-          (payload) => handlersRef.current.onLikeDelta?.(-1, actorFromPayload(payload, 'user_id')),
-        )
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
-          (payload) => handlersRef.current.onCommentDelta?.(1, actorFromPayload(payload, 'author_id')),
-        )
-        .on(
-          'postgres_changes',
-          { event: 'DELETE', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
-          (payload) => handlersRef.current.onCommentDelta?.(-1, actorFromPayload(payload, 'author_id')),
-        )
-        .subscribe()
-
-      cleanup = () => {
-        supabase.removeChannel(channel)
-      }
+      // Reconnexion sur coupure durable (compteurs likes/commentaires figés sinon).
+      cleanup = subscribeResilient(supabase, (c) =>
+        c
+          .channel(`post:${postId}`)
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
+            (payload) => handlersRef.current.onLikeDelta?.(1, actorFromPayload(payload, 'user_id')),
+          )
+          .on(
+            'postgres_changes',
+            { event: 'DELETE', schema: 'public', table: 'feed_likes', filter: `post_id=eq.${postId}` },
+            (payload) => handlersRef.current.onLikeDelta?.(-1, actorFromPayload(payload, 'user_id')),
+          )
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
+            (payload) => handlersRef.current.onCommentDelta?.(1, actorFromPayload(payload, 'author_id')),
+          )
+          .on(
+            'postgres_changes',
+            { event: 'DELETE', schema: 'public', table: 'feed_comments', filter: `post_id=eq.${postId}` },
+            (payload) => handlersRef.current.onCommentDelta?.(-1, actorFromPayload(payload, 'author_id')),
+          ),
+      )
     })
 
     return () => {

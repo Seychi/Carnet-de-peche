@@ -12,6 +12,8 @@ import {
   Bell,
   Fish,
   BookOpen,
+  MapPinPlus,
+  ClipboardList,
   Wrench,
   CreditCard,
   Shield,
@@ -43,6 +45,13 @@ function buildGroups(isModerator: boolean): { title?: string; items: Item[] }[] 
         { label: 'Espèces', href: '/especes', match: '/especes', Icon: Fish },
         { label: 'Guides', href: '/guides', match: '/guides', Icon: BookOpen },
         { label: 'Techniques (bientôt)', href: '/techniques', match: '/techniques', Icon: Wrench },
+      ],
+    },
+    {
+      title: 'Contribuer',
+      items: [
+        { label: 'Proposer un spot', href: '/spots/proposer', match: '/spots/proposer', Icon: MapPinPlus },
+        { label: 'Mes propositions', href: '/spots/mes-propositions', match: '/spots/mes-propositions', Icon: ClipboardList },
       ],
     },
     {

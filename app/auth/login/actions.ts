@@ -91,11 +91,14 @@ export async function sendMagicLink(
   const supabase = await createClient();
   const origin = await getOrigin();
 
+  // En beta (INVITE_ONLY), le lien magique ne CRÉE pas de compte (il ne peut pas
+  // porter de code d'invitation) : il reste une CONNEXION pour les comptes existants
+  // mais ne contourne plus la beta comme vecteur d'inscription (sprint 54 WS-D).
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       emailRedirectTo: `${origin}/auth/callback?next=/home`,
-      shouldCreateUser: true,
+      shouldCreateUser: process.env.INVITE_ONLY !== "true",
     },
   });
 
@@ -218,39 +221,21 @@ export async function signUpWithPassword(
   // Gate beta fondateurs (sprint 25) : si INVITE_ONLY=true, un code d'invitation
   // valide est requis. OFF par défaut → inscription ouverte, comportement inchangé.
   // Consommation atomique via RPC service_role (consume_invite_code, migration 052).
-  if (process.env.INVITE_ONLY === "true") {
-    const code = String(formData.get("invite_code") ?? "").trim();
-    if (!code) {
-      return {
-        error: "Un code d'invitation est requis pour rejoindre la beta fondateurs.",
-        success: false,
-        email,
-        submittedAt: null,
-      };
-    }
-    try {
-      const { createAdminClient } = await import("@/lib/supabase/admin");
-      const { data: consumed, error: cErr } = await createAdminClient().rpc(
-        "consume_invite_code",
-        { p_code: code },
-      );
-      if (cErr || consumed !== true) {
-        return {
-          error: "Code d'invitation invalide, expiré ou déjà utilisé.",
-          success: false,
-          email,
-          submittedAt: null,
-        };
-      }
-    } catch (e) {
-      console.error("[signUpWithPassword] invite gate", e);
-      return {
-        error: "Inscription momentanément indisponible. Réessaie.",
-        success: false,
-        email,
-        submittedAt: null,
-      };
-    }
+  // Gate beta fondateurs (sprint 25, réordonné sprint 54 WS-D) : on EXIGE un code
+  // non vide ici, mais on ne le CONSOMME qu'APRÈS le succès de auth.signUp (plus bas)
+  // — sinon un signup raté (email déjà pris, mot de passe rejeté) brûlerait un code
+  // à usage unique. OFF par défaut → inscription ouverte, comportement inchangé.
+  const inviteCode =
+    process.env.INVITE_ONLY === "true"
+      ? String(formData.get("invite_code") ?? "").trim()
+      : null;
+  if (process.env.INVITE_ONLY === "true" && !inviteCode) {
+    return {
+      error: "Un code d'invitation est requis pour rejoindre la beta fondateurs.",
+      success: false,
+      email,
+      submittedAt: null,
+    };
   }
 
   const supabase = await createClient();
@@ -305,6 +290,25 @@ export async function signUpWithPassword(
   // Si la confirmation est ACTIVE, data.session est null → on retombe sur
   // l'écran SentScreen ci-dessous. Le code marche donc dans les deux cas, sans
   // hypothèse figée sur le réglage Supabase.
+  // Consommation du code APRÈS le succès du signup (réordonnancement WS-D, sprint 54) :
+  // un signup raté ne brûle plus de code. Atomique via RPC service_role (migration 052).
+  if (inviteCode) {
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const { data: consumed, error: cErr } = await createAdminClient().rpc(
+        "consume_invite_code",
+        { p_code: inviteCode },
+      );
+      if (cErr || consumed !== true) {
+        // Le compte auth est créé mais le code n'a pas pu être consommé (expiré
+        // entre-temps, course). On loggue pour ops sans bloquer l'inscrit.
+        console.error("[signUpWithPassword] consume after signUp failed", cErr);
+      }
+    } catch (e) {
+      console.error("[signUpWithPassword] invite consume", e);
+    }
+  }
+
   if (data.session) {
     redirect("/onboarding/1");
   }

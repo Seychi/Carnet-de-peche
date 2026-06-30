@@ -38,12 +38,15 @@ export function useOutingChatRealtime(
     let cancelled = false
     let cleanup: (() => void) | undefined
 
-    void import('@/lib/supabase/client').then(({ createClient }) => {
+    void Promise.all([
+      import('@/lib/supabase/client'),
+      import('@/lib/supabase/resilient-channel'),
+    ]).then(([{ createClient }, { subscribeResilient }]) => {
       if (cancelled) return
       const supabase = createClient()
-      const channel = supabase
-        .channel(`outing:${proposalId}`)
-        .on(
+      // Reconnexion sur coupure durable (sinon le chat se fige en silence).
+      cleanup = subscribeResilient(supabase, (c) =>
+        c.channel(`outing:${proposalId}`).on(
           'postgres_changes',
           {
             event: 'INSERT',
@@ -55,12 +58,8 @@ export function useOutingChatRealtime(
             const row = payload.new as OutingMessageRow
             if (row?.id) onInsertRef.current(row)
           },
-        )
-        .subscribe()
-
-      cleanup = () => {
-        supabase.removeChannel(channel)
-      }
+        ),
+      )
     })
 
     return () => {

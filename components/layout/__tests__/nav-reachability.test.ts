@@ -46,6 +46,8 @@ const REQUIRED_DESTINATIONS = [
   '/notifications',
   '/profil',
   '/compte/abonnement',
+  '/spots/proposer',
+  '/spots/mes-propositions',
 ] as const
 
 /** Extrait tous les href déclarés d'un fichier (JSX `href="..."` ET objet `href: '...'`). */
@@ -81,6 +83,14 @@ describe('atteignabilité nav (sprint 27)', () => {
   it('Notifications et Co-pêchage sont atteignables (sprint 27 : sortis de l’oubli)', () => {
     expect(ALL_HREFS.has('/notifications')).toBe(true)
     expect(ALL_HREFS.has('/sorties')).toBe(true)
+  })
+
+  it('« Mes sorties » (/carnet/sorties) est lié depuis le carnet, dé-gaté (sprint 54)', () => {
+    const carnetPage = path.resolve(here, '../../../app/(app)/carnet/page.tsx')
+    const src = readFileSync(carnetPage, 'utf8')
+    expect(src).toContain('/carnet/sorties')
+    // Plus de condition de volume : le lien ne dépend plus de totalOutings > 0.
+    expect(src).not.toContain('outingStats.totalOutings > 0')
   })
 })
 

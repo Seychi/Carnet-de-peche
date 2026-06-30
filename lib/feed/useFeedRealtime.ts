@@ -27,12 +27,15 @@ export function useFeedRealtime(region: string, onInsert: (postId: string) => vo
     let cancelled = false
     let cleanup: (() => void) | undefined
 
-    void import('@/lib/supabase/client').then(({ createClient }) => {
+    void Promise.all([
+      import('@/lib/supabase/client'),
+      import('@/lib/supabase/resilient-channel'),
+    ]).then(([{ createClient }, { subscribeResilient }]) => {
       if (cancelled) return
       const supabase = createClient()
-      const channel = supabase
-        .channel(`feed:${region}`)
-        .on(
+      // Reconnexion sur coupure durable (sinon le fil se fige en silence).
+      cleanup = subscribeResilient(supabase, (c) =>
+        c.channel(`feed:${region}`).on(
           'postgres_changes',
           {
             event: 'INSERT',
@@ -44,12 +47,8 @@ export function useFeedRealtime(region: string, onInsert: (postId: string) => vo
             const id = (payload.new as { id?: string }).id
             if (id) onInsertRef.current(id)
           },
-        )
-        .subscribe()
-
-      cleanup = () => {
-        supabase.removeChannel(channel)
-      }
+        ),
+      )
     })
 
     return () => {

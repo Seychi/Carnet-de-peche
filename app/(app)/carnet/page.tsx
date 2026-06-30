@@ -152,8 +152,10 @@ export default async function CarnetPage({ searchParams }: Props) {
         {/* Sorties (dont bredouilles) — dénominateur honnête */}
         {outingStats && <OutingStats data={outingStats} className="mb-3" />}
 
-        {/* Accès à la liste des sorties perso (partageables) */}
-        {outingStats && outingStats.totalOutings > 0 && (
+        {/* Accès à la liste des sorties perso (partageables). Dé-gaté (sprint 54) :
+            affiché dès que outingStats existe, même à 0 sortie (la page gère l'état
+            vide) → la page n'est plus orpheline. */}
+        {outingStats && (
           <Link
             href="/carnet/sorties"
             className="mb-3 flex min-h-[44px] items-center gap-3 rounded-[14px] border border-sand-200 bg-white px-4 py-3 transition-colors hover:border-sand-300"

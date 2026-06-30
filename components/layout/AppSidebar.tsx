@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, NotebookText, Map, MessageCircle, User, Users, Handshake, Fish, BookOpen, type LucideIcon } from 'lucide-react'
+import { Home, NotebookText, Map, MessageCircle, User, Users, Handshake, Fish, BookOpen, MapPinPlus, ClipboardList, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Groupe principal « mon espace ».
@@ -20,6 +20,13 @@ const ITEMS = [
 const DISCOVER = [
   { label: 'Espèces', href: '/especes', match: '/especes', Icon: Fish },
   { label: 'Guides', href: '/guides', match: '/guides', Icon: BookOpen },
+] as const
+
+// Groupe « Contribuer » — proposer / suivre ses spots (sinon atteignable
+// uniquement depuis l'intérieur de la carte).
+const CONTRIBUTE = [
+  { label: 'Proposer un spot', href: '/spots/proposer', match: '/spots/proposer', Icon: MapPinPlus },
+  { label: 'Mes propositions', href: '/spots/mes-propositions', match: '/spots/mes-propositions', Icon: ClipboardList },
 ] as const
 
 /** Sidebar app desktop (≥ 960 px) — item actif navy plein (DA v2). */
@@ -68,6 +75,11 @@ export function AppSidebar({ homeDepartment = null }: { homeDepartment?: string 
           Découvrir
         </p>
         {DISCOVER.map(renderItem)}
+
+        <p className="mt-3 mb-1 px-3.5 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-ink-400">
+          Contribuer
+        </p>
+        {CONTRIBUTE.map(renderItem)}
       </nav>
     </aside>
   )

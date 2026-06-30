@@ -32,41 +32,43 @@ export function useNotificationRealtime(userId: string, initialCount: number): n
     let cancelled = false
     let cleanup: (() => void) | undefined
 
-    void import('@/lib/supabase/client').then(({ createClient }) => {
+    void Promise.all([
+      import('@/lib/supabase/client'),
+      import('@/lib/supabase/resilient-channel'),
+    ]).then(([{ createClient }, { subscribeResilient }]) => {
       if (cancelled) return
       const supabase = createClient()
-      const channel = supabase
-        .channel(`notif:${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userId}`,
-          },
-          () => setUnread((n) => n + 1),
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload) => {
-            // read_at passe de null à une valeur → une notif vient d'être lue.
-            const next = payload.new as { read_at: string | null }
-            const prev = payload.old as { read_at?: string | null }
-            if (next.read_at && !prev?.read_at) setUnread((n) => Math.max(0, n - 1))
-          },
-        )
-        .subscribe()
-
-      cleanup = () => {
-        supabase.removeChannel(channel)
-      }
+      // Reconnexion sur coupure durable. À la reconnexion le compteur peut avoir
+      // dérivé (events manqués) ; la resync se fait au prochain rendu SSR (initialCount).
+      cleanup = subscribeResilient(supabase, (c) =>
+        c
+          .channel(`notif:${userId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'notifications',
+              filter: `user_id=eq.${userId}`,
+            },
+            () => setUnread((n) => n + 1),
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'notifications',
+              filter: `user_id=eq.${userId}`,
+            },
+            (payload) => {
+              // read_at passe de null à une valeur → une notif vient d'être lue.
+              const next = payload.new as { read_at: string | null }
+              const prev = payload.old as { read_at?: string | null }
+              if (next.read_at && !prev?.read_at) setUnread((n) => Math.max(0, n - 1))
+            },
+          ),
+      )
     })
 
     return () => {

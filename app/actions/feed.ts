@@ -6,6 +6,7 @@ import { isCoastalDepartment } from '@/lib/geo/departments'
 import { attachPostMedia } from '@/lib/feed/media'
 import { createNotification } from '@/lib/notifications/create'
 import type { FeedPost, FeedTab } from '@/lib/feed/types'
+import { buildFeedCursor, parseFeedCursor } from '@/lib/feed/cursor'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -724,6 +725,7 @@ export async function getFeedPage(params: {
     .from('feed_posts_for_viewer')
     .select('*')
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .limit(PAGE_SIZE)
 
   if (params.tab === 'dept') {
@@ -739,7 +741,17 @@ export async function getFeedPage(params: {
   }
   // tab 'all' : aucun filtre de département
 
-  if (params.cursor) query = query.lt('created_at', params.cursor)
+  // Curseur composite created_at|id (tie-breaker) : évite de sauter deux posts au
+  // même created_at à cheval sur une page (seed/bulk). Tolérance legacy = un curseur
+  // created_at seul (onglet ouvert avant déploiement) → filtre .lt simple.
+  if (params.cursor) {
+    const c = parseFeedCursor(params.cursor)
+    if (c) {
+      query = query.or(`created_at.lt.${c.ts},and(created_at.eq.${c.ts},id.lt.${c.id})`)
+    } else {
+      query = query.lt('created_at', params.cursor)
+    }
+  }
 
   const { data, error } = await query
   if (error) {
@@ -775,8 +787,11 @@ export async function getFeedPage(params: {
     author_is_following: p.author_id ? followingSet.has(p.author_id) : false,
   }))
 
+  const last = enriched[enriched.length - 1]
   const nextCursor =
-    enriched.length === PAGE_SIZE ? (enriched[enriched.length - 1].created_at ?? null) : null
+    enriched.length === PAGE_SIZE
+      ? buildFeedCursor({ created_at: last?.created_at ?? null, id: last?.id ?? null })
+      : null
 
   return ok({ posts: enriched, nextCursor })
 }

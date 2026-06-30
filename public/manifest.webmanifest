@@ -3,7 +3,7 @@
   "short_name": "Carnet",
   "description": "Le carnet de pêche numérique des pêcheurs à la canne du bord. Logue. Partage. Progresse.",
   "lang": "fr",
-  "start_url": "/home",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
