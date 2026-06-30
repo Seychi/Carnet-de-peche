@@ -389,6 +389,11 @@ export async function sendOutingMessage(
   const photo = photoPath?.trim() || null
   if (!cleanBody && !photo) return { error: 'Écris un message ou ajoute une photo.' }
 
+  // NB (sprint 58 WS-A, décision John) : le chat reste OUVERT après la date de la
+  // sortie (`planned_at` passé), volontairement → débrief post-sortie. Seul le statut
+  // `cancelled` ferme le chat (policy INSERT outing_messages). Pas de garde
+  // `planned_at < now()` : c'est un choix produit assumé, pas un oubli.
+
   // Garde-fou : un photo_path doit pointer dans le bucket privé, dossier de l'auteur
   // (`<uid>/...`). On REFUSE tout chemin qui n'est pas scopé à l'expéditeur (anti
   // injection d'un chemin arbitraire). La lecture restera de toute façon gatée par

@@ -188,7 +188,7 @@ export default async function NotificationsPage() {
                     <Icon size={16} strokeWidth={1.9} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-navy-900">{label}</p>
+                    <p className="truncate text-sm text-navy-900">{label}</p>
                     {n.preview_text && (
                       <p className="mt-0.5 truncate text-xs text-ink-500">
                         « {n.preview_text} »

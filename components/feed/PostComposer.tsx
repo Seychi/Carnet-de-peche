@@ -71,6 +71,7 @@ export function PostComposer({
   // vide↔non-vide (pour activer/désactiver « Publier »). La valeur est lue au ref
   // au moment d'envoyer.
   const textRef = useRef<HTMLTextAreaElement>(null)
+  const counterRef = useRef<HTMLSpanElement>(null)
   const [hasText, setHasText] = useState(false)
   const hadTextRef = useRef(false)
   const [attached, setAttached] = useState<RecentCatch | null>(null)
@@ -183,7 +184,11 @@ export function PostComposer({
   // Recalc minimal au boundary vide↔non-vide pour piloter l'état « disabled » du
   // bouton Publier, sans re-render à chaque caractère (INP, Bloc E).
   function handleComposerChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const has = e.target.value.trim().length > 0
+    const value = e.target.value
+    // Compteur via écriture DOM directe (PAS de setState) → ne réintroduit pas de
+    // re-render par frappe, l'optimisation INP du composer non contrôlé est préservée.
+    if (counterRef.current) counterRef.current.textContent = `${value.length} / 2000`
+    const has = value.trim().length > 0
     if (has !== hadTextRef.current) {
       hadTextRef.current = has
       setHasText(has)
@@ -275,6 +280,7 @@ export function PostComposer({
       // Succès : on vide le composer (sans révoquer les blob: encore affichés par
       // la carte optimiste — ils seront libérés au prochain rendu/navigation).
       if (textRef.current) textRef.current.value = ''
+      if (counterRef.current) counterRef.current.textContent = '0 / 2000'
       hadTextRef.current = false
       setHasText(false)
       setAttached(null)
@@ -432,15 +438,26 @@ export function PostComposer({
           </Sheet>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-teal-500 px-5 text-[14px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-40"
-        >
-          {submitting && <Loader2 size={15} className="animate-spin" />}
-          Publier
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Compteur live mis à jour SANS setState (ref DOM) pour préserver l'INP
+              du composer non contrôlé (cf handleComposerChange / Bloc E sprint 31). */}
+          <span
+            ref={counterRef}
+            aria-hidden="true"
+            className="font-mono text-[11px] tabular-nums text-ink-400"
+          >
+            0 / 2000
+          </span>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-teal-500 px-5 text-[14px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-40"
+          >
+            {submitting && <Loader2 size={15} className="animate-spin" />}
+            Publier
+          </button>
+        </div>
       </div>
     </div>
   )

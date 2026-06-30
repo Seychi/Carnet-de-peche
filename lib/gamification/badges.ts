@@ -90,14 +90,3 @@ export async function recomputeMyBadges(): Promise<UserBadgeRow[]> {
   if (error || !data) return []
   return data as UserBadgeRow[]
 }
-
-/** Badges déjà gagnés (lecture seule, sans recompute). RLS : own only. */
-export async function getMyBadges(): Promise<UserBadgeRow[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('user_badges')
-    .select('*')
-    .order('earned_at', { ascending: true })
-  if (error || !data) return []
-  return data
-}

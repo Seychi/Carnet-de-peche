@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 import { createClient } from '@/lib/supabase/server'
-import { recomputeMyBadges, getMyBadges, BADGES, BADGE_BY_SLUG } from '../badges'
+import { recomputeMyBadges, BADGES, BADGE_BY_SLUG } from '../badges'
 
 beforeEach(() => vi.clearAllMocks())
 
@@ -52,22 +52,5 @@ describe('recomputeMyBadges', () => {
     const first = await recomputeMyBadges()
     const second = await recomputeMyBadges()
     expect(first[0].earned_at).toBe(second[0].earned_at)
-  })
-})
-
-describe('getMyBadges', () => {
-  it('lit user_badges trié par earned_at (RLS own-only côté DB)', async () => {
-    const order = vi.fn().mockResolvedValue({
-      data: [{ id: '1', user_id: 'u', badge_slug: 'ten_catches', earned_at: '2026-06-02T00:00:00Z', meta: null }],
-      error: null,
-    })
-    const select = vi.fn().mockReturnValue({ order })
-    const from = vi.fn().mockReturnValue({ select })
-    vi.mocked(createClient).mockResolvedValue({ from } as never)
-
-    const res = await getMyBadges()
-    expect(from).toHaveBeenCalledWith('user_badges')
-    expect(order).toHaveBeenCalledWith('earned_at', { ascending: true })
-    expect(res[0].badge_slug).toBe('ten_catches')
   })
 })

@@ -30,7 +30,7 @@ export { HOME_TIERS, type HomeTier } from './home-data-core'
 // La donnée réelle est le MARNAGE (amplitude PM-BM en mètres) + les PM/BM. Le hero
 // affiche le marnage, pas un faux « coef ».
 //
-// Le client est un client anon SANS cookies (comme home-stats) → counts/activité
+// Le client est un client anon SANS cookies → counts/activité
 // passent en `unstable_cache` (ISR). Le hero réutilise `fetchSpotConditions` (cache
 // weather_cache 1h) qui lit des cookies → mémoïsé par requête via React `cache()`,
 // pas `unstable_cache` (la home est de toute façon déjà dynamique : Header + auth).

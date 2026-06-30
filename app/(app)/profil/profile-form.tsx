@@ -178,6 +178,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
                 id="city"
                 name="city"
                 type="text"
+                maxLength={100}
                 defaultValue={profile.city ?? ''}
                 className="px-4 py-2.5 border border-ink-200 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="Brest"
