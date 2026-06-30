@@ -24,6 +24,9 @@
   --color-teal-300: #5EEAD4;
 
   --color-gold-500: #D9A53C;
+  /* Variante foncée pour le TEXTE gold sur fond clair (gold-500 échoue AA ~2:1).
+     Réserver gold-500 aux pastilles/accents, gold-700 au texte. Sprint 56. */
+  --color-gold-700: #8A6410;
   --color-coral-500: #E5604F;
 
   --color-sand-50:  #FBF8F2;
@@ -102,6 +105,7 @@
   --teal-300: var(--color-teal-300);
 
   --gold-500: var(--color-gold-500);
+  --gold-700: var(--color-gold-700);
   --coral-500: var(--color-coral-500);
 
   --sand-50:  var(--color-sand-50);

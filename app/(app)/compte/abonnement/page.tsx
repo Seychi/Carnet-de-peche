@@ -126,7 +126,7 @@ export default async function AbonnementPage() {
   const isEmpty = !sub || (!isPaid && !isCanceled);
 
   return (
-    <main className="max-w-2xl mx-auto px-6 py-10">
+    <div className="max-w-2xl mx-auto px-6 py-10">
       <h1 className="font-display text-2xl font-bold text-navy-900 mb-8">Ton abonnement</h1>
 
       {isEmpty ? (
@@ -295,6 +295,6 @@ export default async function AbonnementPage() {
       <div className="mt-6 bg-white border border-sand-200 rounded-[18px] p-6">
         <EmailPrefsToggle initial={marketingOptin} />
       </div>
-    </main>
+    </div>
   );
 }

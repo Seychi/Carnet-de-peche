@@ -65,16 +65,20 @@ export function PostList({
 
   return (
     <div className="flex flex-col gap-3">
-      {posts.map((p) => (
-        <PostCard
-          key={p.id}
-          post={p}
-          currentUserId={currentUserId}
-          currentUser={currentUser}
-          viewerIsModerator={viewerIsModerator}
-          catchPhotoUrl={p.catchPhotoUrl}
-        />
-      ))}
+      {/* role="feed" ne doit contenir que des articles (PostCard = <article>) ;
+          le bouton « Voir plus » reste frère, hors du feed. Sprint 56. */}
+      <div className="flex flex-col gap-3" role="feed" aria-busy={loading}>
+        {posts.map((p) => (
+          <PostCard
+            key={p.id}
+            post={p}
+            currentUserId={currentUserId}
+            currentUser={currentUser}
+            viewerIsModerator={viewerIsModerator}
+            catchPhotoUrl={p.catchPhotoUrl}
+          />
+        ))}
+      </div>
       {cursor && (
         <button
           type="button"

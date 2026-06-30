@@ -80,7 +80,12 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <select value={department} onChange={(e) => setDepartment(e.target.value)} className={inputCls}>
+        <select
+          aria-label="Département"
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+          className={inputCls}
+        >
           <option value="">Département…</option>
           {COASTAL_DEPARTMENTS.map((d) => (
             <option key={d} value={d}>
@@ -90,6 +95,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
         </select>
         <input
           type="datetime-local"
+          aria-label="Date et heure de la sortie"
           value={plannedAt}
           min={nowLocalPlus(0)}
           onChange={(e) => setPlannedAt(e.target.value)}
@@ -99,6 +105,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
 
       <input
         type="text"
+        aria-label="Coin de pêche (repère libre)"
         value={areaLabel}
         onChange={(e) => setAreaLabel(e.target.value)}
         maxLength={120}
@@ -140,6 +147,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
 
       <input
         type="number"
+        aria-label="Nombre de places (optionnel)"
         min={1}
         max={20}
         value={capacity}
@@ -149,6 +157,7 @@ export function OutingComposer({ defaultDepartment }: { defaultDepartment?: stri
       />
 
       <textarea
+        aria-label="Détails de la sortie (optionnel)"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={2}

@@ -4,14 +4,7 @@ import { Logo } from '@/components/ui-v2/Logo'
 import { UserMenu } from './UserMenu'
 import { MobileNav } from '@/components/mobile-nav'
 import { HeaderShell } from './HeaderShell'
-
-const NAV_LINKS = [
-  { label: 'Carte', href: '/carte' },
-  { label: 'Spots', href: '/spots' },
-  { label: 'Espèces', href: '/especes' },
-  { label: 'Guides', href: '/guides' },
-  { label: 'Tarifs', href: '/tarifs' },
-]
+import { HeaderNavLinks } from './HeaderNavLinks'
 
 export async function Header() {
   const supabase = await createClient()
@@ -39,18 +32,8 @@ export async function Header() {
           <span className="hidden sm:inline">Carnet de Pêche</span>
         </Link>
 
-        {/* Nav desktop */}
-        <nav className="hidden lg:flex gap-6 items-center">
-          {NAV_LINKS.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="relative inline-flex items-center min-h-[44px] text-[15px] font-medium text-ink-700 transition-colors hover:text-navy-900 after:pointer-events-none after:absolute after:bottom-[9px] after:left-0 after:h-[2px] after:w-0 after:rounded-full after:bg-teal-500 after:transition-[width] after:duration-300 hover:after:w-full focus-visible:after:w-full"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Nav desktop (client : aria-current sur la route active) */}
+        <HeaderNavLinks />
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">

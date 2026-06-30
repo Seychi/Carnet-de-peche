@@ -4,6 +4,7 @@ import { ScoreRing } from '@/components/ui-v2/score-ring'
 import { AnimatedCounter } from '@/components/ui-v2/animated-counter'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { HeroPrimaryCta } from '@/components/marketing/HeroPrimaryCta'
+import { REGISTER_CTA_LABEL } from '@/lib/marketing/cta'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { CARNET_SPECIES_OPTIONS } from '@/lib/seo/programmatic'
@@ -367,19 +368,19 @@ function PricingSection({ tiers, medMap }: { tiers: HomeTier[]; medMap: MedMapVi
 // ── FAQ (a11y <details> + JSON-LD FAQPage) ──────────────────────────────────────
 const FAQ_ITEMS = [
   {
-    q: "C'est vraiment gratuit ?",
+    q: 'C’est vraiment gratuit ?',
     a: 'Oui. Le carnet, le fil régional, les guides et les fiches espèces sont gratuits et illimités, pour toujours. Tu ne paies que pour la carte précise (coords au mètre, score par spot).',
   },
   {
-    q: 'En quoi c’est différent des autres apps de marées ?',
+    q: 'En quoi c’est différent des autres apps de marées ?',
     a: 'Les autres donnent la même info à tout le monde. Carnet de Pêche superpose tes prises par-dessus la donnée brute et te dit ce qui marche pour toi. C’est ton historique qui devient ton avantage.',
   },
   {
-    q: 'Il faut une carte bancaire pour commencer ?',
+    q: 'Il faut une carte bancaire pour commencer ?',
     a: 'Non. Tu crées ton carnet en 30 secondes, sans CB. La carte bancaire n’est demandée que si tu lances l’essai 7 jours d’une formule payante.',
   },
   {
-    q: 'Mes spots restent privés ?',
+    q: 'Mes spots restent privés ?',
     a: 'Par défaut, oui : tes prises sont privées et tu décides ce que tu partages, à quel cercle, et avec quelle précision GPS. Tes données restent les tiennes.',
   },
 ]
@@ -453,7 +454,7 @@ function FinalCTA() {
           <div className="mt-9 flex justify-center">
             <HeroPrimaryCta
               className={cn(buttonVariants({ variant: 'accent', size: 'cta' }))}
-              registerLabel="Créer mon carnet — gratuit"
+              registerLabel={REGISTER_CTA_LABEL}
               event="final_register"
             />
           </div>

@@ -32,7 +32,7 @@ export default async function CheckoutSuccessPage({
   }
 
   return (
-    <main className="max-w-xl mx-auto px-6 py-16 text-center">
+    <div className="max-w-xl mx-auto px-6 py-16 text-center">
       <div className="text-5xl mb-5" aria-hidden>
         🎉
       </div>
@@ -57,6 +57,6 @@ export default async function CheckoutSuccessPage({
           Voir mon abonnement
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

@@ -28,32 +28,32 @@ type ShareKind = ShareCardInput['kind']
 
 const COPY: Record<ShareKind, { title: string; description: string }> = {
   catch: {
-    title: 'Partager ta prise ?',
+    title: 'Partager ta prise ?',
     description:
       'On crée une belle carte publique de ta prise. Elle ne montre jamais tes coordonnées, juste la zone et le département. Tu pourras la supprimer quand tu veux.',
   },
   conditions: {
-    title: 'Partager tes conditions gagnantes ?',
+    title: 'Partager tes conditions gagnantes ?',
     description:
       'On résume tes tendances (les moments et conditions où tu sors le plus) sur une carte publique. Aucune coordonnée, juste ce que ton carnet a appris. Révocable à tout moment.',
   },
   outing: {
-    title: 'Partager ta sortie ?',
+    title: 'Partager ta sortie ?',
     description:
       'On crée une carte publique de ta sortie (durée, prises, meilleure prise). Aucune coordonnée n’est partagée, seulement le département. Tu peux la supprimer quand tu veux.',
   },
   gearbox: {
-    title: 'Partager ma boîte ?',
+    title: 'Partager ma boîte ?',
     description:
       'On crée une carte publique de tes leurres qui pêchent : leur libellé, le nombre de prises et l’espèce dominante. Aucune coordonnée, aucun spot, aucune photo. Tu peux la supprimer quand tu veux.',
   },
   recap: {
-    title: 'Partager ton année de pêche ?',
+    title: 'Partager ton année de pêche ?',
     description:
       'On résume ton année (nombre de prises, espèces, ton plus beau poisson) sur une carte publique. Aucune coordonnée, aucun spot, juste ton bilan. Révocable à tout moment.',
   },
   records: {
-    title: 'Partager tes records ?',
+    title: 'Partager tes records ?',
     description:
       'On crée une carte publique de tes plus beaux poissons par espèce (taille et poids). Aucune coordonnée, aucun spot, aucun classement avec les autres. Tu peux la supprimer quand tu veux.',
   },

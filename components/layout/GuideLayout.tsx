@@ -53,8 +53,19 @@ export function GuideLayout({
   relatedGuides = [],
   children,
 }: GuideLayoutProps) {
+  // CTA bas de guide : libellé d'espèce COMPLET (« dorade royale », plus de
+  // troncature au 1er mot), élision « d' » devant voyelle, cas « Multi-espèces ».
+  const speciesLower = species.toLowerCase()
+  const huntLine =
+    species === 'Multi-espèces'
+      ? 'Logue ta prochaine prise'
+      : /^[aeiouhéèê]/i.test(speciesLower)
+        ? `Logue ta prochaine prise d’${speciesLower}`
+        : `Logue ta prochaine prise de ${speciesLower}`
+  // Pas de <main> ici : le layout (marketing) fournit déjà <main id="main">
+  // (un seul landmark principal par page, a11y). Sprint 56.
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       {/* Hero navy-950 + isobathes (DA v2) */}
       <section className={`relative overflow-hidden bg-navy-950 pt-10 ${heroImage ? 'pb-0' : 'pb-14'}`}>
         <Bathy opacity={0.3} />
@@ -114,7 +125,7 @@ export function GuideLayout({
             {/* CTA milieu / fin — inséré automatiquement en bas */}
             <div className="not-prose mt-12 p-6 bg-teal-500/10 border border-teal-500/20 rounded-[18px] text-center">
               <p className="font-semibold text-navy-900 mb-2">
-                Logue ta prochaine prise de {species.split(' ')[0].toLowerCase()}
+                {huntLine}
               </p>
               <p className="text-sm text-ink-500 mb-4">
                 Rejoins la communauté et crée ton carnet de pêche gratuit.
@@ -172,6 +183,6 @@ export function GuideLayout({
           </aside>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

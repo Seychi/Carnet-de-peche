@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 // Pas de culpabilisation, pas de tracking : juste une porte de retour.
 export default function CheckoutCancelPage() {
   return (
-    <main className="max-w-xl mx-auto px-6 py-16 text-center">
+    <div className="max-w-xl mx-auto px-6 py-16 text-center">
       <h1 className="font-display text-2xl font-bold text-navy-900 mb-3">Tu as annulé</h1>
       <p className="text-ink-700 mb-8">
         Pas de souci. Quand tu veux revenir, les formules t&rsquo;attendent.
@@ -20,6 +20,6 @@ export default function CheckoutCancelPage() {
       >
         Revoir les formules
       </Link>
-    </main>
+    </div>
   );
 }

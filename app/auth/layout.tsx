@@ -30,7 +30,7 @@ export default function AuthLayout({
       </header>
 
       {/* Contenu centré */}
-      <main className="flex-1 flex items-center justify-center px-5 py-8">
+      <main id="main" className="flex-1 flex items-center justify-center px-5 py-8">
         {children}
       </main>
 

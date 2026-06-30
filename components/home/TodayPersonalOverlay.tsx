@@ -69,7 +69,7 @@ export function TodayPersonalOverlay({
       <div className="rounded-[14px] border border-sand-200 bg-white p-4">
         <Header />
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-600">
-          Loggue tes prises et ton carnet personnalisera ce créneau : où et quand elles tombent
+          Logue tes prises et ton carnet personnalisera ce créneau : où et quand elles tombent
           vraiment, rien que pour toi.
         </p>
       </div>

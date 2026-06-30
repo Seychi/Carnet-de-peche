@@ -40,7 +40,7 @@ export default async function ProfilPage() {
   const hasCatches = !!stats && stats.totalCount > 0
 
   return (
-    <main className="bg-sand-50 min-h-screen py-12">
+    <div className="bg-sand-50 min-h-screen py-12">
       <div className="max-w-[760px] mx-auto px-6">
         <div className="mb-8">
           <p className="mb-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
@@ -80,6 +80,6 @@ export default async function ProfilPage() {
 
         <ProfileForm profile={profile as Profile} email={user.email ?? ''} />
       </div>
-    </main>
+    </div>
   )
 }

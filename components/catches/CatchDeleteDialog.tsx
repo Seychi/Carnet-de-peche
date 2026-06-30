@@ -33,7 +33,7 @@ export default function CatchDeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Supprimer cette prise ?</AlertDialogTitle>
+          <AlertDialogTitle>Supprimer cette prise ?</AlertDialogTitle>
           <AlertDialogDescription>
             Cette action est irréversible. La prise et sa photo seront définitivement supprimées.
           </AlertDialogDescription>

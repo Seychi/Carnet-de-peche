@@ -78,10 +78,13 @@ export function PokedexGrid({ pokedex, className }: { pokedex: Pokedex; classNam
                 {c.biggest != null ? ` · ~${c.biggest} cm` : ''}
               </p>
             ) : (
-              <p className="mt-0.5 text-[10.5px] text-ink-300">à débloquer</p>
+              <p className="mt-0.5 text-[10.5px] text-ink-600">à débloquer</p>
             )}
             <span className="sr-only">
-              {c.label} : {c.captured ? `capturée, ${c.count} prise(s)` : 'pas encore capturée'}
+              {c.label} :{' '}
+              {c.captured
+                ? `capturé${c.gender === 'f' ? 'e' : ''}, ${c.count} prise(s)`
+                : `pas encore capturé${c.gender === 'f' ? 'e' : ''}`}
             </span>
           </li>
         ))}

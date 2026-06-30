@@ -119,7 +119,7 @@ export default async function DepartmentFeedPage({
   }
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       <div className="mx-auto flex max-w-[680px] flex-col gap-4 px-4 py-6">
         <header>
           <p className="mb-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
@@ -189,6 +189,6 @@ export default async function DepartmentFeedPage({
           recentCatches={(recent ?? []) as RecentCatch[]}
         />
       </div>
-    </main>
+    </div>
   )
 }

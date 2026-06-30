@@ -303,8 +303,8 @@ export function PostComposer({
         onChange={handleComposerChange}
         rows={3}
         maxLength={2000}
-        placeholder="Quoi de neuf sur le bord ?"
-        className="w-full resize-none text-[15px] focus:outline-none placeholder:text-ink-300"
+        placeholder="Quoi de neuf sur le bord ?"
+        className="w-full resize-none text-[15px] focus:outline-none placeholder:text-ink-500"
       />
 
       {/* Aperçu des photos sélectionnées */}

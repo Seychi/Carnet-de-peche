@@ -137,7 +137,7 @@ export default async function PublicProfilePage({
     : null
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       {/* Hero navy (réf profil.html) */}
       <header className="relative overflow-hidden bg-navy-950 text-white">
         <Bathy opacity={0.3} />
@@ -286,7 +286,7 @@ export default async function PublicProfilePage({
           )}
         </section>
       </div>
-    </main>
+    </div>
   )
 }
 

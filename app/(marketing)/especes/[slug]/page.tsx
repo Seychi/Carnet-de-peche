@@ -84,7 +84,7 @@ async function fetchCatches30d(dbKey: string): Promise<number> {
 
 const ACTIVITY_DOTS: Record<1 | 2 | 3, { label: string; cls: string }> = {
   1: { label: 'Calme', cls: 'text-ink-500' },
-  2: { label: 'Bonne', cls: 'text-gold-500' },
+  2: { label: 'Bonne', cls: 'text-gold-700' },
   3: { label: 'Pleine saison', cls: 'text-teal-700' },
 }
 

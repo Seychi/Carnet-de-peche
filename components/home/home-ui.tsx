@@ -62,10 +62,10 @@ export function CockpitSection({
       className={`rounded-[18px] border border-sand-200 bg-white p-5 sm:p-6 ${className ?? ''}`}
     >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-700">
+        <h2 className="inline-flex items-center gap-1.5 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-700">
           {icon}
           {title}
-        </span>
+        </h2>
         {action ? (
           <Link
             href={action.href}

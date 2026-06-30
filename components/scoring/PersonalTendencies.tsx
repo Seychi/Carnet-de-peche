@@ -55,7 +55,7 @@ export function PersonalTendencies({ data, speciesLabel, scopeLabel, compact, cl
       <div className={wrap}>
         <Header compact={compact} />
         <p className="mt-2 text-[13.5px] leading-relaxed text-ink-600">
-          Loggue tes prises{suffix} pour voir où et quand elles tombent. Plus tu logues, plus ton
+          Logue tes prises{suffix} pour voir où et quand elles tombent. Plus tu logues, plus ton
           carnet te parle.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

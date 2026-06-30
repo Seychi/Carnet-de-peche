@@ -3,6 +3,7 @@
 import { useState, useEffect, startTransition } from 'react'
 import { Menu, X, LogOut, User, BookOpen, CreditCard, MessageCircle, Users, Handshake } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/actions/auth'
 
 const NAV_ITEMS = [
@@ -20,6 +21,7 @@ interface MobileNavProps {
 
 export function MobileNav({ isAuthenticated = false, username = null }: MobileNavProps) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -56,16 +58,21 @@ export function MobileNav({ isAuthenticated = false, username = null }: MobileNa
           >
             <nav className="mx-auto max-w-[1280px] px-6 pb-6">
               <div className="flex flex-col">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="text-[17px] font-medium text-ink-700 hover:text-navy-900 py-4 border-b border-ink-100 last:border-0 transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {NAV_ITEMS.map((item) => {
+                  const active =
+                    pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      aria-current={active ? 'page' : undefined}
+                      className="text-[17px] font-medium text-ink-700 hover:text-navy-900 py-4 border-b border-ink-100 last:border-0 transition-colors aria-[current=page]:font-semibold aria-[current=page]:text-navy-900"
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                })}
               </div>
 
               {isAuthenticated ? (

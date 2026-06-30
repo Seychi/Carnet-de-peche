@@ -51,7 +51,7 @@ export function AppShell({
       <div className="flex-1 desk:grid desk:grid-cols-[232px_1fr]">
         <AppSidebar homeDepartment={homeDepartment} />
         {/* pb mobile = hauteur tab bar + safe-area, pour ne rien masquer */}
-        <main className="min-w-0 pb-[88px] desk:pb-0">{children}</main>
+        <main id="main" className="min-w-0 pb-[88px] desk:pb-0">{children}</main>
       </div>
       <TabBar isModerator={isModerator} homeDepartment={homeDepartment} />
     </div>

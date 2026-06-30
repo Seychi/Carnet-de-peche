@@ -75,27 +75,27 @@ const trustItems = [
 
 const faqItems = [
   {
-    q: 'Pourquoi pas 100% gratuit ?',
+    q: 'Pourquoi pas 100% gratuit ?',
     a: 'Les apps « gratuites pour toujours » finissent par vendre tes données ou mourir. Nos abonnés financent des données marines précises et un produit qui dure. Pas de pub, jamais.',
   },
   {
-    q: "Comment fonctionne l'essai 7 jours ?",
+    q: "Comment fonctionne l’essai 7 jours ?",
     a: "Tu rentres ta CB, tu utilises tout pendant 7 jours. Tu n'es pas convaincu ? On te rembourse intégralement ton premier paiement, dans les 30 jours suivant la facturation. Le plan Découverte, lui, reste gratuit et sans CB.",
   },
   {
-    q: 'Je peux annuler quand ?',
+    q: 'Je peux annuler quand ?',
     a: "Quand tu veux, en ligne, depuis ton compte, sans contact ni justification. Tu gardes l'accès jusqu'à la fin de la période payée. Et dans les 30 jours qui suivent ta première facture, tu peux demander un remboursement intégral.",
   },
   {
-    q: "L'app fonctionne-t-elle sans connexion ?",
+    q: "L’app fonctionne-t-elle sans connexion ?",
     a: "Le mode hors ligne est en cours de développement. Pour l'instant, l'app se souvient des pages et fiches spots récemment visitées, pratique dans les zones à faible réseau.",
   },
   {
-    q: 'Tu couvres toute la France ?',
+    q: 'Tu couvres toute la France ?',
     a: "On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec 157 spots curés et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner. Un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
   },
   {
-    q: 'Et mes données ?',
+    q: 'Et mes données ?',
     a: "Tes prises t'appartiennent. Hébergement en France (UE), spots privés par défaut, floutage GPS systématique avant tout partage public. Tu choisis ce que tu partages, prise par prise.",
   },
 ]

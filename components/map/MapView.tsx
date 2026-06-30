@@ -744,7 +744,12 @@ export default function MapView({
 
   return (
     <div className={className} style={{ position: 'relative', minHeight: '100%' }}>
-      <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      <div
+        ref={containerRef}
+        role="application"
+        aria-label="Carte des spots de pêche"
+        style={{ position: 'absolute', inset: 0 }}
+      />
       {/* Lecture coords + zoom — la donnée est l'ornement (DA v2) */}
       {loaded && interactive && (
         <span

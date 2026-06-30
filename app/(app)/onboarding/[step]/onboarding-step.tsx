@@ -247,7 +247,7 @@ export function OnboardingStep({
     const result = await saveOnboardingStep(1, { username: values.username });
     setSaving(false);
     if (result.error) {
-      toast.error("Oups, une erreur. Réessaie ?");
+      toast.error("Oups, une erreur. Réessaie ?");
       return;
     }
     startTransition(() => router.push("/onboarding/2"));
@@ -260,7 +260,7 @@ export function OnboardingStep({
       home_department: values.home_department,
     });
     setSaving(false);
-    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
+    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     startTransition(() => router.push("/onboarding/3"));
   }
 
@@ -272,7 +272,7 @@ export function OnboardingStep({
     setSaving(true);
     const result = await saveOnboardingStep(3, { techniques });
     setSaving(false);
-    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
+    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     startTransition(() => router.push("/onboarding/4"));
   }
 
@@ -284,7 +284,7 @@ export function OnboardingStep({
     setSaving(true);
     const result = await saveOnboardingStep(4, { favorite_species: species });
     setSaving(false);
-    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
+    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     startTransition(() => router.push("/onboarding/5"));
   }
 
@@ -296,7 +296,7 @@ export function OnboardingStep({
     setSaving(true);
     const result = await saveOnboardingStep(5, { level });
     setSaving(false);
-    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
+    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     startTransition(() => router.push("/onboarding/6"));
   }
 
@@ -307,7 +307,7 @@ export function OnboardingStep({
       years_practicing: values.years_practicing,
     });
     setSaving(false);
-    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
+    if (result.error) { toast.error("Oups, une erreur. Réessaie ?"); return; }
     // Écran final « Ton carnet est prêt » (DA v2, frame 07) — remplace le toast.
     startTransition(() => router.push("/onboarding/fini"));
   }
@@ -348,7 +348,7 @@ export function OnboardingStep({
         {step === 1 && (
           <StepWrapper
             title="Choisis ton pseudo"
-            subtitle="C'est le nom que la communauté verra. Tu peux le changer plus tard."
+            subtitle="C’est le nom que la communauté verra. Tu peux le changer plus tard."
           >
             <Form {...form1}>
               <form onSubmit={form1.handleSubmit(handleStep1)} className="flex flex-col gap-5">
@@ -383,7 +383,7 @@ export function OnboardingStep({
 
         {step === 2 && (
           <StepWrapper
-            title="D'où tu pêches ?"
+            title="D’où tu pêches ?"
             subtitle="Ton département principal pour personnaliser les spots et les conditions."
           >
             <Form {...form2}>
@@ -436,7 +436,7 @@ export function OnboardingStep({
         {step === 3 && (
           <StepWrapper
             title="Tes techniques"
-            subtitle="Comment tu pêches le plus souvent ? Tu peux en choisir plusieurs."
+            subtitle="Comment tu pêches le plus souvent ? Tu peux en choisir plusieurs."
           >
             <div className="flex flex-col gap-6">
               <ChipSelect
@@ -457,7 +457,7 @@ export function OnboardingStep({
         {step === 4 && (
           <StepWrapper
             title="Tes espèces favorites"
-            subtitle="Quelles espèces est-ce que tu chasses en priorité ?"
+            subtitle="Quelles espèces est-ce que tu chasses en priorité ?"
           >
             <div className="flex flex-col gap-6">
               <ChipSelect
@@ -536,7 +536,7 @@ export function OnboardingStep({
               <form onSubmit={form6.handleSubmit(handleStep6)} className="flex flex-col gap-6">
                 <div>
                   <p className="text-[14px] font-semibold text-ink-900 mb-3">
-                    À quelle fréquence tu pêches ?
+                    À quelle fréquence tu pêches ?
                   </p>
                   <div className="flex flex-col gap-3">
                     {FREQUENCY_LABELS.map((f) => {
@@ -580,7 +580,7 @@ export function OnboardingStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[14px] font-semibold">
-                        Depuis combien d&apos;années tu pêches ?
+                        Depuis combien d&apos;années tu pêches ?
                       </FormLabel>
                       <FormControl>
                         <Input

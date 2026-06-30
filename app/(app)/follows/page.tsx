@@ -34,7 +34,7 @@ export default async function FollowsPage() {
   const followingIds = new Set(followingList.map((u) => u.id))
 
   return (
-    <main className="bg-sand-50 min-h-screen">
+    <div className="bg-sand-50 min-h-screen">
       <div className="mx-auto flex max-w-[680px] flex-col gap-8 px-4 py-6">
         <h1 className="font-display text-2xl text-navy-900">Tes pêcheurs</h1>
 
@@ -64,7 +64,7 @@ export default async function FollowsPage() {
           </Section>
         )}
       </div>
-    </main>
+    </div>
   )
 }
 

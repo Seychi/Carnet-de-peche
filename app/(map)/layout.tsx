@@ -10,7 +10,7 @@ export default function MapLayout({ children }: { children: React.ReactNode }) {
       <div className="hidden md:block shrink-0">
         <Header />
       </div>
-      <main className="flex-1 min-h-0">{children}</main>
+      <main id="main" className="flex-1 min-h-0">{children}</main>
     </div>
   )
 }

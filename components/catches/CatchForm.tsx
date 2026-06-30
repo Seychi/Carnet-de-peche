@@ -658,10 +658,11 @@ export function CatchForm(props: CatchFormProps) {
 
         <div className="mt-3">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-[13px] text-ink-600">Taille (cm)</label>
+            <label htmlFor="size_cm" className="text-[13px] text-ink-600">Taille (cm)</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
+                id="size_cm"
                 min={10}
                 max={200}
                 step={1}
@@ -802,9 +803,10 @@ export function CatchForm(props: CatchFormProps) {
         </div>
 
         <div className="mt-4">
-          <label className="text-[13px] text-ink-600">Poids (kg)</label>
+          <label htmlFor="weight_kg" className="text-[13px] text-ink-600">Poids (kg)</label>
           <input
             type="number"
+            id="weight_kg"
             min={0.05}
             max={30}
             step={0.05}
@@ -1040,9 +1042,10 @@ export function CatchForm(props: CatchFormProps) {
           <div className="mt-3 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[12px] text-ink-500 mb-1 block">Latitude</label>
+                <label htmlFor="latitude" className="text-[12px] text-ink-500 mb-1 block">Latitude</label>
                 <input
                   type="number"
+                  id="latitude"
                   step="any"
                   placeholder="ex : 48.2744"
                   {...register('latitude', {
@@ -1053,9 +1056,10 @@ export function CatchForm(props: CatchFormProps) {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-ink-500 mb-1 block">Longitude</label>
+                <label htmlFor="longitude" className="text-[12px] text-ink-500 mb-1 block">Longitude</label>
                 <input
                   type="number"
+                  id="longitude"
                   step="any"
                   placeholder="ex : -4.5765"
                   {...register('longitude', {
@@ -1142,7 +1146,7 @@ export function CatchForm(props: CatchFormProps) {
 
         <div className="mt-3">
           <div className="flex justify-between items-baseline mb-1.5">
-            <label className="text-[13px] text-ink-600">Notes</label>
+            <label htmlFor="notes" className="text-[13px] text-ink-600">Notes</label>
             <span
               className={`text-[11px] ${watchedNotes.length > 900 ? 'text-amber-600 font-medium' : 'text-slate-400'}`}
             >
@@ -1150,6 +1154,7 @@ export function CatchForm(props: CatchFormProps) {
             </span>
           </div>
           <textarea
+            id="notes"
             {...register('notes')}
             {...trackFocus('notes')}
             placeholder="Vent, technique de récupération, ambiance du spot…"

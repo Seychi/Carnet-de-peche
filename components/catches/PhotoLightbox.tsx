@@ -1,12 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 
 /**
  * Lightbox plein écran de PhotoViewer, chargée en lazy (sprint 11 Bloc F) :
  * montée uniquement au clic sur la photo, elle sort du first load de
- * /carnet/[id]. Fermeture : clic sur l'overlay, bouton ✕ ou touche Échap.
+ * /carnet/[id]. Vrai dialog accessible (role/aria-modal, focus à l'ouverture,
+ * retour du focus au déclencheur à la fermeture, sprint 56), aligné sur son
+ * jumeau PhotoGalleryLightbox. Fermeture : overlay, bouton ✕ ou touche Échap.
  */
 export default function PhotoLightbox({
   src,
@@ -17,6 +19,16 @@ export default function PhotoLightbox({
   alt: string
   onClose: () => void
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  // Place le focus dans la lightbox à l'ouverture, le rend au déclencheur à la
+  // fermeture (clavier / lecteur d'écran).
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    dialogRef.current?.focus()
+    return () => previouslyFocused?.focus?.()
+  }, [])
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -27,7 +39,12 @@ export default function PhotoLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+      ref={dialogRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt || 'Photo en plein écran'}
+      className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4 outline-none"
       onClick={onClose}
     >
       <button

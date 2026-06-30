@@ -73,6 +73,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning>
+        {/* Skip-link a11y : premier élément focusable, masqué jusqu'au focus
+            clavier, saute au <main id="main"> du layout de groupe (sprint 56). */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-navy-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Aller au contenu
+        </a>
         <PostHogProvider>
           {children}
           <Toaster position="top-center" richColors />

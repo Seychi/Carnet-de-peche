@@ -15,6 +15,8 @@ export type PokedexCard = {
   count: number
   /** Plus grande taille loguée pour cette espèce (cm), si renseignée. DÉCLARATIF. */
   biggest: number | null
+  /** Genre grammatical, pour accorder « capturé »/« capturée » (a11y). */
+  gender: 'm' | 'f'
 }
 
 export type Pokedex = {
@@ -55,6 +57,7 @@ export function buildPokedex(breakdown: CatchBreakdown | null): Pokedex {
         captured: count > 0,
         count,
         biggest: hit?.avgSize != null && hit.avgSize > 0 ? Math.round(hit.avgSize) : null,
+        gender: meta.gender,
       }
     },
   )

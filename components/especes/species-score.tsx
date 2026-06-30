@@ -126,7 +126,7 @@ export async function SpeciesScore({
           href="/tarifs"
           className="mt-3 block rounded-[10px] bg-gold-500/15 px-3 py-2 text-center text-[12px] font-semibold text-[#A87C20] transition-colors hover:bg-gold-500/25"
         >
-          Ajoute ton historique perso au score — Itinérant
+          Ajoute ton historique perso au score (Itinérant)
         </Link>
       )}
 

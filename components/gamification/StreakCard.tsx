@@ -46,7 +46,7 @@ function Stat({ value, label, hint }: { value: string; label: string; hint?: str
     <div className="rounded-[10px] bg-slate-50 px-3 py-2 text-center">
       <p className="font-mono text-[18px] font-bold leading-none text-navy-900 tabular-nums">{value}</p>
       <p className="mt-1 text-[10px] uppercase tracking-wide text-ink-400">{label}</p>
-      {hint && <p className="mt-0.5 text-[9px] text-ink-300">{hint}</p>}
+      {hint && <p className="mt-0.5 text-[9px] text-ink-600">{hint}</p>}
     </div>
   )
 }

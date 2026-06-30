@@ -148,7 +148,7 @@ export function CatchGrid({
               ← Précédent
             </Link>
           ) : (
-            <span className="px-4 py-2 text-[13px] text-ink-300 border border-sand-200 rounded-[10px]">
+            <span className="px-4 py-2 text-[13px] text-ink-500 border border-sand-200 rounded-[10px]">
               ← Précédent
             </span>
           )}
@@ -165,7 +165,7 @@ export function CatchGrid({
               Suivant →
             </Link>
           ) : (
-            <span className="px-4 py-2 text-[13px] text-ink-300 border border-sand-200 rounded-[10px]">
+            <span className="px-4 py-2 text-[13px] text-ink-500 border border-sand-200 rounded-[10px]">
               Suivant →
             </span>
           )}

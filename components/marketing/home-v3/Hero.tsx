@@ -10,6 +10,7 @@ import { TagData } from '@/components/ui-v2/tag-data'
 import { AnimatedCounter } from '@/components/ui-v2/animated-counter'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { HeroPrimaryCta } from '@/components/marketing/HeroPrimaryCta'
+import { REGISTER_CTA_LABEL } from '@/lib/marketing/cta'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { gsap, useGSAP } from '@/components/marketing/motion/gsap'
@@ -240,7 +241,7 @@ export function Hero({
           <div data-hero-line className="mt-8 flex flex-wrap gap-3.5">
             <HeroPrimaryCta
               className={BTN_ACCENT}
-              registerLabel="Créer mon carnet — gratuit"
+              registerLabel={REGISTER_CTA_LABEL}
               event={v.registerEvent}
             />
             <Link ref={exploreRef} href="/carte" className={BTN_GHOST_DARK}>
