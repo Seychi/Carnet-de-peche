@@ -57,13 +57,19 @@ export async function generateMetadata({
   if (!(slug in SPECIES)) return { title: 'Espèce introuvable — Carnet de Pêche' }
   const species = SPECIES[slug as SpeciesSlug]
   const canonical = `${BASE_URL}/especes/${slug}`
-  const title = `${species.label} (${species.latin}) : pêche du bord, saisons, taille légale`
+  // Titre SERP < 65 car. : le nom latin sort du <title> (conservé en H1, OG et
+  // JSON-LD) ; suffixe marque ajouté seulement s'il rentre (sprint 57 WS-C). Avant :
+  // « {label} ({latin}) : … saisons, taille légale · Carnet de Pêche » ~88-91 car.,
+  // tronqué par Google.
+  const baseTitle = `${species.label} : pêche du bord, saisons & taille légale`
+  const title = baseTitle.length <= 46 ? `${baseTitle} · Carnet de Pêche` : baseTitle
+  const ogTitle = `${species.label} (${species.latin}) : pêche du bord`
   const description = `La fiche complète ${species.articleDe}${species.labelLower} pour la canne du bord : taille légale vérifiée, saisons par façade, techniques, postes selon les conditions, prises récentes de la communauté.`
   return {
-    title: `${title} · Carnet de Pêche`,
+    title,
     description,
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, type: 'article', locale: 'fr_FR' },
+    openGraph: { title: ogTitle, description, url: canonical, type: 'article', locale: 'fr_FR' },
   }
 }
 

@@ -14,7 +14,15 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.carnet-de-peche.com/tarifs' },
 }
 
-// JSON-LD : les 3 formules (0 / 4,90 / 9,90 €) pour les rich results Google.
+// priceValidUntil glissant (~1 an) : évite que la date passe et fasse réapparaître
+// le warning Rich Results. Réévalué à chaque démarrage serveur (page force-dynamic).
+const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10)
+
+// JSON-LD : les 2 formules PAYANTES en AggregateOffer (sprint 57 WS-C). Le tier
+// Découverte (0 €) n'est pas un SKU achetable → retiré du Product (sinon warning
+// « offre à 0 »). lowPrice/highPrice = Local/Itinérant.
 const TARIFS_JSONLD = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -22,32 +30,16 @@ const TARIFS_JSONLD = {
   description:
     'Carnet de pêche numérique et carte des spots pour la pêche à la canne du bord en France.',
   brand: { '@type': 'Organization', name: 'Carnet de Pêche' },
-  offers: [
-    {
-      '@type': 'Offer',
-      name: 'Découverte',
-      price: '0',
-      priceCurrency: 'EUR',
-      url: 'https://www.carnet-de-peche.com/tarifs',
-      availability: 'https://schema.org/InStock',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Local',
-      price: '4.90',
-      priceCurrency: 'EUR',
-      url: 'https://www.carnet-de-peche.com/tarifs',
-      availability: 'https://schema.org/InStock',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Itinérant',
-      price: '9.90',
-      priceCurrency: 'EUR',
-      url: 'https://www.carnet-de-peche.com/tarifs',
-      availability: 'https://schema.org/InStock',
-    },
-  ],
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'EUR',
+    lowPrice: '4.90',
+    highPrice: '9.90',
+    offerCount: 2,
+    priceValidUntil,
+    availability: 'https://schema.org/InStock',
+    url: 'https://www.carnet-de-peche.com/tarifs',
+  },
 }
 
 const trustItems = [

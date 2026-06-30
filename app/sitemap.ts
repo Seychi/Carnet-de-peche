@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Spots publics — inclut lastModified pour signaler les mises à jour à Google
   const { data: spots } = await supabase
     .from('spots')
-    .select('slug, updated_at, created_at')
+    .select('slug, updated_at, created_at, department, species')
     .eq('visibility', 'public')
 
   const spotPages: MetadataRoute.Sitemap = (spots ?? []).map((s) => ({
@@ -40,6 +40,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
     changeFrequency: 'monthly',
   }))
+
+  // Landings /spots filtrées (sprint 57 WS-C, décision John « landing SEO ») : une
+  // page par DÉPARTEMENT et par ESPÈCE ayant au moins un spot public (facette simple
+  // = contenu réel groupé). Pas de produit croisé dept×espèce (pages trop minces) :
+  // ces combos restent atteignables/indexables mais non déclarés. URLs alignées sur
+  // le canonical auto-émis par /spots (generateMetadata).
+  const deptSet = new Set<string>()
+  const speciesSet = new Set<string>()
+  for (const s of spots ?? []) {
+    if (s.department) deptSet.add(String(s.department).trim())
+    for (const sp of (s.species as string[] | null) ?? []) if (sp) speciesSet.add(sp)
+  }
+  const spotsFacetPages: MetadataRoute.Sitemap = [
+    ...[...deptSet].map((code) => ({
+      url: `${BASE_URL}/spots?dept=${code}`,
+      priority: 0.6,
+      changeFrequency: 'weekly' as const,
+    })),
+    ...[...speciesSet].map((sp) => ({
+      url: `${BASE_URL}/spots?species=${sp}`,
+      priority: 0.6,
+      changeFrequency: 'weekly' as const,
+    })),
+  ]
 
   // Guides MDX — lus depuis content/guides/ (sprint 10 Bloc 1)
   const guides = await getAllGuides()
@@ -64,5 +88,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly',
   }))
 
-  return [...staticPages, ...spotPages, ...guidePages, ...programmaticPages, ...especePages]
+  return [...staticPages, ...spotPages, ...spotsFacetPages, ...guidePages, ...programmaticPages, ...especePages]
 }

@@ -30,7 +30,7 @@ function Card({
   icon: React.ReactNode
   title: string
   value: string
-  detail?: string | null
+  detail?: React.ReactNode
 }) {
   return (
     <div className="bg-white border border-sand-200 rounded-[14px] p-4">
@@ -61,7 +61,17 @@ export default function WeatherGrid({ weather }: Props) {
         icon={<WeatherIcon name={iconName} />}
         title="Météo"
         value={weather.air_temp_c !== null ? `${Math.round(weather.air_temp_c)}°C` : '—'}
-        detail={[wmoLabel(weather.code), tempRange].filter(Boolean).join(' · ') || undefined}
+        detail={
+          <>
+            {wmoLabel(weather.code)}
+            {tempRange && (
+              <>
+                {' · '}
+                <span className="font-mono tabular-nums">{tempRange}</span>
+              </>
+            )}
+          </>
+        }
       />
 
       {/* Vent */}
@@ -78,7 +88,7 @@ export default function WeatherGrid({ weather }: Props) {
         title="Précipitations"
         value={weather.precipitation_mm !== null ? `${weather.precipitation_mm.toFixed(1)} mm` : '—'}
         detail={weather.precipitation_probability !== null
-          ? `${Math.round(weather.precipitation_probability)} % de risque`
+          ? <><span className="font-mono tabular-nums">{Math.round(weather.precipitation_probability)} %</span> de risque</>
           : undefined}
       />
 
@@ -88,7 +98,7 @@ export default function WeatherGrid({ weather }: Props) {
         title="Pression"
         value={weather.pressure_hpa !== null ? `${Math.round(weather.pressure_hpa)} hPa` : '—'}
         detail={weather.cloud_cover_pct !== null
-          ? `${Math.round(weather.cloud_cover_pct)} % de nébulosité`
+          ? <><span className="font-mono tabular-nums">{Math.round(weather.cloud_cover_pct)} %</span> de nébulosité</>
           : undefined}
       />
 
@@ -98,7 +108,7 @@ export default function WeatherGrid({ weather }: Props) {
         title="Température"
         value={weather.air_temp_c !== null ? `${Math.round(weather.air_temp_c)}°C` : '—'}
         detail={weather.humidity_pct !== null
-          ? `Humidité ${Math.round(weather.humidity_pct)} %`
+          ? <>Humidité <span className="font-mono tabular-nums">{Math.round(weather.humidity_pct)} %</span></>
           : undefined}
       />
 

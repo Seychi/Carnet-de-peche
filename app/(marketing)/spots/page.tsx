@@ -69,6 +69,33 @@ async function fetchPublicSpots(dept?: string, species?: string): Promise<SpotRo
   return (data ?? []) as SpotRow[]
 }
 
+// Facettes pour le maillage interne (sprint 57 WS-C) : départements et espèces ayant
+// au moins un spot public → liens vers les landings /spots?dept= / /spots?species=.
+// Requête légère (2 colonnes), mise en cache par `revalidate=3600`.
+async function fetchSpotFacets(): Promise<{ depts: string[]; species: string[] }> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('spots')
+    .select('department, species')
+    .eq('visibility', 'public')
+  const depts = new Set<string>()
+  const species = new Set<string>()
+  for (const s of data ?? []) {
+    if (s.department) depts.add(String(s.department).trim())
+    for (const sp of (s.species as string[] | null) ?? []) if (sp) species.add(sp)
+  }
+  const deptList = [...depts].sort((a, b) => {
+    const na = parseInt(a)
+    const nb = parseInt(b)
+    if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb
+    return a.localeCompare(b)
+  })
+  const speciesList = [...species].sort((a, b) =>
+    (SPECIES_LABELS[a] ?? a).localeCompare(SPECIES_LABELS[b] ?? b),
+  )
+  return { depts: deptList, species: speciesList }
+}
+
 function groupByDepartment(spots: SpotRow[]): [string, SpotRow[]][] {
   const map = new Map<string, SpotRow[]>()
   for (const spot of spots) {
@@ -164,7 +191,10 @@ function SpotCard({ spot }: { spot: SpotRow }) {
 
 export default async function SpotsPage({ searchParams }: Props) {
   const { dept, species } = await searchParams
-  const spots = await fetchPublicSpots(dept, species)
+  const [spots, facets] = await Promise.all([
+    fetchPublicSpots(dept, species),
+    fetchSpotFacets(),
+  ])
 
   if (spots.length > 500) {
     console.warn(
@@ -315,6 +345,50 @@ export default async function SpotsPage({ searchParams }: Props) {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ── Maillage interne : landings par département & espèce (SEO) ───── */}
+      <section className="bg-sand-50 pb-12">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <h2 className="font-display text-navy-900 text-xl mb-5">Explorer les spots</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-ink-500 mb-3">
+                Par département
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {facets.depts.map((code) => (
+                  <Link
+                    key={code}
+                    href={`/spots?dept=${code}`}
+                    aria-current={dept === code ? 'page' : undefined}
+                    className="inline-flex items-center gap-1.5 text-[13px] rounded-full border border-ink-200 bg-white px-3 py-1.5 text-ink-700 transition-colors hover:border-teal-500/50 hover:text-teal-700 aria-[current=page]:border-teal-500 aria-[current=page]:bg-teal-500/10 aria-[current=page]:font-semibold aria-[current=page]:text-teal-700"
+                  >
+                    {DEPARTMENT_LABELS[code] ?? code}
+                    <span className="font-mono text-ink-400">{code}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-ink-500 mb-3">
+                Par espèce
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {facets.species.map((sp) => (
+                  <Link
+                    key={sp}
+                    href={`/spots?species=${sp}`}
+                    aria-current={species === sp ? 'page' : undefined}
+                    className="text-[13px] rounded-full border border-ink-200 bg-white px-3 py-1.5 text-ink-700 transition-colors hover:border-teal-500/50 hover:text-teal-700 aria-[current=page]:border-teal-500 aria-[current=page]:bg-teal-500/10 aria-[current=page]:font-semibold aria-[current=page]:text-teal-700"
+                  >
+                    {SPECIES_LABELS[sp] ?? sp}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
