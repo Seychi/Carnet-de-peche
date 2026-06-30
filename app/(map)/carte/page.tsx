@@ -150,6 +150,11 @@ export default async function CartePage({
 
   // Départements disponibles pour le sélecteur itinérant
   const availableDepartments = [...new Set(spots.map((s) => s.department))].sort()
+  // Espèces / sources réellement présentes parmi les spots chargés : pilotent les
+  // chips de filtre et la légende (évite les chips/lignes fantômes à 0 résultat ;
+  // les espèces réapparaissent automatiquement dès que le S53 les tague).
+  const availableSpecies = [...new Set(spots.flatMap((s) => s.species))].sort()
+  const availableSources = [...new Set(spots.map((s) => s.source).filter(Boolean))] as string[]
 
   // Ne restaure pas les filtres URL pour les tiers gratuits
   const initialFilters = isPaid ? urlFilters : {}
@@ -175,6 +180,8 @@ export default async function CartePage({
         initialFilters={initialFilters}
         userDepartment={homeDept ?? undefined}
         availableDepartments={availableDepartments}
+        availableSpecies={availableSpecies}
+        availableSources={availableSources}
       />
     </>
   )

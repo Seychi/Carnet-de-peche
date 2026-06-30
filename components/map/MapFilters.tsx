@@ -47,6 +47,10 @@ export type MapFiltersProps = {
   initialFilters: SpotFilters
   userTier: UserTier
   availableDepartments?: string[]
+  /** Espèces réellement présentes (pilote les chips, évite les chips à 0 résultat). */
+  availableSpecies?: string[]
+  /** Sources réellement présentes (la section Provenance se masque sous 2 sources). */
+  availableSources?: string[]
   userDepartment?: string
   onFiltersChange?: (filters: SpotFilters) => void
   onApply?: (filters: SpotFilters) => void
@@ -134,6 +138,8 @@ export default function MapFilters({
   initialFilters,
   userTier,
   availableDepartments = [],
+  availableSpecies = [],
+  availableSources = [],
   userDepartment,
   onFiltersChange,
   onApply,
@@ -158,6 +164,18 @@ export default function MapFilters({
       const saved = localStorage.getItem(LS_KEY)
       if (!saved) return
       const parsed = JSON.parse(saved) as SpotFilters
+      // Nettoyage des filtres orphelins (sprint 52 WS-B) : une source/espèce
+      // sauvegardée qui n'est plus présente dans les données affichées (ex.
+      // 'imported', dont la section est désormais masquée) bloquerait la carte à
+      // 0 résultat sans chip pour la décocher. On ne garde que le réellement présent.
+      if (parsed.source?.length) {
+        const kept = parsed.source.filter((s) => availableSources.includes(s))
+        parsed.source = kept.length ? kept : undefined
+      }
+      if (parsed.species?.length) {
+        const kept = parsed.species.filter((s) => availableSpecies.includes(s))
+        parsed.species = kept.length ? kept : undefined
+      }
       // setState intentionnel au montage : on restaure les filtres depuis
       // localStorage APRÈS le premier render pour éviter un mismatch
       // d'hydratation SSR (le serveur ne connaît pas localStorage).
@@ -291,7 +309,13 @@ export default function MapFilters({
         <div>
           <SectionLabel>Espèces</SectionLabel>
           <div className="grid grid-cols-3 gap-1.5 md:flex md:flex-wrap">
-            {ALL_SPECIES.map((sp) => (
+            {/* Espèces réellement présentes parmi les spots chargés (évite les chips
+                à 0 résultat). Vide (aucun spot) → on retombe sur la liste complète.
+                Dès que le S53 tague les 6 espèces manquantes, elles réapparaissent. */}
+            {(availableSpecies.length > 0
+              ? ALL_SPECIES.filter((sp) => availableSpecies.includes(sp))
+              : ALL_SPECIES
+            ).map((sp) => (
               <FilterChip
                 key={sp}
                 label={SPECIES_LABELS[sp]}
@@ -398,20 +422,24 @@ export default function MapFilters({
           <DifficultyPicker value={filters.difficulty} onChange={setDifficulty} />
         </div>
 
-        {/* Provenance */}
-        <div>
-          <SectionLabel>Provenance</SectionLabel>
-          <div className="grid grid-cols-3 gap-1.5 md:flex md:flex-wrap">
-            {SOURCE_FILTER.map(({ value, label }) => (
-              <FilterChip
-                key={value}
-                label={label}
-                active={filters.source?.includes(value) ?? false}
-                onClick={() => toggleSource(value)}
-              />
-            ))}
+        {/* Provenance — masquée tant qu'il n'y a qu'une source présente (que des
+            spots curés aujourd'hui). Ré-apparaît dès que le curage (S43) approuve
+            des spots communautaires/importés. On n'affiche que les sources réelles. */}
+        {SOURCE_FILTER.filter((s) => availableSources.includes(s.value)).length > 1 && (
+          <div>
+            <SectionLabel>Provenance</SectionLabel>
+            <div className="grid grid-cols-3 gap-1.5 md:flex md:flex-wrap">
+              {SOURCE_FILTER.filter((s) => availableSources.includes(s.value)).map(({ value, label }) => (
+                <FilterChip
+                  key={value}
+                  label={label}
+                  active={filters.source?.includes(value) ?? false}
+                  onClick={() => toggleSource(value)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Footer */}

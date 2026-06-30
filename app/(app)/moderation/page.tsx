@@ -15,6 +15,7 @@ import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
 import ImportsCurationList from '@/components/spots/ImportsCurationList'
 import type { ImportToCurate } from '@/components/spots/CurateSpotForm'
 import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor, RotateCw } from 'lucide-react'
+import { ModActionForm, type ModResult } from './ModActionForm'
 
 export const metadata = { title: 'Modération — Carnet de Pêche' }
 export const dynamic = 'force-dynamic'
@@ -69,37 +70,39 @@ type PendingSpot = {
 // ---------------------------------------------------------------------------
 // Server Actions wrapped pour revalidation de route
 // ---------------------------------------------------------------------------
-async function deletePostAction(formData: FormData) {
+// Signature useActionState (sprint 52 WS-C) : (prevState, formData) → ActionResult.
+// Le résultat est RENVOYÉ (plus avalé) pour être toasté par ModActionForm.
+async function deletePostAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderatorDeletePost(formData.get('postId') as string)
+  return moderatorDeletePost(formData.get('postId') as string)
 }
-async function deleteCommentAction(formData: FormData) {
+async function deleteCommentAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderatorDeleteComment(formData.get('commentId') as string)
+  return moderatorDeleteComment(formData.get('commentId') as string)
 }
-async function dismissReportAction(formData: FormData) {
+async function dismissReportAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await dismissReport(formData.get('reportId') as string)
+  return dismissReport(formData.get('reportId') as string)
 }
-async function approveSpotAction(formData: FormData) {
+async function approveSpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderateApproveSpot(formData.get('spotId') as string)
+  return moderateApproveSpot(formData.get('spotId') as string)
 }
-async function rejectSpotAction(formData: FormData) {
+async function rejectSpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderateRejectSpot(formData.get('spotId') as string)
+  return moderateRejectSpot(formData.get('spotId') as string)
 }
-async function mergeSpotAction(formData: FormData) {
+async function mergeSpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderateMergeSpot(formData.get('spotId') as string)
+  return moderateMergeSpot(formData.get('spotId') as string)
 }
-async function verifySpotAction(formData: FormData) {
+async function verifySpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderateVerifySpot(formData.get('spotId') as string)
+  return moderateVerifySpot(formData.get('spotId') as string)
 }
-async function reverifySpotAction(formData: FormData) {
+async function reverifySpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
-  await moderateReverifySpot(formData.get('spotId') as string)
+  return moderateReverifySpot(formData.get('spotId') as string)
 }
 
 // ---------------------------------------------------------------------------
@@ -197,38 +200,35 @@ function ReportRow({ report }: { report: Report }) {
             </Link>
           </>
         ) : report.target_type === 'post' ? (
-          <form action={deletePostAction}>
-            <input type="hidden" name="postId" value={report.target_id} />
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100"
-            >
-              <Trash2 size={13} aria-hidden="true" />
-              Supprimer le post
-            </button>
-          </form>
-        ) : (
-          <form action={deleteCommentAction}>
-            <input type="hidden" name="commentId" value={report.target_id} />
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100"
-            >
-              <Trash2 size={13} aria-hidden="true" />
-              Supprimer le commentaire
-            </button>
-          </form>
-        )}
-        <form action={dismissReportAction}>
-          <input type="hidden" name="reportId" value={report.id} />
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 rounded-lg border border-ink-200 bg-ink-50 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-ink-100"
+          <ModActionForm
+            action={deletePostAction}
+            hidden={{ postId: report.target_id }}
+            successMessage="Post supprimé."
+            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
           >
-            <X size={13} aria-hidden="true" />
-            Ignorer
-          </button>
-        </form>
+            <Trash2 size={13} aria-hidden="true" />
+            Supprimer le post
+          </ModActionForm>
+        ) : (
+          <ModActionForm
+            action={deleteCommentAction}
+            hidden={{ commentId: report.target_id }}
+            successMessage="Commentaire supprimé."
+            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+          >
+            <Trash2 size={13} aria-hidden="true" />
+            Supprimer le commentaire
+          </ModActionForm>
+        )}
+        <ModActionForm
+          action={dismissReportAction}
+          hidden={{ reportId: report.id }}
+          successMessage="Signalement ignoré."
+          className="flex items-center gap-1.5 rounded-lg border border-ink-200 bg-ink-50 px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:bg-ink-100 disabled:opacity-50"
+        >
+          <X size={13} aria-hidden="true" />
+          Ignorer
+        </ModActionForm>
       </div>
     </div>
   )
@@ -289,47 +289,43 @@ function PendingSpotRow({ spot }: { spot: PendingSpot }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
-        <form action={approveSpotAction}>
-          <input type="hidden" name="spotId" value={spot.id} />
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-500/10 px-3 py-1.5 text-[12px] font-semibold text-teal-700 transition-colors hover:bg-teal-500/20"
-          >
-            <Check size={13} aria-hidden="true" />
-            Approuver
-          </button>
-        </form>
-        <form action={verifySpotAction}>
-          <input type="hidden" name="spotId" value={spot.id} />
-          <button
-            type="submit"
-            className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10"
-            title="Atteste que la coordonnée a été vérifiée à la main (GPS fixe). Approuve aussi le spot et lui donne le badge « Coordonnée vérifiée »."
-          >
-            <BadgeCheck size={13} aria-hidden="true" />
-            Marquer vérifié
-          </button>
-        </form>
-        <form action={mergeSpotAction}>
-          <input type="hidden" name="spotId" value={spot.id} />
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 rounded-lg border border-gold-500/40 bg-gold-500/10 px-3 py-1.5 text-[12px] font-semibold text-ink-700 transition-colors hover:bg-gold-500/20"
-          >
-            <GitMerge size={13} aria-hidden="true" />
-            Doublon
-          </button>
-        </form>
-        <form action={rejectSpotAction}>
-          <input type="hidden" name="spotId" value={spot.id} />
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100"
-          >
-            <X size={13} aria-hidden="true" />
-            Rejeter
-          </button>
-        </form>
+        <ModActionForm
+          action={approveSpotAction}
+          hidden={{ spotId: spot.id }}
+          successMessage="Spot approuvé."
+          className="flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-500/10 px-3 py-1.5 text-[12px] font-semibold text-teal-700 transition-colors hover:bg-teal-500/20 disabled:opacity-50"
+        >
+          <Check size={13} aria-hidden="true" />
+          Approuver
+        </ModActionForm>
+        <ModActionForm
+          action={verifySpotAction}
+          hidden={{ spotId: spot.id }}
+          successMessage="Spot vérifié et publié."
+          title="Atteste que la coordonnée a été vérifiée à la main (GPS fixe). Approuve aussi le spot et lui donne le badge « Coordonnée vérifiée »."
+          className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10 disabled:opacity-50"
+        >
+          <BadgeCheck size={13} aria-hidden="true" />
+          Marquer vérifié
+        </ModActionForm>
+        <ModActionForm
+          action={mergeSpotAction}
+          hidden={{ spotId: spot.id }}
+          successMessage="Spot marqué comme doublon."
+          className="flex items-center gap-1.5 rounded-lg border border-gold-500/40 bg-gold-500/10 px-3 py-1.5 text-[12px] font-semibold text-ink-700 transition-colors hover:bg-gold-500/20 disabled:opacity-50"
+        >
+          <GitMerge size={13} aria-hidden="true" />
+          Doublon
+        </ModActionForm>
+        <ModActionForm
+          action={rejectSpotAction}
+          hidden={{ spotId: spot.id }}
+          successMessage="Spot rejeté."
+          className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+        >
+          <X size={13} aria-hidden="true" />
+          Rejeter
+        </ModActionForm>
       </div>
     </div>
   )
@@ -343,7 +339,6 @@ const SOURCE_LABELS: Record<string, string> = {
   curated: 'Curé',
   community: 'Communauté',
   imported: 'Import',
-  osm: 'OSM',
 }
 
 function ReverifySpotRow({ spot }: { spot: ReverifySpot }) {
@@ -396,17 +391,16 @@ function ReverifySpotRow({ spot }: { spot: ReverifySpot }) {
           <MapPin size={13} aria-hidden="true" />
           Ouvrir la fiche
         </Link>
-        <form action={reverifySpotAction}>
-          <input type="hidden" name="spotId" value={spot.id} />
-          <button
-            type="submit"
-            className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10"
-            title="Re-contrôle la coordonnée à la main et rafraîchit la date de vérification (« vérifié le … » repart à aujourd'hui)."
-          >
-            <RotateCw size={13} aria-hidden="true" />
-            Re-vérifier la coordonnée
-          </button>
-        </form>
+        <ModActionForm
+          action={reverifySpotAction}
+          hidden={{ spotId: spot.id }}
+          successMessage="Coordonnée re-vérifiée."
+          title="Re-contrôle la coordonnée à la main et rafraîchit la date de vérification (« vérifié le … » repart à aujourd'hui)."
+          className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-navy-900/30 bg-navy-900/5 px-3 py-1.5 text-[12px] font-semibold text-navy-900 transition-colors hover:bg-navy-900/10 disabled:opacity-50"
+        >
+          <RotateCw size={13} aria-hidden="true" />
+          Re-vérifier la coordonnée
+        </ModActionForm>
       </div>
     </div>
   )
@@ -477,7 +471,7 @@ export default async function ModerationPage({
   let reverifyTotal = 0
   const reverifyQuery = (qParam ?? '').trim().slice(0, 80)
   const reverifySource =
-    sourceParam && ['curated', 'community', 'imported', 'osm'].includes(sourceParam)
+    sourceParam && ['curated', 'community', 'imported'].includes(sourceParam)
       ? sourceParam
       : null
   const reverifyStatus =
@@ -822,7 +816,7 @@ function ReverifyTab({
             Source
           </span>
           {filterChip('Toutes', buildHref({ source: null, page: null }), selectedSource === null)}
-          {(['curated', 'community', 'imported', 'osm'] as const).map((src) =>
+          {(['curated', 'community', 'imported'] as const).map((src) =>
             filterChip(
               SOURCE_LABELS[src] ?? src,
               buildHref({ source: src, page: null }),

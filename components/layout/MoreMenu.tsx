@@ -42,7 +42,7 @@ function buildGroups(isModerator: boolean): { title?: string; items: Item[] }[] 
       items: [
         { label: 'Espèces', href: '/especes', match: '/especes', Icon: Fish },
         { label: 'Guides', href: '/guides', match: '/guides', Icon: BookOpen },
-        { label: 'Techniques', href: '/techniques', match: '/techniques', Icon: Wrench },
+        { label: 'Techniques (bientôt)', href: '/techniques', match: '/techniques', Icon: Wrench },
       ],
     },
     {

@@ -204,6 +204,12 @@ export default async function SpotsPage({ searchParams }: Props) {
               ? `${spots.length} spot${spots.length > 1 ? 's' : ''} trouvé${spots.length > 1 ? 's' : ''} : fiches détaillées avec conditions météo, marées et prises de la communauté.`
               : "Retrouve tous les spots de pêche à la canne du bord sur le littoral français. Chaque fiche intègre les conditions météo, les marées et les prises récentes pour que tu choisisses le bon spot au bon moment."}
           </p>
+          <Link
+            href="/carte"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+          >
+            Voir sur la carte
+          </Link>
         </div>
       </section>
 

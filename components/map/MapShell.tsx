@@ -95,6 +95,10 @@ type MapShellProps = {
   initialFilters?: SpotFilters
   userDepartment?: string
   availableDepartments?: string[]
+  /** Espèces réellement présentes parmi les spots chargés (pilote les chips de filtre). */
+  availableSpecies?: string[]
+  /** Sources réellement présentes (pilote la section Provenance + la légende). */
+  availableSources?: string[]
 }
 
 type NearbyState = {
@@ -178,6 +182,8 @@ export default function MapShell({
   initialFilters = {},
   userDepartment,
   availableDepartments = [],
+  availableSpecies = [],
+  availableSources = [],
 }: MapShellProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -435,6 +441,8 @@ export default function MapShell({
     userTier,
     userDepartment,
     availableDepartments,
+    availableSpecies,
+    availableSources,
     onFiltersChange: handleFiltersChange,
     spotCount: filteredSpots.length,
   }
@@ -653,7 +661,7 @@ export default function MapShell({
         </button>
 
         {/* Légende qualité + provenance — desktop uniquement (bottom-left) */}
-        <MapLegend />
+        <MapLegend availableSources={availableSources} />
 
         {/* Comptes par département — desktop uniquement (bottom-right) */}
         <DepartmentStats />

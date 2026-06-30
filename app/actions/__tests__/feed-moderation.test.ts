@@ -143,12 +143,34 @@ describe('moderatorDeletePost', () => {
     })
   })
 
-  it('échoue proprement si le post est introuvable', async () => {
-    mock({
+  // Sprint 52 WS-C : un post déjà supprimé (0 ligne) est désormais un succès
+  // idempotent (l'intention est satisfaite) ET le signalement est résolu, plutôt
+  // qu'une erreur trompeuse (« le bouton ne fait rien »).
+  it('traite un post déjà supprimé comme un succès idempotent et résout le signalement', async () => {
+    const supabase = makeSupabase({
       user: USER,
       tables: {
         profiles: { data: { is_moderator: true } },
         feed_posts: { data: [], error: null },
+        reports: [{ error: null }, { error: null }],
+      },
+    })
+    ;(createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(supabase)
+
+    const r = await moderatorDeletePost(POST)
+    expect(r).toEqual({ ok: true, data: { id: POST } })
+
+    // Le signalement est résolu même si le post avait déjà disparu.
+    const touchedReports = supabase.from.mock.calls.some((call) => call[0] === 'reports')
+    expect(touchedReports).toBe(true)
+  })
+
+  it('échoue (erreur surfacée) si la suppression DB renvoie une vraie erreur', async () => {
+    mock({
+      user: USER,
+      tables: {
+        profiles: { data: { is_moderator: true } },
+        feed_posts: { data: null, error: { message: 'db down' } },
       },
     })
     expect((await moderatorDeletePost(POST)).ok).toBe(false)
@@ -170,6 +192,20 @@ describe('moderatorDeleteComment', () => {
         reports: [{ error: null }, { error: null }],
       },
     })
+    expect(await moderatorDeleteComment(COMMENT)).toEqual({ ok: true, data: { id: COMMENT } })
+  })
+
+  // Sprint 52 WS-C : symétrie avec le post (commentaire déjà supprimé = idempotent).
+  it('traite un commentaire déjà supprimé comme un succès idempotent', async () => {
+    const supabase = makeSupabase({
+      user: USER,
+      tables: {
+        profiles: { data: { is_moderator: true } },
+        feed_comments: { data: [], error: null },
+        reports: [{ error: null }, { error: null }],
+      },
+    })
+    ;(createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(supabase)
     expect(await moderatorDeleteComment(COMMENT)).toEqual({ ok: true, data: { id: COMMENT } })
   })
 })

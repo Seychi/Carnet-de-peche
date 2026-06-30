@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/types'
 import type { CatchFilters } from './schema'
@@ -55,6 +56,11 @@ export async function getMyCatches(
 }
 
 export async function getCatchById(id: string): Promise<CatchRow | null> {
+  // Un id non-uuid ferait rejeter PostgREST (22P02) → throw → 500 au lieu d'un 404.
+  // On valide en amont : un id invalide se comporte comme « introuvable » (les
+  // call-sites font notFound() sur null).
+  if (!z.string().uuid().safeParse(id).success) return null
+
   const supabase = await createClient()
 
   const { data, error } = await supabase

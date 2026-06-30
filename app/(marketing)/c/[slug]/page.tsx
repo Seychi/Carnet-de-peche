@@ -79,8 +79,12 @@ function handleLabel(username: string | null | undefined): string | null {
 }
 
 function deptLabel(dept: string | null): string | null {
-  if (!dept) return null
-  return DEPARTMENT_LABELS[dept] ?? dept
+  // spots.department est un char(3) paddé d'espaces ('17 ') : on trime avant le
+  // lookup, sinon DEPARTMENT_LABELS['17 '] est undefined et l'affichage retombe
+  // sur le code paddé (« dans 17 . »). Corrige aussi les cartes déjà en base.
+  const key = dept?.trim()
+  if (!key) return null
+  return DEPARTMENT_LABELS[key] ?? key
 }
 
 function monthLabel(yyyymm: string): string {

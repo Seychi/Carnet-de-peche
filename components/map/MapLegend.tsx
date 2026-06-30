@@ -12,7 +12,7 @@ const ITEMS: { quality: QualityLevel; label: string }[] = [
 // Légende qualité + provenance — desktop uniquement (pas assez de place sur
 // mobile ; l'attribution OSM du fond de carte couvre le mobile via le contrôle
 // d'attribution MapLibre).
-export default function MapLegend() {
+export default function MapLegend({ availableSources = [] }: { availableSources?: string[] }) {
   return (
     <div className="hidden md:flex absolute bottom-4 left-4 z-20 flex-col gap-1.5 px-3 py-2 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-ink-200 text-[11px] text-ink-600">
       {/* Qualité (cividis colorblind-safe) */}
@@ -42,35 +42,31 @@ export default function MapLegend() {
           </span>
           Curé vérifié
         </span>
-        <span className="flex items-center gap-1.5 whitespace-nowrap">
-          <span
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#475569] text-[9px] font-bold text-white"
-            aria-hidden
-          >
-            ~
+        {availableSources.includes('community') && (
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
+            <span
+              className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#475569] text-[9px] font-bold text-white"
+              aria-hidden
+            >
+              ~
+            </span>
+            Communauté
           </span>
-          Communauté
-        </span>
-        <span className="flex items-center gap-1.5 whitespace-nowrap">
-          <span
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#94a3b8] text-[9px] font-bold text-white"
-            aria-hidden
-          >
-            ◦
+        )}
+        {availableSources.includes('imported') && (
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
+            <span
+              className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#94a3b8] text-[9px] font-bold text-white"
+              aria-hidden
+            >
+              ◦
+            </span>
+            Importé
           </span>
-          Importé
-        </span>
-        <span className="flex items-center gap-1.5 whitespace-nowrap">
-          <span
-            className="inline-block h-3.5 w-3.5 rounded-[3px]"
-            style={{ background: 'rgba(229,96,79,0.28)', border: '1.5px dashed #B23A2C' }}
-            aria-hidden
-          />
-          Zone active
-        </span>
+        )}
       </div>
       <p className="text-[10px] text-ink-400">
-        Le badge ✓ marque une coordonnée vérifiée à la main, fixe. Pas un point communautaire ou importé approximatif.
+        Le badge ✓ marque une coordonnée vérifiée à la main, fixe.
       </p>
 
       <p className="text-[10px] text-ink-400">

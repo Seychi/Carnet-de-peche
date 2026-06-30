@@ -34,7 +34,8 @@ const productLinks = [
 const communityLinks = [
   { label: 'Fil régional', href: '/fil' },
   { label: 'Espèces', href: '/especes' },
-  { label: 'Techniques', href: '/techniques' },
+  // Stub liste d'attente (page noindex) : libellé honnête tant que les guides ne sont pas livrés.
+  { label: 'Techniques (bientôt)', href: '/techniques' },
 ]
 
 const legalLinks = [

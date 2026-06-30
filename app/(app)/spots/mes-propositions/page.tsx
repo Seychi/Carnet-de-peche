@@ -99,7 +99,7 @@ export default async function MyProposalsPage() {
               >
                 <div className="min-w-0">
                   {approved ? (
-                    <Link href={`/spot/${p.slug}`} className="block truncate text-[15px] font-semibold text-navy-900 hover:underline">
+                    <Link href={`/spots/${p.slug}`} className="block truncate text-[15px] font-semibold text-navy-900 hover:underline">
                       {p.name}
                     </Link>
                   ) : (

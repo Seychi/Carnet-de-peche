@@ -359,7 +359,8 @@ async function createCatchCard(
     // Sanitisé : jamais une coordonnée ni un lieu-dit arbitrairement long dans le
     // payload public (anti spot-burning). Null → la carte montre le département seul.
     location_label: sanitizeLocationLabel(row.location_label),
-    department: row.department,
+    // Trim du char(3) paddé ('17 ') pour ne pas stocker un département non lookup-able.
+    department: row.department?.trim() ?? null,
     gear_label: row.gear_label,
     conditions: {
       tide_state: (row.tide_state as ConditionsSnapshot['tide_state']) ?? null,

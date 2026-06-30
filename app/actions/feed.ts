@@ -472,7 +472,14 @@ export async function moderatorDeletePost(
     console.error('[moderatorDeletePost]', error.message)
     return fail('Impossible de supprimer ce post. Réessaie.')
   }
-  if (!deleted || deleted.length === 0) return fail('Post introuvable.')
+  // Post déjà supprimé (autre modérateur ou auteur) : l'intention est satisfaite.
+  // On résout quand même le signalement pour qu'il sorte de la file, et on renvoie
+  // un succès idempotent plutôt qu'une erreur trompeuse (« le bouton ne fait rien »).
+  if (!deleted || deleted.length === 0) {
+    await resolveReportsForTarget(supabase, user.id, 'post', postId)
+    revalidatePath('/moderation')
+    return ok({ id: postId })
+  }
 
   // Nettoyage Storage via service_role : le modérateur n'est pas propriétaire du
   // dossier (la policy feed_photos_delete_own ne couvre que le propriétaire).
@@ -515,7 +522,13 @@ export async function moderatorDeleteComment(
     console.error('[moderatorDeleteComment]', error.message)
     return fail('Impossible de supprimer ce commentaire. Réessaie.')
   }
-  if (!deleted || deleted.length === 0) return fail('Commentaire introuvable.')
+  // Commentaire déjà supprimé : idempotent (cf moderatorDeletePost). On résout le
+  // signalement et on renvoie un succès plutôt qu'une erreur trompeuse.
+  if (!deleted || deleted.length === 0) {
+    await resolveReportsForTarget(supabase, user.id, 'comment', commentId)
+    revalidatePath('/moderation')
+    return ok({ id: commentId })
+  }
 
   await resolveReportsForTarget(supabase, user.id, 'comment', commentId)
   revalidateFeed()

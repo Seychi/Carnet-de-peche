@@ -588,6 +588,12 @@ export default async function SpotPage({
                     </a>
                   ))}
                 </div>
+                <Link
+                  href="/carte"
+                  className="mt-2 flex items-center justify-center min-h-[44px] rounded-xl border border-teal-400 bg-teal-50 text-navy-900 text-[13px] font-semibold hover:bg-teal-100 transition-colors"
+                >
+                  Voir sur la carte
+                </Link>
               </div>
 
               {!spot.is_precise && (
