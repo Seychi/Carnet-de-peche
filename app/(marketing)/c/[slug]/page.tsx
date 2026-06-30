@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import { ArrowRight, Award, Fish, MapPin, TrendingUp, Wind } from 'lucide-react'
+import { ArrowRight, Award, Calendar, Fish, MapPin, Ruler, Scale, Thermometer, TrendingUp, Waves, Wind } from 'lucide-react'
 import { MarketingCTA } from '@/components/marketing/MarketingCTA'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
@@ -378,11 +378,11 @@ function CatchRecap({ payload: p }: { payload: CatchCardPayload }) {
           value={speciesLabel(p.species)}
         />
         {p.size_cm != null && (
-          <RecapRow icon={<span aria-hidden="true">📏</span>} label="Taille" value={`${p.size_cm} cm`} />
+          <RecapRow icon={<Ruler size={14} className="text-ink-400" aria-hidden="true" />} label="Taille" value={`${p.size_cm} cm`} />
         )}
         {p.weight_g != null && (
           <RecapRow
-            icon={<span aria-hidden="true">⚖️</span>}
+            icon={<Scale size={14} className="text-ink-400" aria-hidden="true" />}
             label="Poids"
             value={`${(p.weight_g / 1000).toFixed(2).replace('.', ',')} kg`}
           />
@@ -395,7 +395,7 @@ function CatchRecap({ payload: p }: { payload: CatchCardPayload }) {
           />
         )}
         {dateLabel(p.caught_at) && (
-          <RecapRow icon={<span aria-hidden="true">🗓️</span>} label="Date" value={dateLabel(p.caught_at)!} />
+          <RecapRow icon={<Calendar size={14} className="text-ink-400" aria-hidden="true" />} label="Date" value={dateLabel(p.caught_at)!} />
         )}
         {tide && (
           <RecapRow
@@ -406,7 +406,7 @@ function CatchRecap({ payload: p }: { payload: CatchCardPayload }) {
         )}
         {p.conditions?.tide_range_m != null && (
           <RecapRow
-            icon={<span aria-hidden="true">🌊</span>}
+            icon={<Waves size={14} className="text-ink-400" aria-hidden="true" />}
             label="Marnage"
             value={`${p.conditions.tide_range_m.toFixed(1).replace('.', ',')} m`}
           />
@@ -420,13 +420,13 @@ function CatchRecap({ payload: p }: { payload: CatchCardPayload }) {
         )}
         {p.conditions?.water_temperature_c != null && (
           <RecapRow
-            icon={<span aria-hidden="true">🌡️</span>}
+            icon={<Thermometer size={14} className="text-ink-400" aria-hidden="true" />}
             label="Temp. eau"
             value={`${p.conditions.water_temperature_c.toFixed(1).replace('.', ',')} °C`}
           />
         )}
         {p.gear_label && (
-          <RecapRow icon={<span aria-hidden="true">🎣</span>} label="Leurre" value={p.gear_label} />
+          <RecapRow icon={<Fish size={14} className="text-ink-400" aria-hidden="true" />} label="Leurre" value={p.gear_label} />
         )}
       </div>
       <p className="mt-4 text-[12.5px] leading-relaxed text-ink-400">
@@ -481,7 +481,7 @@ function OutingRecap({ payload: p }: { payload: OutingCardPayload }) {
       )}
       {p.species.length > 0 && (
         <RecapRow
-          icon={<span aria-hidden="true">🐟</span>}
+          icon={<Fish size={14} className="text-ink-400" aria-hidden="true" />}
           label="Espèces"
           value={p.species.map((s) => speciesLabel(s)).join(', ')}
         />
@@ -494,7 +494,7 @@ function OutingRecap({ payload: p }: { payload: OutingCardPayload }) {
         />
       )}
       {dateLabel(p.started_at) && (
-        <RecapRow icon={<span aria-hidden="true">🗓️</span>} label="Date" value={dateLabel(p.started_at)!} />
+        <RecapRow icon={<Calendar size={14} className="text-ink-400" aria-hidden="true" />} label="Date" value={dateLabel(p.started_at)!} />
       )}
     </div>
   )
@@ -505,7 +505,7 @@ function GearboxRecap({ payload: p }: { payload: GearboxCardPayload }) {
   return (
     <div>
       <p className="flex items-center gap-2 text-[13px] font-semibold text-teal-700">
-        <span aria-hidden="true">🎣</span> Mes leurres qui pêchent, sur{' '}
+        <Fish size={15} aria-hidden="true" /> Mes leurres qui pêchent, sur{' '}
         {p.totalCatchesWithGear} prise{p.totalCatchesWithGear > 1 ? 's' : ''} loguée
         {p.totalCatchesWithGear > 1 ? 's' : ''}
       </p>
@@ -559,7 +559,7 @@ function RecapRecap({ payload: p }: { payload: RecapCardPayload }) {
         value={String(p.totalCount)}
       />
       <RecapRow
-        icon={<span aria-hidden="true">🐟</span>}
+        icon={<Fish size={14} className="text-ink-400" aria-hidden="true" />}
         label="Espèces"
         value={String(p.speciesCount)}
       />
@@ -572,21 +572,21 @@ function RecapRecap({ payload: p }: { payload: RecapCardPayload }) {
       )}
       {p.topSpecies && (
         <RecapRow
-          icon={<span aria-hidden="true">🎣</span>}
+          icon={<Fish size={14} className="text-ink-400" aria-hidden="true" />}
           label="Espèce phare"
           value={speciesLabel(p.topSpecies)}
         />
       )}
       {month && (
         <RecapRow
-          icon={<span aria-hidden="true">🗓️</span>}
+          icon={<Calendar size={14} className="text-ink-400" aria-hidden="true" />}
           label="Meilleur mois"
           value={month}
         />
       )}
       {p.releasedRate != null && (
         <RecapRow
-          icon={<span aria-hidden="true">🌊</span>}
+          icon={<Waves size={14} className="text-ink-400" aria-hidden="true" />}
           label="Prises relâchées"
           value={`${Math.round(p.releasedRate * 100)} %`}
         />

@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getMyCatchStats } from '@/lib/catches/queries'
+import { ShareButton } from '@/components/share/ShareButton'
 import { ProfileForm } from './profile-form'
 
 type Profile = {
@@ -32,6 +34,11 @@ export default async function ProfilPage() {
 
   if (!profile) redirect('/auth/login')
 
+  // Partage du bilan (sprint 55) : on n'affiche les CTA que si le carnet a de quoi
+  // (sinon l'action renverrait « pas assez de données »). Cartes publiques geom-free.
+  const stats = await getMyCatchStats().catch(() => null)
+  const hasCatches = !!stats && stats.totalCount > 0
+
   return (
     <main className="bg-sand-50 min-h-screen py-12">
       <div className="max-w-[760px] mx-auto px-6">
@@ -46,6 +53,31 @@ export default async function ProfilPage() {
             Modifie tes informations de pêcheur. Ton email ne peut pas être changé ici.
           </p>
         </div>
+
+        {hasCatches && (
+          <section className="mb-6 rounded-[14px] border border-sand-200 bg-white p-5">
+            <p className="text-[13.5px] text-ink-600">
+              Partage ton carnet, sans jamais montrer tes spots.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <ShareButton
+                input={{ kind: 'recap' }}
+                title="Mon année de pêche — Carnet de Pêche"
+                text="Voici mon bilan de pêche."
+                label="Mon année"
+                variant="ghost"
+              />
+              <ShareButton
+                input={{ kind: 'records' }}
+                title="Mes records — Carnet de Pêche"
+                text="Mes plus beaux poissons par espèce."
+                label="Mes records"
+                variant="ghost"
+              />
+            </div>
+          </section>
+        )}
+
         <ProfileForm profile={profile as Profile} email={user.email ?? ''} />
       </div>
     </main>

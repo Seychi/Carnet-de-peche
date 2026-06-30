@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@supabase/supabase-js'
+import { loadOgFonts } from '@/lib/og/fonts'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import {
@@ -292,6 +293,12 @@ function CatchCard({ p, format }: { p: OgCatchPayload; format: OgFormat }) {
   // Lieu = libellé + département (JAMAIS de coordonnée).
   const locationParts = [place, dept].filter(Boolean)
   const heroSize = story ? 132 : 108
+  // Taille d'espèce adaptative (WS-A) : « DORADE ROYALE » (13) ne doit pas pousser
+  // le nombre hors cadre (overflow:hidden racine → glitch « 1 » résiduel).
+  const speLen = species.length
+  const speFont = story
+    ? speLen > 12 ? 40 : speLen > 8 ? 46 : 52
+    : speLen > 12 ? 34 : speLen > 8 ? 38 : 44
 
   return (
     <>
@@ -325,21 +332,25 @@ function CatchCard({ p, format }: { p: OgCatchPayload; format: OgFormat }) {
         </div>
       ) : null}
 
-      {/* Héro : ESPÈCE · TAILLE cm */}
-      <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: '8px' }}>
+      {/* Héro : ESPÈCE · TAILLE cm — largeur bornée + police espèce adaptative pour
+          ne jamais déborder (sinon overflow:hidden racine rogne → glitch « 1 »). WS-A. */}
+      <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', maxWidth: '100%', marginBottom: '8px' }}>
         <span
           style={{
-            fontSize: story ? '52px' : '44px',
+            display: 'flex',
+            fontFamily: 'Space Grotesk',
+            fontSize: `${speFont}px`,
             fontWeight: 800,
             color: TEAL300,
             letterSpacing: '0.02em',
             marginRight: '20px',
+            maxWidth: '100%',
           }}
         >
           {species}
         </span>
         {size ? (
-          <span style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span style={{ display: 'flex', alignItems: 'baseline', flexShrink: 1, minWidth: 0 }}>
             <span style={{ ...MONO_STYLE, fontSize: `${heroSize}px`, fontWeight: 800, color: WHITE, lineHeight: 1 }}>
               {size}
             </span>
@@ -448,6 +459,7 @@ function ConditionsCard({ p, format }: { p: OgConditionsPayload; format: OgForma
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                width: '100%',
                 background: 'rgba(20,184,166,0.07)',
                 borderWidth: '1px',
                 borderStyle: 'solid',
@@ -458,6 +470,9 @@ function ConditionsCard({ p, format }: { p: OgConditionsPayload; format: OgForma
             >
               <span
                 style={{
+                  display: 'flex',
+                  flex: 1,
+                  minWidth: 0,
                   fontSize: story ? '32px' : '26px',
                   fontWeight: 600,
                   color: SAND50,
@@ -470,6 +485,8 @@ function ConditionsCard({ p, format }: { p: OgConditionsPayload; format: OgForma
                 <span
                   style={{
                     ...MONO_STYLE,
+                    flexShrink: 0,
+                    marginLeft: '16px',
                     fontSize: story ? '36px' : '30px',
                     fontWeight: 800,
                     color: TEAL300,
@@ -978,10 +995,11 @@ export async function GET(
     return new Response('Not found', { status: 404 })
   }
 
+  const fonts = await loadOgFonts()
   return new ImageResponse(
     <OgFrame format={format} theme={theme} username={username}>
       {body}
     </OgFrame>,
-    { width, height },
+    { width, height, fonts },
   )
 }

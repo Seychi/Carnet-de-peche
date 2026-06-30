@@ -88,6 +88,13 @@ const ACTIVITY_DOTS: Record<1 | 2 | 3, { label: string; cls: string }> = {
   3: { label: 'Pleine saison', cls: 'text-teal-700' },
 }
 
+// Date de vérif réglementaire « 21/06/2026 » (format FR) → « 2026-06-21 » (ISO 8601
+// requis par Schema.org pour datePublished/dateModified). Sprint 55 WS-D.
+function toIso(fr: string): string {
+  const [d, m, y] = fr.split('/')
+  return y && m && d ? `${y}-${m}-${d}` : '2026-06-21'
+}
+
 export default async function EspecePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   if (!(slug in SPECIES)) notFound()
@@ -113,7 +120,9 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       publisher: { '@type': 'Organization', name: 'Carnet de Pêche', url: BASE_URL },
       mainEntityOfPage: `${BASE_URL}/especes/${speciesSlug}`,
       inLanguage: 'fr',
-      dateModified: '2026-06-21',
+      datePublished: toIso(content.regulation.verifiedAt),
+      dateModified: toIso(content.regulation.verifiedAt),
+      image: `${BASE_URL}/especes/${speciesSlug}/opengraph-image`,
     },
     {
       '@context': 'https://schema.org',

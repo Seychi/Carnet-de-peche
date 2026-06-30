@@ -1,38 +1,42 @@
 import { ImageResponse } from 'next/og'
+import { resolveProgrammaticSlug, SPECIES, TECHNIQUES } from '@/lib/seo/programmatic'
 import { loadOgFonts } from '@/lib/og/fonts'
+import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
-// OG image de marque par défaut (convention Next.js : appliquée à toute page qui
-// ne définit pas sa propre `openGraph.images`). Les fiches spots gardent leur
-// image dynamique via `app/og/spot/[slug]`. Sert aussi de twitter:image (fallback).
+// OG image dynamique des pages programmatiques /peche/<espèce>/<technique>[/<dépt>]
+// (sprint 55 WS-D) : la plus grosse surface SEO partageait jusqu'ici la carte de
+// marque générique. Data 100% statique (SPECIES/TECHNIQUES/département), aucun appel
+// réseau, runtime edge. Charte DA v2. Aucune coordonnée (geom-free).
 export const runtime = 'edge'
-export const alt = 'Carnet de Pêche — Logue. Partage. Progresse.'
+export const alt = 'Pêche à la canne du bord — Carnet de Pêche'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// ── Charte DA v2 « Instrument de précision marine » ────────────────────────────
 const NAVY950 = '#04141C'
 const NAVY700 = '#155A73'
 const TEAL = '#14B8A6'
 const TEAL300 = '#5EEAD4'
-const SAND50 = '#FBF8F2'
+const GOLD = '#D9A53C'
 const WHITE = '#FFFFFF'
 
-// Isobathes décoratives (paths repris de docs/maquette-v2/index.html)
 const ISOBATHS = [
   { d: 'M-50 580 C 250 480, 480 640, 760 540 S 1240 460, 1460 560', opacity: 0.5 },
   { d: 'M-50 500 C 230 400, 500 560, 780 460 S 1230 380, 1460 470', opacity: 0.4 },
   { d: 'M-50 420 C 220 330, 520 480, 800 390 S 1230 300, 1460 390', opacity: 0.3 },
 ]
 
-// Sondes (« la donnée est l'ornement ») — posées sur les isobathes, côté droit
-const DEPTHS = [
-  { label: '— 5 m', left: '1008px', top: '448px', opacity: 0.85 },
-  { label: '— 10 m', left: '1026px', top: '382px', opacity: 0.65 },
-  { label: '— 20 m', left: '1044px', top: '316px', opacity: 0.5 },
-]
+export default async function Image({ params }: { params: Promise<{ slug: string[] }> }) {
+  const { slug } = await params
+  const page = resolveProgrammaticSlug(slug)
 
-export default async function Image() {
+  const label = page ? SPECIES[page.species].label.toUpperCase() : 'PÊCHE DU BORD'
+  const technique = page ? TECHNIQUES[page.technique].label : 'À la canne du bord'
+  const where = page?.deptCode ? DEPARTMENT_LABELS[page.deptCode] ?? 'France' : 'France entière'
+
+  // Titre adaptatif : « DORADE ROYALE » (13) ne doit pas déborder à 88px.
+  const titleFont = label.length > 14 ? 60 : label.length > 9 ? 74 : 88
   const fonts = await loadOgFonts()
+
   return new ImageResponse(
     (
       <div
@@ -48,7 +52,6 @@ export default async function Image() {
           overflow: 'hidden',
         }}
       >
-        {/* Isobathes en fond (1400×700 → recadrées à 1260×630, centrées) */}
         <svg
           width="1260"
           height="630"
@@ -56,35 +59,12 @@ export default async function Image() {
           style={{ position: 'absolute', top: '0px', left: '-30px' }}
         >
           {ISOBATHS.map((p, i) => (
-            <path
-              key={i}
-              d={p.d}
-              fill="none"
-              stroke={NAVY700}
-              strokeWidth={2}
-              opacity={p.opacity}
-            />
+            <path key={i} d={p.d} fill="none" stroke={NAVY700} strokeWidth={2} opacity={p.opacity} />
           ))}
         </svg>
-        {DEPTHS.map((d) => (
-          <span
-            key={d.label}
-            style={{
-              position: 'absolute',
-              left: d.left,
-              top: d.top,
-              fontSize: '13px',
-              letterSpacing: '0.08em',
-              color: NAVY700,
-              opacity: d.opacity,
-            }}
-          >
-            {d.label}
-          </span>
-        ))}
 
-        {/* Kicker (tiret teal + étiquette espacée) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '36px' }}>
+        {/* Kicker */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px' }}>
           <div style={{ width: '40px', height: '2px', background: TEAL }} />
           <span
             style={{
@@ -95,35 +75,36 @@ export default async function Image() {
               textTransform: 'uppercase',
             }}
           >
-            Pêche à la canne du bord · France
+            Pêche à la canne du bord
           </span>
         </div>
 
-        {/* Titre */}
+        {/* Espèce */}
         <span
           style={{
-            fontSize: '92px',
+            display: 'flex',
+            fontSize: `${titleFont}px`,
             fontWeight: 900,
             color: WHITE,
             lineHeight: 1,
             letterSpacing: '-0.03em',
-            marginBottom: '24px',
+            marginBottom: '22px',
+            maxWidth: '1040px',
           }}
         >
-          Carnet de Pêche
+          {label}
         </span>
 
-        {/* Tagline */}
-        <span style={{ fontSize: '46px', fontWeight: 700, color: TEAL300, lineHeight: 1.15 }}>
-          Logue. Partage. Progresse.
+        {/* Technique */}
+        <span style={{ display: 'flex', fontSize: '38px', fontWeight: 700, color: TEAL300, maxWidth: '1040px' }}>
+          {technique}
         </span>
 
-        {/* Sous-titre */}
-        <div style={{ display: 'flex', fontSize: '24px', color: 'rgba(255,255,255,0.55)', marginTop: '20px', maxWidth: '880px' }}>
-          Le carnet numérique et le réseau des pêcheurs à la canne du bord : bar, dorade, lieu, maquereau…
-        </div>
+        {/* Département */}
+        <span style={{ display: 'flex', fontSize: '30px', fontStyle: 'italic', color: GOLD, marginTop: '12px' }}>
+          {where}
+        </span>
 
-        {/* Spacer */}
         <div style={{ flex: 1, display: 'flex' }} />
 
         {/* Footer */}
@@ -139,17 +120,13 @@ export default async function Image() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            {/* Picto « carnet qui ferre » — variante dark (fond navy-950) */}
-            {/* source: public/logo/logo-icon.svg — Satori ne supporte pas <mask>,
-                l'échancrure de l'hameçon est émulée par un trait couleur du fond */}
-            <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
-              <g stroke={SAND50} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+            <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+              <g stroke={WHITE} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                 <rect x="11" y="6" width="26" height="29" rx="5" />
                 <path d="M16 13.5h10" />
                 <path d="M16 19.5h10" />
                 <path d="M16 25.5h6" />
               </g>
-              {/* échancrure : repeint le fond par-dessus le bord du carnet */}
               <path d="M31 33v4" stroke={NAVY950} strokeWidth={5} strokeLinecap="butt" />
               <path
                 d="M31 6v31a4.5 4.5 0 1 1-9 0v-2"

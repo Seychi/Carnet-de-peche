@@ -81,7 +81,7 @@ export function parseTheme(value: string | null | undefined): OgThemeName {
 // l'alignement chiffré tabulaire (l'essentiel de l'intention), sans fetch de
 // police ni risque de 500 en edge. cf docs-researcher 2026-06-27.
 export const MONO_STYLE: CSSProperties = {
-  fontFamily: 'ui-monospace, "SFMono-Regular", Menlo, monospace',
+  fontFamily: '"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace',
   fontVariantNumeric: 'tabular-nums',
   fontFeatureSettings: '"tnum" 1',
 }
@@ -227,7 +227,7 @@ export function OgFrame({
         height: `${height}px`,
         background: theme.bg,
         padding,
-        fontFamily: 'sans-serif',
+        fontFamily: 'Inter, sans-serif',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -247,8 +247,17 @@ export function OgFrame({
       {/* Overlay calé sur le cadre racine (coordonnées viewport plein). */}
       {rootOverlay}
 
-      {/* Contenu principal */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
+      {/* Contenu principal — centré verticalement en story (9:16) pour combler le
+          vide ; aligné en haut en paysage (comportement d'origine). Sprint 55 WS-A. */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          position: 'relative',
+          justifyContent: format === 'story' ? 'center' : 'flex-start',
+        }}
+      >
         {children}
       </div>
 

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
+import { loadOgFonts } from '@/lib/og/fonts'
 
 // OG image dynamique par fiche espèce (convention Next.js : remplace l'OG de
 // marque par défaut sur /especes/[slug]). Data 100% statique (SPECIES) → aucun
@@ -30,6 +31,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const species = SPECIES[slug as SpeciesSlug]
   const label = species?.label ?? 'Espèce'
   const latin = species?.latin ?? ''
+  const fonts = await loadOgFonts()
 
   return new ImageResponse(
     (
@@ -41,7 +43,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           height: '630px',
           background: NAVY950,
           padding: '72px 80px',
-          fontFamily: 'sans-serif',
+          fontFamily: 'Inter, sans-serif',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -145,6 +147,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   )
 }

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@supabase/supabase-js'
+import { loadOgFonts } from '@/lib/og/fonts'
 import { SPECIES_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import {
@@ -63,6 +64,7 @@ export async function GET(
   const deptLabel = DEPARTMENT_LABELS[deptKey] ?? deptKey
   const displayName = spot.name.length > 48 ? `${spot.name.slice(0, 45)}…` : spot.name
   const fontSize = displayName.length > 32 ? 60 : displayName.length > 22 ? 72 : 84
+  const fonts = await loadOgFonts()
 
   return new ImageResponse(
     (
@@ -168,6 +170,6 @@ export async function GET(
         )}
       </OgFrame>
     ),
-    { width: OG_DIMENSIONS.og.width, height: OG_DIMENSIONS.og.height },
+    { width: OG_DIMENSIONS.og.width, height: OG_DIMENSIONS.og.height, fonts },
   )
 }

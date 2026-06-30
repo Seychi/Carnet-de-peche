@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { loadOgFonts } from '@/lib/og/fonts'
 import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
@@ -44,6 +45,7 @@ const DEPTHS = [
 export async function GET() {
   const count = await fetchSpotCount()
   const countStr = count > 0 ? `${count}` : '…'
+  const fonts = await loadOgFonts()
 
   return new ImageResponse(
     (
@@ -55,7 +57,7 @@ export async function GET() {
           height: '630px',
           background: NAVY950,
           padding: '64px 72px',
-          fontFamily: 'sans-serif',
+          fontFamily: 'Inter, sans-serif',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -195,6 +197,6 @@ export async function GET() {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 },
+    { width: 1200, height: 630, fonts },
   )
 }
