@@ -13,6 +13,24 @@ import { priceIdToPlan, priceIdToInterval, PLAN_LABELS, PLAN_PRICING } from "./p
 
 type SubscriptionRow = Database["public"]["Tables"]["subscriptions"]["Insert"];
 
+// Statuts Stripe acceptés par le CHECK `subscriptions_status_check` (DB).
+// DOIT rester aligné avec la migration la plus récente sur la contrainte
+// (091 a ajouté 'paused'). Un statut hors de cette liste ferait violer le CHECK
+// → upsert en erreur → handler 500 → Stripe rejoue l'event à l'infini et le tier
+// local reste figé. On préfère logguer + ignorer l'écriture qu'un retry storm :
+// current_tier ne donne de droit payant que pour 'active'/'trialing', donc un
+// statut inconnu non écrit retombe au pire sur discovery (jamais un faux accès).
+const KNOWN_SUBSCRIPTION_STATUSES = new Set([
+  "active",
+  "trialing",
+  "past_due",
+  "canceled",
+  "incomplete",
+  "incomplete_expired",
+  "unpaid",
+  "paused",
+]);
+
 const toIso = (unixSeconds: number | null | undefined): string | null =>
   typeof unixSeconds === "number" ? new Date(unixSeconds * 1000).toISOString() : null;
 
@@ -102,6 +120,18 @@ export async function handleSubscriptionUpsert(
   const userId = sub.metadata.user_id; // posé dans createCheckoutSession (D1)
   if (!userId) {
     console.error("[stripe-webhook] subscription sans metadata.user_id", { subId: sub.id });
+    return;
+  }
+
+  // Clamp défensif : un statut Stripe non couvert par le CHECK DB ferait lever
+  // l'upsert (→ 500 → retry infini). On loggue et on n'écrit pas, plutôt que de
+  // bloquer le webhook. current_tier protège : seul active/trialing débloque le
+  // payant, donc une ligne non mise à jour ne crée jamais de faux accès.
+  if (!KNOWN_SUBSCRIPTION_STATUSES.has(sub.status)) {
+    console.error("[stripe-webhook] statut subscription inconnu, écriture ignorée", {
+      subId: sub.id,
+      status: sub.status,
+    });
     return;
   }
 
@@ -329,8 +359,17 @@ export async function handleInvoicePaymentSucceeded(inv: Stripe.Invoice) {
 
   if (typeof inv.amount_paid !== "number" || inv.amount_paid <= 0) return;
 
-  // Analytics serveur — conversion (premier vrai paiement encaissé, > 0 €).
-  // La facture à 0 € du début d'essai est exclue par le garde amount_paid > 0.
+  // On ne traite QUE la première facture de l'abonnement (billing_reason
+  // 'subscription_create'). Sinon chaque renouvellement (subscription_cycle)
+  // ré-émettrait 'trial_converted' (funnel corrompu : un abonné 12 mois = 12
+  // fausses conversions) et renverrait le mail « bienvenue payante » (Stripe
+  // envoie déjà ses propres reçus fiscaux à chaque échéance).
+  // API dahlia 22.x : subscription_create | subscription_cycle | subscription_update | …
+  if (inv.billing_reason !== "subscription_create") return;
+
+  // Analytics serveur — conversion (1re facture payante encaissée, > 0 €). La
+  // facture à 0 € du début d'essai est exclue par le garde amount_paid > 0 ; les
+  // renouvellements sont exclus par le garde billing_reason ci-dessus.
   const subRef = inv.parent?.subscription_details?.subscription;
   const subId = typeof subRef === "string" ? subRef : subRef?.id ?? null;
   const convertedUserId = await resolveUserIdBySubscription(subId);

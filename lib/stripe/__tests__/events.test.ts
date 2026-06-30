@@ -140,6 +140,35 @@ describe("handleSubscriptionUpsert", () => {
   });
 });
 
+// Sprint 51 WS-A : pause_collection Stripe (status 'paused'). Avant le fix, ce
+// statut violait le CHECK DB → upsert en erreur → 500 → retry Stripe infini.
+describe("handleSubscriptionUpsert — statut paused (sprint 51 WS-A)", () => {
+  it("upsert une sub paused sans throw (200, plus de retry storm)", async () => {
+    await expect(
+      handleSubscriptionUpsert(makeSub({ status: "paused", userId: "user-paused" }))
+    ).resolves.toBeUndefined();
+    expect(upsertMock).toHaveBeenCalledTimes(1);
+    expect(upsertMock.mock.calls[0][0]).toMatchObject({
+      user_id: "user-paused",
+      status: "paused",
+      plan: "local",
+    });
+    expect(upsertMock.mock.calls[0][1]).toEqual({ onConflict: "user_id" });
+  });
+
+  it("ne déclenche aucun email sur un passage paused (.updated)", async () => {
+    await handleSubscriptionUpsert(makeSub({ status: "paused", userId: "user-paused" }));
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("clamp défensif : un statut Stripe inconnu n'écrit pas en DB (pas de 500/retry)", async () => {
+    await expect(
+      handleSubscriptionUpsert(makeSub({ status: "statut_inconnu_futur", userId: "user-x" }))
+    ).resolves.toBeUndefined();
+    expect(upsertMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("handleSubscriptionUpsert — email trial start (sprint 11 Bloc C)", () => {
   it("envoie le welcome-trial sur created + trialing", async () => {
     await handleSubscriptionUpsert(
@@ -221,11 +250,15 @@ describe("handleInvoicePaymentSucceeded — reçu de paiement (sprint 11 Bloc C)
   function makePaidInvoice(overrides: {
     amountPaid?: number;
     customerEmail?: string | null;
+    billingReason?: Stripe.Invoice.BillingReason;
   }): Stripe.Invoice {
     return {
       id: "in_ok",
       amount_paid: overrides.amountPaid ?? 490,
       currency: "eur",
+      // Sprint 51 WS-B : par défaut 1re facture (subscription_create). Les tests de
+      // renouvellement passent billingReason: 'subscription_cycle' explicitement.
+      billing_reason: overrides.billingReason ?? "subscription_create",
       customer_email: overrides.customerEmail === undefined ? "julien@test.fr" : overrides.customerEmail,
       created: 1_780_000_000,
       status_transitions: { paid_at: 1_780_000_000 },
@@ -248,6 +281,30 @@ describe("handleInvoicePaymentSucceeded — reçu de paiement (sprint 11 Bloc C)
   it("n'envoie RIEN sans customer_email", async () => {
     await handleInvoicePaymentSucceeded(makePaidInvoice({ customerEmail: null }));
     expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  // Sprint 51 WS-B : plus de double reçu/conversion à chaque renouvellement.
+  // L'email ET l'analytics 'trial_converted' partagent le MÊME early-return sur
+  // billing_reason, donc tester l'email prouve le gating des deux.
+  it("renouvellement (subscription_cycle) → aucun reçu renvoyé", async () => {
+    await handleInvoicePaymentSucceeded(
+      makePaidInvoice({ amountPaid: 490, billingReason: "subscription_cycle" })
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("mise à jour d'abonnement (subscription_update) → aucun reçu renvoyé", async () => {
+    await handleInvoicePaymentSucceeded(
+      makePaidInvoice({ amountPaid: 490, billingReason: "subscription_update" })
+    );
+    expect(sendEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("1re facture (subscription_create) → reçu envoyé une seule fois", async () => {
+    await handleInvoicePaymentSucceeded(
+      makePaidInvoice({ amountPaid: 490, billingReason: "subscription_create" })
+    );
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
   });
 });
 

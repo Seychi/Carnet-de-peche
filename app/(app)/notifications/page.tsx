@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish, Waves } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
+import { getUserTier } from '@/lib/auth/tier'
 import { getNotifications, type AppNotification } from '@/app/actions/notifications'
 import { getNotificationPrefs } from '@/app/actions/notification-prefs'
 import { MarkAllRead } from './MarkAllRead'
@@ -52,6 +53,16 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: MessageCircle, label: 'Nouveau message dans la sortie' }
     case 'outing_reminder':
       return { icon: CalendarClock, label: 'Ta sortie est demain' }
+    case 'big_tide':
+      return { icon: Waves, label: 'Grande marée à venir près de chez toi' }
+    case 'species_closure':
+      return { icon: Fish, label: 'Rappel réglementation : période de fermeture qui approche' }
+    case 'weekly_digest':
+      return { icon: Sparkles, label: 'Ta semaine de pêche en résumé' }
+    case 'followed_catch':
+      return { icon: Fish, label: `${who} a publié une prise` }
+    case 'nearby_outing':
+      return { icon: Users, label: 'Nouvelle sortie près de chez toi' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -70,6 +81,10 @@ export default async function NotificationsPage() {
 
   // Préférences par type de push (sprint 49 WS C). Scopé au viewer (auth.uid()).
   const notificationPrefs = await getNotificationPrefs()
+
+  // Tier courant (sprint 51 WS-E) : la « fenêtre optimale » est réservée aux abonnés.
+  // On ne montre pas un toggle « Activé » qui ne déclencherait jamais rien à un gratuit.
+  const tier = await getUserTier()
 
   // Résolution des liens : pour les notifs liées à un post/prise, on retrouve
   // le département du post (route /fil/<dept>). Le post appartient au viewer
@@ -112,6 +127,23 @@ export default async function NotificationsPage() {
     // Créneau favorable du jour → la carte (couche « Ton score » + spots près de chez toi).
     if (n.type === 'optimal_window') {
       return '/carte'
+    }
+    // Notifs système (sprints 49/50). nearby_outing porte target_type='outing' et est
+    // déjà routé vers /sorties par la branche ci-dessus, on ne le rajoute pas ici.
+    if (n.type === 'big_tide') {
+      return '/carte'
+    }
+    if (n.type === 'weekly_digest') {
+      return '/home'
+    }
+    // species_closure ne porte pas le slug d'espèce (target_id est uuid en DB, le cron
+    // ne le renseigne pas) : on mène à l'index des espèces, pas à une fiche précise.
+    if (n.type === 'species_closure') {
+      return '/especes'
+    }
+    // Prise d'un pêcheur suivi : sa fiche profil si on a le pseudo, sinon le fil.
+    if (n.type === 'followed_catch') {
+      return n.actor_username ? `/u/${n.actor_username}` : '/fil'
     }
     if (n.target_type === 'post' && n.target_id) {
       const region = regionByPostId.get(n.target_id)
@@ -195,7 +227,7 @@ export default async function NotificationsPage() {
             ci-dessus reste maître : s&rsquo;il est éteint, aucune alerte n&rsquo;arrive,
             quels que soient ces réglages.
           </p>
-          <NotificationTypeToggles prefs={notificationPrefs} />
+          <NotificationTypeToggles prefs={notificationPrefs} tier={tier} />
         </div>
       </section>
     </div>

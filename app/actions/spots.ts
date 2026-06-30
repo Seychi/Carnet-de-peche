@@ -233,6 +233,17 @@ export async function confirmSpot(spotId: string): Promise<ActionResult> {
   if (!user) return fail('Connecte-toi pour confirmer un spot.')
   if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
 
+  // Anti auto-confirmation : un créateur ne peut pas gonfler le compteur
+  // « K pêcheurs confirment » sur SON propre spot (+1 fictif). Backstop RLS =
+  // spot_confirmations_insert_own (migration 093, clause NOT EXISTS sur created_by).
+  // created_by est nullable (imports OSM) : le test ne se déclenche jamais dessus.
+  const { data: spot } = await supabase
+    .from('spots')
+    .select('created_by')
+    .eq('id', spotId)
+    .maybeSingle()
+  if (spot?.created_by === user.id) return fail('Tu ne peux pas confirmer ton propre spot.')
+
   // Upsert idempotent : si l'utilisateur a déjà confirmé, on ne refait rien
   // (ignoreDuplicates s'appuie sur la contrainte unique (spot_id, user_id)).
   const { error } = await supabase

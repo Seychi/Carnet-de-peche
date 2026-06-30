@@ -3,7 +3,11 @@
 import { Check, X, BellOff, Smartphone } from 'lucide-react'
 import { usePushSubscription } from '@/components/push/use-push-subscription'
 
-// Toggle d'opt-in des notifications push « fenêtre optimale » (sprint 39, WS C).
+// Interrupteur PRINCIPAL des notifications push (sprint 39, reformulé sprint 51 WS-E).
+// C'est le maître on/off : il crée/supprime l'abonnement push réel (usePushSubscription).
+// S'il est éteint, AUCUNE alerte n'arrive, quels que soient les réglages par type
+// (NotificationTypeToggles). Avant le sprint 51 il était libellé « fenêtre optimale »
+// (payant), ce qui décourageait les gratuits d'activer leurs push gratuits : corrigé.
 // Modelé sur EmailPrefsToggle. Opt-in strict : l'action passe par subscribe()
 // du hook WS B, qui déclenche la demande de permission sur ce geste utilisateur.
 //
@@ -22,11 +26,11 @@ export function PushSettingsToggle() {
     <div className="flex items-start justify-between gap-4">
       <div>
         <p className="text-sm font-semibold text-navy-900">
-          Alertes « fenêtre optimale »
+          Notifications push
         </p>
         <p className="mt-1 text-xs text-ink-500 leading-relaxed">
-          On te prévient quand le créneau favorable du jour colle à TES habitudes
-          de prises. Réservé aux abonnés Local et Itinérant.
+          L&rsquo;interrupteur principal de tes alertes. S&rsquo;il est éteint, aucune
+          notification n&rsquo;arrive, quels que soient tes réglages par type ci-dessous.
         </p>
       </div>
       {children}
@@ -99,7 +103,7 @@ export function PushSettingsToggle() {
         type="button"
         role="switch"
         aria-checked={isSubscribed}
-        aria-label="Alertes fenêtre optimale"
+        aria-label="Notifications push"
         disabled={busy}
         onClick={toggle}
         className={`shrink-0 inline-flex items-center gap-1.5 min-h-[36px] px-3 rounded-full border text-xs font-semibold transition-colors duration-150 disabled:opacity-50 ${

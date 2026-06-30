@@ -31,7 +31,7 @@ export function makeSupabase(opts: { user?: unknown; rpc?: Record<string, MockRe
     const get = () => (cached ??= nextResp(table))
     const b: Record<string, unknown> = {}
     for (const m of [
-      'select', 'insert', 'update', 'delete',
+      'select', 'insert', 'update', 'delete', 'upsert',
       'eq', 'neq', 'in', 'not', 'is', 'match', 'order', 'limit', 'range', 'gte', 'lt',
     ]) {
       b[m] = vi.fn(() => b)
