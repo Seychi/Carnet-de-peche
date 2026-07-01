@@ -156,35 +156,17 @@ export default function MapFilters({
   useEffect(() => { routerRef.current = router }, [router])
   useEffect(() => { onFiltersChangeRef.current = onFiltersChange }, [onFiltersChange])
 
-  // Restaure depuis localStorage au mount si aucun filtre actif dans l'URL (sidebar uniquement)
-  useEffect(() => {
-    if (layout === 'sheet') return  // le sheet démarre toujours depuis l'état committed
-    if (hasActiveFilters(initialFilters)) return
-    try {
-      const saved = localStorage.getItem(LS_KEY)
-      if (!saved) return
-      const parsed = JSON.parse(saved) as SpotFilters
-      // Nettoyage des filtres orphelins (sprint 52 WS-B) : une source/espèce
-      // sauvegardée qui n'est plus présente dans les données affichées (ex.
-      // 'imported', dont la section est désormais masquée) bloquerait la carte à
-      // 0 résultat sans chip pour la décocher. On ne garde que le réellement présent.
-      if (parsed.source?.length) {
-        const kept = parsed.source.filter((s) => availableSources.includes(s))
-        parsed.source = kept.length ? kept : undefined
-      }
-      if (parsed.species?.length) {
-        const kept = parsed.species.filter((s) => availableSpecies.includes(s))
-        parsed.species = kept.length ? kept : undefined
-      }
-      // setState intentionnel au montage : on restaure les filtres depuis
-      // localStorage APRÈS le premier render pour éviter un mismatch
-      // d'hydratation SSR (le serveur ne connaît pas localStorage).
-      if (hasActiveFilters(parsed)) setFilters(parsed)
-    } catch {
-      // localStorage indisponible (SSR, mode privé) — on ignore
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // ⟢ Sprint 64 / Bloc 0 — plus de restauration automatique du dernier filtre au
+  // mount (« filtre fantôme »). Entrer sur `/carte` nu ré-appliquait le dernier
+  // filtre de `localStorage` (ex. `species=calmar`), réécrivait l'URL en
+  // `?species=…` et vidait la carte (calmar n'a aucun spot curé) en propulsant la
+  // vue hors du département de l'utilisateur. Désormais : `/carte` sans query =
+  // NON filtré (les 215 spots s'affichent, la vue reste centrée sur le serveur).
+  // Le filtrage est client-side dans MapShell, piloté par l'URL (`initialFilters`)
+  // → restaurer en mémoire viderait aussi la carte, d'où le retrait complet.
+  // `localStorage` reste écrit ci-dessous (dernier filtre mémorisé), mais n'est
+  // plus relu au chargement ; un deep-link `/carte?species=bar` filtre toujours
+  // (il passe par `initialFilters`, pas par `localStorage`).
 
   // Sync URL + localStorage avec debounce 300ms — sidebar uniquement
   // En mode sheet, le commit se fait uniquement via le bouton "Appliquer"

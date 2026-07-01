@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, startTransition } from 'react'
 import { geocodeMunicipality, type MunicipalityHit } from '@/lib/geo/geocode'
 
 type Props = {
@@ -40,17 +40,38 @@ export function CityAutocomplete({
   const lastTypedRef = useRef<string | null>(null)
   const listboxId = useId()
 
+  // ⟢ Sprint 64 / Bloc 2 — écho local pour découpler la frappe du re-render lourd du
+  // parent. Le form parent (CatchForm) surveille `location_label` via `watch(...)` :
+  // chaque frappe y déclenchait un re-render COMPLET du formulaire (façade/maille + 7
+  // cartes + pickers), mesuré ~2,3 s d'INP (audit §3.6). On affiche désormais `echo`
+  // (state URGENT, synchrone → paint clavier instantané) et on propage au parent en
+  // `startTransition` (non-urgent, interruptible). `value` (le form) reste la source
+  // de vérité : un changement EXTERNE (reverse-geocode GPS) est réconcilié ci-dessous.
+  const [echo, setEcho] = useState(value)
+  // Dernière valeur qu'on a propagée nous-mêmes (frappe/sélection) : sert à NE PAS
+  // réécrire l'écho quand le parent nous renvoie notre propre valeur (souvent « en
+  // retard », re-render lent) → pas de saut de curseur en frappe rapide. Seul un
+  // `value` qui diverge de lastSentRef = source externe → on met l'écho à jour.
+  const lastSentRef = useRef(value)
+
+  // Réconciliation des changements EXTERNES de `value` (GPS reverse-geocode, reset).
   useEffect(() => {
-    // Ne fetch QUE si la valeur courante = la dernière frappe utilisateur. Un setValue
-    // externe (reverse-geocode après GPS) change `value` sans passer par onChange → on
+    if (value !== lastSentRef.current) setEcho(value)
+  }, [value])
+
+  useEffect(() => {
+    // Ne fetch QUE si l'écho courant = la dernière frappe utilisateur. Un setValue
+    // externe (reverse-geocode après GPS) réécrit l'écho sans passer par onChange → on
     // ferme la liste au lieu d'ouvrir une suggestion fantôme (qui pourrait écraser les
-    // coordonnées GPS précises si l'utilisateur la cliquait).
-    if (value !== lastTypedRef.current) {
+    // coordonnées GPS précises si l'utilisateur la cliquait). On indexe sur `echo` (et
+    // non `value`) : les suggestions suivent la frappe SANS attendre le re-render lent
+    // du parent.
+    if (echo !== lastTypedRef.current) {
       setSuggestions([])
       setOpen(false)
       return
     }
-    const q = value.trim()
+    const q = echo.trim()
     if (q.length < 2) {
       setSuggestions([])
       setOpen(false)
@@ -67,17 +88,23 @@ export function CityAutocomplete({
       setActive(-1)
     }, 250)
     return () => clearTimeout(timer)
-  }, [value])
+  }, [echo])
 
   useEffect(() => () => abortRef.current?.abort(), [])
 
   function choose(hit: MunicipalityHit) {
     lastTypedRef.current = null // pas de re-fetch après sélection
-    onValueChange(hit.label)
-    onSelect(hit)
+    lastSentRef.current = hit.label
+    setEcho(hit.label) // affichage immédiat de la ville choisie
     setOpen(false)
     setSuggestions([])
     setActive(-1)
+    // Sélection = action DISCRÈTE unique (pas un flux de frappe) : aucun gain INP à la
+    // différer. On propage SYNCHRONEMENT le label ET les coords au form parent pour
+    // qu'ils soient présents immédiatement (évite toute course avec un submit juste
+    // après la sélection). Seule la frappe (onChange) passe en startTransition.
+    onValueChange(hit.label)
+    onSelect(hit)
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -107,10 +134,14 @@ export function CityAutocomplete({
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listboxId}-opt-${active}` : undefined}
         autoComplete="off"
-        value={value}
+        value={echo}
         onChange={(e) => {
-          lastTypedRef.current = e.target.value
-          onValueChange(e.target.value)
+          const next = e.target.value
+          setEcho(next) // urgent : paint clavier instantané (INP bas)
+          lastTypedRef.current = next
+          lastSentRef.current = next
+          // non-urgent : le re-render lourd du parent (watch location_label) est différé
+          startTransition(() => onValueChange(next))
         }}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
