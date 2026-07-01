@@ -3,7 +3,7 @@ import { Check, Fish } from 'lucide-react'
 import type { Pokedex } from '@/lib/gamification/pokedex'
 import { TagData } from '@/components/ui-v2/tag-data'
 
-// Pokédex des 26 espèces du bord — TA collection, jamais un classement (privé).
+// Pokédex des 26 espèces du bord — ta collection perso. Chaque espèce nouvelle débloque sa case.
 // DALTONIEN-SAFE : capturé vs non capturé est distingué par LUMINOSITÉ (carte pleine
 // vs grisée), ICÔNE (✓ vs —) et TEXTE, jamais par la teinte seule.
 
@@ -22,7 +22,7 @@ export function PokedexGrid({ pokedex, className }: { pokedex: Pokedex; classNam
           </p>
         </div>
         <p className="max-w-[55%] text-right text-[11.5px] leading-snug text-ink-500">
-          Ta collection perso, rien que pour toi.
+          Une case par espèce du bord. Débloque-les toutes.
         </p>
       </header>
 

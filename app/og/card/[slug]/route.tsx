@@ -74,6 +74,15 @@ type OgRecordsPayload = {
   records?: OgRecordEntry[]
 }
 
+// ─── Payload badges « Mes badges » (miroir local edge-safe) ───────────────────
+// Liste DESCRIPTIVE des paliers débloqués (Sprint 62). PUREMENT TEXTUEL : libellé du
+// palier + médaille (tier). Aucune clé géo, aucune photo, aucun classement.
+type OgBadgesPayload = {
+  kind: 'badges'
+  earnedCount?: number | null
+  badges?: Array<{ label?: string | null; tier?: number | null }>
+}
+
 // ─── Handle du partageur (tous kinds) ─────────────────────────────────────────
 // Le @pseudo arrive dans le payload (champ `username` ajouté côté WS A/D). On le
 // lit de façon défensive (le JSON vient de la base, peut être absent/null).
@@ -89,8 +98,8 @@ function payloadUsername(payload: { username?: string | null } | null | undefine
 // Aucune lecture de catches_for_viewer ni appel server-only ici (garde-fou n°1).
 
 type SharedCardRow = {
-  payload: OgCardPayload | OgGearboxPayload | OgRecapPayload | OgRecordsPayload
-  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records'
+  payload: OgCardPayload | OgGearboxPayload | OgRecapPayload | OgRecordsPayload | OgBadgesPayload
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records' | 'badges'
 }
 
 async function fetchCard(slug: string): Promise<SharedCardRow | null> {
@@ -957,6 +966,92 @@ function RecordsCard({ p, format }: { p: OgRecordsPayload; format: OgFormat }) {
   )
 }
 
+// ─── Layout BADGES (« Mes badges » : paliers débloqués, geom-free) ────────────
+// Liste DESCRIPTIVE des paliers. Le palier (bronze/argent/or) est rendu en TEXTE
+// (« Or »), jamais par la couleur seule → daltonien-safe. Zéro classement.
+
+const BADGE_TIER_FR = ['', 'Bronze', 'Argent', 'Or']
+
+function BadgesCard({ p, format }: { p: OgBadgesPayload; format: OgFormat }) {
+  const story = format === 'story'
+  const badges = (p.badges ?? [])
+    .filter((b) => b && (b.label ?? '').trim())
+    .slice(0, story ? 8 : 6)
+  const count = p.earnedCount ?? badges.length
+
+  return (
+    <>
+      <OgKicker label="Carnet de Pêche · mes badges" marginBottom={story ? 32 : 22} />
+
+      <div
+        style={{
+          fontSize: story ? '62px' : '54px',
+          fontWeight: 800,
+          color: WHITE,
+          lineHeight: 1.04,
+          marginBottom: '10px',
+        }}
+      >
+        Mes badges
+      </div>
+      <div style={{ display: 'flex', marginBottom: story ? '40px' : '28px' }}>
+        <span style={{ fontSize: story ? '26px' : '21px', color: 'rgba(255,255,255,0.55)' }}>
+          {count} palier{count > 1 ? 's' : ''} débloqué{count > 1 ? 's' : ''}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: story ? '14px' : '11px' }}>
+        {badges.map((b, i) => {
+          const label = (b.label ?? '').trim()
+          const tierNum = typeof b.tier === 'number' ? b.tier : 1
+          const medal = BADGE_TIER_FR[Math.max(1, Math.min(3, tierNum))]
+          return (
+            <div
+              key={`${label}-${i}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '24px',
+                background: 'rgba(20,184,166,0.07)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(94,234,212,0.22)',
+                borderRadius: '12px',
+                padding: story ? '18px 26px' : '14px 22px',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: story ? '30px' : '25px',
+                  fontWeight: 700,
+                  color: SAND50,
+                  letterSpacing: '0.01em',
+                }}
+              >
+                {label}
+              </span>
+              <span
+                style={{
+                  fontSize: story ? '22px' : '18px',
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: TEAL300,
+                }}
+              >
+                {medal}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ flex: 1, display: 'flex' }} />
+    </>
+  )
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(
@@ -991,6 +1086,8 @@ export async function GET(
     body = <RecapCard p={payload as OgRecapPayload} format={format} />
   } else if (kind === 'records') {
     body = <RecordsCard p={payload as OgRecordsPayload} format={format} />
+  } else if (kind === 'badges') {
+    body = <BadgesCard p={payload as OgBadgesPayload} format={format} />
   } else {
     return new Response('Not found', { status: 404 })
   }

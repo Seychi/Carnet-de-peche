@@ -4,7 +4,7 @@ import type { CatchBreakdown } from '@/lib/catches/queries'
 // ─── Pokédex des espèces ───────────────────────────────────────────────────────
 // PUR TS sur lecture (aucune table) : on croise le référentiel SPECIES (26 espèces,
 // source unique) avec le breakdown du carnet (get_my_catches_breakdown, RLS own).
-// Anti-comparaison : c'est TA collection, jamais un classement. Privé.
+// C'est TA collection d'espèces : chaque première prise d'une espèce débloque sa case.
 
 export type PokedexCard = {
   slug: SpeciesSlug
@@ -23,12 +23,12 @@ export type Pokedex = {
   cards: PokedexCard[]
   /** Espèces distinctes capturées (cartes débloquées). */
   capturedCount: number
-  /** Total d'espèces au référentiel (20). */
+  /** Total d'espèces au référentiel (26). */
   totalCount: number
 }
 
 /**
- * Construit les 20 cartes du Pokédex depuis le breakdown du carnet.
+ * Construit les 26 cartes du Pokédex depuis le breakdown du carnet.
  * Le breakdown indexe par `species` = clé DB snake_case ; on fait le pont via
  * SPECIES[slug].dbKey. Une espèce absente du breakdown reste grisée (count 0).
  *

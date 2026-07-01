@@ -27,6 +27,8 @@ export type ChallengeCatch = {
   /** Géoloc visible (repli façade si pas de département). */
   lat: number | null
   lng: number | null
+  /** Horodatage « prise mesurée » (066) — sert au calcul des métriques de badge. */
+  photo_verified_at?: string | null
 }
 
 export type ChallengeSlug = 'release_undersize' | 'respect_closures' | 'declare_sensitive'

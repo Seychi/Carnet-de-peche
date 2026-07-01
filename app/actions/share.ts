@@ -9,6 +9,7 @@ import {
   getMyCatchesBreakdown,
   getMyRecordsBySpecies,
 } from '@/lib/catches/queries'
+import { badgeTierLabel } from '@/lib/gamification/badges'
 import {
   publishSharePhoto,
   deleteSharePhoto,
@@ -39,6 +40,7 @@ const NOT_ENOUGH_MSG =
   'Logue au moins 3 prises pour partager tes conditions gagnantes.'
 const NO_GEAR_CATCHES_MSG =
   'Rattache du matériel à tes prises pour partager ta boîte qui pêche.'
+const NO_BADGES_MSG = 'Débloque au moins un badge pour partager ta collection.'
 
 // Fenêtre de déduplication best-effort : une carte identique (même user + kind +
 // même source) créée dans les dernières 24h est réutilisée plutôt que dupliquée.
@@ -142,6 +144,17 @@ export type RecordsCardPayload = {
   records: Array<{ species: string; size_cm: number; weight_g: number | null }>
 }
 
+// ─── Badges (kind 'badges', Sprint 62) ───────────────────────────────────────
+// Les paliers débloqués. PUREMENT TEXTUEL et geom-free : libellé du palier + médaille
+// (tier). Aucune coordonnée, aucun spot, aucun classement inter-pêcheurs (Phase E).
+// Tout vient de user_badges (RLS own-only) : on ne partage QUE ses propres badges.
+export type BadgesCardPayload = {
+  kind: 'badges'
+  username?: string | null
+  earnedCount: number
+  badges: Array<{ label: string; tier: number }>
+}
+
 export type ShareCardInput =
   | { kind: 'catch'; catchId: string; includePhoto?: boolean }
   | { kind: 'conditions' }
@@ -149,6 +162,7 @@ export type ShareCardInput =
   | { kind: 'gearbox' }
   | { kind: 'recap'; period?: string }
   | { kind: 'records' }
+  | { kind: 'badges' }
 
 const uuid = z.string().uuid()
 
@@ -277,6 +291,8 @@ export async function createShareCard(
       return createRecapCard(supabase, user.id, input.period)
     case 'records':
       return createRecordsCard(supabase, user.id)
+    case 'badges':
+      return createBadgesCard(supabase, user.id)
     default:
       return fail('Type de carte inconnu.')
   }
@@ -760,6 +776,57 @@ async function createRecordsCard(
   )
 }
 
+// ─── kind 'badges' (Sprint 62) ────────────────────────────────────────────────
+// Partage la collection de paliers débloqués. PUREMENT TEXTUEL et geom-free : libellé
+// du palier + médaille (tier). user_badges est RLS own-only → ce SELECT ne renvoie QUE
+// mes badges. Aucun classement inter-pêcheurs, aucune coordonnée.
+async function createBadgesCard(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<ActionResult<{ slug: string }>> {
+  const { data, error } = await supabase
+    .from('user_badges')
+    .select('badge_slug, tier, earned_at')
+    .eq('user_id', userId)
+    .order('tier', { ascending: false })
+    .order('earned_at', { ascending: true })
+
+  if (error) {
+    console.error('[share/createBadgesCard]', error.message)
+    return fail(SAVE_MSG)
+  }
+  const rows = data ?? []
+  if (rows.length === 0) return fail(NO_BADGES_MSG)
+
+  // Libellé lisible par palier (ex. '50 prises'), top 8 par médaille. Un slug inconnu
+  // (badgeTierLabel renvoie le slug brut) reste affichable mais on ne l'invente pas.
+  const badges = rows
+    .map((r) => ({ label: badgeTierLabel(r.badge_slug), tier: Number(r.tier) || 1 }))
+    .filter((b) => !!b.label)
+    .slice(0, 8)
+
+  if (badges.length === 0) return fail(NO_BADGES_MSG)
+
+  const payload: BadgesCardPayload = {
+    kind: 'badges',
+    username: await getUsername(supabase, userId),
+    earnedCount: rows.length,
+    badges,
+  }
+
+  // Dédup : même collection récemment partagée → on réutilise le slug (signature =
+  // nombre de badges + libellés/paliers du top, dans l'ordre).
+  const signature = `${rows.length}:${badges.map((b) => `${b.label}:${b.tier}`).join('|')}`
+  const existing = await findRecentSlug(supabase, userId, 'badges', (p) => {
+    const prevCount = typeof p.earnedCount === 'number' ? p.earnedCount : 0
+    const prev = (p.badges as BadgesCardPayload['badges'] | undefined) ?? []
+    return `${prevCount}:${prev.map((b) => `${b.label}:${b.tier}`).join('|')}` === signature
+  })
+  if (existing) return ok({ slug: existing })
+
+  return insertCard(supabase, userId, 'badges', payload as unknown as Record<string, unknown>)
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // Gestion / révocation des cartes (sprint 38 WS-C). Owner-only : la RLS
 // (061) garantit DELETE/SELECT sur SES lignes uniquement, on double le filtre
@@ -770,7 +837,7 @@ async function createRecordsCard(
 // libellé humain dérivé du payload (geom-free, déjà public). Pas de re-calcul.
 export type ShareCardSummary = {
   slug: string
-  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records'
+  kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records' | 'badges'
   title: string
   createdAt: string
 }
@@ -817,6 +884,15 @@ function summarizePayload(
       ? `Mes records · ${n} espèce${n > 1 ? 's' : ''}`
       : 'Mes records de pêche'
   }
+  if (kind === 'badges') {
+    const count =
+      typeof payload.earnedCount === 'number'
+        ? payload.earnedCount
+        : Array.isArray(payload.badges)
+          ? payload.badges.length
+          : 0
+    return `Mes badges · ${count} palier${count > 1 ? 's' : ''}`
+  }
   return 'Carte partagée'
 }
 
@@ -827,6 +903,7 @@ const KNOWN_KINDS = new Set([
   'gearbox',
   'recap',
   'records',
+  'badges',
 ])
 
 // listMyShareCards — toutes MES cartes (les plus récentes d'abord) pour l'écran

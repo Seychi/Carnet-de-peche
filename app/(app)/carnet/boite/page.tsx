@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
  *  - gear_items via listMyGear() (RLS owner-only).
  *  - prises via catches_for_viewer filtrée explicitement sur user_id = auth.uid()
  *    (jamais la table catches en direct ; jamais les prises d'autrui).
- * Pas de leaderboard, pas de comparaison entre pêcheurs.
+ * Aucune fuite entre pêcheurs : chacun ne voit que sa propre boîte.
  */
 export default async function GearBoxPage() {
   const supabase = await createClient()

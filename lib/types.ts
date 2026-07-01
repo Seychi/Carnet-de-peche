@@ -1256,6 +1256,9 @@ export type Database = {
           earned_at: string
           id: string
           meta: Json | null
+          progress: number | null
+          target: number | null
+          tier: number
           user_id: string
         }
         Insert: {
@@ -1263,6 +1266,9 @@ export type Database = {
           earned_at?: string
           id?: string
           meta?: Json | null
+          progress?: number | null
+          target?: number | null
+          tier?: number
           user_id: string
         }
         Update: {
@@ -1270,6 +1276,9 @@ export type Database = {
           earned_at?: string
           id?: string
           meta?: Json | null
+          progress?: number | null
+          target?: number | null
+          tier?: number
           user_id?: string
         }
         Relationships: []
@@ -1773,10 +1782,33 @@ export type Database = {
             }
             Returns: string
           }
+      award_catch_xp: {
+        Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
+        Returns: undefined
+      }
+      award_xp: {
+        Args: {
+          p_kind: string
+          p_points: number
+          p_ref_id?: string
+          p_ref_type?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       can_post_in_department: { Args: { dept: string }; Returns: boolean }
       catch_visible_geom: {
         Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
         Returns: unknown
+      }
+      compute_user_week_streak: {
+        Args: { p_asof?: string; p_user_id: string }
+        Returns: {
+          current_streak: number
+          joker_month: string
+          last_week: string
+          longest_streak: number
+        }[]
       }
       consume_invite_code: { Args: { p_code: string }; Returns: boolean }
       current_tier: { Args: { uid: string }; Returns: string }
@@ -1988,6 +2020,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_public_badges: {
+        Args: { p_user_id: string }
+        Returns: {
+          badge_slug: string
+          earned_at: string
+          target: number
+          tier: number
+        }[]
+      }
       get_quality_cells: {
         Args: {
           max_lat: number
@@ -2118,6 +2159,7 @@ export type Database = {
           verified: boolean
         }[]
       }
+      get_user_streak: { Args: { p_user_id: string }; Returns: number }
       get_user_xp: { Args: { p_user_id: string }; Returns: number }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
@@ -2193,6 +2235,9 @@ export type Database = {
           earned_at: string
           id: string
           meta: Json | null
+          progress: number | null
+          target: number | null
+          tier: number
           user_id: string
         }[]
         SetofOptions: {
@@ -2202,6 +2247,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      refresh_user_streak: { Args: { p_user_id: string }; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       spot_visible_geom: {

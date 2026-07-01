@@ -4,7 +4,12 @@ import { getMyOutingStats, type OutingStats } from '@/lib/outings/queries'
 import { buildPokedex, type Pokedex } from './pokedex'
 import { computeChallengeProgress, type ChallengeProgress, type ChallengeCatch } from './challenges'
 import { getMyStreak, type Streak } from './streaks'
-import { recomputeMyBadges, type UserBadgeRow } from './badges'
+import {
+  recomputeMyBadges,
+  computeBadgeMetrics,
+  type UserBadgeRow,
+  type BadgeMetrics,
+} from './badges'
 
 // ─── Agrégat gamification (server-side, privé) ──────────────────────────────────
 // Source unique pour le carnet/profil. Tout dérive du carnet (RLS own) → GRATUIT,
@@ -14,6 +19,8 @@ export type Gamification = {
   pokedex: Pokedex
   streak: Streak
   badges: UserBadgeRow[]
+  /** Métriques du carnet qui pilotent les barres de progression des badges (live). */
+  badgeMetrics: BadgeMetrics
   challenges: ChallengeProgress[]
   outingStats: OutingStats
 }
@@ -33,7 +40,7 @@ async function getMyCatchesForChallenges(): Promise<ChallengeCatch[]> {
 
   const { data, error } = await supabase
     .from('catches_for_viewer')
-    .select('species, released, size_cm, caught_at, department, lat, lng')
+    .select('species, released, size_cm, caught_at, department, lat, lng, photo_verified_at')
     .eq('user_id', user.id)
     .limit(2000)
 
@@ -49,7 +56,15 @@ async function getMyCatchesForChallenges(): Promise<ChallengeCatch[]> {
 export async function getMyGamification(): Promise<Gamification> {
   const [breakdown, streak, badges, challengeCatches, outingStats] = await Promise.all([
     getMyCatchesBreakdown().catch(() => null),
-    getMyStreak().catch(() => ({ activeDays: 0, activeWeeks: 0, longestWeekStreak: 0 })),
+    getMyStreak().catch(() => ({
+      activeDays: 0,
+      activeWeeks: 0,
+      longestWeekStreak: 0,
+      currentWeekStreak: 0,
+      weekActiveNow: false,
+      daysLeftThisWeek: 0,
+      jokerAvailable: true,
+    })),
     recomputeMyBadges().catch(() => [] as UserBadgeRow[]),
     getMyCatchesForChallenges().catch(() => [] as ChallengeCatch[]),
     getMyOutingStats().catch(() => ({
@@ -64,6 +79,7 @@ export async function getMyGamification(): Promise<Gamification> {
     pokedex: buildPokedex(breakdown),
     streak,
     badges,
+    badgeMetrics: computeBadgeMetrics(challengeCatches),
     challenges: computeChallengeProgress(challengeCatches),
     outingStats,
   }

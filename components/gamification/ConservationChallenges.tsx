@@ -4,7 +4,7 @@ import { CHALLENGES, type ChallengeDef, type ChallengeProgress } from '@/lib/gam
 import { TagData } from '@/components/ui-v2/tag-data'
 
 // Défis CONSERVATION (G3, D-F4) — non-compétitifs, liés à RecFishing. Calculés sur
-// lecture depuis tes prises + la réglementation. Aucune comparaison entre pêcheurs.
+// lecture depuis tes prises + la réglementation.
 // Daltonien-safe : l'avancement est doublé en chiffres + barre + libellé (jamais la
 // teinte seule). Honnête : si une prise n'a pas de façade connue, elle est ignorée.
 
@@ -28,7 +28,7 @@ export function ConservationChallenges({
       <header className="mb-3">
         <TagData>DÉFIS CONSERVATION</TagData>
         <p className="mt-1 text-[12.5px] leading-snug text-ink-500">
-          Pêcher responsable, à ton rythme. Pas de classement, juste tes bons gestes.
+          Pêcher responsable, à ton rythme. Tes bons gestes pour la ressource.
         </p>
       </header>
 

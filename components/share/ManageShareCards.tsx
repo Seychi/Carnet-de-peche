@@ -20,6 +20,7 @@ const KIND_LABEL: Record<ShareCardSummary['kind'], string> = {
   gearbox: 'Boîte',
   recap: 'Année',
   records: 'Records',
+  badges: 'Badges',
 }
 
 function fmtDate(iso: string): string {

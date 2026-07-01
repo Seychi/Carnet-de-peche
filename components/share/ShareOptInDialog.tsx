@@ -57,6 +57,11 @@ const COPY: Record<ShareKind, { title: string; description: string }> = {
     description:
       'On crée une carte publique de tes plus beaux poissons par espèce (taille et poids). Aucune coordonnée, aucun spot, aucun classement avec les autres. Tu peux la supprimer quand tu veux.',
   },
+  badges: {
+    title: 'Partager tes badges ?',
+    description:
+      'On crée une carte publique de tes paliers débloqués (volume, espèces, régularité…). Aucune coordonnée, aucun spot, aucun classement avec les autres. Tu peux la supprimer quand tu veux.',
+  },
 }
 
 export function ShareOptInDialog({
