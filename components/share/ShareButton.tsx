@@ -4,6 +4,7 @@ import { Share2 } from 'lucide-react'
 import type { ShareCardInput } from '@/app/actions/share'
 import { useShareCard } from './use-share-card'
 import { ShareOptInDialog } from './ShareOptInDialog'
+import { ShareSuccessModal } from './ShareSuccessModal'
 
 // Bouton de partage réutilisable (sprint 38 WS-C, étendu sprint 47). Opt-in strict :
 // clic → soit 1-tap si l'utilisateur a coché « ne plus me demander » (D4), soit dialog
@@ -48,6 +49,10 @@ export function ShareButton({
     setDialogOpen,
     pendingKind,
     pendingHasPhoto,
+    preview,
+    previewOpen,
+    setPreviewOpen,
+    downloadPreview,
   } = useShareCard()
 
   return (
@@ -71,6 +76,14 @@ export function ShareButton({
         }}
         onConfirm={confirmShare}
         working={sharing}
+      />
+
+      <ShareSuccessModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        slug={preview?.slug ?? null}
+        pageUrl={preview?.pageUrl ?? null}
+        onDownload={downloadPreview}
       />
     </>
   )

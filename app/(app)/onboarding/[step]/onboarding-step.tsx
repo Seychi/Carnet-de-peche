@@ -605,7 +605,7 @@ export function OnboardingStep({
 
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !form6.watch("fishing_frequency")}
                   className="min-h-[56px] rounded-full text-[16px] font-semibold w-full"
                   style={{
                     background: "linear-gradient(135deg, var(--navy-900), var(--teal-600))",

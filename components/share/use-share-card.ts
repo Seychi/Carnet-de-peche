@@ -60,30 +60,15 @@ function triggerDownload(file: File): void {
   setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000)
 }
 
-async function fallbackShare(pageUrl: string, file: File | null): Promise<void> {
-  let copied = false
-  try {
-    await navigator.clipboard.writeText(pageUrl)
-    copied = true
-  } catch {
-    copied = false
-  }
-  if (file) {
-    triggerDownload(file)
-    toast.success(
-      copied ? 'Lien copié, image téléchargée.' : 'Image téléchargée.',
-    )
-  } else {
-    toast.success(copied ? 'Lien copié !' : pageUrl)
-  }
-}
-
 export function useShareCard() {
   const [status, setStatus] = useState<Status>('idle')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [pending, setPending] = useState<PendingShare | null>(null)
   // Garde-fou anti double-clic pendant la résolution de la préférence skip.
   const deciding = useRef(false)
+  // Aperçu de succès (desktop / navigateur sans Web Share fichier) — sprint 59 Bloc 3.
+  const [preview, setPreview] = useState<{ slug: string; pageUrl: string; file: File | null } | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const share = useCallback(
     async (input: ShareCardInput, title: string, text: string) => {
@@ -113,29 +98,16 @@ export function useShareCard() {
           } catch (err) {
             // Annulation utilisateur : pas un échec, on ne montre rien.
             if (err instanceof DOMException && err.name === 'AbortError') return
-            // Activation perdue / payload refusé → on retombe sur le fallback.
-            await fallbackShare(pageUrl, file)
-            return
+            // Activation perdue / payload refusé → on bascule sur l'aperçu (comme desktop).
           }
         }
 
-        // Pas de Web Share fichier (desktop / Firefox) : tenter le partage de lien
-        // natif si dispo, sinon copier + télécharger.
-        if (
-          typeof navigator !== 'undefined' &&
-          typeof navigator.share === 'function'
-        ) {
-          try {
-            await navigator.share({ title, text, url: pageUrl })
-            return
-          } catch (err) {
-            if (err instanceof DOMException && err.name === 'AbortError') return
-            await fallbackShare(pageUrl, file)
-            return
-          }
-        }
-
-        await fallbackShare(pageUrl, file)
+        // Pas de Web Share fichier (desktop / Firefox) OU échec non-annulation : au lieu
+        // d'un toast fugace, on ouvre une modale d'APERÇU de la carte (miniature +
+        // copier le lien + télécharger l'image). Sprint 59 Bloc 3. Le partage de lien
+        // natif (URL seule) est remplacé par « Copier le lien » dans la modale.
+        setPreview({ slug, pageUrl, file })
+        setPreviewOpen(true)
       } finally {
         setStatus('idle')
       }
@@ -191,6 +163,14 @@ export function useShareCard() {
     [pending, share],
   )
 
+  // Télécharge l'image de la carte affichée dans l'aperçu (sprint 59 Bloc 3).
+  const downloadPreview = useCallback(async () => {
+    if (!preview) return
+    const file = preview.file ?? (await fetchStoryFile(preview.slug))
+    if (file) triggerDownload(file)
+    else toast.error('Téléchargement indisponible pour le moment.')
+  }, [preview])
+
   return {
     // API historique (CatchActionsDropdown, etc.) : ouverture de dialog gérée
     // par l'appelant.
@@ -203,5 +183,10 @@ export function useShareCard() {
     setDialogOpen,
     pendingKind: pending?.input.kind ?? null,
     pendingHasPhoto: pending?.hasPhoto ?? false,
+    // API sprint 59 (Bloc 3) : aperçu de succès (desktop / pas de Web Share fichier).
+    preview,
+    previewOpen,
+    setPreviewOpen,
+    downloadPreview,
   }
 }

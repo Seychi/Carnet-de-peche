@@ -91,6 +91,12 @@ export async function NearYou({ dept }: { dept: string }) {
             Comptage anonymisé (zones de ≥ 3 pêcheurs), jamais un coin précis.
           </span>
         </p>
+      ) : posts.length > 0 ? (
+        // Pas de compteur k-anon cette semaine, MAIS le fil a de l'activité : on
+        // évite la contradiction « sois le premier » au-dessus d'un post existant.
+        <p className="text-[14px] leading-relaxed text-ink-600">
+          Les dernières nouvelles du fil sur {deptLabel}.
+        </p>
       ) : (
         <p className="text-[14px] leading-relaxed text-ink-600">
           Pas encore de prise partagée sur {deptLabel} cette semaine.{' '}

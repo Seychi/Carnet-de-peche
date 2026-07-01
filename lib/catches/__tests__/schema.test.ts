@@ -8,8 +8,8 @@ import {
 
 // ─── updateCatchSchema : update partiel ──────────────────────────────────────
 // Bug audit 2026-06-11 (Conservé→Relâché) : un update partiel ne doit JAMAIS
-// réinjecter les valeurs par défaut du schéma de création (released=false,
-// caught_at=now) — sinon l'action écrase des champs non soumis en base.
+// réinjecter les valeurs par défaut du schéma de création (released=true depuis le
+// sprint 59, caught_at=now) — sinon l'action écrase des champs non soumis en base.
 
 describe('updateCatchSchema — update partiel', () => {
   const ID = '4f1f06a2-95a1-4c1e-9f57-1d2f0a6c8b3e'

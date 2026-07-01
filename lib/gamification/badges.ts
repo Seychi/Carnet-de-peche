@@ -52,7 +52,7 @@ export const BADGES: BadgeDef[] = [
   {
     slug: 'pokedex_complete',
     label: 'Pokédex complet',
-    description: 'Les 20 espèces du bord sont à ton carnet. Chapeau.',
+    description: 'Les 26 espèces du bord sont à ton carnet. Chapeau.',
     icon: 'trophy',
   },
   {

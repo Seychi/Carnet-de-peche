@@ -80,7 +80,10 @@ const catchFieldsNoDefaults = z.object({
 // Objet de base AVEC defaults, réutilisé par le form et createCatchSchema
 const baseCatchObject = catchFieldsNoDefaults.extend({
   caught_at: z.string().datetime().refine(notFuture, { error: 'La date de la prise ne peut pas être dans le futur.' }).default(() => new Date().toISOString()),
-  released: z.boolean().default(false),
+  // Défaut « relâché » (sprint 59, décision John) : si l'utilisateur ne touche pas le
+  // toggle « Sort de l'eau » (qui n'a AUCUNE présélection à l'écran), la prise part
+  // relâchée. NB : le défaut de colonne DB est `false` ; on l'override ici, à dessein.
+  released: z.boolean().default(true),
   location_method: catchLocationMethodEnum.default('gps'),
   privacy: catchPrivacyEnum.default('private'),
   precise_for_friends: z.boolean().default(true),

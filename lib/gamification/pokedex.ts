@@ -2,7 +2,7 @@ import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
 import type { CatchBreakdown } from '@/lib/catches/queries'
 
 // ─── Pokédex des espèces ───────────────────────────────────────────────────────
-// PUR TS sur lecture (aucune table) : on croise le référentiel SPECIES (20 espèces,
+// PUR TS sur lecture (aucune table) : on croise le référentiel SPECIES (26 espèces,
 // source unique) avec le breakdown du carnet (get_my_catches_breakdown, RLS own).
 // Anti-comparaison : c'est TA collection, jamais un classement. Privé.
 

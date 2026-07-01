@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useShareCard } from '@/components/share/use-share-card'
 import { ShareOptInDialog } from '@/components/share/ShareOptInDialog'
+import { ShareSuccessModal } from '@/components/share/ShareSuccessModal'
 import { catchActionsTriggerClass } from './catch-actions-trigger'
 
 /**
@@ -41,7 +42,8 @@ export default function CatchActionsDropdown({
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
-  const { share, sharing } = useShareCard()
+  const { share, sharing, preview, previewOpen, setPreviewOpen, downloadPreview } =
+    useShareCard()
 
   useEffect(() => {
     setOpen(true)
@@ -108,6 +110,14 @@ export default function CatchActionsDropdown({
         }}
         onConfirm={handleConfirmShare}
         working={sharing}
+      />
+
+      <ShareSuccessModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        slug={preview?.slug ?? null}
+        pageUrl={preview?.pageUrl ?? null}
+        onDownload={downloadPreview}
       />
     </>
   )

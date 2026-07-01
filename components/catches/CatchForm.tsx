@@ -244,7 +244,9 @@ export function CatchForm(props: CatchFormProps) {
     ? rowToDefaults(initialValues)
     : {
         caught_at: draft?.caught_at ?? new Date().toISOString(),
-        released: draft?.released ?? false,
+        // Aucune présélection du toggle « Sort de l'eau » (sprint 59, Bloc 0) : undefined
+        // → ni « Conservé » ni « Relâché » surligné. Untouched → zod default(true) = relâché.
+        released: draft?.released,
         location_method: spotContext ? 'spot' : (draft?.location_method ?? 'gps'),
         spot_id: spotContext?.id ?? undefined,
         latitude: spotContext?.lat ?? draft?.latitude,
@@ -687,6 +689,7 @@ export function CatchForm(props: CatchFormProps) {
           </div>
           <input
             type="range"
+            aria-label="Taille en centimètres (curseur)"
             min={10}
             max={120}
             step={1}
@@ -1119,6 +1122,13 @@ export function CatchForm(props: CatchFormProps) {
           render={({ field }) => (
             <input
               type="datetime-local"
+              aria-label="Date et heure de la prise"
+              // La valeur par défaut vient de `new Date()` (à froid) : elle diffère
+              // entre le rendu serveur (UTC) et le client (heure locale via isoToLocal).
+              // On tolère ce SEUL nœud pour éviter un warning d'hydratation #418
+              // (sprint 59, Bloc 0) ; après montage, la valeur client (l'heure réelle)
+              // fait foi. Pas de nouveau calcul, juste la stabilité serveur/client.
+              suppressHydrationWarning
               value={isoToLocal(field.value ?? new Date().toISOString())}
               max={isoToLocal(new Date().toISOString())}
               onChange={(e) => field.onChange(localToIso(e.target.value))}

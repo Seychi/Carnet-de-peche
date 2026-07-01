@@ -77,6 +77,7 @@ export function PhotoInput({ onChange, className, initialUrl }: PhotoInputProps)
       <input
         ref={inputRef}
         type="file"
+        aria-label="Photo de la prise"
         accept="image/*"
         capture="environment"
         className="sr-only"
