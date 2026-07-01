@@ -163,6 +163,54 @@ export type Database = {
           },
         ]
       }
+      challenges: {
+        Row: {
+          active: boolean
+          created_at: string
+          criteria: Json
+          description: string
+          icon: string | null
+          id: string
+          period_end: string | null
+          period_start: string | null
+          reward_xp: number
+          scope: string
+          slug: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          criteria: Json
+          description: string
+          icon?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          reward_xp?: number
+          scope: string
+          slug: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          criteria?: Json
+          description?: string
+          icon?: string | null
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          reward_xp?: number
+          scope?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
       feed_comments: {
         Row: {
           author_id: string
@@ -1283,6 +1331,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          id: string
+          progress: number
+          target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          id?: string
+          progress?: number
+          target?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          id?: string
+          progress?: number
+          target?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_progress: {
         Row: {
           current_week_streak: number
@@ -2243,6 +2329,24 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "user_badges"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      recompute_my_challenges: {
+        Args: never
+        Returns: {
+          challenge_id: string
+          completed_at: string | null
+          id: string
+          progress: number
+          target: number
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "user_challenge_progress"
           isOneToOne: false
           isSetofReturn: true
         }

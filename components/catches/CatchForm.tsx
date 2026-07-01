@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm, Controller, type SubmitHandler, type SubmitErrorHandler, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { MapPin, Loader2, Fish, Search, ChevronDown, Users, Trophy, Sparkles, Award } from 'lucide-react'
+import { MapPin, Loader2, Fish, Search, ChevronDown, Users, Trophy, Sparkles, Award, Target } from 'lucide-react'
 
 import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
@@ -1360,6 +1360,18 @@ function buildCatchMoments(c: CatchCelebration): CelebrationMoment[] {
       title: 'Badge débloqué',
       subtitle: badge.label,
       detail: badge.description,
+    })
+  }
+
+  // Défis solo complétés (Sprint 63) : fêtés en dernier, avec l'XP crédité côté DB.
+  for (const ch of c.newChallenges) {
+    moments.push({
+      key: `challenge-${ch.slug}`,
+      tone: 'default',
+      icon: Target,
+      title: 'Défi relevé !',
+      subtitle: ch.title,
+      xp: ch.rewardXp > 0 ? ch.rewardXp : undefined,
     })
   }
 

@@ -8,6 +8,9 @@ import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
 import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import { notifyFollowersOfPublicCatch } from './notify-followers'
 import { buildCatchCelebration, type CatchCelebration } from '@/lib/gamification/celebration'
+import { recomputeSoloChallenges, type CompletedChallenge } from '@/lib/gamification/challenges-solo'
+import { getUserXpOrNull } from '@/lib/gamification/progress'
+import { emitDopamineNotifications } from '@/lib/notifications/dopamine'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,7 +127,12 @@ export async function createCatch(
   }
 
   const caughtAt = new Date(data.caught_at)
-  const conditions = await safeConditions(data.latitude, data.longitude, caughtAt)
+  // XP AVANT le log (le trigger 098 crédite pendant l'insert) : sert à détecter un passage
+  // de niveau plus bas. Lu en parallèle du fetch conditions (best-effort, 0 si erreur).
+  const [conditions, xpBefore] = await Promise.all([
+    safeConditions(data.latitude, data.longitude, caughtAt),
+    getUserXpOrNull(user.id, supabase).catch(() => null),
+  ])
   // Snapshot exploitable pour les colonnes dénormalisées (null si hors couverture)
   const snapshot = conditions && !('out_of_coverage' in conditions) ? conditions : null
 
@@ -193,9 +201,24 @@ export async function createCatch(
     }
   }
 
+  // Défis solo (Sprint 63) : recalcule la progression (SQL + « lever du soleil » en TS)
+  // et récupère les défis fraîchement complétés par CE log pour les fêter. Best-effort
+  // STRICT (la fonction ne throw jamais) — le log a déjà réussi ici.
+  let completedChallenges: CompletedChallenge[] = []
+  try {
+    const res = await recomputeSoloChallenges({
+      supabase,
+      userId: user.id,
+      sinceIso: row.created_at ?? null,
+    })
+    completedChallenges = res.newlyCompleted
+  } catch (e) {
+    console.error('[catches/actions] recomputeSoloChallenges (non bloquant) :', e)
+  }
+
   // Détection « un record vient de tomber » (Sprint 61) : on relit le ledger XP écrit
-  // par le trigger 098 + les badges nouvellement débloqués, pour que le client fête le
-  // moment. Best-effort STRICT (ne throw jamais) — le log a déjà réussi ici.
+  // par le trigger 098 + les badges nouvellement débloqués + les défis complétés
+  // (ci-dessus), pour que le client fête le moment. Best-effort STRICT (ne throw jamais).
   const measuredLength = isMeasured ? (data.measured_length_cm ?? null) : null
   let celebration: CatchCelebration | undefined
   try {
@@ -205,10 +228,27 @@ export async function createCatch(
       species: data.species,
       measuredLength,
       catchCreatedAt: row.created_at ?? null,
+      completedChallenges,
     })
     celebration = detected ?? undefined
   } catch (e) {
     console.error('[catches/actions] buildCatchCelebration (non bloquant) :', e)
+  }
+
+  // Notifs dopamine proactives (Sprint 63, Bloc 3) : level up (XP après le trigger + les
+  // crédits de défis), nouveau record, badge(s), défi(s) relevé(s). In-app toujours ;
+  // push gaté par la pref 'progress'. Best-effort STRICT (le log a déjà réussi).
+  try {
+    const xpAfter = await getUserXpOrNull(user.id, supabase).catch(() => null)
+    await emitDopamineNotifications({
+      userId: user.id,
+      xpBefore,
+      xpAfter,
+      celebration: celebration ?? null,
+      completedChallenges,
+    })
+  } catch (e) {
+    console.error('[catches/actions] emitDopamineNotifications (non bloquant) :', e)
   }
 
   revalidatePath('/carnet')

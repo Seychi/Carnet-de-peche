@@ -55,6 +55,15 @@ export type NotificationType =
   // résidence du destinataire. CHECK DB étendu en migration 090. target_type='outing'.
   // 0 coordonnée : le preview ne porte que le département + un repère libre.
   | 'nearby_outing'
+  // Dopamine proactive (sprint 63) : self-notifs SANS acteur humain (actor_id NULL),
+  // insérées en service_role. CHECK DB étendu en migration 101. target_type=NULL (la
+  // cible utile vit dans preview_text + l'URL du push). Opt-out via prefs 'progress' /
+  // 'streak_reminder' (lib/notifications/prefs-meta.ts). AUCUNE notif de rang/classement.
+  | 'level_up'
+  | 'badge_earned'
+  | 'new_record'
+  | 'streak_danger'
+  | 'challenge_completed'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

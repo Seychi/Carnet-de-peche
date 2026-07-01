@@ -19,6 +19,7 @@
 import type { createClient } from '@/lib/supabase/server'
 import * as badgesModule from './badges'
 import type { UserBadgeRow } from './badges'
+import type { CompletedChallenge } from './challenges-solo'
 
 type Client = Awaited<ReturnType<typeof createClient>>
 
@@ -68,6 +69,8 @@ export type CatchCelebration = {
   newRecord: { species: string; length: number; previousBest: number | null } | null
   /** Badges débloqués par ce log (jamais un badge déjà obtenu avant). */
   newBadges: CelebrationBadge[]
+  /** Défis solo (Sprint 63) complétés par ce log (déjà crédités en XP côté DB). */
+  newChallenges: CompletedChallenge[]
 }
 
 type BuildArgs = {
@@ -78,6 +81,8 @@ type BuildArgs = {
   measuredLength: number | null
   /** `created_at` de la prise insérée (ISO). Requis pour détecter les nouveaux badges. */
   catchCreatedAt: string | null
+  /** Défis solo fraîchement complétés par ce log (calculés en amont par recomputeSoloChallenges). */
+  completedChallenges?: CompletedChallenge[]
 }
 
 /**
@@ -88,8 +93,9 @@ type BuildArgs = {
  */
 export async function buildCatchCelebration(
   supabase: Client,
-  { userId, catchId, species, measuredLength, catchCreatedAt }: BuildArgs
+  { userId, catchId, species, measuredLength, catchCreatedAt, completedChallenges }: BuildArgs
 ): Promise<CatchCelebration | null> {
+  const newChallenges = completedChallenges ?? []
   // 1. XP octroyée à cette prise (ledger own-only)
   const kinds: string[] = []
   const xpByKind: Record<string, number> = {}
@@ -159,9 +165,10 @@ export async function buildCatchCelebration(
     }
   }
 
-  const hasSomething = newRecord !== null || newSpecies || newBadges.length > 0
+  const hasSomething =
+    newRecord !== null || newSpecies || newBadges.length > 0 || newChallenges.length > 0
   if (!hasSomething) return null
 
   const xpGained = Object.values(xpByKind).reduce((a, b) => a + b, 0)
-  return { species, kinds, xpGained, xpByKind, newSpecies, newRecord, newBadges }
+  return { species, kinds, xpGained, xpByKind, newSpecies, newRecord, newBadges, newChallenges }
 }

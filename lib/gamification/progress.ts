@@ -23,3 +23,19 @@ export async function getUserXp(
   if (error || data == null) return 0
   return Number(data) || 0
 }
+
+/**
+ * Variante STRICTE : renvoie `null` si la lecture ÉCHOUE (erreur RPC), au lieu de replier
+ * silencieusement sur 0. Indispensable pour la détection de passage de niveau (Sprint 63) :
+ * un 0 « d'erreur » lu comme XP « avant » ferait croire à un faux palier (Mousse → rang réel).
+ * Ne jamais l'utiliser pour un affichage (préférer getUserXp, qui a un repli honnête à 0).
+ */
+export async function getUserXpOrNull(
+  userId: string,
+  client?: SupabaseClient<Database>,
+): Promise<number | null> {
+  const supabase = client ?? (await createClient())
+  const { data, error } = await supabase.rpc('get_user_xp', { p_user_id: userId })
+  if (error || data == null) return null
+  return Number(data) || 0
+}

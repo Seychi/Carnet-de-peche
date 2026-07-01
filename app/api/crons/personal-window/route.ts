@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
     let bigTides = 0
     let closures = 0
     let digests = 0
+    let streakDangers = 0
     const isWeeklyDigestDay = parisIsWeekday(new Date(), DIGEST_WEEKDAY)
 
     for (const p of profiles ?? []) {
@@ -109,6 +110,17 @@ export async function GET(request: NextRequest) {
         } catch (e) {
           console.error('[cron personal-window] digest greffon (non bloquant) :', e)
         }
+      }
+
+      // ─── Greffon série en danger (sprint 63, tous tiers, solo) ─────────────────
+      // Dimanche (Paris) = dernier jour de la semaine ISO : si la série est active ET la
+      // semaine encore vide, un rappel DOUX (au plus 1×/semaine, idempotent). Timing
+      // MATINAL assumé (ce cron tourne à ~07:00 ; pas de cron du soir dédié, cf RECAP S63).
+      try {
+        const sent = await runStreakDangerGreffon(admin, userId, prefs, new Date())
+        if (sent) streakDangers++
+      } catch (e) {
+        console.error('[cron personal-window] streak-danger greffon (non bloquant) :', e)
       }
 
       // 1. Tier : on ne notifie QUE Local / Itinérant (la proactivité est le bénéfice payant).
@@ -201,7 +213,7 @@ export async function GET(request: NextRequest) {
       notified++
     }
 
-    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests })
+    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests, streakDangers })
   } catch (err) {
     console.error('[cron personal-window] échec global:', err)
     Sentry.captureException(err, { tags: { job: 'personal-window' } })
@@ -425,6 +437,106 @@ async function runWeeklyDigestGreffon(
       })
     } catch (e) {
       console.error('[cron digest] push best-effort (non bloquant) :', e)
+    }
+  }
+  return true
+}
+
+/**
+ * Greffon SÉRIE EN DANGER (sprint 63, tous tiers, solo). Le DIMANCHE (dernier jour de la
+ * semaine ISO, heure de Paris) : si la série en cours est active (> 0) ET qu'aucune prise
+ * ni sortie n'a été loguée cette semaine ISO, un rappel DOUX (jamais culpabilisant). In-app
+ * + push (gate pref 'streak_reminder'). Idempotence : pas deux fois en 6 jours (donc au plus
+ * 1×/semaine). Renvoie true si une notif a été créée. AUCUNE comparaison inter-pêcheurs.
+ */
+async function runStreakDangerGreffon(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  prefs: Record<string, unknown>,
+  now: Date,
+): Promise<boolean> {
+  // Uniquement le dernier jour de la semaine ISO (dimanche) → cadence ≤ 1/semaine.
+  if (!parisIsWeekday(now, 7)) return false
+
+  // Série EN COURS (entier) via la RPC definer (agrégat, aucune fuite de prise/spot).
+  const { data: streakVal, error: streakErr } = await admin.rpc('get_user_streak', {
+    p_user_id: userId,
+  })
+  if (streakErr) {
+    console.error('[cron streak-danger] lecture série échec (non bloquant) :', streakErr.message)
+    return false
+  }
+  const streak = Number(streakVal) || 0
+  if (streak <= 0) return false // pas de série active → rien à sauver
+
+  // Semaine ISO en cours = lundi 00:00 Paris (on est dimanche → lundi = J-6).
+  const monday = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000)
+  const { startUtc: weekStartUtc } = parisDayBoundsUtc(parisDateKey(monday))
+
+  // Déjà une activité cette semaine (prise OU sortie) ? → série déjà validée, pas de danger.
+  const [{ count: catchCount, error: cErr }, { count: outingCount, error: oErr }] =
+    await Promise.all([
+      admin
+        .from('catches')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('caught_at', weekStartUtc),
+      admin
+        .from('outings')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('started_at', weekStartUtc),
+    ])
+  if (cErr || oErr) {
+    console.error(
+      '[cron streak-danger] lecture activité échec (non bloquant) :',
+      cErr?.message ?? oErr?.message,
+    )
+    return false
+  }
+  if ((catchCount ?? 0) + (outingCount ?? 0) > 0) return false
+
+  // Idempotence : pas de streak_danger dans les 6 derniers jours (→ au plus 1/semaine).
+  const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString()
+  const { count: already, error: dupErr } = await admin
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('type', 'streak_danger')
+    .gte('created_at', sixDaysAgo)
+  if (dupErr) {
+    console.error('[cron streak-danger] idempotence échec (non bloquant) :', dupErr.message)
+    return false
+  }
+  if ((already ?? 0) > 0) return false
+
+  // Copie HONNÊTE : on ne promet pas une perte certaine (un joker mensuel peut couvrir une
+  // semaine sautée, cf StreakCard/mig. 099) → formulation positive, sans « tu vas tout perdre ».
+  const preview = `Ta série de ${streak} semaine${
+    streak > 1 ? 's' : ''
+  } attend un petit geste cette semaine. Une prise ou une sortie suffit.`
+
+  // In-app TOUJOURS (système, sans actor_id).
+  const { error: insErr } = await admin.from('notifications').insert({
+    user_id: userId,
+    type: 'streak_danger',
+    preview_text: preview.slice(0, 140),
+  })
+  if (insErr) {
+    console.error('[cron streak-danger] insert notif échec (non bloquant) :', insErr.message)
+    return false
+  }
+
+  // Push best-effort, gaté pref 'streak_reminder' + master switch (no-op sans clés).
+  if (isNotificationPrefEnabled(prefs, 'streak_reminder')) {
+    try {
+      await sendPushToUser(admin, userId, {
+        title: 'Carnet de Pêche',
+        body: preview,
+        url: '/home',
+      })
+    } catch (e) {
+      console.error('[cron streak-danger] push best-effort (non bloquant) :', e)
     }
   }
   return true

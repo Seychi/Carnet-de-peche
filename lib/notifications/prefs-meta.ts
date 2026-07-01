@@ -20,6 +20,9 @@ export const NOTIFICATION_PREF_KEYS = [
   'species_closure',
   'weekly_digest',
   'nearby_outing',
+  // Dopamine proactive (sprint 63) : deux interrupteurs groupés plutôt qu'un par événement.
+  'progress',
+  'streak_reminder',
 ] as const
 
 export type NotificationPrefKey = (typeof NOTIFICATION_PREF_KEYS)[number]
@@ -67,6 +70,18 @@ export const NOTIFICATION_PREF_META: readonly NotificationPrefMeta[] = [
     label: 'Sortie près de toi',
     description:
       'Quand un pêcheur propose une sortie à plusieurs dans ton département, pour te joindre à la partie.',
+  },
+  {
+    key: 'progress',
+    label: 'Ta progression',
+    description:
+      'Quand tu passes un niveau, débloques un badge, bats un record ou relèves un défi.',
+  },
+  {
+    key: 'streak_reminder',
+    label: 'Rappel de série',
+    description:
+      'Un rappel discret, au plus une fois par semaine, quand ta série est sur le point de se terminer.',
   },
 ] as const
 

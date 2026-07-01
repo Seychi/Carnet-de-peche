@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Fish, Star, Medal } from 'lucide-react'
+import { Fish, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
@@ -16,9 +16,9 @@ import { attachPostMedia } from '@/lib/feed/media'
 import { getProfileCatches, type ProfileCatch } from '@/lib/catches/media'
 import { getUserReputation } from '@/lib/cofishing/queries'
 import { getUserXp } from '@/lib/gamification/progress'
+import { getUserStreak } from '@/lib/gamification/streaks'
 import { getPublicBadges } from '@/lib/gamification/public-badges'
-import { badgeTierLabel } from '@/lib/gamification/badges'
-import { RankProgress } from '@/components/gamification/RankProgress'
+import { ProfileCompetitiveHeader } from '@/components/gamification/ProfileCompetitiveHeader'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
 
@@ -93,13 +93,15 @@ export default async function PublicProfilePage({
 
   // Compteurs sociaux (Bloc E) — comptés via follows (RLS select-all pour les
   // authentifiés) plutôt que la vue profile_stats, qui a perdu son SELECT en 031.
-  const [{ count: followersCount }, { count: followingCount }, profileXp, publicBadges] =
+  const [{ count: followersCount }, { count: followingCount }, profileXp, profileStreak, publicBadges] =
     await Promise.all([
       supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', profile.id),
       supabase.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', profile.id),
       // Rang public (sprint 60) — XP totale via la RPC definer get_user_xp (agrégat, zéro
       // fuite de prise/spot). user_progress reste RLS own-only.
       getUserXp(profile.id, supabase),
+      // Série en cours (sprint 62) — RPC definer get_user_streak (agrégat, aucune fuite).
+      getUserStreak(profile.id, supabase),
       // Badges phares (sprint 62) — via la RPC definer gatée get_public_badges (métadonnées
       // de badge uniquement : aucune prise, aucun spot, aucune coordonnée).
       getPublicBadges(profile.id, supabase),
@@ -165,25 +167,14 @@ export default async function PublicProfilePage({
               @{profile.username}
               {since ? ` · DEPUIS ${since.toUpperCase()}` : ''}
             </p>
-            {/* Rang + barre XP (sprint 60) — l'identité de progression, publique. */}
-            <div className="mt-2.5 max-w-[280px]">
-              <RankProgress totalXp={profileXp} onDark />
-            </div>
-            {/* Badges phares (sprint 62) — les 3 paliers les plus hauts, texte + icône
-                (daltonien-safe). Exposés via la RPC gatée, jamais de donnée privée. */}
-            {publicBadges.length > 0 && (
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                {publicBadges.slice(0, 3).map((b) => (
-                  <span
-                    key={b.slug}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1 font-mono text-[10px] font-medium text-white"
-                  >
-                    <Medal size={11} className="shrink-0 text-gold-400" aria-hidden />
-                    {badgeTierLabel(b.slug)}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* En-tête compétitif (sprint 63) : rang + barre XP (60), série (62) et 3 badges
+                phares (62) en une surface cohérente. Tout public mais sans fuite (agrégats via
+                RPC definer gatées). Remplace l'ajout minimal du sprint 60. */}
+            <ProfileCompetitiveHeader
+              totalXp={profileXp}
+              streakWeeks={profileStreak}
+              badges={publicBadges}
+            />
             {profile.bio && <p className="mt-1.5 text-[14px] text-white/75">{profile.bio}</p>}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {dept && <HeroChip>{`${dept.toUpperCase()}`}</HeroChip>}
