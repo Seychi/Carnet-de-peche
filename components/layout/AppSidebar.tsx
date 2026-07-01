@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, NotebookText, Map, MessageCircle, User, Users, Handshake, Fish, BookOpen, MapPinPlus, ClipboardList, type LucideIcon } from 'lucide-react'
+import { Home, NotebookText, Map, MessageCircle, User, Users, Handshake, Trophy, Fish, BookOpen, MapPinPlus, ClipboardList, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Groupe principal « mon espace ».
@@ -13,6 +13,7 @@ const ITEMS = [
   { label: 'Fil', href: '/fil', match: '/fil', Icon: MessageCircle },
   { label: 'Mes pêcheurs', href: '/follows', match: '/follows', Icon: Users },
   { label: 'Co-pêchage', href: '/sorties', match: '/sorties', Icon: Handshake },
+  { label: 'Classements', href: '/classements', match: '/classements', Icon: Trophy },
   { label: 'Profil', href: '/profil', match: '/profil', Icon: User },
 ] as const
 

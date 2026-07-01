@@ -817,6 +817,7 @@ export type Database = {
           notification_prefs: Json
           onboarded: boolean
           onboarded_at: string | null
+          public_ranking: boolean
           share_skip_optin: boolean
           techniques: string[] | null
           updated_at: string
@@ -842,6 +843,7 @@ export type Database = {
           notification_prefs?: Json
           onboarded?: boolean
           onboarded_at?: string | null
+          public_ranking?: boolean
           share_skip_optin?: boolean
           techniques?: string[] | null
           updated_at?: string
@@ -867,6 +869,7 @@ export type Database = {
           notification_prefs?: Json
           onboarded?: boolean
           onboarded_at?: string | null
+          public_ranking?: boolean
           share_skip_optin?: boolean
           techniques?: string[] | null
           updated_at?: string
@@ -2080,6 +2083,23 @@ export type Database = {
         Returns: {
           nb_posts_24h: number
           region: string
+        }[]
+      }
+      get_leaderboard: {
+        Args: {
+          p_dept?: string
+          p_limit?: number
+          p_metric?: string
+          p_period?: string
+          p_scope?: string
+          p_species?: string
+        }
+        Returns: {
+          avatar_url: string
+          metric_value: number
+          rank: number
+          user_id: string
+          username: string
         }[]
       }
       get_my_catch_stats: { Args: { uid?: string }; Returns: Json }

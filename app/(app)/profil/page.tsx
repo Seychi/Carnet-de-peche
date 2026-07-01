@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getMyCatchStats } from '@/lib/catches/queries'
 import { ShareButton } from '@/components/share/ShareButton'
 import { ProfileForm } from './profile-form'
+import { RankingVisibilityToggle } from './ranking-visibility-toggle'
 
 type Profile = {
   id: string
@@ -17,6 +18,7 @@ type Profile = {
   years_practicing: number | null
   avatar_url: string | null
   created_at: string
+  public_ranking: boolean | null
 }
 
 export default async function ProfilPage() {
@@ -28,7 +30,7 @@ export default async function ProfilPage() {
   // journal t'apprend ») vivent sur /carnet, plus ici — fin du doublon TES TENDANCES.
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at')
+    .select('id, username, bio, city, home_department, level, techniques, favorite_species, fishing_frequency, years_practicing, avatar_url, created_at, public_ranking')
     .eq('id', user.id)
     .single()
 
@@ -77,6 +79,8 @@ export default async function ProfilPage() {
             </div>
           </section>
         )}
+
+        <RankingVisibilityToggle initial={profile.public_ranking ?? false} />
 
         <ProfileForm profile={profile as Profile} email={user.email ?? ''} />
       </div>

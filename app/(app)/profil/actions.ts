@@ -92,6 +92,31 @@ export async function updateProfile(formData: FormData) {
   return { error: null }
 }
 
+// Opt-in RGPD aux classements (Sprint 66). Action DÉDIÉE (découplée du gros formulaire, qui
+// exige ≥ 1 technique) → retour arrière IMMÉDIAT : repasser en privé te retire de TOUS les
+// classements sans autre condition. Ne touche QUE la colonne public_ranking.
+export async function updateRankingVisibility(enabled: boolean) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ public_ranking: enabled, updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+
+  if (error) {
+    console.error('[updateRankingVisibility]', error.message)
+    return { error: 'Erreur lors de la mise à jour. Réessaie.' }
+  }
+
+  revalidatePath('/profil')
+  revalidatePath('/classements')
+  return { error: null }
+}
+
 const AVATAR_BUCKET = 'avatars'
 
 // Extrait le chemin Storage (<uid>/fichier.webp) d'une URL publique avatars,
