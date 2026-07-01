@@ -5,10 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm, Controller, type SubmitHandler, type SubmitErrorHandler, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { MapPin, Loader2, Fish, Search, ChevronDown, Users } from 'lucide-react'
+import { MapPin, Loader2, Fish, Search, ChevronDown, Users, Trophy, Sparkles, Award } from 'lucide-react'
 
 import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
+import { CelebrationOverlay, type CelebrationMoment } from '@/components/gamification/CelebrationOverlay'
+import type { CatchCelebration } from '@/lib/gamification/celebration'
+import { ShareButton } from '@/components/share/ShareButton'
+import { SPECIES_LABELS } from '@/lib/labels'
 import { checkSize, getMinSize, getFacadeForCatch, isMarquageRequired, FACADE_LABELS } from '@/lib/regulation'
 import { CARNET_SPECIES_OPTIONS, CARNET_SPECIES_DB_KEYS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 import { DEPARTMENT_LABELS, isCoastalDepartment } from '@/lib/geo/departments'
@@ -200,6 +204,11 @@ export function CatchForm(props: CatchFormProps) {
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>('idle')
   const submittedRef = useRef(false)
   const lastFieldRef = useRef('')
+
+  // Célébration (Sprint 61) : record / nouvelle espèce / badge tombé au log. On garde
+  // la destination en attente pour naviguer À LA FERMETURE de l'overlay (pas avant).
+  const [celebration, setCelebration] = useState<CatchCelebration | null>(null)
+  const pendingNavRef = useRef<string | null>(null)
 
   // Brouillon localStorage (mode création uniquement). On stocke désormais
   // { savedAt, data } et on ignore (et purge) tout brouillon plus vieux que TTL.
@@ -516,6 +525,18 @@ export function CatchForm(props: CatchFormProps) {
       hasPhoto: !!photoPath,
     })
     localStorage.removeItem(DRAFT_KEY)
+
+    // Sprint 61 : un record / une nouvelle espèce / un badge est tombé → on FÊTE le
+    // moment (l'overlay porte le feedback), puis on navigue à sa fermeture. Si la
+    // célébration ne produit aucun moment affichable, on retombe sur le comportement
+    // habituel (toast + navigation directe) — jamais bloqué sur le formulaire.
+    if (result.celebration && buildCatchMoments(result.celebration).length > 0) {
+      pendingNavRef.current = `/carnet/${result.id}`
+      setCelebration(result.celebration)
+      setSubmitPhase('idle')
+      return
+    }
+
     toast.success('Prise loguée !')
     router.push(`/carnet/${result.id}`)
   }
@@ -1271,8 +1292,78 @@ export function CatchForm(props: CatchFormProps) {
           {isEdit ? SUBMIT_LABELS_EDIT[submitPhase] : SUBMIT_LABELS[submitPhase]}
         </button>
       </div>
+
+      {/* Célébration (Sprint 61) : record / nouvelle espèce / badge. Modale Base UI
+          (focus trap + Esc) ; à sa fermeture, on navigue vers la prise. */}
+      <CelebrationOverlay
+        moments={celebration ? buildCatchMoments(celebration) : []}
+        open={celebration !== null}
+        onClose={() => {
+          const to = pendingNavRef.current
+          pendingNavRef.current = null
+          setCelebration(null)
+          if (to) router.push(to)
+        }}
+      />
     </form>
   )
+}
+
+// Traduit une célébration en file de « moments » présentés un par un (jamais en
+// superposition) : record d'abord, puis nouvelle espèce, puis badges (brief Bloc 2).
+function buildCatchMoments(c: CatchCelebration): CelebrationMoment[] {
+  const moments: CelebrationMoment[] = []
+
+  if (c.newRecord) {
+    const label = SPECIES_LABELS[c.newRecord.species] ?? c.newRecord.species
+    moments.push({
+      key: 'record',
+      tone: 'record',
+      icon: Trophy,
+      title: 'Nouveau record perso !',
+      subtitle: `${label} · ${c.newRecord.length} cm`,
+      detail:
+        c.newRecord.previousBest != null
+          ? `Ancien record : ${c.newRecord.previousBest} cm`
+          : undefined,
+      xp: c.xpByKind['personal_best'],
+      action: (
+        <ShareButton
+          input={{ kind: 'records' }}
+          title="Mes records — Carnet de Pêche"
+          text="Mes plus beaux poissons par espèce."
+          label="Partager mes records"
+          variant="ghost"
+          className="w-full justify-center"
+        />
+      ),
+    })
+  }
+
+  if (c.newSpecies) {
+    const label = SPECIES_LABELS[c.species] ?? c.species
+    moments.push({
+      key: 'species',
+      tone: 'species',
+      icon: Sparkles,
+      title: 'Nouvelle espèce !',
+      subtitle: `${label} rejoint ton carnet.`,
+      xp: c.xpByKind['new_species'],
+    })
+  }
+
+  for (const badge of c.newBadges) {
+    moments.push({
+      key: `badge-${badge.slug}`,
+      tone: 'badge',
+      icon: Award,
+      title: 'Badge débloqué',
+      subtitle: badge.label,
+      detail: badge.description,
+    })
+  }
+
+  return moments
 }
 
 // ─── Composants helpers ───────────────────────────────────────────────────────

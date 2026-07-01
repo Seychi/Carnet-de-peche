@@ -7,6 +7,7 @@ import type { CreateCatchInput, UpdateCatchInput, BulkCatchInput } from './schem
 import { DEPARTMENT_SEA_COORDS } from '@/lib/geo/department-coords'
 import { fetchConditionsAt, type ConditionsSnapshot } from '@/lib/conditions/openmeteo'
 import { notifyFollowersOfPublicCatch } from './notify-followers'
+import { buildCatchCelebration, type CatchCelebration } from '@/lib/gamification/celebration'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -97,7 +98,7 @@ async function assertSpotAccessible(
 
 export async function createCatch(
   input: CreateCatchInput
-): Promise<{ id: string } | { error: string }> {
+): Promise<{ id: string; celebration?: CatchCelebration } | { error: string }> {
   const parsed = createCatchSchema.safeParse(input)
   if (!parsed.success) {
     const msg = parsed.error.issues.map((issue) => issue.message).join(', ')
@@ -173,7 +174,7 @@ export async function createCatch(
       wind_direction_deg: snapshot?.wind_direction_deg ?? null,
       tide_state: snapshot?.tide_state ?? null,
     })
-    .select('id')
+    .select('id, created_at')
     .single()
 
   if (error) {
@@ -192,8 +193,26 @@ export async function createCatch(
     }
   }
 
+  // Détection « un record vient de tomber » (Sprint 61) : on relit le ledger XP écrit
+  // par le trigger 098 + les badges nouvellement débloqués, pour que le client fête le
+  // moment. Best-effort STRICT (ne throw jamais) — le log a déjà réussi ici.
+  const measuredLength = isMeasured ? (data.measured_length_cm ?? null) : null
+  let celebration: CatchCelebration | undefined
+  try {
+    const detected = await buildCatchCelebration(supabase, {
+      userId: user.id,
+      catchId: row.id,
+      species: data.species,
+      measuredLength,
+      catchCreatedAt: row.created_at ?? null,
+    })
+    celebration = detected ?? undefined
+  } catch (e) {
+    console.error('[catches/actions] buildCatchCelebration (non bloquant) :', e)
+  }
+
   revalidatePath('/carnet')
-  return { id: row.id }
+  return celebration ? { id: row.id, celebration } : { id: row.id }
 }
 
 // ─── updateCatch ──────────────────────────────────────────────────────────────
