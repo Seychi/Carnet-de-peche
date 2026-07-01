@@ -1274,6 +1274,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_progress: {
+        Row: {
+          current_week_streak: number
+          last_active_week: string | null
+          longest_week_streak: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_week_streak?: number
+          last_active_week?: string | null
+          longest_week_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_week_streak?: number
+          last_active_week?: string | null
+          longest_week_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weather_cache: {
         Row: {
           cache_key: string
@@ -1289,6 +1316,36 @@ export type Database = {
           cache_key?: string
           fetched_at?: string
           payload?: Json
+        }
+        Relationships: []
+      }
+      xp_events: {
+        Row: {
+          created_at: string
+          id: number
+          kind: string
+          points: number
+          ref_id: string | null
+          ref_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          kind: string
+          points: number
+          ref_id?: string | null
+          ref_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          kind?: string
+          points?: number
+          ref_id?: string | null
+          ref_type?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2061,6 +2118,7 @@ export type Database = {
           verified: boolean
         }[]
       }
+      get_user_xp: { Args: { p_user_id: string }; Returns: number }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
       is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }

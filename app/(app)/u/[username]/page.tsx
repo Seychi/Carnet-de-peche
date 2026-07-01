@@ -15,6 +15,8 @@ import { PostCard } from '@/components/feed/PostCard'
 import { attachPostMedia } from '@/lib/feed/media'
 import { getProfileCatches, type ProfileCatch } from '@/lib/catches/media'
 import { getUserReputation } from '@/lib/cofishing/queries'
+import { getUserXp } from '@/lib/gamification/progress'
+import { RankProgress } from '@/components/gamification/RankProgress'
 import type { FeedPostEnriched } from '@/app/actions/feed'
 import type { FeedPost } from '@/lib/feed/types'
 
@@ -89,9 +91,12 @@ export default async function PublicProfilePage({
 
   // Compteurs sociaux (Bloc E) — comptés via follows (RLS select-all pour les
   // authentifiés) plutôt que la vue profile_stats, qui a perdu son SELECT en 031.
-  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+  const [{ count: followersCount }, { count: followingCount }, profileXp] = await Promise.all([
     supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', profile.id),
     supabase.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', profile.id),
+    // Rang public (sprint 60) — XP totale via la RPC definer get_user_xp (agrégat, zéro
+    // fuite de prise/spot). user_progress reste RLS own-only.
+    getUserXp(profile.id, supabase),
   ])
 
   // Ids que le viewer suit → marque l'état des entrées des listes abonnés/abonnements.
@@ -154,6 +159,10 @@ export default async function PublicProfilePage({
               @{profile.username}
               {since ? ` · DEPUIS ${since.toUpperCase()}` : ''}
             </p>
+            {/* Rang + barre XP (sprint 60) — l'identité de progression, publique. */}
+            <div className="mt-2.5 max-w-[280px]">
+              <RankProgress totalXp={profileXp} onDark />
+            </div>
             {profile.bio && <p className="mt-1.5 text-[14px] text-white/75">{profile.bio}</p>}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {dept && <HeroChip>{`${dept.toUpperCase()}`}</HeroChip>}

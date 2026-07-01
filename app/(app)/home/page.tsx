@@ -4,6 +4,7 @@ import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DEPARTMENT_SEA_COORDS } from "@/lib/geo/department-coords";
 import { GamificationHub } from "@/components/gamification/GamificationHub";
+import { HomeProgressCard } from "@/components/gamification/HomeProgressCard";
 import { TodayForecast } from "@/components/home/TodayForecast";
 import { NearYou } from "@/components/home/NearYou";
 import {
@@ -115,6 +116,12 @@ export default async function HomePage() {
               />
             ) : null}
           </div>
+          {/* Rang + barre XP (sprint 60) — la « tête » de la progression, au-dessus du hub
+              Pokédex/badges/séries (inchangé). Bloc dédié, lecture seule, streamé (Suspense)
+              comme ses voisins pour un premier paint non bloquant. */}
+          <Suspense fallback={<SectionSkeleton lines={1} label="Ta progression" />}>
+            <HomeProgressCard userId={user.id} />
+          </Suspense>
           <Suspense fallback={<SectionSkeleton lines={3} label="Ta progression" />}>
             <GamificationHub />
           </Suspense>
