@@ -39,7 +39,7 @@ const plans = {
     badge: 'Le plus populaire',
     features: [
       { text: 'Carte complète de ton département', strong: true },
-      { text: 'Alerte quand tes conditions favorites reviennent', strong: true },
+      { text: 'Alertes créneaux optimaux et grandes marées', strong: true },
       { text: 'Coordonnées GPS précises de tous les spots' },
       { text: "Score d'activité 0-100 par spot" },
       { text: 'Filtres espèces, techniques, marées' },

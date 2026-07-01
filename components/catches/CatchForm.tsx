@@ -1199,7 +1199,7 @@ export function CatchForm(props: CatchFormProps) {
             {watchedPrivacy === 'friends' &&
               'Visible par tes abonnés avec coords précises (si activé).'}
             {watchedPrivacy === 'public' &&
-              'Visible par la communauté avec coords floutées à 1 km.'}
+              'Visible par la communauté avec coords floutées de plusieurs centaines de mètres.'}
           </p>
         </div>
 

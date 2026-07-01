@@ -48,9 +48,7 @@ export function InstrumentsBar({ data, className }: { data: InstrumentsData; cla
         className,
       )}
     >
-      {/* Fondu droit : affordance scroll horizontal sur mobile */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-navy-950 to-transparent sm:hidden" aria-hidden="true" />
-      <div className="mx-auto flex h-9 max-w-[1180px] items-center gap-4 overflow-x-auto px-4 whitespace-nowrap sm:gap-7 sm:px-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mx-auto flex h-9 max-w-[1180px] items-center gap-3 overflow-x-auto px-4 whitespace-nowrap [mask-image:linear-gradient(to_right,#000_0,#000_calc(100%-2rem),transparent_100%)] sm:[mask-image:none] sm:gap-7 sm:px-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <span className="uppercase">
           <span className="hidden sm:inline">{data.deptLabel ? `${data.deptLabel} · ` : ''}</span>
           {data.deptCode}

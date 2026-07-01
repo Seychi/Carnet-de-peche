@@ -82,14 +82,14 @@ export function CatchCard({
 
         {/* Badge relâché */}
         {c.released && (
-          <div className="absolute bottom-2 left-2 bg-teal-500/90 text-navy-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <div className="absolute bottom-2 left-2 bg-teal-500/90 text-navy-950 text-xs font-bold px-2 py-0.5 rounded-full">
             Relâché
           </div>
         )}
 
         {/* Badge réglementaire : conservé sous la maille (texte explicite, pas la teinte seule) */}
         {isUndersizeKept && (
-          <div className="absolute bottom-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <div className="absolute bottom-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
             Sous-maille
           </div>
         )}
@@ -104,7 +104,7 @@ export function CatchCard({
 
         {/* Technique */}
         {c.technique && (
-          <p className="text-[11px] text-ink-400">
+          <p className="text-xs text-ink-400">
             {TECHNIQUE_LABELS[c.technique] ?? c.technique}
           </p>
         )}
@@ -128,8 +128,8 @@ export function CatchCard({
               )}
             </span>
             {isMeasured && (
-              <span className="inline-flex items-center gap-0.5 font-sans text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
-                <Ruler size={9} aria-hidden="true" />
+              <span className="inline-flex items-center gap-0.5 font-sans text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                <Ruler size={12} aria-hidden="true" />
                 Mesurée
               </span>
             )}
@@ -139,13 +139,13 @@ export function CatchCard({
         {/* Lieu + date — en bas de la carte */}
         <div className="mt-auto pt-2 flex items-end justify-between gap-2">
           {location && (
-            <p className="flex items-center gap-1 text-[11px] text-ink-400 truncate min-w-0">
+            <p className="flex items-center gap-1 text-xs text-ink-400 truncate min-w-0">
               <MapPin size={11} className="shrink-0" aria-hidden="true" />
               <span className="truncate">{location}</span>
             </p>
           )}
           {c.caught_at && (
-            <p className="text-[11px] text-ink-400 shrink-0 ml-auto">
+            <p className="text-xs text-ink-400 shrink-0 ml-auto">
               {formatDistanceToNow(new Date(c.caught_at), {
                 addSuffix: true,
                 locale: fr,

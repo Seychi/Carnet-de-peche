@@ -14,7 +14,7 @@ const ITEMS: { quality: QualityLevel; label: string }[] = [
 // d'attribution MapLibre).
 export default function MapLegend({ availableSources = [] }: { availableSources?: string[] }) {
   return (
-    <div className="hidden md:flex absolute bottom-4 left-4 z-20 flex-col gap-1.5 px-3 py-2 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-ink-200 text-[11px] text-ink-600">
+    <div className="hidden md:flex absolute bottom-4 left-4 z-20 flex-col gap-1.5 px-3 py-2 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-ink-200 text-xs text-ink-600">
       {/* Qualité (cividis colorblind-safe) */}
       <div className="flex items-center gap-3">
         {ITEMS.map(({ quality, label }) => (
@@ -35,7 +35,7 @@ export default function MapLegend({ availableSources = [] }: { availableSources?
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-ink-100 pt-1.5">
         <span className="flex items-center gap-1.5 whitespace-nowrap">
           <span
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-navy-950 text-[8px] font-bold text-white"
+            className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-navy-950 text-xs font-bold leading-none text-white"
             aria-hidden
           >
             ✓
@@ -45,7 +45,7 @@ export default function MapLegend({ availableSources = [] }: { availableSources?
         {availableSources.includes('community') && (
           <span className="flex items-center gap-1.5 whitespace-nowrap">
             <span
-              className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#475569] text-[9px] font-bold text-white"
+              className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#475569] text-xs font-bold leading-none text-white"
               aria-hidden
             >
               ~
@@ -56,7 +56,7 @@ export default function MapLegend({ availableSources = [] }: { availableSources?
         {availableSources.includes('imported') && (
           <span className="flex items-center gap-1.5 whitespace-nowrap">
             <span
-              className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#94a3b8] text-[9px] font-bold text-white"
+              className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#94a3b8] text-xs font-bold leading-none text-white"
               aria-hidden
             >
               ◦
@@ -65,11 +65,11 @@ export default function MapLegend({ availableSources = [] }: { availableSources?
           </span>
         )}
       </div>
-      <p className="text-[10px] text-ink-400">
+      <p className="text-xs text-ink-400">
         Le badge ✓ marque une coordonnée vérifiée à la main, fixe.
       </p>
 
-      <p className="text-[10px] text-ink-400">
+      <p className="text-xs text-ink-400">
         Structures ©{' '}
         <a
           href="https://www.openstreetmap.org/copyright"

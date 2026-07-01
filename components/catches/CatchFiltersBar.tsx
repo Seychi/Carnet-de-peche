@@ -110,7 +110,7 @@ export function CatchFiltersBar({
 
       {/* Espèces */}
       <div className="mb-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-ink-400 mb-2">
           Espèce
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -133,7 +133,7 @@ export function CatchFiltersBar({
 
       {/* Techniques */}
       <div className="mb-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-ink-400 mb-2">
           Technique
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -157,7 +157,7 @@ export function CatchFiltersBar({
       {/* Période + Réinitialiser */}
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-ink-400 mb-2">
             Période
           </p>
           <div className="flex flex-wrap gap-1.5">

@@ -130,9 +130,9 @@ export default function MapLayerSelector({
               <MapPin size={16} className="text-teal-600 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-[13.5px] font-medium text-ink-900">Spots</p>
-                <p className="text-[11px] text-ink-400">Toujours visibles</p>
+                <p className="text-xs text-ink-400">Toujours visibles</p>
               </div>
-              <span className="text-[10px] font-mono uppercase tracking-wide text-ink-300">on</span>
+              <span className="text-xs font-mono uppercase tracking-wide text-ink-500">on</span>
             </div>
 
             {/* Zones de prises — heatmap communautaire (gratuit) */}
@@ -141,7 +141,7 @@ export default function MapLayerSelector({
                 <Flame size={16} className="text-coral-500 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-[13.5px] font-medium text-ink-900">Zones de prises</p>
-                  <p className="text-[11px] text-ink-400">Où ça mord · gratuit</p>
+                  <p className="text-xs text-ink-400">Où ça mord · gratuit</p>
                 </div>
                 <Switch on={heatmapOn} onClick={() => onHeatmapToggle(!heatmapOn)} label="Afficher les zones de prises" />
               </div>
@@ -150,25 +150,25 @@ export default function MapLayerSelector({
                 <div className="mt-3 pl-[26px] flex flex-col gap-2.5">
                   {/* Légende dégradé inferno */}
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-ink-400 shrink-0">moins</span>
+                    <span className="text-xs text-ink-400 shrink-0">moins</span>
                     <span
                       className="h-2 flex-1 rounded-full"
                       style={{ background: `linear-gradient(to right, ${HEAT_LEGEND_STOPS.join(', ')})` }}
                       aria-hidden
                     />
-                    <span className="text-[10px] text-ink-400 shrink-0">plus</span>
+                    <span className="text-xs text-ink-400 shrink-0">plus</span>
                   </div>
 
                   {/* Fenêtre temporelle */}
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-ink-500">Sur</span>
+                    <span className="text-xs text-ink-500">Sur</span>
                     {[7, 30].map((d) => (
                       <button
                         key={d}
                         type="button"
                         onClick={() => onDaysChange(d)}
                         className={[
-                          'px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors',
+                          'px-2 py-0.5 rounded-full text-xs font-medium transition-colors',
                           heatmapDays === d
                             ? 'bg-navy-900 text-white'
                             : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
@@ -182,7 +182,7 @@ export default function MapLayerSelector({
 
                   {/* État vide honnête (« peu de prises pour l'instant ») */}
                   {heatmapEmpty && !heatmapLoading && (
-                    <p className="text-[11px] leading-snug text-ink-400">
+                    <p className="text-xs leading-snug text-ink-400">
                       Pas encore assez de prises partagées dans cette zone. Les zones chaudes
                       apparaîtront dès que plusieurs pêcheurs y logueront publiquement.
                     </p>
@@ -200,7 +200,7 @@ export default function MapLayerSelector({
                     Ton score
                     {!isPaid && <Lock size={11} className="text-ink-400" />}
                   </p>
-                  <p className="text-[11px] text-ink-400">
+                  <p className="text-xs text-ink-400">
                     {isPaid ? 'Tes tendances perso' : 'Local · tes patterns de prises'}
                   </p>
                 </div>
@@ -210,7 +210,7 @@ export default function MapLayerSelector({
                   <Link
                     href="/tarifs"
                     onClick={() => analytics.upsellClicked({ surface: 'layer_score' })}
-                    className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-[11px] font-semibold hover:bg-gold-500/25 transition-colors"
+                    className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-xs font-semibold hover:bg-gold-500/25 transition-colors"
                   >
                     Débloquer
                   </Link>
@@ -227,7 +227,7 @@ export default function MapLayerSelector({
                     Fond marin
                     {!canUseBathy && <Lock size={11} className="text-ink-400" />}
                   </p>
-                  <p className="text-[11px] text-ink-400">
+                  <p className="text-xs text-ink-400">
                     {canUseBathy ? 'Profondeur + nature du fond' : 'Local · profondeur + nature du fond'}
                   </p>
                 </div>
@@ -237,7 +237,7 @@ export default function MapLayerSelector({
                   <Link
                     href="/tarifs"
                     onClick={() => analytics.upsellClicked({ surface: 'layer_bathy' })}
-                    className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-[11px] font-semibold hover:bg-gold-500/25 transition-colors"
+                    className="shrink-0 px-2 py-1 rounded-full bg-gold-500/15 text-gold-600 text-xs font-semibold hover:bg-gold-500/25 transition-colors"
                   >
                     Débloquer
                   </Link>
@@ -246,7 +246,7 @@ export default function MapLayerSelector({
 
               {canUseBathy && bathyOn && (
                 <div className="mt-3 pl-[26px] flex items-center gap-2">
-                  <span className="text-[11px] text-ink-500 shrink-0">Opacité</span>
+                  <span className="text-xs text-ink-500 shrink-0">Opacité</span>
                   <input
                     type="range"
                     min={0.2}
@@ -268,7 +268,7 @@ export default function MapLayerSelector({
                 <Grid3x3 size={16} className="text-teal-600 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-[13.5px] font-medium text-ink-900">Qualité</p>
-                  <p className="text-[11px] text-ink-400">Par espèce · décomposée</p>
+                  <p className="text-xs text-ink-400">Par espèce · décomposée</p>
                 </div>
                 <Switch on={qualityOn} onClick={() => onQualityToggle(!qualityOn)} label="Afficher la couche qualité" />
               </div>
@@ -276,7 +276,7 @@ export default function MapLayerSelector({
               {qualityOn && (
                 <div className="mt-3 pl-[26px] flex flex-col gap-2.5">
                   {/* Sélecteur d'espèce dédié (la qualité est PAR espèce) */}
-                  <label className="flex items-center gap-2 text-[11px] text-ink-500">
+                  <label className="flex items-center gap-2 text-xs text-ink-500">
                     <span className="shrink-0">Espèce</span>
                     <select
                       value={qualitySpecies ?? ''}
@@ -301,17 +301,17 @@ export default function MapLayerSelector({
                           style={{ background: l.color }}
                           aria-hidden
                         />
-                        <span className="text-[11px] text-ink-500">{l.label}</span>
+                        <span className="text-xs text-ink-500">{l.label}</span>
                       </div>
                     ))}
-                    <p className="text-[10px] text-ink-400 leading-snug mt-0.5">
+                    <p className="text-xs text-ink-400 leading-snug mt-0.5">
                       Le score (0-100) est inscrit sur chaque case, lisible quel que soit le daltonisme.
                     </p>
                   </div>
 
                   {/* État vide honnête */}
                   {qualityEmpty && (
-                    <p className="text-[11px] leading-snug text-ink-400">
+                    <p className="text-xs leading-snug text-ink-400">
                       Pas encore assez de prises partagées pour afficher la qualité ici. Elle apparaît
                       dès que plusieurs pêcheurs y loguent publiquement{isItinerant ? ', ou sur tes propres spots' : ''}.
                     </p>
@@ -319,7 +319,7 @@ export default function MapLayerSelector({
 
                   {/* Note tier — aperçu vs complet */}
                   {!isItinerant && (
-                    <p className="text-[11px] leading-snug text-ink-400">
+                    <p className="text-xs leading-snug text-ink-400">
                       Aperçu communautaire. Le détail complet (fond adapté à l&apos;espèce + ton historique)
                       au clic est{' '}
                       <Link

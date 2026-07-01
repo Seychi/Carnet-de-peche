@@ -55,7 +55,7 @@ function NextWindowDisplay({ window: w }: { window: FishingWindow }) {
     <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Clock size={13} className="text-ink-500 shrink-0" />
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
+        <span className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
       </div>
       <p className="text-sm font-semibold text-ink-900">
         {relativeDay(w.startTimeISO)} {w.startLocal} – {w.endLocal}
@@ -81,7 +81,7 @@ function NextWindowTeaser() {
     <div className="rounded-xl bg-sand-50 border border-ink-100 p-3">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Clock size={13} className="text-ink-500 shrink-0" />
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
+        <span className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Prochain créneau</span>
       </div>
       <div className="blur-sm select-none pointer-events-none" aria-hidden="true">
         <p className="text-sm font-semibold text-ink-900">Aujourd&apos;hui 18:30 – 20:30</p>
@@ -154,7 +154,7 @@ function SourceChip({ source }: { source: SpotSource }) {
   const { Icon, cls } = SOURCE_BADGE[source] ?? SOURCE_BADGE.community
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] ${cls}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-xs font-semibold uppercase tracking-[0.06em] ${cls}`}
     >
       <Icon size={11} aria-hidden="true" />
       {SOURCE_LABELS[source] ?? source}
@@ -262,7 +262,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           <h2 className="font-display font-semibold text-navy-900 text-base leading-tight truncate">
             {spot.name}
           </h2>
-          <p className="mt-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
+          <p className="mt-0.5 font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">
             {spot.isPrecise
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
               : spot.department}
@@ -285,7 +285,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       {/* Espèces */}
       {spot.species.length > 0 && (
         <div className="space-y-1">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Espèces</p>
+          <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Espèces</p>
           <BadgeList items={spot.species} labels={SPECIES_LABELS} colorClass="bg-teal-500/10 text-teal-700" />
         </div>
       )}
@@ -293,7 +293,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       {/* Techniques */}
       {spot.techniques.length > 0 && (
         <div className="space-y-1">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Techniques</p>
+          <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Techniques</p>
           <BadgeList items={spot.techniques} labels={TECHNIQUE_LABELS} colorClass="bg-navy-900/10 text-navy-900" />
         </div>
       )}
@@ -305,13 +305,13 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
             <div className="flex items-center gap-3 flex-wrap">
               {!!spot.difficulty && (
                 <div className="space-y-0.5">
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Difficulté</p>
+                  <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Difficulté</p>
                   <DifficultyStars difficulty={spot.difficulty} />
                 </div>
               )}
               {!!spot.structure && (
                 <div className="space-y-0.5">
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Structure</p>
+                  <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Structure</p>
                   <span className="inline-flex items-center gap-1.5 text-sm text-ink-700">
                     {(() => {
                       const StructureIcon = STRUCTURE_ICONS[spot.structure]
@@ -325,7 +325,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           )}
 
           <div className="flex items-center gap-2">
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
             {spot.currentScore != null ? (
               <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100">
                 <b className="font-semibold text-ink-900">

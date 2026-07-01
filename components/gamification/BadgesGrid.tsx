@@ -48,7 +48,7 @@ export function BadgesGrid({
             <span className="text-ink-400">/{BADGES.length}</span>
           </p>
         </div>
-        <p className="max-w-[55%] text-right text-[11.5px] leading-snug text-ink-500">
+        <p className="max-w-[55%] text-right text-xs leading-snug text-ink-500">
           Des jalons perso. Aucun classement, aucune comparaison.
         </p>
       </header>
@@ -74,11 +74,11 @@ export function BadgesGrid({
                   aria-hidden
                 />
                 {isEarned ? (
-                  <span className="inline-flex items-center gap-0.5 font-mono text-[10px] font-bold uppercase text-teal-800">
+                  <span className="inline-flex items-center gap-0.5 font-mono text-xs font-bold uppercase text-teal-800">
                     <Check size={11} aria-hidden /> Obtenu
                   </span>
                 ) : (
-                  <span className="font-mono text-[10px] font-bold uppercase text-slate-400">
+                  <span className="font-mono text-xs font-bold uppercase text-slate-400">
                     À débloquer
                   </span>
                 )}
@@ -92,14 +92,14 @@ export function BadgesGrid({
               >
                 {def.label}
               </p>
-              <p className="mt-0.5 text-[11px] leading-snug text-ink-500">{def.description}</p>
+              <p className="mt-0.5 text-xs leading-snug text-ink-500">{def.description}</p>
               {DECLARATIVE[def.slug] && (
-                <p className="mt-1 text-[10px] italic leading-snug text-ink-400">
+                <p className="mt-1 text-xs italic leading-snug text-ink-400">
                   Sur la base de ce que tu déclares, pas de vérification automatique.
                 </p>
               )}
               {isEarned && earned?.earned_at && (
-                <p className="mt-1 font-mono text-[10px] text-ink-400 tabular-nums">
+                <p className="mt-1 font-mono text-xs text-ink-400 tabular-nums">
                   {frDate(earned.earned_at)}
                 </p>
               )}

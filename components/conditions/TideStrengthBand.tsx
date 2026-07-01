@@ -55,7 +55,7 @@ export default function TideStrengthBand({ days }: { days: DayMarnage[] }) {
     <div className="rounded-[12px] border border-ink-100 bg-white p-4">
       <div className="mb-3 flex items-baseline justify-between gap-2">
         <h3 className="text-sm font-semibold text-navy-900">Force des marées · 7 jours</h3>
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">
+        <span className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">
           Marnage
         </span>
       </div>
@@ -67,8 +67,8 @@ export default function TideStrengthBand({ days }: { days: DayMarnage[] }) {
             return (
               <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
                 <div className="h-16 w-full rounded-[6px] bg-ink-50" />
-                <span className="font-mono text-[10px] text-ink-300">—</span>
-                <span className="text-[10px] capitalize text-ink-400">{shortDay(d.date)}</span>
+                <span className="font-mono text-xs text-ink-500">—</span>
+                <span className="text-xs capitalize text-ink-400">{shortDay(d.date)}</span>
               </div>
             )
           }
@@ -84,11 +84,11 @@ export default function TideStrengthBand({ days }: { days: DayMarnage[] }) {
                   title={`${TIER_LABEL[tier]} — ${d.marnage.toFixed(2)} m`}
                 />
               </div>
-              <span className="font-mono text-[11px] font-semibold text-navy-900 tabular-nums">
+              <span className="font-mono text-xs font-semibold text-navy-900 tabular-nums">
                 {d.marnage.toFixed(1)}
               </span>
               <span
-                className={`text-[10px] capitalize ${
+                className={`text-xs capitalize ${
                   isToday ? 'font-bold text-teal-700' : 'text-ink-400'
                 }`}
               >
@@ -99,7 +99,7 @@ export default function TideStrengthBand({ days }: { days: DayMarnage[] }) {
         })}
       </div>
 
-      <p className="mt-3 text-[11px] leading-snug text-ink-500">
+      <p className="mt-3 text-xs leading-snug text-ink-500">
         Marnage = amplitude mesurée entre basse et pleine mer (m). Plus il est fort (vives-eaux),
         plus le courant porte ; faible (mortes-eaux), l&apos;eau bouge moins.
       </p>

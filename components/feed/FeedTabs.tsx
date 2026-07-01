@@ -15,10 +15,7 @@ export function FeedTabs({ current }: { current: FeedTab }) {
 
   return (
     <div className="relative border-b border-ink-100">
-      {/* Fondu droit : affordance scroll sur très petit écran (mobile only ;
-          couleur = fond de page sand-50, pas blanc, pour ne pas masquer en clair) */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-sand-50 to-transparent sm:hidden" aria-hidden="true" />
-      <nav className="flex gap-1 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav className="flex gap-1 overflow-x-auto pr-4 [mask-image:linear-gradient(to_right,#000_0,#000_calc(100%-2rem),transparent_100%)] sm:[mask-image:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => {
           const active = t.key === current
           const href = t.key === 'dept' ? pathname : `${pathname}?tab=${t.key}`

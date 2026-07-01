@@ -39,7 +39,7 @@ const TECHNIQUE_LABELS: Record<string, string> = {
 const PRIVACY_CONFIG = {
   private: { Icon: Lock,  label: 'Privée',    desc: 'Visible par toi seul.',                                       color: 'text-slate-500' },
   friends: { Icon: Users, label: 'Abonnés',     desc: 'Visible par tes abonnés avec coords précises (si activé).', color: 'text-blue-500'  },
-  public:  { Icon: Globe, label: 'Publique',   desc: 'Visible par la communauté avec coords floutées à 1 km.',    color: 'text-teal-500'  },
+  public:  { Icon: Globe, label: 'Publique',   desc: 'Visible par la communauté avec coords floutées de plusieurs centaines de mètres.',    color: 'text-teal-500'  },
 }
 
 const TIDE_LABELS: Record<string, string> = {

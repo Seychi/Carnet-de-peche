@@ -26,7 +26,7 @@ export function TagData({
     <span
       data-slot="tag-data"
       className={cn(
-        'font-mono text-[11.5px] font-medium uppercase tracking-[0.08em]',
+        'font-mono text-xs font-medium uppercase tracking-[0.08em]',
         VARIANTS[variant],
         className,
       )}

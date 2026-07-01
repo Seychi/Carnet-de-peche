@@ -98,7 +98,7 @@ export default function CGUPage() {
           <tr><th>Plan</th><th>Tarif</th><th>Périmètre</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte basique (3 spots/dept floutés 1 km), guides, fil régional complet (lecture et écriture)</td></tr>
+          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte basique (3 spots/dept floutés de plusieurs centaines de mètres), guides, fil régional complet (lecture et écriture)</td></tr>
           <tr><td><strong>Local</strong></td><td>4,90 € / mois ou 49 € / an</td><td>Carte complète du département, coords précises, scores, filtres</td></tr>
           <tr><td><strong>Itinérant</strong></td><td>9,90 € / mois ou 99 € / an</td><td>Tous les départements côtiers FR, fonctionnalités avancées</td></tr>
         </tbody>
@@ -191,7 +191,7 @@ export default function CGUPage() {
       <p>L’utilisation du Service implique le respect des règles suivantes :</p>
       <ul>
         <li><strong>Bienveillance</strong> : tutoiement assumé, respect des autres pêcheurs, pas de moqueries sur les techniques ou les prises</li>
-        <li><strong>Anti spot-burning</strong> : tu ne révèles JAMAIS les coordonnées précises du spot d’un autre pêcheur sans son accord. Le floutage GPS à 1 km protège ce principe.</li>
+        <li><strong>Anti spot-burning</strong> : tu ne révèles JAMAIS les coordonnées précises du spot d’un autre pêcheur sans son accord. Le floutage GPS de plusieurs centaines de mètres protège ce principe.</li>
         <li><strong>Pêche responsable</strong> : respect des tailles légales, quotas, périodes et zones réglementées</li>
         <li><strong>No-kill encouragé</strong> : tu peux signaler tes prises remises à l’eau</li>
         <li><strong>Pas de pub déguisée</strong> : pas de promotion commerciale sans accord préalable de l’éditeur</li>
