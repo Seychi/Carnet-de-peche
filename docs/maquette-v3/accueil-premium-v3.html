@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnet de Pêche — Sache quand ça va mordre (v3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#04141C;--navy-900:#0A2F3D;--navy-800:#0E3D4F;--navy-700:#155A73;
+  --teal-600:#0E9488;--teal-500:#14B8A6;--teal-400:#2DD4BF;--teal-300:#5EEAD4;
+  --gold-500:#D9A53C;--gold-300:#E8C97C;--coral-500:#E5604F;
+  --sand-50:#FBF8F2;--sand-100:#F4EEE0;--sand-200:#E8DFCB;
+  --ink-900:#0E1A22;--ink-600:#44545E;--ink-400:#7E8C95;--ink-300:#B7C2C9;--ink-100:#EDF1F4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink-900);background:var(--sand-50);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-.025em;line-height:1.03;font-weight:600}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+a{color:inherit;text-decoration:none}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-500)}
+
+/* buttons */
+.btn{position:relative;display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:15px 26px;border-radius:14px;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s,background .2s,color .2s,border-color .2s;cursor:pointer;border:0;overflow:hidden;will-change:transform}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--teal-500);color:var(--navy-950)}
+.btn-primary:hover{box-shadow:0 14px 34px -10px rgba(20,184,166,.6)}
+.btn-primary::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .6s}
+.btn-primary:hover::after{left:160%}
+.btn-ghost{background:rgba(255,255,255,.04);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{border-color:var(--teal-300);color:var(--teal-300)}
+.btn-dark{background:var(--navy-900);color:#fff}
+.btn-dark:hover{background:var(--navy-800);box-shadow:0 14px 30px -12px rgba(10,47,61,.6)}
+.arrow{transition:transform .22s}.btn:hover .arrow{transform:translateX(4px)}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}.reveal[data-d="3"]{transition-delay:.24s}.reveal[data-d="4"]{transition-delay:.32s}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;z-index:60;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(4,20,28,.78);backdrop-filter:blur(14px);border-bottom-color:rgba(255,255,255,.08)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;font-family:'Space Grotesk';font-weight:600;font-size:18px}
+.logo .mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--teal-400),var(--teal-600));display:grid;place-items:center;color:var(--navy-950);font-weight:700;box-shadow:0 4px 14px -4px rgba(20,184,166,.7)}
+.nav-links{display:flex;gap:30px;color:#cdd8dd;font-size:14px;font-weight:500}
+.nav-links a{position:relative}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--teal-400);transition:width .25s}
+.nav-links a:hover{color:#fff}.nav-links a:hover::after{width:100%}
+.nav-cta{display:flex;gap:12px;align-items:center}
+.nav-cta .login{color:#cdd8dd;font-size:14px;font-weight:500}
+@media(max-width:880px){.nav-links{display:none}}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;color:#fff;
+  background:radial-gradient(130% 100% at 78% -8%,#0c2a38 0%,var(--navy-950) 52%)}
+.hero .layer{position:absolute;inset:0;pointer-events:none}
+.hero .bathy path{stroke:var(--teal-500);fill:none}
+.drift{animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateX(-20px)}to{transform:translateX(20px)}}
+.glow{position:absolute;width:620px;height:620px;border-radius:50%;right:-120px;top:-160px;
+  background:radial-gradient(circle,rgba(20,184,166,.22),transparent 64%);filter:blur(8px);animation:breathe 9s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;width:100%;padding:96px 0 64px}
+.hero h1{font-size:clamp(42px,6.4vw,76px);font-weight:600;margin-top:20px}
+.hero h1 .grad{background:linear-gradient(110deg,var(--teal-300),var(--teal-500) 60%,var(--gold-300));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{margin-top:24px;font-size:19px;color:#c4d2d8;max-width:520px}
+.hero .lead b{color:#fff}
+.cta-row{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+.trust{display:flex;gap:36px;margin-top:50px;flex-wrap:wrap}
+.trust .n{font-family:'Space Grotesk';font-size:32px;font-weight:600;color:#fff}
+.trust .l{font-size:12px;color:var(--ink-300);margin-top:3px}
+.scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-family:'JetBrains Mono';font-size:10px;letter-spacing:.2em;color:#7e919a;text-align:center;animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:40px;padding-top:120px}.trust{gap:26px}}
+
+/* instrument panel */
+.panel{position:relative;background:linear-gradient(160deg,rgba(14,61,79,.6),rgba(4,20,28,.55));border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:24px;backdrop-filter:blur(8px);box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.panel .loc{font-family:'JetBrains Mono';font-size:11.5px;letter-spacing:.04em;color:var(--teal-300)}
+.chip{font-family:'JetBrains Mono';font-size:11px;letter-spacing:.08em;padding:5px 10px;border-radius:999px;border:1px solid rgba(217,165,60,.55);color:var(--gold-300)}
+.tide-wrap{position:relative;height:128px;margin:14px 0 6px}
+.tide-path{stroke:var(--teal-300);stroke-width:2;fill:none;stroke-dasharray:520;stroke-dashoffset:520;animation:draw 2.4s ease forwards .3s}
+@keyframes draw{to{stroke-dashoffset:0}}
+.nowdot{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4;r:9}50%{opacity:0;r:18}}
+.tide-times{display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:12px;color:#9fb2ba}
+.panel .pf{display:flex;align-items:center;gap:16px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.09)}
+.ring{position:relative;width:66px;height:66px;flex:0 0 66px}
+.ring .rv{position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:600;font-size:21px;color:#fff}
+.ring circle.fg{stroke-dasharray:170;stroke-dashoffset:170;animation:ring 1.6s cubic-bezier(.3,.8,.3,1) forwards .8s}
+@keyframes ring{to{stroke-dashoffset:26}}
+.pf .t{font-family:'JetBrains Mono';font-size:12px;color:var(--teal-300);letter-spacing:.04em}
+.pf .d{font-size:13px;color:#c4d2d8;margin-top:3px}
+.badge{margin-left:auto;align-self:flex-start;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.1em;color:var(--gold-300);border:1px solid rgba(217,165,60,.4);padding:4px 8px;border-radius:8px}
+.ftag{position:absolute;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:rgba(4,20,28,.5);border:1px solid rgba(255,255,255,.18);padding:8px 11px;border-radius:11px;backdrop-filter:blur(6px);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+/* SECTION shells */
+section.block{padding:120px 0;position:relative}
+.numbered{font-family:'JetBrains Mono';font-size:13px;letter-spacing:.14em;color:var(--teal-600);text-transform:uppercase;margin-bottom:16px}
+h2.big{font-size:clamp(30px,4.6vw,54px);font-weight:600;max-width:680px}
+.sub{font-size:18px;color:var(--ink-600);max-width:560px;margin-top:18px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+@media(max-width:880px){.split{grid-template-columns:1fr;gap:40px}section.block{padding:88px 0}}
+.card-light{background:#fff;border:1px solid var(--sand-200);border-radius:22px;padding:26px;box-shadow:0 1px 2px rgba(14,26,34,.05),0 20px 44px -24px rgba(14,26,34,.18)}
+.ctt{font-family:'JetBrains Mono';font-size:11px;letter-spacing:.12em;color:var(--ink-400);text-transform:uppercase;margin-bottom:18px;display:flex;justify-content:space-between}
+.trow{display:flex;align-items:center;gap:14px;margin:15px 0}
+.trow .lab{width:130px;font-size:13px;color:var(--ink-600)}
+.bar{flex:1;height:10px;border-radius:6px;background:var(--sand-100);overflow:hidden}
+.bar>span{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--teal-500),var(--teal-400));transition:width 1.1s cubic-bezier(.3,.8,.3,1)}
+.trow .pct{font-family:'JetBrains Mono';font-size:14px;font-weight:500;width:44px;text-align:right}
+.pills{margin-top:28px;display:flex;gap:9px;flex-wrap:wrap}
+.pill-d{font-family:'JetBrains Mono';font-size:12px;border:1px solid var(--sand-200);padding:7px 13px;border-radius:999px;background:#fff;color:var(--ink-600)}
+
+/* TRUST strip */
+.strip{background:#fff;border-top:1px solid var(--sand-200);border-bottom:1px solid var(--sand-200)}
+.strip .row{display:flex;justify-content:space-around;flex-wrap:wrap;gap:18px;padding:36px 0;text-align:center}
+.strip .v{font-family:'Space Grotesk';font-size:36px;font-weight:600}
+.strip .k{font-family:'JetBrains Mono';font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-400);margin-top:4px}
+</style>
+<style>
+#scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:9999;background:linear-gradient(90deg,#14B8A6,#5EEAD4,#D9A53C);box-shadow:0 0 12px rgba(20,184,166,.5)}
+#cursor-glow{position:fixed;top:0;left:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.20),transparent 60%);pointer-events:none;z-index:5;mix-blend-mode:screen;opacity:0;transition:opacity .5s;will-change:transform}
+#grain{position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px}
+.aurora{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;pointer-events:none;z-index:0;mix-blend-mode:screen;animation:auroraDrift 20s ease-in-out infinite}
+@keyframes auroraDrift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(46px,-34px) scale(1.18)}66%{transform:translate(-34px,22px) scale(.92)}}
+.hero-grid{position:relative;z-index:2;will-change:transform,opacity}
+.hero h1 .grad{background-size:220% auto;animation:shimmerText 9s ease-in-out infinite}
+@keyframes shimmerText{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.reveal{filter:blur(7px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1),filter .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{filter:blur(0)}
+.tilt-host{transition:transform .2s cubic-bezier(.2,.8,.2,1);will-change:transform}
+@media (prefers-reduced-motion:reduce){#cursor-glow,.aurora,.hero h1 .grad{animation:none!important}.reveal{filter:none!important}.hero-grid{transform:none!important;opacity:1!important}}
+</style>
+<style>
+@keyframes heroIn{from{opacity:0;transform:translateY(30px);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+.hero h1{animation:heroIn .9s cubic-bezier(.2,.8,.2,1) both .05s}
+.hero .lead{animation:heroIn .9s cubic-bezier(.2,.8,.2,1) both .18s}
+.hero .cta-row{animation:heroIn .9s cubic-bezier(.2,.8,.2,1) both .30s}
+.hero .trust{animation:heroIn .9s cubic-bezier(.2,.8,.2,1) both .42s}
+.livenow{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#9fb2ba}
+.livenow #clk{color:#5EEAD4}
+.fcard{position:relative;overflow:hidden}
+.fcard::before{content:"";position:absolute;top:0;left:-150%;width:55%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-20deg);transition:left .7s;pointer-events:none;z-index:1}
+.fcard:hover::before{left:170%}
+.marker.h::after{content:"";position:absolute;inset:-5px;border-radius:inherit;border:2px solid rgba(20,184,166,.55);animation:mpulse 2.2s ease-out infinite;pointer-events:none}
+@keyframes mpulse{0%{transform:scale(.7);opacity:.85}100%{transform:scale(1.7);opacity:0}}
+html{overflow-x:hidden}
+.mobile-cta{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(4,20,28,.94);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.1)}
+.mobile-cta a{width:100%;justify-content:center}
+@media(max-width:760px){.mobile-cta{display:flex}footer{padding-bottom:90px}}
+@media(max-width:600px){.ftag{display:none}.aurora{filter:blur(46px);opacity:.4}section.block{padding:74px 0}.hero-grid{padding-top:108px}.trust{gap:22px}}
+@media (prefers-reduced-motion:reduce){.hero h1,.hero .lead,.hero .cta-row,.hero .trust{animation:none!important}.fcard::before{display:none}.marker.h::after{display:none}}
+</style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="cursor-glow"></div>
+<div id="grain"></div>
+
+
+<header id="hdr">
+  <div class="wrap nav">
+    <div class="logo"><span class="mark">C</span> Carnet de Pêche</div>
+    <nav class="nav-links"><a href="#moat">Le carnet</a><a href="#carte">La carte</a><a href="#fil">La communauté</a><a href="#prix">Tarifs</a></nav>
+    <div class="nav-cta"><a class="login" href="#">Se connecter</a><a class="btn btn-primary" href="#cta">Créer mon carnet</a></div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+<div class="aurora" style="width:480px;height:480px;left:-110px;top:8%;background:radial-gradient(circle,rgba(20,184,166,.55),transparent 64%)"></div>
+<div class="aurora" style="width:430px;height:430px;right:-90px;bottom:-70px;background:radial-gradient(circle,rgba(217,165,60,.40),transparent 64%);animation-delay:-8s"></div>
+
+  <div class="glow"></div>
+  <svg class="layer bathy drift" viewBox="0 0 1280 760" preserveAspectRatio="xMidYMid slice" style="opacity:.5">
+    <g style="opacity:.55"><path d="M-60,130 Q320,60 660,150 T1340,130"/><path d="M-60,215 Q320,150 660,235 T1340,215"/>
+    <path d="M-60,310 Q340,245 680,330 T1340,310"/><path d="M-60,420 Q320,355 660,440 T1340,420"/>
+    <path d="M-60,540 Q360,470 700,560 T1340,540"/><path d="M-60,660 Q320,590 660,680 T1340,660"/></g>
+  </svg>
+
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow reveal in">● Canne du bord · Mer · France</div>
+      <h1 class="reveal in" data-d="1">Sache <span class="grad">quand et où</span><br>ça va mordre.</h1>
+      <p class="lead reveal in" data-d="2">Logue tes prises. Le carnet croise marée, coef, vent et heure avec <b>ton</b> historique — et te dit quand sortir. La donnée d'un instrument marin, dans ta poche.</p>
+      <div class="cta-row reveal in" data-d="3">
+        <a class="btn btn-primary" href="#cta">Créer mon carnet — gratuit <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#carte">Explorer la carte</a>
+      </div>
+      <div class="trust reveal in" data-d="4">
+        <div><div class="n"><span class="count" data-to="26">0</span></div><div class="l">espèces de chez nous</div></div>
+        <div><div class="n"><span class="count" data-to="157">0</span></div><div class="l">spots curés &amp; vérifiés</div></div>
+        <div><div class="n"><span class="count" data-to="100">0</span>%</div><div class="l">fil communautaire gratuit</div></div>
+      </div>
+    </div>
+
+    <div class="panel reveal in" data-d="2" id="hpanel">
+      <div class="ftag" style="left:-26px;top:-18px">47.8709°N · 4.7372°O</div>
+      <div class="ftag" style="right:-14px;bottom:64px;animation-delay:1.4s;color:#ffd9a0">▾ DESCENDANTE · −1,2M</div>
+      <div class="ph">
+        <span class="loc">POINTE DU RAZ</span>
+        <span class="chip">COEF 88</span>
+      </div>
+      <div class="tide-wrap">
+        <svg viewBox="0 0 360 128" width="100%" height="128" preserveAspectRatio="none">
+          <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14B8A6" stop-opacity=".34"/><stop offset="1" stop-color="#14B8A6" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,44 C60,12 110,14 150,60 C190,104 240,106 290,64 C320,40 345,44 360,50 L360,128 L0,128 Z" fill="url(#tg)"/>
+          <path class="tide-path" d="M0,44 C60,12 110,14 150,60 C190,104 240,106 290,64 C320,40 345,44 360,50"/>
+          <line x1="205" y1="0" x2="205" y2="128" stroke="#E5604F" stroke-width="1.5" stroke-dasharray="3 3" opacity=".8"/>
+          <circle class="nowdot" cx="205" cy="92" r="9" fill="#E5604F"/><circle cx="205" cy="92" r="5" fill="#E5604F"/>
+        </svg>
+      </div>
+      <div class="tide-times"><span>PM 06:42</span><span>BM 12:58</span><span>PM 19:07</span></div>
+      <div class="livenow">MAREE EN DIRECT · <span id="clk">--:--:--</span></div>
+      <div class="pf">
+        <div class="ring">
+          <svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none"/><circle class="fg" cx="33" cy="33" r="27" stroke="#14B8A6" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 33 33)"/></svg>
+          <div class="rv">87</div>
+        </div>
+        <div><div class="t">TON CRÉNEAU · 18:30 → 21:30</div><div class="d">Calculé sur tes derniers bars : marée descendante, coef &gt; 80, le soir.</div></div>
+        <span class="badge">⚡ EXEMPLE</span>
+      </div>
+    </div>
+  </div>
+  <div class="scrollcue">SCROLL ↓</div>
+</div>
+
+<!-- TRUST STRIP -->
+<div class="strip">
+  <div class="wrap row">
+    <div class="reveal"><div class="v"><span class="count" data-to="536">0</span></div><div class="k">pages de guides indexées</div></div>
+    <div class="reveal" data-d="1"><div class="v"><span class="count" data-to="24">0</span></div><div class="k">départements côtiers</div></div>
+    <div class="reveal" data-d="2"><div class="v"><span class="count" data-to="157">0</span></div><div class="k">spots vérifiés</div></div>
+    <div class="reveal" data-d="3"><div class="v">0€</div><div class="k">pour loguer, pour toujours</div></div>
+  </div>
+</div>
+
+<!-- 01 MOAT -->
+<section class="block" id="moat">
+  <div class="wrap split">
+    <div class="reveal">
+      <div class="numbered">01 — Le moat</div>
+      <h2 class="big">Tout le monde a la météo.<br>Personne n'a la tienne.</h2>
+      <p class="sub">Marées astronomiques, solunaire standard, vent générique : les autres apps donnent la même chose à chacun. Nous, on superpose <b>tes</b> prises par-dessus la donnée brute. Plus tu logues, plus le carnet ne parle qu'à toi.</p>
+      <div class="pills"><span class="pill-d">MARÉE</span><span class="pill-d">COEF</span><span class="pill-d">VENT</span><span class="pill-d">HEURE</span><span class="pill-d">LUNE</span><span class="pill-d">PRESSION</span></div>
+    </div>
+    <div class="card-light reveal" data-d="1">
+      <div class="ctt"><span>CE QUE TON CARNET EN DIT</span><span>7 PRISES</span></div>
+      <div class="trow"><div class="lab">Au printemps</div><div class="bar"><span data-w="86"></span></div><div class="pct">86%</div></div>
+      <div class="trow"><div class="lab">Le mercredi</div><div class="bar"><span data-w="71"></span></div><div class="pct">71%</div></div>
+      <div class="trow"><div class="lab">Vent léger</div><div class="bar"><span data-w="57"></span></div><div class="pct">57%</div></div>
+      <div class="trow"><div class="lab">Marée descendante</div><div class="bar"><span data-w="40"></span></div><div class="pct">40%</div></div>
+      <div class="mono" style="font-size:11px;color:var(--ink-400);margin-top:14px">CONFIANCE MOYENNE · S'AFFINE À CHAQUE PRISE</div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* 02 app window */
+.appwin{margin-top:14px;border-radius:20px;overflow:hidden;border:1px solid var(--sand-200);box-shadow:0 40px 90px -30px rgba(4,20,28,.45);background:#fff}
+.appbar{display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-bottom:1px solid var(--ink-100)}
+.appbar .dots{display:flex;gap:6px}.appbar .dots span{width:11px;height:11px;border-radius:50%;background:var(--sand-200)}
+.appbar .url{margin:0 auto;font-family:'JetBrains Mono';font-size:12px;color:var(--ink-400);background:var(--sand-50);padding:4px 14px;border-radius:8px}
+.appbody{display:grid;grid-template-columns:190px 1fr;height:430px}
+.appside{background:var(--navy-950);padding:16px 12px;color:#9fb2ba;font-size:13px}
+.appside .it{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;margin-bottom:2px}
+.appside .it.on{background:rgba(20,184,166,.16);color:#fff}
+.appside .it .i{width:14px;height:14px;border-radius:4px;background:currentColor;opacity:.5}
+.map{position:relative;background:linear-gradient(160deg,#cfe6e8,#bcdfe3 40%,#a9d6da);overflow:hidden}
+.map .land{position:absolute;background:#eef3e9;border:1px solid #d9e3d2}
+.marker{position:absolute;width:24px;height:24px;border-radius:50% 50% 50% 2px;transform:rotate(45deg) scale(0);box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff;transition:transform .5s cubic-bezier(.3,1.4,.4,1)}
+.marker.pop{transform:rotate(45deg) scale(1)}
+.marker.h{background:var(--teal-500)}.marker.m{background:var(--gold-500)}.marker.l{background:var(--ink-400)}
+.spotcard{position:absolute;right:18px;top:18px;width:232px;background:var(--navy-950);color:#fff;border-radius:14px;padding:14px;box-shadow:0 14px 30px rgba(0,0,0,.32)}
+.spotcard .loc{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal-300)}
+.spotcard .nm{font-family:'Space Grotesk';font-weight:600;font-size:15px;margin:3px 0 10px}
+.scl{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.1);padding-top:10px}
+.scl .rg{width:42px;height:42px;position:relative;flex:0 0 42px}
+.scl .rg .v{position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:600;font-size:14px}
+.scl .tx{font-size:11px;color:#c4d2d8}.scl .tx b{color:var(--teal-300);font-family:'JetBrains Mono'}
+.legend{position:absolute;left:18px;bottom:16px;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 12px;font-family:'JetBrains Mono';font-size:10px;display:flex;gap:12px;color:var(--ink-600)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+@media(max-width:760px){.appbody{grid-template-columns:1fr}.appside{display:none}.spotcard{width:170px}}
+
+/* 03 community */
+.alt{background:var(--sand-100)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:14px}
+@media(max-width:880px){.grid3{grid-template-columns:1fr}}
+.fcard{background:#fff;border:1px solid var(--sand-200);border-radius:18px;padding:24px;transition:transform .25s,box-shadow .25s}
+.fcard:hover{transform:translateY(-4px);box-shadow:0 24px 50px -28px rgba(14,26,34,.3)}
+.fcard h3{font-size:20px;margin-bottom:8px}.fcard p{font-size:14.5px;color:var(--ink-600)}
+.fmock{background:var(--sand-50);border:1px solid var(--ink-100);border-radius:12px;padding:14px;margin-top:16px}
+.pm{display:flex;gap:10px}.pm .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal-600),var(--navy-800));flex:0 0 32px}
+.pm .ph{height:70px;border-radius:8px;background:linear-gradient(135deg,#bcd,#9ab);margin-top:8px;position:relative}
+.pm .cap{position:absolute;left:8px;bottom:6px;font-family:'JetBrains Mono';font-size:9px;color:#fff}
+.tag{font-family:'JetBrains Mono';font-size:10px;border:1px solid var(--sand-200);border-radius:6px;padding:3px 7px;display:inline-block;margin:2px;color:var(--ink-600)}
+.marquee{overflow:hidden;margin-top:64px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee .track{display:flex;gap:40px;width:max-content;animation:scrollx 32s linear infinite;font-family:'Space Grotesk';font-size:22px;font-weight:600;color:var(--ink-300)}
+.marquee .track span{white-space:nowrap}
+@keyframes scrollx{to{transform:translateX(-50%)}}
+
+/* PREMIUM pricing */
+.premium{background:var(--navy-950);color:#fff;position:relative;overflow:hidden}
+.premium .glow{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(217,165,60,.16),transparent 70%);left:-120px;top:-40px;animation:none}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px}
+@media(max-width:880px){.plans{grid-template-columns:1fr}}
+.plan{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;transition:transform .25s,border-color .25s}
+.plan:hover{transform:translateY(-4px);border-color:rgba(94,234,212,.4)}
+.plan.featured{background:linear-gradient(170deg,rgba(217,165,60,.14),rgba(255,255,255,.03));border-color:rgba(217,165,60,.55)}
+.plan .pk{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.1em;color:var(--teal-300);text-transform:uppercase}
+.plan.featured .pk{color:var(--gold-300)}
+.plan .pp{font-family:'Space Grotesk';font-size:40px;font-weight:600;margin:10px 0 2px}
+.plan .pp small{font-size:15px;color:var(--ink-300);font-weight:400}
+.plan ul{list-style:none;margin:18px 0 0;display:flex;flex-direction:column;gap:10px}
+.plan li{font-size:14px;color:#c4d2d8;display:flex;gap:9px}.plan li .c{color:var(--teal-400)}
+.plan.featured li .c{color:var(--gold-300)}
+.plan .ribbon{position:absolute;top:16px;right:16px;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.08em;background:var(--gold-500);color:var(--navy-950);padding:4px 9px;border-radius:999px;font-weight:600}
+.plan .pcta{margin-top:22px;width:100%;justify-content:center}
+
+/* FAQ */
+.faq{max-width:760px;margin:46px auto 0}
+.faq details{border-bottom:1px solid var(--sand-200);padding:6px 0}
+.faq summary{list-style:none;cursor:pointer;padding:18px 0;font-family:'Space Grotesk';font-weight:600;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .chev{flex:0 0 auto;transition:transform .25s;color:var(--teal-600)}
+.faq details[open] summary .chev{transform:rotate(45deg)}
+.faq .ans{padding:0 0 18px;color:var(--ink-600);font-size:15.5px;max-width:660px}
+
+/* FINAL CTA */
+.final{background:var(--navy-950);color:#fff;text-align:center;padding:130px 0;position:relative;overflow:hidden}
+.final .glow{position:absolute;width:680px;height:680px;border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.2),transparent 68%);left:50%;top:-60%;transform:translateX(-50%);animation:breathe 9s ease-in-out infinite}
+.final h2{font-size:clamp(34px,5.6vw,66px);font-weight:600;position:relative}
+.final p{color:var(--ink-300);font-size:19px;margin-top:16px;position:relative}
+.final .cta-row{justify-content:center}
+footer{background:var(--navy-950);color:#7e919a;padding:48px 0;font-size:14px;border-top:1px solid rgba(255,255,255,.07)}
+.fgrid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
+.banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;background:rgba(4,20,28,.92);color:#cdd8dd;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:9px 16px;font-size:12px;backdrop-filter:blur(8px);font-family:'JetBrains Mono';letter-spacing:.03em}
+.banner b{color:var(--teal-300)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}.marker{transform:rotate(45deg) scale(1)}}
+</style>
+
+<!-- 02 CARTE / PRODUIT -->
+<section class="block" id="carte">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px">
+      <div class="numbered">02 — La carte</div>
+      <h2 class="big">Une carte marine, pas un plan de ville.</h2>
+      <p class="sub">157 spots curés et vérifiés. Coefficients à la minute, bathymétrie, courbes de marée, créneaux notés 0-100. Tu vois le produit en vrai — pas une promesse.</p>
+    </div>
+    <div class="appwin reveal" data-d="1" id="appwin">
+      <div class="appbar"><div class="dots"><span></span><span></span><span></span></div><div class="url">carnet-de-peche.com/carte</div></div>
+      <div class="appbody">
+        <div class="appside">
+          <div class="it on"><span class="i"></span> Carte</div>
+          <div class="it"><span class="i"></span> Mon carnet</div>
+          <div class="it"><span class="i"></span> Fil régional</div>
+          <div class="it"><span class="i"></span> Espèces</div>
+          <div class="it"><span class="i"></span> Co-pêchage</div>
+          <div class="mono" style="font-size:10px;letter-spacing:.1em;color:#5b6f78;margin:16px 0 6px">FILTRES</div>
+          <div class="it" style="font-size:11px;color:#7e919a"><span class="i" style="background:var(--teal-500);opacity:1"></span> Bar</div>
+          <div class="it" style="font-size:11px;color:#7e919a"><span class="i" style="background:var(--gold-500);opacity:1"></span> Dorade royale</div>
+        </div>
+        <div class="map" id="mapmock">
+          <div class="land" style="left:-40px;top:60px;width:230px;height:300px;border-radius:0 40% 30% 0"></div>
+          <div class="land" style="right:-30px;top:-20px;width:200px;height:170px;border-radius:30% 0 0 40%"></div>
+          <div class="marker h" style="left:170px;top:120px"></div><div class="marker h" style="left:250px;top:200px"></div>
+          <div class="marker m" style="left:140px;top:250px"></div><div class="marker l" style="left:300px;top:110px"></div>
+          <div class="marker m" style="left:330px;top:280px"></div><div class="marker h" style="left:210px;top:320px"></div>
+          <div class="spotcard">
+            <div class="loc">POINTE DU RAZ · 47.87°N</div><div class="nm">Spot vérifié · Bar, Lieu</div>
+            <div style="height:46px;margin-bottom:8px"><svg viewBox="0 0 200 46" width="100%" height="46" preserveAspectRatio="none"><path d="M0,18 C34,4 60,6 86,28 C112,46 140,44 168,22 C182,12 194,16 200,20 L200,46 L0,46Z" fill="rgba(20,184,166,.3)"/><path d="M0,18 C34,4 60,6 86,28 C112,46 140,44 168,22 C182,12 194,16 200,20" stroke="#5EEAD4" stroke-width="2" fill="none"/><circle cx="110" cy="40" r="3.5" fill="#E5604F"/></svg></div>
+            <div class="scl"><div class="rg"><svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="17" stroke="rgba(255,255,255,.14)" stroke-width="4" fill="none"/><circle cx="21" cy="21" r="17" stroke="#14B8A6" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="107" stroke-dashoffset="18" transform="rotate(-90 21 21)"/></svg><div class="v">86</div></div><div class="tx">TON CRÉNEAU<br><b>18:30 → 21:30</b> · TRÈS BONNE</div></div>
+          </div>
+          <div class="legend"><span><i style="background:var(--teal-500)"></i>Exceptionnelle</span><span><i style="background:var(--gold-500)"></i>Bonne</span><span><i style="background:var(--ink-400)"></i>Faible</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 COMMUNAUTÉ -->
+<section class="block alt" id="fil">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px">
+      <div class="numbered">03 — La communauté</div>
+      <h2 class="big">Tout ce qui sort sur ta côte.</h2>
+      <p class="sub">Le fil de ton département en temps réel, les fiches espèces traitées comme des instruments, et le co-pêchage pour sortir à plusieurs. 100% gratuit — pour de vrai.</p>
+    </div>
+    <div class="grid3">
+      <div class="fcard reveal"><h3>Le carnet qui te parle</h3><p>Chaque prise affine tes tendances perso : saison, jour, vent, marée. Le carnet finit par te connaître mieux que n'importe quelle appli météo.</p>
+        <div class="fmock"><div class="mono" style="font-size:10px;color:var(--ink-400);letter-spacing:.08em;margin-bottom:8px">CE QUE TON CARNET EN DIT</div>
+        <div class="trow" style="margin:7px 0"><div class="lab" style="width:60px;font-size:11px">Printemps</div><div class="bar"><span data-w="86"></span></div><div class="pct" style="font-size:12px">86%</div></div>
+        <div class="trow" style="margin:7px 0"><div class="lab" style="width:60px;font-size:11px">Mercredi</div><div class="bar"><span data-w="71"></span></div><div class="pct" style="font-size:12px">71%</div></div></div>
+      </div>
+      <div class="fcard reveal" data-d="1"><h3>Le fil de ta côte</h3><p>Vois ce qui mord dans ton département. Likes, commentaires, follows, co-pêchage — gratuit, sans pub, sans paywall.</p>
+        <div class="fmock pm"><div class="av"></div><div style="flex:1"><div style="font-size:12px;font-weight:600">@thom_29 <span style="color:var(--ink-400);font-weight:400">· il y a 2h</span></div><div class="ph"><span class="cap">BAR · 62 CM · LEURRE</span></div></div></div>
+      </div>
+      <div class="fcard reveal" data-d="2"><h3>Des fiches d'instrument</h3><p>26 espèces à fond : tailles légales sourcées et datées, saisons par façade, meilleurs spots. Plus 157 fiches spots avec marées et bathymétrie.</p>
+        <div class="fmock"><div style="font-family:'Space Grotesk';font-weight:600;font-size:14px">Bar <span class="mono" style="font-size:10px;color:var(--ink-400)">Dicentrarchus labrax</span></div>
+        <div style="margin-top:8px"><span class="tag">MAILLE 42 CM</span><span class="tag">VÉRIFIÉ 24/06</span><span class="tag">ATLANTIQUE</span><span class="tag">LEURRE</span></div></div>
+      </div>
+    </div>
+    <div class="marquee"><div class="track">
+      <span>Bar · Dorade royale · Lieu jaune · Maquereau · Sar · Orphie · Seiche · Mulet · Congre · Vieille · Rouget · Barracuda ·&nbsp;</span>
+      <span>Bar · Dorade royale · Lieu jaune · Maquereau · Sar · Orphie · Seiche · Mulet · Congre · Vieille · Rouget · Barracuda ·&nbsp;</span>
+    </div></div>
+  </div>
+</section>
+
+<!-- PREMIUM / PRIX -->
+<section class="block premium" id="prix">
+  <div class="glow"></div>
+  <div class="wrap" style="position:relative">
+    <div class="reveal" style="max-width:640px">
+      <div class="numbered" style="color:var(--gold-300)">04 — La précision se paie</div>
+      <h2 class="big" style="color:#fff">Le carnet est gratuit.<br>La carte au mètre, c'est toi qui choisis.</h2>
+      <p class="sub" style="color:#c4d2d8">Logue sans limite, poste sans limite. Tu paies seulement ce qui se voit au mètre près : coordonnées GPS exactes, score par spot, bathymétrie.</p>
+    </div>
+    <div class="plans">
+      <div class="plan reveal"><div class="pk">Découverte</div><div class="pp">0€ <small>/ pour toujours</small></div>
+        <ul><li><span class="c">✓</span> Carnet illimité + photos</li><li><span class="c">✓</span> Fil régional complet, gratuit</li><li><span class="c">✓</span> 26 fiches espèces + guides</li><li><span class="c">✓</span> 3 spots/dépt, coords floutées</li></ul>
+        <a class="btn btn-ghost pcta" href="#cta">Créer mon carnet</a>
+      </div>
+      <div class="plan featured reveal" data-d="1"><span class="ribbon">LE PLUS POPULAIRE</span><div class="pk">Local</div><div class="pp">4,90€ <small>/ mois</small></div>
+        <ul><li><span class="c">◆</span> Carte complète de ton dépt</li><li><span class="c">◆</span> Coords GPS précises + score 0-100</li><li><span class="c">◆</span> Filtres, hors-ligne, notifs</li><li><span class="c">◆</span> Bathymétrie, vent, courants</li></ul>
+        <a class="btn btn-primary pcta" href="#cta">Essai 7 jours →</a>
+      </div>
+      <div class="plan reveal" data-d="2"><div class="pk">Itinérant</div><div class="pp">9,90€ <small>/ mois</small></div>
+        <ul><li><span class="c">✓</span> Tous les départements côtiers</li><li><span class="c">✓</span> Bathymétrie EMODnet premium</li><li><span class="c">✓</span> Itinéraires GPS multi-spots</li><li><span class="c">✓</span> Accès anticipé + support prio</li></ul>
+        <a class="btn btn-ghost pcta" href="#cta">Essai 7 jours</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="block">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto">
+      <div class="eyebrow" style="color:var(--teal-600)">Questions fréquentes</div>
+      <h2 class="big" style="margin:14px auto 0">Tes questions, nos réponses.</h2>
+    </div>
+    <div class="faq reveal" data-d="1">
+      <details open><summary>C'est vraiment gratuit ?<span class="chev">+</span></summary><div class="ans">Oui. Le carnet, le fil régional, les guides et les fiches espèces sont gratuits et illimités, pour toujours. Tu ne paies que pour la carte précise (coords au mètre, score par spot).</div></details>
+      <details><summary>En quoi c'est différent des autres apps de marées ?<span class="chev">+</span></summary><div class="ans">Les autres donnent la même info à tout le monde. Carnet de Pêche superpose tes prises par-dessus la donnée brute et te dit ce qui marche pour toi. C'est ton historique qui devient ton avantage.</div></details>
+      <details><summary>Il faut une carte bancaire pour commencer ?<span class="chev">+</span></summary><div class="ans">Non. Tu crées ton carnet en 30 secondes, sans CB. La carte bancaire n'est demandée que si tu lances l'essai 7 jours d'une formule payante.</div></details>
+      <details><summary>Mes spots restent privés ?<span class="chev">+</span></summary><div class="ans">Par défaut, oui : tes prises sont privées et tu décides ce que tu partages, à quel cercle, et avec quelle précision GPS. Tes données restent les tiennes.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="final" id="cta">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div class="eyebrow reveal" style="color:var(--teal-300)">Gratuit · illimité · sans CB</div>
+    <h2 class="reveal" data-d="1" style="margin-top:14px">Ton prochain beau bar<br>commence par une ligne.</h2>
+    <p class="reveal" data-d="2">Crée ton carnet en 30 secondes. La marée n'attend pas.</p>
+    <div class="cta-row reveal" data-d="3"><a class="btn btn-primary" href="#" style="font-size:16px;padding:17px 32px">Créer mon carnet — gratuit <span class="arrow">→</span></a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap fgrid">
+    <div class="logo"><span class="mark">C</span> Carnet de Pêche</div>
+    <div class="mono" style="font-size:12px;color:#6b7f88">LOGUE · PARTAGE · PROGRESSE — FR · ATLANTIQUE · MANCHE · MÉDITERRANÉE</div>
+  </div>
+</footer>
+
+<div class="banner">◆ Page premium <b>v3</b> — motion+ &amp; mobile · ouvre en plein écran</div>
+
+<script>
+(function(){
+  var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
+  var hdr=document.getElementById('hdr');
+  var prog=document.getElementById('scroll-progress');
+  var glow=document.getElementById('cursor-glow');
+  var heroGrid=document.querySelector('.hero-grid');
+  var panel=document.getElementById('hpanel');
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target;el.classList.add('in');el.querySelectorAll('.count').forEach(runCount);el.querySelectorAll('.bar>span').forEach(function(s){s.style.width=(s.dataset.w||0)+'%';});io.unobserve(el);});},{threshold:.16});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  function runCount(c){if(c.dataset.done)return;c.dataset.done=1;var to=parseInt(c.dataset.to,10)||0;if(rm){c.textContent=to;return;}var t0=null;function step(t){if(!t0)t0=t;var p=Math.min((t-t0)/1400,1);c.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+  setTimeout(function(){document.querySelectorAll('.hero .count').forEach(runCount);},300);
+
+  var mio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;e.target.querySelectorAll('.marker').forEach(function(m,i){setTimeout(function(){m.classList.add('pop');},rm?0:110*i);});mio.unobserve(e.target);});},{threshold:.3});
+  var mm=document.getElementById('mapmock');if(mm)mio.observe(mm);
+
+  var sy=0,ticking=false;
+  function onScroll(){sy=window.scrollY||0;if(!ticking){requestAnimationFrame(applyScroll);ticking=true;}}
+  function applyScroll(){
+    if(sy>40)hdr.classList.add('scrolled');else hdr.classList.remove('scrolled');
+    var h=document.documentElement;var max=h.scrollHeight-h.clientHeight;prog.style.width=(max>0?(sy/max*100):0)+'%';
+    if(!rm&&heroGrid&&window.innerWidth>=760){var p=Math.min(sy/700,1);heroGrid.style.transform='translateY('+(sy*0.16).toFixed(1)+'px)';heroGrid.style.opacity=(1-p*0.85).toFixed(3);}else if(heroGrid){heroGrid.style.transform='';heroGrid.style.opacity='';}
+    ticking=false;
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});applyScroll();
+
+  if(fine&&!rm){
+    document.querySelectorAll('.fcard,.card-light,.appwin').forEach(function(el){
+      el.classList.add('tilt-host');
+      el.addEventListener('mousemove',function(ev){var r=el.getBoundingClientRect();var x=(ev.clientX-r.left)/r.width-0.5;var y=(ev.clientY-r.top)/r.height-0.5;el.style.transform='perspective(900px) rotateX('+(y*-5).toFixed(2)+'deg) rotateY('+(x*7).toFixed(2)+'deg) translateY(-4px)';});
+      el.addEventListener('mouseleave',function(){el.style.transform='';});
+    });
+    document.querySelectorAll('.btn-primary,.btn-teal').forEach(function(b){
+      b.addEventListener('mousemove',function(ev){var r=b.getBoundingClientRect();var x=ev.clientX-r.left-r.width/2;var y=ev.clientY-r.top-r.height/2;b.style.transform='translate('+(x*0.25).toFixed(1)+'px,'+(y*0.35-2).toFixed(1)+'px)';});
+      b.addEventListener('mouseleave',function(){b.style.transform='';});
+    });
+    var gx=innerWidth/2,gy=innerHeight/2,cx=gx,cy=gy,gtick=false;
+    window.addEventListener('mousemove',function(ev){gx=ev.clientX;gy=ev.clientY;glow.style.opacity='1';
+      if(panel){var px=(ev.clientX/innerWidth-0.5);var py=(ev.clientY/innerHeight-0.5);panel.style.transform='translate('+(px*-14).toFixed(1)+'px,'+(py*-10).toFixed(1)+'px)';}
+      if(!gtick){requestAnimationFrame(moveGlow);gtick=true;}
+    },{passive:true});
+    function moveGlow(){cx+=(gx-cx)*0.16;cy+=(gy-cy)*0.16;glow.style.transform='translate('+cx.toFixed(1)+'px,'+cy.toFixed(1)+'px)';if(Math.abs(gx-cx)>0.5||Math.abs(gy-cy)>0.5){requestAnimationFrame(moveGlow);}else{gtick=false;}}
+  }
+  var clk=document.getElementById('clk');if(clk){function tick(){var d=new Date();function z(n){return(n<10?'0':'')+n;}clk.textContent=z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds());}tick();setInterval(tick,1000);}
+})();
+</script>
+<div class="mobile-cta"><a class="btn btn-primary" href="#cta">Créer mon carnet — gratuit →</a></div>
+</body>
+</html>
