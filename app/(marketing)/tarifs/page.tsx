@@ -3,6 +3,7 @@ import { PricingCards } from './pricing-cards'
 import { getUserTier } from '@/lib/auth/tier'
 import { getIsEligibleForPaidTier } from '@/lib/auth/eligibility'
 import { Bathy } from '@/components/ui-v2/bathy'
+import { SPOTS_CURATED_LABEL } from '@/lib/marketing/stats'
 import { Shield, Lock, Clock, MessageCircle } from 'lucide-react'
 
 // CTAs dépendants de l'état utilisateur (tier + éligibilité géo) → rendu dynamique.
@@ -84,7 +85,7 @@ const faqItems = [
   },
   {
     q: 'Tu couvres toute la France ?',
-    a: "On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec 157 spots curés et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner. Un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.",
+    a: `On couvre 24 départements côtiers : la Manche, toute la façade Atlantique, la Méditerranée et la Corse, avec ${SPOTS_CURATED_LABEL} et de nouveaux ajoutés régulièrement. Vérifie la carte de ton département avant de t'abonner. Un abonnement payant n'a d'intérêt que là où on a déjà des spots curés.`,
   },
   {
     q: 'Et mes données ?',

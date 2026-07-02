@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
+import type { MapViewProps } from '@/components/map/MapView'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
+import { SPOTS_CURATED_LABEL } from '@/lib/marketing/stats'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -17,13 +19,52 @@ function MapSkeleton() {
   )
 }
 
+// Import de chunk résilient (audit 2026-07-02 §3.6 : embed home flaky). Un fetch de
+// chunk peut échouer transitoirement (réseau, 503 WAF) → 1 reprise silencieuse après
+// une courte attente avant de laisser l'échec remonter.
+function retryImport<T>(load: () => Promise<T>): Promise<T> {
+  return load().catch(
+    () =>
+      new Promise<T>((resolve, reject) => {
+        setTimeout(() => load().then(resolve, reject), 1_200)
+      }),
+  )
+}
+
+// Dernier recours si le chunk MapView ne charge vraiment pas (2 tentatives KO) :
+// fallback honnête + bouton réessayer. Jamais de trou silencieux ni de crash de la home.
+function MapLoadFallback({ className }: MapViewProps) {
+  return (
+    <div className={cn('grid place-items-center bg-ink-100', className)}>
+      <div className="flex flex-col items-center gap-3 px-6 text-center">
+        <p className="text-sm text-ink-600">La carte n&apos;a pas répondu, réessaie.</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="min-h-11 rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // MapLibre (~400 KB) + le popup : chargés en lazy, et SEULEMENT à l'entrée de la
 // section dans le viewport (pas au mount) → hors First Load JS de la home.
-const MapView = dynamic(() => import('@/components/map/MapView'), {
+const MapView = dynamic(
+  () =>
+    retryImport(() => import('@/components/map/MapView')).catch(() => ({
+      default: MapLoadFallback,
+    })),
+  {
+    ssr: false,
+    loading: () => <MapSkeleton />,
+  },
+)
+const SpotPopup = dynamic(() => retryImport(() => import('@/components/map/SpotPopup')), {
   ssr: false,
-  loading: () => <MapSkeleton />,
 })
-const SpotPopup = dynamic(() => import('@/components/map/SpotPopup'), { ssr: false })
 
 /**
  * Section 02 — carte explorable RÉELLE (sprint 34, WS-4). Vrais spots publics
@@ -63,7 +104,7 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
             Une carte marine, pas un plan de ville.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-ink-600">
-            157 spots curés et vérifiés. Coords floutées en gratuit, précises pour les abonnés.
+            {SPOTS_CURATED_LABEL} et vérifiés. Coords floutées en gratuit, précises pour les abonnés.
             Scoring 0-100, bathymétrie, courbes de marée. Tu vois le vrai produit, pas une
             promesse.
           </p>

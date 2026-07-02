@@ -18,7 +18,7 @@ export const maigreEspece: EspeceContent = {
   ],
 
   identity: {
-    famille: "Sciaenidés — Argyrosomus regius (le « courbine » en Espagne)",
+    famille: "Sciaenidés : Argyrosomus regius (le « courbine » en Espagne)",
     tailleCourante: "50-80 cm du bord, 1 m+ pour les beaux sujets",
     tailleMax: "Jusqu'à 2 m et plus de 50 kg, exceptionnel du bord",
     habitat: "Estuaires, embouchures et grands fonds sableux, de 2 à 30 m d'eau",

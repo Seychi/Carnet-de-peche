@@ -1,18 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { subDays, subMonths, subYears, format } from 'date-fns'
+import { CARNET_SPECIES_OPTIONS, CORE_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const SPECIES_OPTIONS = [
-  { value: 'bar', label: 'Bar' },
-  { value: 'dorade_royale', label: 'Dorade royale' },
-  { value: 'lieu_jaune', label: 'Lieu jaune' },
-  { value: 'maquereau', label: 'Maquereau' },
-  { value: 'sar', label: 'Sar' },
-  { value: 'orphie', label: 'Orphie' },
-]
+// Source unique = référentiel SPECIES (26 espèces, cœur d'abord) — même liste
+// que le formulaire de prise. Fini la liste codée en dur à 6 (audit 07-02 §4.7).
+const SPECIES_OPTIONS = CARNET_SPECIES_OPTIONS
+const CORE_SPECIES_SET = new Set(CORE_SPECIES_DB_KEYS)
 
 const TECHNIQUE_OPTIONS = [
   { value: 'leurres', label: 'Leurres' },
@@ -70,6 +68,15 @@ export function CatchFiltersBar({
   const router = useRouter()
   const pathname = usePathname()
 
+  // Replié par défaut : les 6 espèces cœur + celles déjà filtrées. « Toutes les
+  // espèces » déplie les 26 du référentiel (pattern quick-picks du formulaire).
+  const [speciesExpanded, setSpeciesExpanded] = useState(false)
+  const visibleSpecies = speciesExpanded
+    ? SPECIES_OPTIONS
+    : SPECIES_OPTIONS.filter(
+        (opt) => CORE_SPECIES_SET.has(opt.value) || initialSpecies.includes(opt.value),
+      )
+
   const currentPeriod = detectPeriod(initialDateFrom)
   const hasFilters =
     initialSpecies.length > 0 || initialTechniques.length > 0 || !!initialDateFrom
@@ -114,7 +121,7 @@ export function CatchFiltersBar({
           Espèce
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {SPECIES_OPTIONS.map((opt) => (
+          {visibleSpecies.map((opt) => (
             <button
               key={opt.value}
               type="button"
@@ -128,6 +135,16 @@ export function CatchFiltersBar({
               {opt.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setSpeciesExpanded((v) => !v)}
+            aria-expanded={speciesExpanded ? 'true' : 'false'}
+            className="px-3 py-1.5 rounded-full text-[12px] font-medium border border-dashed border-slate-300 bg-white text-ink-500 transition-colors hover:border-teal-300 hover:text-ink-700"
+          >
+            {speciesExpanded
+              ? 'Réduire'
+              : `Toutes les espèces (${SPECIES_OPTIONS.length})`}
+          </button>
         </div>
       </div>
 

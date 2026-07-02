@@ -19,7 +19,7 @@ export const calmarEspece: EspeceContent = {
   ],
 
   identity: {
-    famille: `Loliginidés (Loligo vulgaris) — calmar commun, dit aussi encornet`,
+    famille: `Loliginidés (Loligo vulgaris) : calmar commun, dit aussi encornet`,
     tailleCourante: `15-25 cm de manteau du bord, 30 cm pour les beaux sujets`,
     tailleMax: `environ 40-50 cm de manteau (hors tentacules), près de 2 kg`,
     habitat: `Rôde au-dessus du sable et des structures, surtout de nuit : digues, jetées, sorties de port éclairées, langues de sable entre les roches`,

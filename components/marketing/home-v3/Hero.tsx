@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
@@ -18,6 +18,7 @@ import { useMagnetic } from '@/components/marketing/motion'
 import { motionReduced, isCoarsePointer } from '@/components/marketing/motion/config'
 import { trendLabel } from '@/lib/conditions/tide'
 import type { HeroSnapshot, HomeCounts } from '@/lib/marketing/home-data'
+import { SPOTS_CURATED_FLOOR } from '@/lib/marketing/stats'
 import { LiveClock } from './LiveClock'
 
 // Carte MapLibre du hero (~150 KB maplibre-gl) en lazy → HORS First Load JS de la
@@ -251,7 +252,7 @@ export function Hero({
           {v.showStats && (
             <div data-hero-line className="mt-12 flex flex-wrap gap-9">
               <Stat value={counts.species} label="espèces de chez nous" />
-              <Stat value={counts.spots ?? 157} label="spots curés &amp; vérifiés" />
+              <Stat value={counts.spots ?? SPOTS_CURATED_FLOOR} label="spots curés &amp; vérifiés" />
               <Stat value={100} suffix="%" label="fil communautaire gratuit" />
             </div>
           )}
@@ -306,9 +307,11 @@ export function Hero({
             )}
             <div className="min-w-0">
               <TagData variant="on-dark" className="text-[11px]">
-                {hero.nextWindow
-                  ? `Prochain créneau · ${new Date(hero.nextWindow.startISO).toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' })}`
-                  : 'Meilleur moment du jour'}
+                {hero.nextWindow ? (
+                  <NextWindowLabel startISO={hero.nextWindow.startISO} />
+                ) : (
+                  'Meilleur moment du jour'
+                )}
               </TagData>
               <p className="mt-1 text-[13px] leading-snug text-white/70">
                 {qualityLabel ? `${qualityLabel} à ${spotName}` : `Score du jour à ${spotName}`}
@@ -332,6 +335,42 @@ export function Hero({
         </div>
       )}
     </section>
+  )
+}
+
+// « Prochain créneau · 05:24 » (+ préfixe « demain » quand le créneau tombe le
+// lendemain, jour comparé en Europe/Paris). Le préfixe est calculé APRÈS montage
+// (useEffect) : le HTML serveur peut sortir du cache (revalidate 1 h), donc comparer
+// au « maintenant » du rendu serveur créerait un mismatch d'hydratation (pattern
+// sprint 59, même approche que LiveClock). Rendu initial = heure seule, identique
+// serveur/client ; l'heure elle-même est déterministe (dérivée de startISO).
+function NextWindowLabel({ startISO }: { startISO: string }) {
+  const time = new Date(startISO).toLocaleTimeString('fr-FR', {
+    timeZone: 'Europe/Paris',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  const [prefix, setPrefix] = useState('')
+  useEffect(() => {
+    const start = new Date(startISO)
+    if (Number.isNaN(start.getTime())) return
+    // Dates calendaires Europe/Paris (en-CA → YYYY-MM-DD, parseable) : diff en jours
+    // entiers, insensible aux changements d'heure été/hiver.
+    const parisDay = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+    const dayDiff =
+      (Date.parse(parisDay.format(start)) - Date.parse(parisDay.format(new Date()))) / 86_400_000
+    setPrefix(dayDiff === 1 ? 'demain ' : '')
+  }, [startISO])
+  return (
+    <>
+      Prochain créneau · {prefix}
+      {time}
+    </>
   )
 }
 

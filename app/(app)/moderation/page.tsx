@@ -49,6 +49,11 @@ type Report = {
 }
 
 // Ligne de la vue « Re-vérifier » (tous les spots, pas seulement les pending).
+// ⚠️ Pas de `verified_at` / `verification_level` ici : ces colonnes ne sont PAS
+// dans les grants colonne de `spots` (028/043 — seuls des RPC definer les
+// exposent). Les sélectionner faisait échouer TOUTE la requête (permission
+// denied avalé) → l'onglet affichait « 0 spot(s) » en permanence (audit 07-02
+// §4.10). Les ré-afficher = migration de grant colonne (hors S70, zéro migration).
 type ReverifySpot = {
   id: string
   name: string
@@ -57,8 +62,6 @@ type ReverifySpot = {
   source: string
   moderation_status: string
   verified: boolean
-  verified_at: string | null
-  verification_level: string | null
 }
 
 type PendingSpot = {
@@ -387,13 +390,9 @@ const SOURCE_LABELS: Record<string, string> = {
 
 function ReverifySpotRow({ spot }: { spot: ReverifySpot }) {
   const dept = spot.department.trim()
-  const verifiedDate = spot.verified_at
-    ? new Date(spot.verified_at).toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-      })
-    : null
+  // Plus de « Vérifié le … » ici : verified_at n'est pas dans les grants colonne
+  // de `spots` (cf. commentaire du type ReverifySpot). La date reste visible sur
+  // la fiche spot (RPC get_spot_by_slug, definer).
   return (
     <div className="flex flex-col gap-3 rounded-[14px] border border-sand-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -414,7 +413,7 @@ function ReverifySpotRow({ spot }: { spot: ReverifySpot }) {
           {spot.verified ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2 py-0.5 text-[11px] font-semibold text-teal-700">
               <BadgeCheck size={12} aria-hidden="true" />
-              Vérifié{verifiedDate ? ` le ${verifiedDate}` : ''}
+              Vérifié
             </span>
           ) : (
             <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-500">
@@ -515,6 +514,7 @@ export default async function ModerationPage({
   // Re-vérif : liste filtrable (nom/dépt/source/statut) + pagination.
   let reverifySpots: ReverifySpot[] = []
   let reverifyTotal = 0
+  let reverifyError = false
   const reverifyQuery = (qParam ?? '').trim().slice(0, 80)
   const reverifySource =
     sourceParam && ['curated', 'community', 'imported'].includes(sourceParam)
@@ -697,9 +697,12 @@ export default async function ModerationPage({
   } else if (activeTab === 'reverify') {
     // Vue « Re-vérifier » : TOUS les spots (au-delà des pending), filtrables.
     // La page entière est déjà modérateur-only (gate is_moderator ci-dessus).
+    // ⚠️ Colonnes = uniquement celles GRANTÉES sur `spots` (028/043) : ajouter
+    // verified_at ou verification_level ici recasse l'onglet (« 0 spot(s) »,
+    // audit 07-02 §4.10) tant qu'une migration de grant colonne n'existe pas.
     let q = supabase
       .from('spots')
-      .select('id, name, slug, department, source, moderation_status, verified, verified_at, verification_level', {
+      .select('id, name, slug, department, source, moderation_status, verified', {
         count: 'exact',
       })
     if (reverifyQuery) q = q.ilike('name', `%${reverifyQuery}%`)
@@ -707,9 +710,14 @@ export default async function ModerationPage({
     if (reverifySource) q = q.eq('source', reverifySource)
     if (reverifyStatus) q = q.eq('moderation_status', reverifyStatus)
     const from = (reverifyPage - 1) * IMPORTS_PER_PAGE
-    const { data: rawReverify, count } = await q
+    const { data: rawReverify, count, error: reverifyQueryError } = await q
       .order('name', { ascending: true })
       .range(from, from + IMPORTS_PER_PAGE - 1)
+    // Une erreur ne doit plus se déguiser en « 0 spot(s) » : on la remonte à l'UI.
+    if (reverifyQueryError) {
+      console.error('[moderation] erreur requête re-vérifier', reverifyQueryError)
+      reverifyError = true
+    }
     reverifyTotal = count ?? 0
     reverifySpots = (rawReverify ?? []).map((s) => ({
       id: s.id,
@@ -719,8 +727,6 @@ export default async function ModerationPage({
       source: s.source,
       moderation_status: s.moderation_status,
       verified: s.verified,
-      verified_at: s.verified_at,
-      verification_level: s.verification_level,
     }))
   }
 
@@ -791,6 +797,7 @@ export default async function ModerationPage({
         <ReverifyTab
           spots={reverifySpots}
           total={reverifyTotal}
+          hadError={reverifyError}
           query={reverifyQuery}
           selectedDept={reverifyDept}
           selectedSource={reverifySource}
@@ -824,6 +831,7 @@ export default async function ModerationPage({
 function ReverifyTab({
   spots,
   total,
+  hadError,
   query,
   selectedDept,
   selectedSource,
@@ -833,6 +841,7 @@ function ReverifyTab({
 }: {
   spots: ReverifySpot[]
   total: number
+  hadError: boolean
   query: string
   selectedDept: string | null
   selectedSource: string | null
@@ -919,10 +928,14 @@ function ReverifyTab({
         </div>
       </div>
 
-      <p className="font-mono text-[12px] text-ink-400">{total} spot(s)</p>
+      {/* Compteur honnête : jamais « 0 spot(s) » quand c'est la requête qui a
+          échoué (audit 07-02 §4.10 : l'ancien état vide était trompeur). */}
+      {!hadError && <p className="font-mono text-[12px] text-ink-400">{total} spot(s)</p>}
 
       {/* Liste */}
-      {spots.length === 0 ? (
+      {hadError ? (
+        <Empty label="La liste des spots n'a pas pu être chargée. Recharge la page ou réessaie plus tard." />
+      ) : spots.length === 0 ? (
         <Empty label="Aucun spot ne correspond à ces filtres." />
       ) : (
         <div className="flex flex-col gap-3">

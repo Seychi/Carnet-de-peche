@@ -5,8 +5,26 @@ import { NextResponse, type NextRequest } from "next/server";
 // /auth/login EN PRÉSERVANT la cible (?redirect=…) ; le garde-fou du layout
 // (app) redirige sans paramètre, donc toute route protégée doit être listée
 // ICI pour ne pas perdre la destination. NB « /fil/ » (slash final) cible
-// /fil/[department] sans capturer le teaser public « /fil ».
-const APP_ROUTES = ["/home", "/carnet", "/onboarding", "/fil/", "/follows", "/profil", "/compte"];
+// /fil/[department] sans capturer le teaser public « /fil ». NB « /spots/… » :
+// seules les sous-routes du groupe (app) sont listées (préfixes exacts), JAMAIS
+// « /spots » seul — l'annuaire public /spots et /spots/[slug] restent ouverts.
+const APP_ROUTES = [
+  "/home",
+  "/carnet",
+  "/onboarding",
+  "/fil/",
+  "/follows",
+  "/profil",
+  "/compte",
+  // Sprint 70 Bloc C (audit 2026-07-02 §3.8) : routes (app) qui perdaient le
+  // ?redirect de retour au login.
+  "/classements",
+  "/sorties",
+  "/notifications",
+  "/moderation",
+  "/spots/mes-propositions",
+  "/spots/proposer",
+];
 // Routes réservées aux visiteurs non-connectés
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 

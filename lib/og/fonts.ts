@@ -29,15 +29,24 @@ const SPECS: FontSpec[] = [
 
 let cache: Promise<OgFont[]> | null = null
 
+// Borne dure par fetch de police (sprint 70 Bloc C) : un CDN qui NE RÉPOND PAS
+// (vs qui échoue vite) laissait la génération OG pendre jusqu'au timeout edge
+// de 25 s (logs Vercel 30/06-01/07). Les fetchs partent en parallèle → 3 s max
+// au total, puis fallback police système (jamais de 500, invariant sprint 55).
+const FONT_FETCH_TIMEOUT_MS = 3_000
+
 async function loadOne(spec: FontSpec): Promise<OgFont | null> {
   try {
-    const res = await fetch(spec.url, { cache: 'force-cache' })
+    const res = await fetch(spec.url, {
+      cache: 'force-cache',
+      signal: AbortSignal.timeout(FONT_FETCH_TIMEOUT_MS),
+    })
     if (!res.ok) return null
     const data = await res.arrayBuffer()
     if (!data.byteLength) return null
     return { name: spec.name, data, weight: spec.weight, style: 'normal' }
   } catch {
-    return null // une police KO ne casse jamais l'image
+    return null // une police KO (ou trop lente) ne casse jamais l'image
   }
 }
 

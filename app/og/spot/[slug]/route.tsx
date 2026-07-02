@@ -1,6 +1,11 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@supabase/supabase-js'
 import { loadOgFonts } from '@/lib/og/fonts'
+import {
+  OG_CACHE_CONTROL,
+  OG_DATA_FETCH_TIMEOUT_MS,
+  ogBrandFallback,
+} from '@/lib/og/fallback'
 import { SPECIES_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import {
@@ -24,18 +29,30 @@ type SpotOg = {
   structure: string | null
 }
 
-async function fetchSpotForOg(slug: string): Promise<SpotOg | null> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
-  const { data } = await supabase
-    .from('spots')
-    .select('name, slug, department, species, structure, visibility')
-    .eq('slug', slug)
-    .neq('visibility', 'private')
-    .maybeSingle()
-  return data as SpotOg | null
+// Fetch BORNÉ (sprint 70 Bloc C) : un Supabase qui ne répond pas laissait la
+// génération pendre jusqu'au timeout edge de 25 s (logs Vercel 30/06-01/07).
+// `ok:false` = échec technique (timeout/réseau) → fallback de marque, jamais de 500.
+// `spot:null` = requête OK mais spot inexistant → 404 légitime.
+type SpotFetchResult = { ok: true; spot: SpotOg | null } | { ok: false }
+
+async function fetchSpotForOg(slug: string): Promise<SpotFetchResult> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    const { data, error } = await supabase
+      .from('spots')
+      .select('name, slug, department, species, structure, visibility')
+      .eq('slug', slug)
+      .neq('visibility', 'private')
+      .abortSignal(AbortSignal.timeout(OG_DATA_FETCH_TIMEOUT_MS))
+      .maybeSingle()
+    if (error) return { ok: false }
+    return { ok: true, spot: data as SpotOg | null }
+  } catch {
+    return { ok: false }
+  }
 }
 
 // ── Labels de profondeur (décoratifs, calés sur le layout 1200×630) ───────────
@@ -53,7 +70,10 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params
-  const spot = await fetchSpotForOg(slug)
+  const result = await fetchSpotForOg(slug)
+  // Échec technique (timeout/réseau) → carte de marque en cache court, pas de 500.
+  if (!result.ok) return ogBrandFallback('og')
+  const spot = result.spot
   if (!spot) return new Response('Not found', { status: 404 })
 
   const topSpecies = (Array.isArray(spot.species) ? spot.species.slice(0, 3) : []).map(
@@ -170,6 +190,13 @@ export async function GET(
         )}
       </OgFrame>
     ),
-    { width: OG_DIMENSIONS.og.width, height: OG_DIMENSIONS.og.height, fonts },
+    {
+      width: OG_DIMENSIONS.og.width,
+      height: OG_DIMENSIONS.og.height,
+      fonts,
+      // Un OG de spot change rarement : cache CDN long + stale-while-revalidate
+      // (sprint 70 Bloc C, timeouts 25 s des logs Vercel 30/06-01/07).
+      headers: { 'Cache-Control': OG_CACHE_CONTROL },
+    },
   )
 }

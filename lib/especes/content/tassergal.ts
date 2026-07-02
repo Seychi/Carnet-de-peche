@@ -19,7 +19,7 @@ export const tassergalEspece: EspeceContent = {
   ],
 
   identity: {
-    famille: 'Pomatomidés — Pomatomus saltatrix (« bluefish », « anchova »)',
+    famille: 'Pomatomidés : Pomatomus saltatrix (« bluefish », « anchova »)',
     tailleCourante: '40-70 cm du bord, 80 cm+ pour les beaux sujets',
     tailleMax: 'Plus de 1 m pour 10 kg et plus, rare mais possible du bord',
     habitat: 'Plages profondes, digues, embouchures et ports, chasseur de surface et de pleine eau',

@@ -1,16 +1,24 @@
 import { ImageResponse } from 'next/og'
 import { resolveProgrammaticSlug, SPECIES, TECHNIQUES } from '@/lib/seo/programmatic'
 import { loadOgFonts } from '@/lib/og/fonts'
+import { OG_CACHE_CONTROL } from '@/lib/og/fallback'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 
-// OG image dynamique des pages programmatiques /peche/<espèce>/<technique>[/<dépt>]
-// (sprint 55 WS-D) : la plus grosse surface SEO partageait jusqu'ici la carte de
-// marque générique. Data 100% statique (SPECIES/TECHNIQUES/département), aucun appel
-// réseau, runtime edge. Charte DA v2. Aucune coordonnée (geom-free).
+// OG image des pages programmatiques /peche/<espèce>/<technique>[/<dépt>]
+// (sprint 55 WS-D). Déplacée ici au sprint 70 : la convention metadata
+// `opengraph-image.tsx` DANS un segment catch-all générait la route
+// `/peche/[...slug]/opengraph-image-*` (catch-all non terminal) → le route
+// matcher de Next (`getSortedRoutes`) throw « Catch-all must be the last part
+// of the URL » : `next start`/`next dev` = 500 sur TOUTES les routes, et
+// l'erreur est apparue 1× en prod (Sentry NEXTJS-F). En route handler, le
+// catch-all est terminal → plus d'ambiguïté. La page référence cette image
+// via `openGraph.images` dans son generateMetadata.
+// Data 100% statique (SPECIES/TECHNIQUES/département), aucun appel réseau,
+// runtime edge. Charte DA v2. Aucune coordonnée (geom-free).
 export const runtime = 'edge'
-export const alt = 'Pêche à la canne du bord — Carnet de Pêche'
-export const size = { width: 1200, height: 630 }
-export const contentType = 'image/png'
+
+const WIDTH = 1200
+const HEIGHT = 630
 
 const NAVY950 = '#04141C'
 const NAVY700 = '#155A73'
@@ -25,7 +33,10 @@ const ISOBATHS = [
   { d: 'M-50 420 C 220 330, 520 480, 800 390 S 1230 300, 1460 390', opacity: 0.3 },
 ]
 
-export default async function Image({ params }: { params: Promise<{ slug: string[] }> }) {
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ slug: string[] }> },
+) {
   const { slug } = await params
   const page = resolveProgrammaticSlug(slug)
 
@@ -144,6 +155,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size, fonts },
+    { width: WIDTH, height: HEIGHT, fonts, headers: { 'Cache-Control': OG_CACHE_CONTROL } },
   )
 }

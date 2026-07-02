@@ -1,5 +1,10 @@
 import { ImageResponse } from 'next/og'
 import { loadOgFonts } from '@/lib/og/fonts'
+import {
+  OG_CACHE_CONTROL,
+  OG_DATA_FETCH_TIMEOUT_MS,
+  OG_FALLBACK_CACHE_CONTROL,
+} from '@/lib/og/fallback'
 import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
@@ -14,16 +19,24 @@ const WHITE = '#FFFFFF'
 
 // ── Données ────────────────────────────────────────────────────────────────────
 
+// Fetch BORNÉ (sprint 70 Bloc C) : jamais plus de 3 s d'attente Supabase. En cas
+// d'échec (timeout/réseau), 0 → la carte rend « … » (dégradé honnête, pas de 500).
 async function fetchSpotCount(): Promise<number> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
-  const { count } = await supabase
-    .from('spots')
-    .select('id', { count: 'exact', head: true })
-    .eq('visibility', 'public')
-  return count ?? 0
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    const { count, error } = await supabase
+      .from('spots')
+      .select('id', { count: 'exact', head: true })
+      .eq('visibility', 'public')
+      .abortSignal(AbortSignal.timeout(OG_DATA_FETCH_TIMEOUT_MS))
+    if (error) return 0
+    return count ?? 0
+  } catch {
+    return 0
+  }
 }
 
 // ── Isobathes décoratives (paths repris de docs/maquette-v2/index.html) ────────
@@ -45,6 +58,9 @@ const DEPTHS = [
 export async function GET() {
   const count = await fetchSpotCount()
   const countStr = count > 0 ? `${count}` : '…'
+  // Compte indisponible (« … ») → cache COURT : le raté transitoire ne doit pas
+  // coller 24 h au CDN. Compte réel → cache long (cf. OG_CACHE_CONTROL).
+  const cacheControl = count > 0 ? OG_CACHE_CONTROL : OG_FALLBACK_CACHE_CONTROL
   const fonts = await loadOgFonts()
 
   return new ImageResponse(
@@ -197,6 +213,13 @@ export async function GET() {
         </div>
       </div>
     ),
-    { width: 1200, height: 630, fonts },
+    {
+      width: 1200,
+      height: 630,
+      fonts,
+      // Cache CDN long + stale-while-revalidate (sprint 70 Bloc C) : le compte de
+      // spots bouge au rythme des lots de curation, pas à la requête.
+      headers: { 'Cache-Control': cacheControl },
+    },
   )
 }

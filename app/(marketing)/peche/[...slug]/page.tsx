@@ -54,12 +54,24 @@ export async function generateMetadata({
     : 'en France'
   const description = `Où et comment pêcher ${species.article.toLowerCase()}${species.labelLower} ${technique.withArticle} ${where} : spots, saisons, marées favorables et conseils de pêcheurs du bord.`
   const canonical = `${BASE_URL}${programmaticUrl(page)}`
+  // OG servie par le route handler /og/peche/[...slug] (sprint 70) : la
+  // convention `opengraph-image.tsx` dans un segment catch-all cassait le
+  // route matcher de Next (« Catch-all must be the last part of the URL »).
+  const ogImage = `${BASE_URL}/og${programmaticUrl(page)}`
 
   return {
     title: `${title} · Carnet de Pêche`,
     description,
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, type: 'article', locale: 'fr_FR' },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'article',
+      locale: 'fr_FR',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: 'summary_large_image', images: [ogImage] },
   }
 }
 

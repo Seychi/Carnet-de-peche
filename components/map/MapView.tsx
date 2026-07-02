@@ -63,6 +63,28 @@ type MapViewProps = {
 type MapError = 'missing-key' | 'no-webgl' | 'init-error'
 type MaplibreModule = typeof import('maplibre-gl')
 
+// ── Résilience de chargement (audit 2026-07-02 §3.6 : embed home flaky) ───────
+// Échec transitoire (style/tuiles/contexte WebGL) → 1 reprise auto silencieuse
+// (le skeleton reste affiché), puis fallback honnête avec bouton « Réessayer ».
+const MAX_AUTO_RETRIES = 1
+const AUTO_RETRY_DELAY_MS = 1_500
+// Délai de grâce après une erreur MapLibre pré-load : un tile 4xx isolé ne doit pas
+// condamner la carte si le style finit par charger.
+const STYLE_FAIL_GRACE_MS = 2_500
+
+// Sonde le support WebGL RÉEL du navigateur. `new maplibre.Map()` peut échouer de
+// façon transitoire (contexte GPU saturé, driver qui redémarre) : sans cette sonde,
+// on affichait « Ton navigateur ne supporte pas la carte » à tort au 1er chargement
+// (fallback mensonger, audit 2026-07-02 §3.6).
+function supportsWebGL(): boolean {
+  try {
+    const canvas = document.createElement('canvas')
+    return !!(canvas.getContext('webgl2') ?? canvas.getContext('webgl'))
+  } catch {
+    return false
+  }
+}
+
 // Lecture coords + zoom mono (DA v2, réf carte.html) — écrite directement dans
 // le DOM (pas de state React : ça bouge à chaque frame de pan).
 function writeReadout(map: MapLibreMap, el: HTMLSpanElement | null) {
@@ -420,6 +442,9 @@ export default function MapView({
   )
   // Skeleton tant que MapLibre + tuiles ne sont pas chargés (évite le flash blanc).
   const [loaded, setLoaded] = useState(false)
+  // Incrémenté pour relancer l'init complète (reprise auto ou bouton « Réessayer »).
+  const [retryToken, setRetryToken] = useState(0)
+  const autoRetriesRef = useRef(0)
 
   // Première écriture du readout coords/zoom une fois le span monté
   // (le 'load' MapLibre part avant le re-render React → ref encore null).
@@ -458,7 +483,24 @@ export default function MapView({
     let mounted = true
     let attribObserver: MutationObserver | null = null
     let revealTimer: ReturnType<typeof setTimeout> | undefined
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+    let styleFailTimer: ReturnType<typeof setTimeout> | undefined
     let cancelResize: (() => void) | undefined
+
+    // Échec de chargement (style/tuiles/init WebGL) : 1 reprise auto silencieuse (le
+    // skeleton reste affiché), puis fallback honnête avec bouton « Réessayer ». Jamais
+    // d'écran cassé silencieux (audit 2026-07-02 §3.6 : embed home flaky).
+    const failLoad = () => {
+      if (!mounted) return
+      if (autoRetriesRef.current < MAX_AUTO_RETRIES) {
+        autoRetriesRef.current += 1
+        retryTimer = setTimeout(() => {
+          if (mounted) setRetryToken((t) => t + 1)
+        }, AUTO_RETRY_DELAY_MS)
+      } else {
+        setError('init-error')
+      }
+    }
 
     // Les handlers de clic résolvent le spot dans la liste COURANTE (ref), pas
     // dans une closure : la liste filtrée change après le mount.
@@ -506,18 +548,32 @@ export default function MapView({
           renderWorldCopies: false,
         })
       } catch {
-        console.warn('[MapView] WebGL non supporté ou erreur MapLibre init')
-        if (mounted) setError('no-webgl')
+        if (!mounted) return
+        if (!supportsWebGL()) {
+          // Vrai déficit navigateur (sondé) → message honnête, un retry n'y changera rien.
+          console.warn('[MapView] WebGL non supporté : carte désactivée')
+          setError('no-webgl')
+        } else {
+          // WebGL dispo mais init KO → échec transitoire (contexte GPU) : on retente.
+          console.warn('[MapView] Échec init MapLibre (transitoire) : nouvelle tentative')
+          failLoad()
+        }
         return
       }
 
       mapRef.current = map
       maplibreRef.current = maplibre
 
-      // Erreur style (401 clé invalide, 403 domaine non autorisé, réseau, etc.)
+      // Erreur style (401 clé invalide, 403 domaine non autorisé, réseau, etc.).
+      // Un tile 4xx isolé pré-load ne condamne pas la carte : on n'échoue que si le
+      // style n'est TOUJOURS pas chargé après le délai de grâce.
       map.on('error', (e) => {
         console.error('[MapView] Erreur MapLibre:', e.error?.message ?? e)
-        if (mounted && !map.isStyleLoaded()) setError('init-error')
+        if (!mounted || map.isStyleLoaded() || styleFailTimer) return
+        styleFailTimer = setTimeout(() => {
+          styleFailTimer = undefined
+          if (mounted && !map.isStyleLoaded()) failLoad()
+        }, STYLE_FAIL_GRACE_MS)
       })
 
       map.on('move', () => writeReadout(map, readoutRef.current))
@@ -525,20 +581,31 @@ export default function MapView({
       // Si 'load' ne part jamais (fiches spot en prod, audit 2026-06-11 : skeleton
       // sombre permanent avec attribution visible), 'idle' — qui fire dès que la
       // carte a fini de rendre — lève le skeleton. Et à défaut des deux, le timer
-      // révèle la carte plutôt que de la masquer indéfiniment.
+      // révèle la carte plutôt que de la masquer indéfiniment. Dans les deux cas,
+      // UNIQUEMENT si le style a réellement chargé : révéler sans fond = « markers
+      // sans fond » silencieux (audit 2026-07-02 §3.6) → on passe par failLoad.
       map.once('idle', () => {
-        if (!mounted) return
+        if (!mounted || !map.isStyleLoaded()) return
         resizeIfSized(map, containerRef.current)
         setLoaded(true)
       })
       revealTimer = setTimeout(() => {
         if (!mounted) return
-        resizeIfSized(map, containerRef.current)
-        setLoaded(true)
+        if (map.isStyleLoaded()) {
+          resizeIfSized(map, containerRef.current)
+          setLoaded(true)
+        } else {
+          failLoad()
+        }
       }, 10_000)
 
       map.on('load', () => {
         if (!mounted) return
+        // Style chargé → annule un éventuel échec différé (erreur transitoire recouverte).
+        if (styleFailTimer) {
+          clearTimeout(styleFailTimer)
+          styleFailTimer = undefined
+        }
         // Le conteneur flex peut mesurer 0 px à l'instant de `new Map()` (init async,
         // layout pas encore résolu) → canvas noir tant qu'on n'interagit pas. Le resize
         // au seul 'load' était intermittent (T0.4 sprint 9.5) : 'load' peut partir avant
@@ -579,12 +646,15 @@ export default function MapView({
         if (mounted && containerRef.current) ro.observe(containerRef.current)
       })
       .catch(() => {
-        if (mounted) setError('init-error')
+        // Chunk maplibre-gl KO (réseau flaky, 503) → même chemin de reprise auto.
+        failLoad()
       })
 
     return () => {
       mounted = false
       if (revealTimer) clearTimeout(revealTimer)
+      if (retryTimer) clearTimeout(retryTimer)
+      if (styleFailTimer) clearTimeout(styleFailTimer)
       cancelResize?.()
       ro.disconnect()
       attribObserver?.disconnect()
@@ -596,8 +666,9 @@ export default function MapView({
       mapRef.current = null
       maplibreRef.current = null
     }
+    // retryToken = relance volontaire de l'init complète (reprise auto / « Réessayer »).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [retryToken])
 
   // ── Resync markers + sources au changement de la liste (filtrée) ────────────
   // Sans cet effet, la carte gardait les spots du mount : appliquer un filtre
@@ -733,11 +804,25 @@ export default function MapView({
   }
 
   if (error === 'init-error') {
+    // Fallback honnête + relance manuelle (audit 2026-07-02 §3.6) : on ne laisse
+    // jamais un écran cassé silencieux. Le bouton relance l'init complète.
     return (
       <div className={`flex items-center justify-center bg-gray-100 rounded-xl ${className ?? ''}`}>
-        <p className="text-sm text-gray-500">
-          La carte n&apos;a pas pu se charger. Vérifie ta connexion ou réessaie.
-        </p>
+        <div className="flex flex-col items-center gap-3 px-6 py-8 text-center">
+          <p className="text-sm text-gray-500">La carte n&apos;a pas répondu, réessaie.</p>
+          <button
+            type="button"
+            onClick={() => {
+              autoRetriesRef.current = 0
+              setError(null)
+              setLoaded(false)
+              setRetryToken((t) => t + 1)
+            }}
+            className="min-h-11 rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+          >
+            Réessayer
+          </button>
+        </div>
       </div>
     )
   }

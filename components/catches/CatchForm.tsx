@@ -495,11 +495,25 @@ export function CatchForm(props: CatchFormProps) {
     }
 
     if (isEdit && catchId) {
-      const result = await updateCatch({
-        id: catchId,
-        ...data,
-        ...(photoPath !== undefined ? { photo_path: photoPath } : {}),
-      })
+      let result: Awaited<ReturnType<typeof updateCatch>>
+      try {
+        result = await updateCatch({
+          id: catchId,
+          ...data,
+          ...(photoPath !== undefined ? { photo_path: photoPath } : {}),
+        })
+      } catch (err) {
+        // Réponse invalide du transport Server Action (WAF/challenge Vercel, déploiement
+        // en cours, réseau) : fetchServerAction throw « unexpected response » (Sentry
+        // NEXTJS-4). Jamais de rejection non gérée ni de formulaire figé en « saving ».
+        console.error('[CatchForm] updateCatch a levé :', err)
+        clearTimeout(conditionsTimer)
+        toast.error(
+          'Le serveur n’a pas répondu correctement. Ta saisie est conservée : réessaie dans quelques secondes.'
+        )
+        setSubmitPhase('idle')
+        return
+      }
       clearTimeout(conditionsTimer)
 
       if ('error' in result) {
@@ -518,7 +532,21 @@ export function CatchForm(props: CatchFormProps) {
     }
 
     // Mode création
-    const result = await createCatch({ ...data, photo_path: photoPath })
+    let result: Awaited<ReturnType<typeof createCatch>>
+    try {
+      result = await createCatch({ ...data, photo_path: photoPath })
+    } catch (err) {
+      // Même filet que updateCatch : le POST du Server Action a renvoyé une réponse
+      // inattendue (400 WAF/challenge observé en prod le 22/06). Le brouillon local
+      // (DRAFT_KEY) n'est purgé qu'au succès → rien n'est perdu, on invite à réessayer.
+      console.error('[CatchForm] createCatch a levé :', err)
+      clearTimeout(conditionsTimer)
+      toast.error(
+        'Le serveur n’a pas répondu correctement. Ta saisie est conservée : réessaie dans quelques secondes.'
+      )
+      setSubmitPhase('idle')
+      return
+    }
     clearTimeout(conditionsTimer)
 
     if ('error' in result) {
@@ -613,7 +641,16 @@ export function CatchForm(props: CatchFormProps) {
           return
         }
       }
-      void handleSubmit(onSubmit, onInvalid)()
+      // Filet ultime (sprint 70, Sentry NEXTJS-4) : si onSubmit lève malgré tout
+      // (cas non couvert par les try/catch internes), on ne laisse JAMAIS une
+      // rejection non gérée ni un formulaire figé en phase « saving ».
+      void handleSubmit(onSubmit, onInvalid)().catch((err) => {
+        console.error('[CatchForm] submit a levé :', err)
+        toast.error(
+          'Une erreur inattendue est survenue. Ta saisie est conservée : réessaie.'
+        )
+        setSubmitPhase('idle')
+      })
     } finally {
       preSubmitRef.current = false
     }
@@ -1031,7 +1068,9 @@ export function CatchForm(props: CatchFormProps) {
                   <p className="text-[13px] font-medium text-teal-800">
                     {formatCoord(watchedLat, true)} · {formatCoord(watchedLng, false)}
                   </p>
-                  <p className="text-[11px] text-teal-600">Position GPS récupérée</p>
+                  {/* « trouvée » et pas « GPS récupérée » : les coords peuvent venir
+                      du géocodage par ville, pas seulement du GPS (audit 07-02 §4.5). */}
+                  <p className="text-[11px] text-teal-600">Position trouvée</p>
                 </div>
                 <button
                   type="button"

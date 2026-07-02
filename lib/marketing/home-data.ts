@@ -54,7 +54,7 @@ function anonClient() {
 // ── 1. Compteurs réels ────────────────────────────────────────────────────────
 
 export type HomeCounts = {
-  /** Spots publics réels (copy « 157 spots curés »). */
+  /** Spots publics réels (fallback copy statique = SPOTS_CURATED_FLOOR, cf lib/marketing/stats.ts). */
   spots: number | null
   /** Départements côtiers réellement couverts par des spots publics. */
   departments: number | null

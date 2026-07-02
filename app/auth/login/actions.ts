@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { safeInternalPath } from "@/lib/auth/redirect";
+import { captureSignupCompleted } from "@/lib/analytics/server";
 
 // Détermine la destination post-auth à partir des hidden inputs du formulaire.
 // Priorité : plan payant (→ /tarifs avec sélection) > redirect interne validé
@@ -336,6 +337,18 @@ export async function signUpWithPassword(
     }
     // INVITE_ONLY off + pas de session : le code n'est pas consommé, il reste
     // échangeable depuis le compte une fois l'email confirmé.
+  }
+
+  // Mesure d'acquisition (audit 2026-07-02 §3.9) : `signup_completed` émis
+  // SERVER-SIDE au succès de la création du compte (base du funnel PostHog
+  // visite → inscription → 1re prise). Fire-and-forget borné (timeout court,
+  // silencieux) : ne bloque ni ne fait JAMAIS échouer l'inscription. Aucune
+  // PII : distinct_id = user_id Supabase, et `comp_code_used` = un code
+  // fondateur a été échangé avec succès pendant ce signup.
+  if (data.user?.id) {
+    await captureSignupCompleted(data.user.id, {
+      comp_code_used: compQuery.startsWith("?comp=granted"),
+    });
   }
 
   if (data.session) {

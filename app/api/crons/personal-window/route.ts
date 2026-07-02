@@ -5,6 +5,11 @@ import { toCatchSamples, type DbCatchRow } from '@/lib/scoring/personal/buckets'
 import { computePersonalTendencies } from '@/lib/scoring/personal/tendencies'
 import { matchPersonalWindow } from '@/lib/scoring/personal/window-match'
 import { getDeptNextWindow, getDeptUpcomingWindows } from '@/lib/conditions/dept-window'
+// ℹ️ Sprint 70 Bloc B : le warning `url.parse() deprecated` (DEP0169) visible dans les
+// logs Vercel de ce cron ne vient PAS de ce fichier (aucun url.parse dans app/lib/components,
+// vérifié par grep) mais de la dépendance web-push@3.6.7 (src/web-push-lib.js:274,348),
+// appelée via sendPushToUser. Dernière version publiée au 02/07 → pas d'upgrade dispo ;
+// fix possible plus tard via `pnpm patch web-push` (package.json gelé ce sprint).
 import { sendPushToUser } from '@/lib/push/send'
 import { isNotificationPrefEnabled } from '@/lib/notifications/prefs-meta'
 import { getBigTideForDay, bigTidePreviewText } from '@/lib/notifications/big-tide'

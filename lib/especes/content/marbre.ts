@@ -18,7 +18,7 @@ export const marbreEspece: EspeceContent = {
   ],
 
   identity: {
-    famille: 'Sparidés — Lithognathus mormyrus',
+    famille: 'Sparidés : Lithognathus mormyrus',
     tailleCourante: '20-30 cm du bord, 35 cm+ pour les beaux sujets',
     tailleMax: 'Environ 45 cm pour près de 1 kg, exceptionnel',
     habitat: 'Plages et fonds de sable propre, cuvettes et veines, bordures de graus, 0,5 à 5 m',

@@ -35,6 +35,31 @@ export const BATHY_MIN_ZOOM = 9
 // SOURCE (≠ maxzoom de layer, qui MASQUERAIT la couche au-delà du seuil).
 export const BATHY_MAX_ZOOM = 13
 
+// ── Lisibilité de la couche profondeur (sprint 70 / Bloc D, audit 2026-07-02 §4.14) ──
+// AVANT : aucun réglage (défauts MapLibre : saturation 0, brightness-max 1) → la rampe
+// bleue `emodnet:mean` est QUASI BLANCHE sur les petits fonds côtiers (vérifié : tuile
+// z12 rade de Brest ≈ luminance 0.9-1.0, cf docs/sprint-70/captures/) et se noyait dans
+// l'eau claire du fond MapTiler aux zooms d'usage 10-14, même à opacité 0.7.
+// APRÈS :
+//   • brightness-max 0.78 = levier principal. Dans le shader raster MapLibre l'étape
+//     brightness est un mix final (v → v × max) : ça assombrit toute la rampe SANS
+//     réordonner ni écraser les écarts (loi de Weber : un même écart est bien plus
+//     perceptible sur des tons moyens que sur du quasi-blanc).
+//   • saturation +0.35 = bleus plus francs que l'eau désaturée du fond de carte.
+//   • PAS de raster-contrast positif : dans le shader, le contraste ((v-0.5)×k+0.5)
+//     s'applique AVANT brightness et pousse tout ce qui est > 0.5 vers 1.0 → sur une
+//     rampe quasi blanche il CRAME les paliers de hauts-fonds en blanc uniforme
+//     (exactement l'inverse de l'effet recherché).
+// La luminosité de la rampe reste MONOTONE (opérations multiplicatives/affines) →
+// daltonien-safe inchangé. Exportés pour être verrouillés par les tests
+// (lib/map/__tests__/bathymetry-layer.test.ts).
+export const BATHY_DEPTH_SATURATION = 0.35
+export const BATHY_DEPTH_BRIGHTNESS_MAX = 0.78
+// Substrat (couleurs CATÉGORIELLES) : pas de retouche colorimétrique (fausserait la
+// légende), juste l'opacité relative historique — plus discret pour laisser lire la
+// profondeur dessous.
+export const BATHY_SUBSTRATE_OPACITY_RATIO = 0.55
+
 // Couches de spots à ignorer pour le clic « fond » (évite le double-popup avec la
 // fiche spot). Couvre les DEUX modes de rendu de MapView : disques floutés Discovery
 // (`fuzzy-fill`, mode HTML < 200 spots) ET clusters (`clusters`/`unclustered-spots`/
@@ -89,7 +114,13 @@ export function addBathyLayer(map: MapLibreMap, opacity = 0.7): void {
       minzoom: BATHY_MIN_ZOOM,
       // 'raster-fade-duration':0 = pas de fondu 300 ms à chaque tuile (≠ fadeDuration
       // du constructeur Map) → évite le flicker/saccade au pan/zoom.
-      paint: { 'raster-opacity': opacity, 'raster-fade-duration': 0 },
+      // Saturation/brightness-max : lisibilité zooms 10-14, cf constantes plus haut.
+      paint: {
+        'raster-opacity': opacity,
+        'raster-fade-duration': 0,
+        'raster-saturation': BATHY_DEPTH_SATURATION,
+        'raster-brightness-max': BATHY_DEPTH_BRIGHTNESS_MAX,
+      },
     }
     map.addLayer(layer, beforeId)
   }
@@ -109,7 +140,10 @@ export function addBathyLayer(map: MapLibreMap, opacity = 0.7): void {
       source: BATHY_SUBSTRATE_SOURCE,
       minzoom: BATHY_MIN_ZOOM,
       // Substrat en overlay plus discret pour laisser lire la profondeur dessous.
-      paint: { 'raster-opacity': opacity * 0.55, 'raster-fade-duration': 0 },
+      paint: {
+        'raster-opacity': opacity * BATHY_SUBSTRATE_OPACITY_RATIO,
+        'raster-fade-duration': 0,
+      },
     }
     map.addLayer(layer, beforeId)
   }
@@ -131,7 +165,7 @@ export function setBathyOpacity(map: MapLibreMap, opacity: number): void {
     map.setPaintProperty(BATHY_DEPTH_LAYER, 'raster-opacity', opacity)
   }
   if (map.getLayer(BATHY_SUBSTRATE_LAYER)) {
-    map.setPaintProperty(BATHY_SUBSTRATE_LAYER, 'raster-opacity', opacity * 0.55)
+    map.setPaintProperty(BATHY_SUBSTRATE_LAYER, 'raster-opacity', opacity * BATHY_SUBSTRATE_OPACITY_RATIO)
   }
 }
 

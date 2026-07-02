@@ -62,7 +62,7 @@ export const CHALLENGES: ChallengeDef[] = [
     slug: 'declare_sensitive',
     title: 'Déclare tes prises sensibles',
     description:
-      'Bar, lieu jaune, maquereau… doivent être déclarés sous 24 h via RecFishing — même relâchés.',
+      'Bar, lieu jaune, maquereau… doivent être déclarés sous 24 h via RecFishing, même relâchés.',
     icon: 'clipboard-check',
     link: { label: 'Ouvrir RecFishing', href: RECFISHING_LINKS.webPortal },
   },

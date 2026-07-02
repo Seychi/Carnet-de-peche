@@ -15,7 +15,7 @@ export const barEspece: EspeceContent = {
   ],
 
   identity: {
-    famille: 'Moronidés — Dicentrarchus labrax (« loup » en Méditerranée)',
+    famille: 'Moronidés : Dicentrarchus labrax (« loup » en Méditerranée)',
     tailleCourante: '35-55 cm du bord, 70 cm+ pour les beaux sujets',
     tailleMax: 'Environ 1 m pour 10-12 kg, rarissime du bord',
     habitat: "Pointes rocheuses, plages, estuaires, ports : de 0,5 à 15 m d'eau",

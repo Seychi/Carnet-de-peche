@@ -1,9 +1,22 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getMyCatchStats } from '@/lib/catches/queries'
+import { getUserTier, type UserTier } from '@/lib/auth/tier'
 import { ShareButton } from '@/components/share/ShareButton'
 import { ProfileForm } from './profile-form'
 import { RankingVisibilityToggle } from './ranking-visibility-toggle'
+
+// Badge de formule (audit 07-02 §4.8) : le tier était invisible hors
+// /compte/abonnement. Lecture seule via getUserTier (RPC current_tier, source
+// de vérité Stripe/comp), zéro logique nouvelle. Libellé TEXTE toujours présent
+// (jamais d'info portée par la seule teinte) ; gold-700/teal-700 = variantes AA.
+const TIER_BADGES: Record<UserTier, { label: string; cls: string }> = {
+  anonymous: { label: 'Découverte', cls: 'border-sand-300 bg-white text-ink-500' },
+  discovery: { label: 'Découverte', cls: 'border-sand-300 bg-white text-ink-500' },
+  local: { label: 'Local', cls: 'border-teal-700/30 bg-teal-500/10 text-teal-700' },
+  itinerant: { label: 'Itinérant', cls: 'border-gold-700/30 bg-gold-500/10 text-gold-700' },
+}
 
 type Profile = {
   id: string
@@ -38,8 +51,12 @@ export default async function ProfilPage() {
 
   // Partage du bilan (sprint 55) : on n'affiche les CTA que si le carnet a de quoi
   // (sinon l'action renverrait « pas assez de données »). Cartes publiques geom-free.
-  const stats = await getMyCatchStats().catch(() => null)
+  const [stats, tier] = await Promise.all([
+    getMyCatchStats().catch(() => null),
+    getUserTier().catch((): UserTier => 'discovery'),
+  ])
   const hasCatches = !!stats && stats.totalCount > 0
+  const tierBadge = TIER_BADGES[tier]
 
   return (
     <div className="bg-sand-50 min-h-screen py-12">
@@ -48,9 +65,18 @@ export default async function ProfilPage() {
           <p className="mb-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-400">
             MON PROFIL
           </p>
-          <h1 className="font-display text-navy-900 text-3xl">
-            {profile.username ? `@${profile.username}` : 'Mon profil'}
-          </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-navy-900 text-3xl">
+              {profile.username ? `@${profile.username}` : 'Mon profil'}
+            </h1>
+            <Link
+              href="/compte/abonnement"
+              title="Voir mon abonnement"
+              className={`inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.06em] transition-colors hover:border-ink-300 ${tierBadge.cls}`}
+            >
+              {tierBadge.label}
+            </Link>
+          </div>
           <p className="text-ink-600 mt-2 text-sm">
             Modifie tes informations de pêcheur. Ton email ne peut pas être changé ici.
           </p>

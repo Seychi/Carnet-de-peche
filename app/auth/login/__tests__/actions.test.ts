@@ -14,6 +14,11 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/headers', () => ({
   headers: vi.fn(async () => new Map([['host', 'localhost:3000']])),
 }))
+// lib/analytics/server importe 'server-only' (throw hors runtime React Server) :
+// mocké ici, et l'émission de signup_completed est assertée dans les tests.
+vi.mock('@/lib/analytics/server', () => ({
+  captureSignupCompleted: vi.fn(async () => {}),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'

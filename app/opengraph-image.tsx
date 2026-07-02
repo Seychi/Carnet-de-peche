@@ -1,11 +1,12 @@
 import { ImageResponse } from 'next/og'
 import { loadOgFonts } from '@/lib/og/fonts'
+import { OG_CACHE_CONTROL } from '@/lib/og/fallback'
 
 // OG image de marque par défaut (convention Next.js : appliquée à toute page qui
 // ne définit pas sa propre `openGraph.images`). Les fiches spots gardent leur
 // image dynamique via `app/og/spot/[slug]`. Sert aussi de twitter:image (fallback).
 export const runtime = 'edge'
-export const alt = 'Carnet de Pêche — Logue. Partage. Progresse.'
+export const alt = 'Carnet de Pêche : Logue. Partage. Progresse.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -167,6 +168,13 @@ export default async function Image() {
         </div>
       </div>
     ),
-    { ...size, fonts },
+    {
+      ...size,
+      fonts,
+      // Contenu 100 % statique (seules les polices sont fetchées, bornées à 3 s
+      // dans lib/og/fonts.ts) : cache CDN long + SWR (sprint 70 Bloc C, fin des
+      // timeouts 25 s des logs Vercel 30/06-01/07).
+      headers: { 'Cache-Control': OG_CACHE_CONTROL },
+    },
   )
 }

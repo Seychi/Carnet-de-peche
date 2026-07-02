@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
 import { loadOgFonts } from '@/lib/og/fonts'
+import { OG_CACHE_CONTROL } from '@/lib/og/fallback'
 
 // OG image dynamique par fiche espèce (convention Next.js : remplace l'OG de
 // marque par défaut sur /especes/[slug]). Data 100% statique (SPECIES) → aucun
@@ -147,6 +148,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size, fonts },
+    { ...size, fonts, headers: { 'Cache-Control': OG_CACHE_CONTROL } },
   )
 }

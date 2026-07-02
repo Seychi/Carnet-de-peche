@@ -1,6 +1,11 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@supabase/supabase-js'
 import { loadOgFonts } from '@/lib/og/fonts'
+import {
+  OG_CACHE_CONTROL,
+  OG_DATA_FETCH_TIMEOUT_MS,
+  ogBrandFallback,
+} from '@/lib/og/fallback'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import {
@@ -102,17 +107,27 @@ type SharedCardRow = {
   kind: 'catch' | 'conditions' | 'outing' | 'gearbox' | 'recap' | 'records' | 'badges'
 }
 
-async function fetchCard(slug: string): Promise<SharedCardRow | null> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
-  const { data } = await supabase
-    .from('shared_cards')
-    .select('payload, kind')
-    .eq('slug', slug)
-    .maybeSingle()
-  return (data as SharedCardRow | null) ?? null
+// Fetch BORNÉ (sprint 70 Bloc C) : `ok:false` = échec technique (timeout/réseau)
+// → fallback de marque ; `card:null` = requête OK mais slug inconnu → 404 légitime.
+type CardFetchResult = { ok: true; card: SharedCardRow | null } | { ok: false }
+
+async function fetchCard(slug: string): Promise<CardFetchResult> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    const { data, error } = await supabase
+      .from('shared_cards')
+      .select('payload, kind')
+      .eq('slug', slug)
+      .abortSignal(AbortSignal.timeout(OG_DATA_FETCH_TIMEOUT_MS))
+      .maybeSingle()
+    if (error) return { ok: false }
+    return { ok: true, card: (data as SharedCardRow | null) ?? null }
+  } catch {
+    return { ok: false }
+  }
 }
 
 // ─── Helpers de libellés (locaux, edge-safe) ──────────────────────────────────
@@ -1059,14 +1074,17 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params
-  const card = await fetchCard(slug)
-  if (!card || !card.payload) return new Response('Not found', { status: 404 })
-
   const url = new URL(req.url)
   const format = parseFormat(url.searchParams.get('format'))
   const themeName = parseTheme(url.searchParams.get('theme'))
   const theme: OgTheme = OG_THEMES[themeName]
   const { width, height } = OG_DIMENSIONS[format]
+
+  const result = await fetchCard(slug)
+  // Échec technique (timeout/réseau) → carte de marque en cache court, pas de 500.
+  if (!result.ok) return ogBrandFallback(format)
+  const card = result.card
+  if (!card || !card.payload) return new Response('Not found', { status: 404 })
 
   const payload = card.payload
   const kind = payload.kind ?? card.kind
@@ -1097,6 +1115,13 @@ export async function GET(
     <OgFrame format={format} theme={theme} username={username}>
       {body}
     </OgFrame>,
-    { width, height, fonts },
+    {
+      width,
+      height,
+      fonts,
+      // Une carte partagée est immuable après création : cache CDN long + SWR
+      // (sprint 70 Bloc C).
+      headers: { 'Cache-Control': OG_CACHE_CONTROL },
+    },
   )
 }
