@@ -962,6 +962,57 @@ export type Database = {
           },
         ]
       }
+      season_results: {
+        Row: {
+          archived_at: string
+          dept: string
+          metric: string
+          metric_value: number
+          rank: number
+          scope: string
+          season_key: string
+          species: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string
+          dept?: string
+          metric: string
+          metric_value: number
+          rank: number
+          scope: string
+          season_key: string
+          species?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string
+          dept?: string
+          metric?: string
+          metric_value?: number
+          rank?: number
+          scope?: string
+          season_key?: string
+          species?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "season_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shared_cards: {
         Row: {
           created_at: string
@@ -1871,6 +1922,16 @@ export type Database = {
             }
             Returns: string
           }
+      archive_season: {
+        Args: { p_offset?: number }
+        Returns: {
+          kind: string
+          o_metric_value: number
+          o_rank: number
+          o_season_key: string
+          o_user_id: string
+        }[]
+      }
       award_catch_xp: {
         Args: { c: Database["public"]["Tables"]["catches"]["Row"] }
         Returns: undefined
@@ -2041,6 +2102,14 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_badge_rarity: {
+        Args: never
+        Returns: {
+          badge_slug: string
+          holders: number
+          total: number
+        }[]
+      }
       get_catch_heatmap: {
         Args: {
           max_lat: number
@@ -2092,6 +2161,7 @@ export type Database = {
           p_metric?: string
           p_period?: string
           p_scope?: string
+          p_season_offset?: number
           p_species?: string
         }
         Returns: {
@@ -2106,6 +2176,13 @@ export type Database = {
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_my_outing_stats: { Args: never; Returns: Json }
       get_my_streak: { Args: never; Returns: Json }
+      get_overtaken_followers: {
+        Args: { p_actor: string; p_delta: number }
+        Returns: {
+          user_id: string
+          username: string
+        }[]
+      }
       get_pending_import_location: {
         Args: { p_spot_id: string }
         Returns: {
@@ -2157,6 +2234,22 @@ export type Database = {
           perso_norm: number
           quality: string
           score: number
+        }[]
+      }
+      get_season_results: {
+        Args: {
+          p_dept?: string
+          p_limit?: number
+          p_metric?: string
+          p_scope?: string
+          p_season_key: string
+        }
+        Returns: {
+          avatar_url: string
+          metric_value: number
+          rank: number
+          user_id: string
+          username: string
         }[]
       }
       get_spot_activity: {
@@ -2372,6 +2465,14 @@ export type Database = {
         }
       }
       refresh_user_streak: { Args: { p_user_id: string }; Returns: undefined }
+      season_window: {
+        Args: { p_offset?: number }
+        Returns: {
+          ends_at: string
+          season_key: string
+          starts_at: string
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       spot_visible_geom: {

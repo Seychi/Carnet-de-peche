@@ -1,4 +1,4 @@
-import { Sparkles, List, Layers, Leaf, CalendarDays, Ruler, Sun, Medal, Lock } from 'lucide-react'
+import { Sparkles, List, Layers, Leaf, CalendarDays, Ruler, Sun, Crown, Medal, Lock } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
   BADGE_FAMILIES,
@@ -10,6 +10,7 @@ import {
   type BadgeIcon,
   type BadgeTier,
 } from '@/lib/gamification/badges'
+import type { BadgeRarity } from '@/lib/gamification/badge-rarity'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { ShareButton } from '@/components/share/ShareButton'
 
@@ -27,6 +28,7 @@ const ICONS: Record<BadgeIcon, LucideIcon> = {
   calendar: CalendarDays,
   ruler: Ruler,
   sun: Sun,
+  crown: Crown,
 }
 
 function frDate(iso: string): string {
@@ -38,10 +40,13 @@ function frDate(iso: string): string {
 export function BadgesGrid({
   badges,
   metrics,
+  rarityBySlug,
   className,
 }: {
   badges: UserBadgeRow[]
   metrics: BadgeMetrics
+  /** Rareté par slug (Sprint 67) : « X % des pêcheurs l'ont ». Optionnel (masqué si absent). */
+  rarityBySlug?: Record<string, BadgeRarity>
   className?: string
 }) {
   const earnedBySlug = new Map(badges.map((b) => [b.badge_slug, b]))
@@ -80,6 +85,14 @@ export function BadgesGrid({
           const earned = s.highestTier > 0
           const tiered = s.family.tiers.length > 1
           const pct = Math.round(s.progress * 100)
+          // Rareté (Sprint 67) : % de pêcheurs détenant le palier pertinent (le plus haut
+          // obtenu, sinon le bronze comme teaser). Un slug que personne n'a est absent de
+          // rarityBySlug → rarityPct undefined → ligne masquée (pas de « 0 % » trompeur).
+          const raritySlug =
+            s.highestTier > 0
+              ? s.family.tiers.find((t) => t.tier === s.highestTier)?.slug
+              : s.family.tiers[0]?.slug
+          const rarityPct = raritySlug ? rarityBySlug?.[raritySlug]?.pct : undefined
           return (
             <li
               key={s.family.key}
@@ -170,6 +183,11 @@ export function BadgesGrid({
               {s.family.declarative && (
                 <p className="mt-1 text-[11px] italic leading-snug text-ink-400">
                   Sur la base de ce que tu déclares.
+                </p>
+              )}
+              {typeof rarityPct === 'number' && rarityPct > 0 && (
+                <p className="mt-1 font-mono text-[10.5px] text-ink-400 tabular-nums">
+                  {rarityPct} % des pêcheurs l’ont
                 </p>
               )}
               {earned && s.earnedAt && (

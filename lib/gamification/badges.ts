@@ -21,9 +21,23 @@ export type BadgeIcon =
   | 'calendar'
   | 'ruler'
   | 'sun'
+  | 'crown'
 
-/** Métrique du carnet qui pilote la progression d'une famille. */
-export type BadgeMetricKey = 'total' | 'species' | 'released' | 'activeWeeks' | 'seasons' | 'measured'
+/**
+ * Métrique du carnet qui pilote la progression d'une famille. `seasonTitles` (Sprint 67)
+ * n'est PAS dérivable des prises : le badge « Champion de saison » est attribué par
+ * archive_season (national XP #1). Son état (obtenu/à débloquer) vient de la ligne
+ * user_badges, pas de cette métrique → seasonTitles reste 0 côté carnet (badge mono-palier,
+ * qui n'affiche ni barre ni compteur de progression).
+ */
+export type BadgeMetricKey =
+  | 'total'
+  | 'species'
+  | 'released'
+  | 'activeWeeks'
+  | 'seasons'
+  | 'measured'
+  | 'seasonTitles'
 
 export type BadgeTierDef = {
   /** Slug persistant en base (ex. 'volume_50'). */
@@ -118,6 +132,16 @@ export const BADGE_FAMILIES: BadgeFamily[] = [
     icon: 'ruler',
     tiers: [{ slug: 'prise_mesuree', tier: 1, target: 1, label: 'Prise mesurée' }],
   },
+  {
+    // Champion de saison (Sprint 67) : attribué par archive_season au national XP #1 de
+    // chaque saison. Non dérivable du carnet (metric seasonTitles reste 0) ; son état vient
+    // de la ligne user_badges. Prestige public rare — aspirationnel tant qu'on ne l'a pas.
+    key: 'season_champion',
+    title: 'Champion de saison',
+    metric: 'seasonTitles',
+    icon: 'crown',
+    tiers: [{ slug: 'season_champion', tier: 1, target: 1, label: 'Champion de saison' }],
+  },
 ]
 
 /** Toutes les définitions de palier, indexées par slug. */
@@ -143,6 +167,8 @@ export type BadgeMetrics = {
   activeWeeks: number
   seasons: number
   measured: number
+  /** Titres de saison remportés (Sprint 67) — non dérivable du carnet, reste 0 ici. */
+  seasonTitles: number
 }
 
 export const EMPTY_METRICS: BadgeMetrics = {
@@ -152,6 +178,7 @@ export const EMPTY_METRICS: BadgeMetrics = {
   activeWeeks: 0,
   seasons: 0,
   measured: 0,
+  seasonTitles: 0,
 }
 
 type MetricCatch = {
@@ -197,6 +224,9 @@ export function computeBadgeMetrics(catches: MetricCatch[]): BadgeMetrics {
     activeWeeks: weeks.size,
     seasons: seasons.size,
     measured,
+    // Non dérivable du carnet : le badge champion est attribué par archive_season. L'état
+    // « obtenu » vient de la ligne user_badges, pas de cette métrique (mono-palier).
+    seasonTitles: 0,
   }
 }
 

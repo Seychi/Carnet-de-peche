@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish, Waves } from 'lucide-react'
+import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish, Waves, Trophy, Medal } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
@@ -63,6 +63,10 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: Fish, label: `${who} a publié une prise` }
     case 'nearby_outing':
       return { icon: Users, label: 'Nouvelle sortie près de chez toi' }
+    case 'rank_overtake':
+      return { icon: Trophy, label: `${who} t’a dépassé dans un classement 🎣` }
+    case 'season_recap':
+      return { icon: Medal, label: 'Résultats de fin de saison 🎣' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -144,6 +148,10 @@ export default async function NotificationsPage() {
     // Prise d'un pêcheur suivi : sa fiche profil si on a le pseudo, sinon le fil.
     if (n.type === 'followed_catch') {
       return n.actor_username ? `/u/${n.actor_username}` : '/fil'
+    }
+    // Rangs vivants (sprint 67) : dépassement / récap de saison → la page des classements.
+    if (n.type === 'rank_overtake' || n.type === 'season_recap') {
+      return '/classements'
     }
     if (n.target_type === 'post' && n.target_id) {
       const region = regionByPostId.get(n.target_id)

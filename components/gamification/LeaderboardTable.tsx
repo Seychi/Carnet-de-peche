@@ -20,6 +20,7 @@ import {
   type LeaderboardMetric,
   type LeaderboardPeriod,
 } from '@/lib/gamification/leaderboard'
+import type { SeasonOption } from '@/lib/gamification/season'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { DEPARTMENT_OPTIONS } from '@/lib/geo/departments'
 import { LeaderboardEmptyState } from './LeaderboardEmptyState'
@@ -60,13 +61,14 @@ export function LeaderboardTable({
   initialRows,
   myUserId,
   homeDepartment,
-  seasonYear,
+  seasons,
   optedIn,
 }: {
   initialRows: LeaderboardRow[]
   myUserId: string
   homeDepartment: string | null
-  seasonYear: number
+  /** Saison courante + saisons passées (Sprint 67), offset 0 en tête. */
+  seasons: SeasonOption[]
   optedIn: boolean
 }) {
   const [params, setParams] = useState<LeaderboardParams>({
@@ -75,6 +77,7 @@ export function LeaderboardTable({
     period: 'season',
     dept: homeDepartment,
     species: null,
+    seasonOffset: 0,
   })
   const [rows, setRows] = useState<LeaderboardRow[]>(initialRows)
   const [loading, setLoading] = useState(false)
@@ -106,7 +109,10 @@ export function LeaderboardTable({
   }
 
   const meta = metricMeta(params.metric)
-  const periodLabel = params.period === 'season' ? `Saison ${seasonYear}` : 'Depuis le début'
+  const currentOffset = params.seasonOffset ?? 0
+  const selectedSeason = seasons.find((s) => s.offset === currentOffset) ?? seasons[0]
+  const periodLabel =
+    params.period === 'season' ? `Saison ${selectedSeason?.label ?? ''}`.trim() : 'Depuis le début'
 
   return (
     <div>
@@ -147,6 +153,25 @@ export function LeaderboardTable({
           </Chip>
         ))}
       </div>
+
+      {/* Sélecteur de saison (Sprint 67) : uniquement en mode « Saison ». La saison
+          courante est en tête ; les précédentes sont consultables (podium recalculé). */}
+      {params.period === 'season' && seasons.length > 1 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            Saison
+          </span>
+          {seasons.map((s) => (
+            <Chip
+              key={s.offset}
+              active={currentOffset === s.offset}
+              onClick={() => apply({ seasonOffset: s.offset })}
+            >
+              {s.offset === 0 ? `${s.label} (en cours)` : s.label}
+            </Chip>
+          ))}
+        </div>
+      )}
 
       {/* Filtres contextuels : département (scope=department) + espèce (metrics prises) */}
       {(params.scope === 'department' || isSpeciesFilterable(params.metric)) && (

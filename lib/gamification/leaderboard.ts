@@ -18,6 +18,11 @@ export interface LeaderboardParams {
   species?: string | null
   period: LeaderboardPeriod
   metric: LeaderboardMetric
+  /**
+   * Décalage de saison (Sprint 67) : 0 = saison courante, -1 = précédente… Ignoré quand
+   * period = 'all_time'. Permet de consulter un classement de saison passée (recalcul exact).
+   */
+  seasonOffset?: number
 }
 
 export interface LeaderboardRow {

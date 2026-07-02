@@ -23,6 +23,8 @@ export const NOTIFICATION_PREF_KEYS = [
   // Dopamine proactive (sprint 63) : deux interrupteurs groupés plutôt qu'un par événement.
   'progress',
   'streak_reminder',
+  // Rangs vivants (sprint 67) : dépassement par un follow + récap de fin de saison.
+  'ranking',
 ] as const
 
 export type NotificationPrefKey = (typeof NOTIFICATION_PREF_KEYS)[number]
@@ -82,6 +84,12 @@ export const NOTIFICATION_PREF_META: readonly NotificationPrefMeta[] = [
     label: 'Rappel de série',
     description:
       'Un rappel discret, au plus une fois par semaine, quand ta série est sur le point de se terminer.',
+  },
+  {
+    key: 'ranking',
+    label: 'Classements',
+    description:
+      'Quand un pêcheur que tu suis te dépasse dans un classement, ou à la fin d’une saison. Uniquement si tu participes aux classements.',
   },
 ] as const
 

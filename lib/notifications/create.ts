@@ -64,6 +64,12 @@ export type NotificationType =
   | 'new_record'
   | 'streak_danger'
   | 'challenge_completed'
+  // Rangs vivants (sprint 67) : rank_overtake = un follow t'a dépassé dans un classement où
+  // vous êtes tous deux opt-in (ACTEUR HUMAIN = celui qui dépasse) ; season_recap = fin de
+  // saison, self-notif émise par le cron d'archivage (actor_id NULL). CHECK DB étendu en 103.
+  // Opt-out PUSH via la clé de pref 'ranking' (prefs-meta.ts). JAMAIS de lieu/coordonnée.
+  | 'rank_overtake'
+  | 'season_recap'
 
 export type NotificationTargetType = 'post' | 'catch' | 'comment' | 'spot' | 'outing'
 

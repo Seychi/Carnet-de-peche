@@ -53,6 +53,10 @@ export async function getLeaderboard(params: LeaderboardParams): Promise<Leaderb
   const dept = typeof params.dept === 'string' && params.dept.length <= 3 ? params.dept : null
   const species =
     typeof params.species === 'string' && params.species.length <= 40 ? params.species : null
+  // Décalage de saison (Sprint 67) : borné à [-40, 0] (10 ans de trimestres passés max).
+  // Positif interdit (on ne consulte pas le futur). Ignoré côté RPC quand period='all_time'.
+  const rawOffset = Number.isFinite(params.seasonOffset) ? Math.trunc(params.seasonOffset as number) : 0
+  const seasonOffset = Math.min(0, Math.max(-40, rawOffset))
 
   const { data, error } = await supabase.rpc('get_leaderboard', {
     p_scope: scope,
@@ -60,6 +64,7 @@ export async function getLeaderboard(params: LeaderboardParams): Promise<Leaderb
     p_species: species,
     p_period: period,
     p_metric: metric,
+    p_season_offset: seasonOffset,
   })
 
   if (error) {

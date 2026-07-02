@@ -30,12 +30,22 @@ function row(slug: string, tier: number, earned_at = '2026-06-01T00:00:00Z'): Us
 }
 
 describe('BADGE_FAMILIES (référentiel à paliers)', () => {
-  it('7 familles, slugs de palier uniques, total cohérent (14)', () => {
-    expect(BADGE_FAMILIES).toHaveLength(7)
+  it('8 familles, slugs de palier uniques, total cohérent (15)', () => {
+    // 7 familles carnet + « Champion de saison » (Sprint 67, attribué par archive_season).
+    expect(BADGE_FAMILIES).toHaveLength(8)
     const slugs = BADGE_FAMILIES.flatMap((f) => f.tiers.map((t) => t.slug))
     expect(new Set(slugs).size).toBe(slugs.length)
     expect(TOTAL_BADGES).toBe(slugs.length)
-    expect(TOTAL_BADGES).toBe(14)
+    expect(TOTAL_BADGES).toBe(15)
+  })
+
+  it('la famille Champion de saison est mono-palier, non dérivée du carnet', () => {
+    const champ = BADGE_FAMILIES.find((f) => f.key === 'season_champion')
+    expect(champ).toBeDefined()
+    expect(champ!.tiers).toHaveLength(1)
+    expect(champ!.tiers[0].slug).toBe('season_champion')
+    // Métrique 'seasonTitles' : non calculée depuis les prises (reste 0 côté carnet).
+    expect(champ!.metric).toBe('seasonTitles')
   })
 
   it('paliers triés par seuil croissant dans chaque famille', () => {
@@ -84,13 +94,14 @@ describe('computeBadgeMetrics', () => {
       activeWeeks: 0,
       seasons: 0,
       measured: 0,
+      seasonTitles: 0,
     })
   })
 })
 
 describe('familyState', () => {
   const volume = BADGE_FAMILIES.find((f) => f.key === 'volume')!
-  const zero = { total: 0, species: 0, released: 0, activeWeeks: 0, seasons: 0, measured: 0 }
+  const zero = { total: 0, species: 0, released: 0, activeWeeks: 0, seasons: 0, measured: 0, seasonTitles: 0 }
 
   it('palier intermédiaire : médaille atteinte + progression vers le suivant', () => {
     const earned = new Map<string, UserBadgeRow>([

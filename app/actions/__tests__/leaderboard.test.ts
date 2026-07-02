@@ -90,4 +90,27 @@ describe('getLeaderboard', () => {
     expect(args.p_dept).toBe('29')
     expect(args.p_species).toBe('bar')
   })
+
+  it('seasonOffset absent → 0 (saison courante)', async () => {
+    const client = mockClient({ user: USER, rpc: { get_leaderboard: { data: [] } } })
+    await getLeaderboard(DEFAULT)
+    expect(firstRpcArgs(client).p_season_offset).toBe(0)
+  })
+
+  it('borne le seasonOffset : positif interdit → 0, très négatif → -40', async () => {
+    const c1 = mockClient({ user: USER, rpc: { get_leaderboard: { data: [] } } })
+    await getLeaderboard({ ...DEFAULT, seasonOffset: 5 })
+    expect(firstRpcArgs(c1).p_season_offset).toBe(0)
+
+    vi.clearAllMocks()
+    const c2 = mockClient({ user: USER, rpc: { get_leaderboard: { data: [] } } })
+    await getLeaderboard({ ...DEFAULT, seasonOffset: -100 })
+    expect(firstRpcArgs(c2).p_season_offset).toBe(-40)
+  })
+
+  it('passe un seasonOffset valide (saison précédente) tel quel', async () => {
+    const client = mockClient({ user: USER, rpc: { get_leaderboard: { data: [] } } })
+    await getLeaderboard({ ...DEFAULT, seasonOffset: -1 })
+    expect(firstRpcArgs(client).p_season_offset).toBe(-1)
+  })
 })

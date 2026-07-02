@@ -24,7 +24,7 @@ export async function DopamineCockpit({
   userId: string
   className?: string
 }) {
-  const [{ pokedex, streak, badges, badgeMetrics, challenges }, soloChallenges, totalXp] =
+  const [{ pokedex, streak, badges, badgeMetrics, badgeRarity, challenges }, soloChallenges, totalXp] =
     await Promise.all([getMyGamification(), getMySoloChallenges(), getUserXp(userId)])
 
   return (
@@ -35,7 +35,7 @@ export async function DopamineCockpit({
       </div>
       <StreakCard streak={streak} />
       <ChallengesBoard items={soloChallenges} />
-      <BadgesGrid badges={badges} metrics={badgeMetrics} />
+      <BadgesGrid badges={badges} metrics={badgeMetrics} rarityBySlug={badgeRarity} />
       <PokedexGrid pokedex={pokedex} />
       <ConservationChallenges challenges={challenges} />
     </div>

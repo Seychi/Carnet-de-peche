@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getLeaderboard } from '@/app/actions/leaderboard'
 import { LeaderboardTable } from '@/components/gamification/LeaderboardTable'
+import { seasonOptions } from '@/lib/gamification/season'
 
 // Classements (Sprint 66) — réservés aux connectés (décision John). La RPC get_leaderboard
 // est spot-safe (aucune coordonnée) et opt-in (public_ranking). Cette page rend le premier
@@ -32,9 +33,18 @@ export default async function ClassementsPage() {
     period: 'season',
     dept: profile?.home_department ?? null,
     species: null,
+    seasonOffset: 0,
   })
   const initialRows = initial.ok ? initial.rows : []
-  const seasonYear = new Date().getFullYear()
+
+  // Saison courante (clé + frontières calculées côté SQL, Europe/Paris). On dérive le
+  // libellé + les saisons passées en TS (arithmétique de trimestres). Repli honnête si la
+  // RPC échoue : trimestre déduit de la date (ne bloque jamais l'affichage).
+  const { data: seasonRows } = await supabase.rpc('season_window', { p_offset: 0 })
+  const currentSeasonKey =
+    (Array.isArray(seasonRows) ? seasonRows[0]?.season_key : null) ??
+    `${new Date().getFullYear()}-Q${Math.floor(new Date().getMonth() / 3) + 1}`
+  const seasons = seasonOptions(currentSeasonKey, 3)
 
   return (
     <div className="min-h-screen bg-sand-50 py-10">
@@ -54,7 +64,7 @@ export default async function ClassementsPage() {
           initialRows={initialRows}
           myUserId={user.id}
           homeDepartment={profile?.home_department ?? null}
-          seasonYear={seasonYear}
+          seasons={seasons}
           optedIn={profile?.public_ranking ?? false}
         />
       </div>

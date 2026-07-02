@@ -10,6 +10,7 @@ import { isNotificationPrefEnabled } from '@/lib/notifications/prefs-meta'
 import { getBigTideForDay, bigTidePreviewText } from '@/lib/notifications/big-tide'
 import { getUpcomingClosuresForFavorites } from '@/lib/notifications/species-closure'
 import { composeWeeklyDigest, type DigestCatchRow } from '@/lib/notifications/weekly-digest'
+import { emitSeasonRecapNotifications, type SeasonRecapRow } from '@/lib/notifications/season-recap'
 
 // Runtime Node implicite (aucun `export const runtime = 'edge'`) : requis car
 // createAdminClient + web-push (via sendPushToUser) ont besoin du crypto Node.
@@ -45,6 +46,22 @@ export async function GET(request: NextRequest) {
   try {
     const admin = createAdminClient()
     const todayParis = parisDateKey(new Date())
+
+    // ─── Bascule de saison (sprint 67, PAS de 5e cron : greffon de ce cron quotidien) ──
+    // Archive la saison PRÉCÉDENTE (offset -1) : podium figé (national/département × 4
+    // métriques) + badge « Champion de saison » (national XP #1), puis notifie les finalistes
+    // du board flagship. Idempotent (ON CONFLICT dans archive_season) → rejoué chaque jour
+    // sans doublon ; n'agit qu'au 1er passage suivant une bascule (les autres jours = no-op :
+    // aucune ligne fraîche → aucune notif). Best-effort STRICT (n'interrompt jamais le cron).
+    let seasonRecaps = 0
+    try {
+      const { data: fresh, error: archErr } = await admin.rpc('archive_season', { p_offset: -1 })
+      if (archErr) throw new Error(archErr.message)
+      const { inApp } = await emitSeasonRecapNotifications(admin, (fresh ?? []) as SeasonRecapRow[])
+      seasonRecaps = inApp
+    } catch (e) {
+      console.error('[cron personal-window] archive-season greffon (non bloquant) :', e)
+    }
 
     // Candidats : profils ayant un département de rattachement (sans dépt, pas de
     // créneau du jour calculable). Le filtre « a des prises » est fait par tendances.
@@ -213,7 +230,7 @@ export async function GET(request: NextRequest) {
       notified++
     }
 
-    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests, streakDangers })
+    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests, streakDangers, seasonRecaps })
   } catch (err) {
     console.error('[cron personal-window] échec global:', err)
     Sentry.captureException(err, { tags: { job: 'personal-window' } })

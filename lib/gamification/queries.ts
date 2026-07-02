@@ -10,6 +10,7 @@ import {
   type UserBadgeRow,
   type BadgeMetrics,
 } from './badges'
+import { getBadgeRarity, type BadgeRarity } from './badge-rarity'
 
 // ─── Agrégat gamification (server-side, privé) ──────────────────────────────────
 // Source unique pour le carnet/profil. Tout dérive du carnet (RLS own) → GRATUIT,
@@ -21,6 +22,8 @@ export type Gamification = {
   badges: UserBadgeRow[]
   /** Métriques du carnet qui pilotent les barres de progression des badges (live). */
   badgeMetrics: BadgeMetrics
+  /** Rareté par slug de badge (Sprint 67) — « X % des pêcheurs l'ont ». Agrégat opaque. */
+  badgeRarity: Record<string, BadgeRarity>
   challenges: ChallengeProgress[]
   outingStats: OutingStats
 }
@@ -54,7 +57,7 @@ async function getMyCatchesForChallenges(): Promise<ChallengeCatch[]> {
  * une source en échec ne casse pas la page (états vides honnêtes côté UI).
  */
 export async function getMyGamification(): Promise<Gamification> {
-  const [breakdown, streak, badges, challengeCatches, outingStats] = await Promise.all([
+  const [breakdown, streak, badges, challengeCatches, outingStats, badgeRarity] = await Promise.all([
     getMyCatchesBreakdown().catch(() => null),
     getMyStreak().catch(() => ({
       activeDays: 0,
@@ -73,6 +76,7 @@ export async function getMyGamification(): Promise<Gamification> {
       blankRate: 0,
       catchesPerOuting: 0,
     })),
+    getBadgeRarity().catch(() => ({}) as Record<string, BadgeRarity>),
   ])
 
   return {
@@ -80,6 +84,7 @@ export async function getMyGamification(): Promise<Gamification> {
     streak,
     badges,
     badgeMetrics: computeBadgeMetrics(challengeCatches),
+    badgeRarity,
     challenges: computeChallengeProgress(challengeCatches),
     outingStats,
   }

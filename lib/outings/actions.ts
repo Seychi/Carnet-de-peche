@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createOutingSchema, type CreateOutingInput } from './schema'
-import { recomputeSoloChallenges } from '@/lib/gamification/challenges-solo'
+import { recomputeSoloChallenges, type CompletedChallenge } from '@/lib/gamification/challenges-solo'
 import { getUserXpOrNull } from '@/lib/gamification/progress'
 import { emitDopamineNotifications } from '@/lib/notifications/dopamine'
+import { emitRankChangeNotifications } from '@/lib/notifications/rank'
 
 // Action de création d'une sortie (y compris bredouille). RLS owner-only : on insère
 // avec user_id = l'utilisateur courant ; une sortie n'apparaît jamais dans catches,
@@ -55,13 +56,21 @@ export async function createOuting(
   // les notifs dopamine (level up + défi relevé). Best-effort STRICT — la sortie est déjà
   // enregistrée. Pas de CelebrationOverlay ici (le formulaire de sortie n'en a pas) : le
   // moment de fête passe par la notif in-app (+ push si activé).
+  let newlyCompleted: CompletedChallenge[] = []
   try {
-    const { newlyCompleted } = await recomputeSoloChallenges({
+    const res = await recomputeSoloChallenges({
       supabase,
       userId: user.id,
       sinceIso: data.created_at ?? null,
     })
-    const xpAfter = await getUserXpOrNull(user.id, supabase).catch(() => null)
+    newlyCompleted = res.newlyCompleted
+  } catch (e) {
+    console.error('[outings/actions] recomputeSoloChallenges (non bloquant) :', e)
+  }
+
+  // XP après le log + les crédits (série hebdo via trigger 099, défis). Lue une fois, partagée.
+  const xpAfter = await getUserXpOrNull(user.id, supabase).catch(() => null)
+  try {
     await emitDopamineNotifications({
       userId: user.id,
       xpBefore,
@@ -70,7 +79,13 @@ export async function createOuting(
       completedChallenges: newlyCompleted,
     })
   } catch (e) {
-    console.error('[outings/actions] défis solo + notifs (non bloquant) :', e)
+    console.error('[outings/actions] emitDopamineNotifications (non bloquant) :', e)
+  }
+  // Notifs de rang « X t'a dépassé » (sprint 67) : une sortie peut créditer de l'XP (série).
+  try {
+    await emitRankChangeNotifications({ actorId: user.id, xpBefore, xpAfter })
+  } catch (e) {
+    console.error('[outings/actions] emitRankChangeNotifications (non bloquant) :', e)
   }
 
   revalidatePath('/carnet')

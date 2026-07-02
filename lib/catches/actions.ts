@@ -11,6 +11,7 @@ import { buildCatchCelebration, type CatchCelebration } from '@/lib/gamification
 import { recomputeSoloChallenges, type CompletedChallenge } from '@/lib/gamification/challenges-solo'
 import { getUserXpOrNull } from '@/lib/gamification/progress'
 import { emitDopamineNotifications } from '@/lib/notifications/dopamine'
+import { emitRankChangeNotifications } from '@/lib/notifications/rank'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -238,8 +239,10 @@ export async function createCatch(
   // Notifs dopamine proactives (Sprint 63, Bloc 3) : level up (XP après le trigger + les
   // crédits de défis), nouveau record, badge(s), défi(s) relevé(s). In-app toujours ;
   // push gaté par la pref 'progress'. Best-effort STRICT (le log a déjà réussi).
+  // XP après le trigger (+ crédits défis) — lue une fois, partagée par les deux émetteurs.
+  // null si la lecture échoue → pas de faux palier ni de faux dépassement (invariant honnêteté).
+  const xpAfter = await getUserXpOrNull(user.id, supabase).catch(() => null)
   try {
-    const xpAfter = await getUserXpOrNull(user.id, supabase).catch(() => null)
     await emitDopamineNotifications({
       userId: user.id,
       xpBefore,
@@ -249,6 +252,12 @@ export async function createCatch(
     })
   } catch (e) {
     console.error('[catches/actions] emitDopamineNotifications (non bloquant) :', e)
+  }
+  // Notifs de rang « X t'a dépassé » (sprint 67, Bloc 1). Best-effort STRICT : le log a réussi.
+  try {
+    await emitRankChangeNotifications({ actorId: user.id, xpBefore, xpAfter })
+  } catch (e) {
+    console.error('[catches/actions] emitRankChangeNotifications (non bloquant) :', e)
   }
 
   revalidatePath('/carnet')
