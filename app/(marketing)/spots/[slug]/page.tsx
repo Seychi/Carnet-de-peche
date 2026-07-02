@@ -8,6 +8,7 @@ import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
+import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { TideCalibrationNote } from '@/components/spots/TideCalibrationNote'
 import { SpotReportButton, SpotConfirmButton } from '@/components/spots/ReportSpotDialog'
@@ -207,6 +208,19 @@ async function fetchViewerConfirmed(spotId: string, userId: string | undefined):
   return data != null
 }
 
+/** Le spot est-il dans les favoris du viewer ? (sprint 72, lecture RLS own). */
+async function fetchViewerFavorite(spotId: string, userId: string | undefined): Promise<boolean> {
+  if (!userId) return false
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('favorite_spots')
+    .select('spot_id')
+    .eq('spot_id', spotId)
+    .eq('user_id', userId)
+    .maybeSingle()
+  return data != null
+}
+
 /**
  * Nombre de prises publiques loguées DEPUIS la vérification (WS C). Agrégé via la RPC
  * k-anon get_spot_activity (lecture catches_for_viewer : privacy + floutage appliqués,
@@ -333,7 +347,7 @@ export default async function SpotPage({
 
   const [
     catches, catchCount, conditions, forecastWeek, allGuides, depth, substrate,
-    confirmationCount, viewerConfirmed, catchesSinceVerified, tideChip,
+    confirmationCount, viewerConfirmed, catchesSinceVerified, tideChip, viewerFavorite,
   ] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
@@ -348,6 +362,8 @@ export default async function SpotPage({
     fetchViewerConfirmed(spot.id, user?.id).catch(() => false),
     fetchCatchesSinceVerified(spot.id, spot.verified_at).catch(() => null),
     getTideAccuracyChip(String(spot.department).trim()).catch(() => null),
+    // Sprint 72 : étoile favori (tous tiers), état initial RLS own.
+    fetchViewerFavorite(spot.id, user?.id).catch(() => false),
   ])
 
   // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
@@ -499,7 +515,18 @@ export default async function SpotPage({
             )}
           </div>
 
-          <h1 className="mb-2 font-display text-white">{spot.name}</h1>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <h1 className="font-display text-white">{spot.name}</h1>
+            {/* Étoile favori (sprint 72) : tous tiers, base des alertes de la veille.
+                Anonyme → connexion (l'action serveur refuse de toute façon). */}
+            <FavoriteSpotButton
+              spotId={spot.id}
+              initialFavorite={viewerFavorite}
+              loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
+              onDark
+              className="-mt-1"
+            />
+          </div>
           <TagData className="mb-5 block text-white/45">
             {spot.is_precise
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`

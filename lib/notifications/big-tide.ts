@@ -29,8 +29,11 @@ import {
 
 // Seuils de marnage (m) au-delà desquels on parle de « grande marée », par façade.
 // Médée volontairement absente : pas de notif (marnage trop faible pour un seuil sain).
-const MANCHE_THRESHOLD_M = 9
-const ATLANTIQUE_THRESHOLD_M = 5
+// Exportés (revue sprint 72) : lib/alerts/big-tide-signal.ts consomme les MÊMES
+// seuils/façades pour le mode générique des alertes par port — une évolution des
+// seuils (décision John D2) ne doit toucher que ce fichier.
+export const MANCHE_THRESHOLD_M = 9
+export const ATLANTIQUE_THRESHOLD_M = 5
 
 /** Façade marée d'un département côtier, ou null (Méditerranée / non couvert). */
 function tideFacadeForDepartment(dept: string): 'manche' | 'atlantique' | null {
@@ -47,7 +50,7 @@ function tideFacadeForDepartment(dept: string): 'manche' | 'atlantique' | null {
 
 // Départements façade Manche (calqué sur DEPARTMENT_FACADE de tide-calibration, qui
 // n'exporte pas la map directement). Le reste des départements couverts = Atlantique.
-const MANCHE_DEPARTMENTS = new Set<string>(['14', '50', '76', '59', '62', '35', '22'])
+export const MANCHE_DEPARTMENTS = new Set<string>(['14', '50', '76', '59', '62', '35', '22'])
 
 export type BigTideResult = {
   /** Marnage RÉEL du jour (m) = max(high) - min(low) des extrema. */

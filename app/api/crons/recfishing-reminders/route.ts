@@ -5,6 +5,7 @@ import { getFacadeForCatch } from '@/lib/regulation'
 import { getDeclarableInfo, DECLARABLE_DB_KEYS, RECFISHING_META } from '@/lib/regulation/recfishing'
 import { sendPushToUser } from '@/lib/push/send'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
+import { runSpotAlerts, type SpotAlertsRunResult } from '@/lib/alerts/engine'
 
 // Runtime Node implicite (aucun `export const runtime = 'edge'`) : requis car
 // createAdminClient + web-push (via sendPushToUser) ont besoin du crypto Node.
@@ -79,12 +80,45 @@ export async function GET(request: NextRequest) {
       Sentry.captureException(e, { tags: { job: 'outing-reminders' } })
     }
 
+    // ─── Bloc alertes par port (sprint 72, WS C2 — décision ancrage : PAS de 5e cron) ──
+    // Greffé ici car ce cron tourne à 17:00 UTC (18h-19h Paris selon la saison) = « la
+    // veille au soir », le créneau des fenêtres du LENDEMAIN. Le cron personal-window
+    // (07:00 UTC) calcule AUJOURD'HUI : mauvais créneau, on n'y touche pas.
+    // BEST-EFFORT STRICT (modèle bloc co-pêchage) : un échec ici ne casse jamais les
+    // blocs précédents ni la réponse.
+    let spotAlerts: SpotAlertsRunResult = {
+      quietHours: false,
+      optedIn: 0,
+      sent: 0,
+      deduped: 0,
+      skipped: 0,
+      truncated: 0,
+      errors: 0,
+    }
+    try {
+      spotAlerts = await runSpotAlerts(admin)
+    } catch (e) {
+      console.error('[cron recfishing-reminders] bloc alertes par port échec (non bloquant) :', e)
+      Sentry.captureException(e, { tags: { job: 'spot-alerts' } })
+    }
+
+    // PostHog : UN flush pour toute la rafale d'events alert_sent du run (les routes
+    // serverless peuvent geler avant l'envoi différé). Import dynamique + best-effort :
+    // lib/analytics-server tire `server-only`, et un échec d'analytics ne casse rien.
+    try {
+      const { flush } = await import('@/lib/analytics-server')
+      await flush()
+    } catch {
+      // silencieux : instrumentation jamais bloquante
+    }
+
     return NextResponse.json({
       ok: true,
       candidates: rows.length,
       reminded,
       outingsReminded,
       outingsDone,
+      spotAlerts,
     })
   } catch (err) {
     console.error('[cron recfishing-reminders] échec global:', err)

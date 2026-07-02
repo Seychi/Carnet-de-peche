@@ -6,6 +6,7 @@ import { DEPARTMENT_SEA_COORDS } from "@/lib/geo/department-coords";
 import { DopamineCockpit } from "@/components/gamification/DopamineCockpit";
 import { TodayForecast } from "@/components/home/TodayForecast";
 import { NearYou } from "@/components/home/NearYou";
+import { NextAlertWindow } from "@/components/home/NextAlertWindow";
 import {
   TodayHeader,
   ActionOfTheDay,
@@ -81,6 +82,13 @@ export default async function HomePage() {
 
         {/* Action du jour (avec un historique seulement). */}
         {total > 0 ? <ActionOfTheDay loggedToday={loggedToday} /> : null}
+
+        {/* Ta prochaine fenêtre à [spot favori] (sprint 72) : rendu UNIQUEMENT si
+            une alerte récente/à venir existe (alerts_sent, RLS own). fallback null :
+            pas de skeleton pour une carte le plus souvent absente. */}
+        <Suspense fallback={null}>
+          <NextAlertWindow />
+        </Suspense>
 
         {/* Maintenant + Cette semaine — streamés (conditions/solunar). */}
         {dept && coords ? (

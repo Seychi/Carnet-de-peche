@@ -1,15 +1,20 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Bell, Heart, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish, Waves, Trophy, Medal } from 'lucide-react'
+import { Bell, BellRing, Heart, Lock, MessageCircle, UserPlus, MapPinCheck, MapPinX, Sparkles, Users, CalendarClock, Fish, Waves, Trophy, Medal } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { getUserTier } from '@/lib/auth/tier'
 import { getNotifications, type AppNotification } from '@/app/actions/notifications'
 import { getNotificationPrefs } from '@/app/actions/notification-prefs'
+import { DEFAULT_ALERT_THRESHOLD } from '@/lib/alerts/decision'
 import { MarkAllRead } from './MarkAllRead'
 import { PushSettingsToggle } from '@/components/notifications/PushSettingsToggle'
 import { NotificationTypeToggles } from '@/components/notifications/NotificationTypeToggles'
+import {
+  AlertSettingsPanel,
+  type WatchedFavorite,
+} from '@/components/notifications/AlertSettingsPanel'
 
 export const metadata = {
   title: 'Notifications · Carnet de Pêche',
@@ -67,6 +72,8 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: Trophy, label: `${who} t’a dépassé dans un classement 🎣` }
     case 'season_recap':
       return { icon: Medal, label: 'Résultats de fin de saison 🎣' }
+    case 'spot_alert':
+      return { icon: BellRing, label: 'Fenêtre à venir sur un de tes spots favoris 🎣' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -89,6 +96,36 @@ export default async function NotificationsPage() {
   // Tier courant (sprint 51 WS-E) : la « fenêtre optimale » est réservée aux abonnés.
   // On ne montre pas un toggle « Activé » qui ne déclencherait jamais rien à un gratuit.
   const tier = await getUserTier()
+  const isPaid = tier === 'local' || tier === 'itinerant'
+
+  // Alertes par port (sprint 72) : réglages + favoris surveillés, lectures RLS own.
+  // Aucune coordonnée : l'embed spots ne sort que name/slug.
+  const [{ data: alertRow }, { data: favoriteRows }] = await Promise.all([
+    supabase
+      .from('alert_settings')
+      .select('alerts_enabled, channel_push, channel_email, alert_threshold')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('favorite_spots')
+      .select('spot_id, spots(name, slug)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(10),
+  ])
+
+  const alertSettings = {
+    alertsEnabled: alertRow?.alerts_enabled ?? false,
+    channelPush: alertRow?.channel_push ?? true,
+    channelEmail: alertRow?.channel_email ?? true,
+    threshold: alertRow?.alert_threshold ?? DEFAULT_ALERT_THRESHOLD,
+  }
+  const watchedFavorites: WatchedFavorite[] = (favoriteRows ?? []).flatMap((f) => {
+    // Embed many-to-one : PostgREST renvoie un objet (le typegen le voit en tableau
+    // car la FK référence aussi la vue spots_for_viewer, d'où le passage par unknown).
+    const spot = f.spots as unknown as { name: string; slug: string } | null
+    return spot ? [{ spotId: f.spot_id, name: spot.name, slug: spot.slug }] : []
+  })
 
   // Résolution des liens : pour les notifs liées à un post/prise, on retrouve
   // le département du post (route /fil/<dept>). Le post appartient au viewer
@@ -110,6 +147,28 @@ export default async function NotificationsPage() {
       .in('id', postTargetIds)
     for (const p of posts ?? []) {
       if (p.region) regionByPostId.set(p.id, p.region)
+    }
+  }
+
+  // Alerte spot favori (sprint 72) : on résout le slug du spot pour lier la fiche.
+  // Lecture spots (id, slug uniquement, jamais de geom) sous RLS spots_select_visible :
+  // un spot devenu invisible ne se résout pas → fallback /home.
+  const spotAlertTargetIds = [
+    ...new Set(
+      notifications
+        .filter((n) => n.type === 'spot_alert' && n.target_type === 'spot')
+        .map((n) => n.target_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ]
+  const slugBySpotId = new Map<string, string>()
+  if (spotAlertTargetIds.length > 0) {
+    const { data: spots } = await supabase
+      .from('spots')
+      .select('id, slug')
+      .in('id', spotAlertTargetIds)
+    for (const s of spots ?? []) {
+      if (s.slug) slugBySpotId.set(s.id, s.slug)
     }
   }
 
@@ -152,6 +211,12 @@ export default async function NotificationsPage() {
     // Rangs vivants (sprint 67) : dépassement / récap de saison → la page des classements.
     if (n.type === 'rank_overtake' || n.type === 'season_recap') {
       return '/classements'
+    }
+    // Alerte spot favori (sprint 72) : la fiche du spot (UTM pour mesurer le clic),
+    // sinon /home où vit la carte « Ta prochaine fenêtre ».
+    if (n.type === 'spot_alert') {
+      const slug = n.target_id ? slugBySpotId.get(n.target_id) : undefined
+      return slug ? `/spots/${slug}?utm_source=spot_alert&utm_medium=inapp` : '/home'
     }
     if (n.target_type === 'post' && n.target_id) {
       const region = regionByPostId.get(n.target_id)
@@ -236,6 +301,50 @@ export default async function NotificationsPage() {
             quels que soient ces réglages.
           </p>
           <NotificationTypeToggles prefs={notificationPrefs} tier={tier} />
+        </div>
+
+        {/* Alertes par port (sprint 72) : opt-in Local/Itinérant. Pour Découverte,
+            teaser honnête (pas de faux toggle) ; l'étoile favoris reste active pour
+            tous, seules les alertes sont payantes. */}
+        <div className="mt-4 rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+          {isPaid ? (
+            <AlertSettingsPanel
+              initial={alertSettings}
+              favorites={watchedFavorites}
+              favoritesTotal={(favoriteRows ?? []).length}
+            />
+          ) : (
+            <div>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-navy-900">
+                    Alertes sur tes spots favoris
+                  </p>
+                  <p className="mt-1 text-xs text-ink-500 leading-relaxed">
+                    La veille au soir, une alerte quand une fenêtre favorable arrive
+                    sur un de tes spots favoris. Les alertes personnalisées sont dans
+                    Local, essai 7 jours.
+                  </p>
+                </div>
+                <Link
+                  href="/tarifs"
+                  aria-label="Alertes sur tes spots favoris : réservées aux abonnés, voir les tarifs"
+                  className="shrink-0 inline-flex items-center gap-1.5 min-h-11 px-3 rounded-full border border-gold-500/40 bg-gold-500/10 text-xs font-semibold text-navy-900 transition-colors hover:bg-gold-500/15"
+                >
+                  <Lock size={14} strokeWidth={2.2} aria-hidden="true" />
+                  Réservé aux abonnés
+                </Link>
+              </div>
+              {watchedFavorites.length > 0 ? (
+                <p className="mt-3 text-xs text-ink-500 leading-relaxed">
+                  {watchedFavorites.length > 1
+                    ? `Tes ${watchedFavorites.length} favoris restent enregistrés`
+                    : 'Ton favori reste enregistré'}{' '}
+                  : tu pourras activer les alertes dès que tu passes Local ou Itinérant.
+                </p>
+              ) : null}
+            </div>
+          )}
         </div>
       </section>
     </div>

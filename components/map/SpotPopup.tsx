@@ -12,6 +12,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { getSpotNextWindow } from '@/app/actions/solunar'
 import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/solunar/types'
 import { QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
+import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
+import { buildLoginRedirect } from '@/lib/auth/redirect'
 
 // ─── Solunar helpers ─────────────────────────────────────────────────────────
 
@@ -273,13 +275,24 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
             </div>
           )}
         </div>
-        <button
-          onClick={onClose}
-          aria-label="Fermer le détail du spot"
-          className="shrink-0 p-1 rounded-full text-ink-500 hover:bg-ink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-        >
-          <X size={18} />
-        </button>
+        <div className="flex shrink-0 items-center">
+          {/* Étoile favori (sprint 72) : tous tiers. Anonyme → login (l'action
+              serveur refuse de toute façon). État lazy-chargé côté client. */}
+          <FavoriteSpotButton
+            spotId={spot.id}
+            loginHref={
+              userTier === 'anonymous' ? buildLoginRedirect(`/spots/${spot.slug}`) : undefined
+            }
+            className="-my-1.5"
+          />
+          <button
+            onClick={onClose}
+            aria-label="Fermer le détail du spot"
+            className="shrink-0 p-1 rounded-full text-ink-500 hover:bg-ink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+          >
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Espèces */}

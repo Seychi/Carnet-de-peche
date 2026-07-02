@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_settings: {
+        Row: {
+          alert_threshold: number
+          alerts_enabled: boolean
+          channel_email: boolean
+          channel_push: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_threshold?: number
+          alerts_enabled?: boolean
+          channel_email?: boolean
+          channel_push?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_threshold?: number
+          alerts_enabled?: boolean
+          channel_email?: boolean
+          channel_push?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      alerts_sent: {
+        Row: {
+          kind: string
+          score: number
+          sent_at: string
+          spot_id: string
+          user_id: string
+          window_date: string
+        }
+        Insert: {
+          kind: string
+          score: number
+          sent_at?: string
+          spot_id: string
+          user_id: string
+          window_date: string
+        }
+        Update: {
+          kind?: string
+          score?: number
+          sent_at?: string
+          spot_id?: string
+          user_id?: string
+          window_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_sent_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_sent_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catches: {
         Row: {
           bait: string | null
@@ -249,6 +318,39 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invite_codes"
             referencedColumns: ["code"]
+          },
+        ]
+      }
+      favorite_spots: {
+        Row: {
+          created_at: string
+          spot_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          spot_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          spot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_spots_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_spots_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2211,6 +2313,17 @@ export type Database = {
           department: string
           imported_count: number
           spot_count: number
+        }[]
+      }
+      get_favorite_spot_coords: {
+        Args: never
+        Returns: {
+          department: string
+          lat: number
+          lng: number
+          name: string
+          slug: string
+          spot_id: string
         }[]
       }
       get_feed_unread_counts: {

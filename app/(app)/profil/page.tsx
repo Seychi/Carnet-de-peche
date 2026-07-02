@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getMyCatchStats } from '@/lib/catches/queries'
 import { getUserTier, type UserTier } from '@/lib/auth/tier'
 import { ShareButton } from '@/components/share/ShareButton'
+import { FavoriteSpotsList } from '@/components/spots/FavoriteSpotsList'
 import { ProfileForm } from './profile-form'
 import { RankingVisibilityToggle } from './ranking-visibility-toggle'
 
@@ -105,6 +106,10 @@ export default async function ProfilPage() {
             </div>
           </section>
         )}
+
+        {/* Spots favoris (sprint 72) : tous tiers, base des alertes de la veille.
+            Lecture RLS own, nom + slug uniquement (jamais de coordonnée). */}
+        <FavoriteSpotsList />
 
         <RankingVisibilityToggle initial={profile.public_ranking ?? false} />
 
