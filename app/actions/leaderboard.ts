@@ -29,6 +29,9 @@ type RpcRow = {
   username: string | null
   avatar_url: string | null
   metric_value: number | string
+  // Sprint 69 : la ligne du caller sort toujours ; eligible_count = agrégat du scope.
+  is_self: boolean | null
+  eligible_count: number | string | null
 }
 
 export async function getLeaderboard(params: LeaderboardParams): Promise<LeaderboardResult> {
@@ -78,6 +81,8 @@ export async function getLeaderboard(params: LeaderboardParams): Promise<Leaderb
     username: r.username,
     avatarUrl: r.avatar_url,
     metricValue: Number(r.metric_value) || 0,
+    isSelf: r.is_self === true,
+    eligibleCount: Number(r.eligible_count) || 0,
   }))
 
   return { ok: true, rows }

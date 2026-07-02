@@ -1523,6 +1523,7 @@ export type Database = {
           created_at: string
           id: number
           kind: string
+          meta: Json | null
           points: number
           ref_id: string | null
           ref_type: string | null
@@ -1532,6 +1533,7 @@ export type Database = {
           created_at?: string
           id?: never
           kind: string
+          meta?: Json | null
           points: number
           ref_id?: string | null
           ref_type?: string | null
@@ -1541,6 +1543,7 @@ export type Database = {
           created_at?: string
           id?: never
           kind?: string
+          meta?: Json | null
           points?: number
           ref_id?: string | null
           ref_type?: string | null
@@ -1989,6 +1992,7 @@ export type Database = {
       award_xp: {
         Args: {
           p_kind: string
+          p_meta?: Json
           p_points: number
           p_ref_id?: string
           p_ref_type?: string
@@ -2163,6 +2167,7 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_archived_season_keys: { Args: never; Returns: string[] }
       get_badge_rarity: {
         Args: never
         Returns: {
@@ -2227,6 +2232,8 @@ export type Database = {
         }
         Returns: {
           avatar_url: string
+          eligible_count: number
+          is_self: boolean
           metric_value: number
           rank: number
           user_id: string
@@ -2423,6 +2430,10 @@ export type Database = {
       get_user_xp: { Args: { p_user_id: string }; Returns: number }
       gettransactionid: { Args: never; Returns: unknown }
       has_active_subscription: { Args: { uid: string }; Returns: boolean }
+      is_competitive_catch: {
+        Args: { p_caught_at: string; p_created_at: string }
+        Returns: boolean
+      }
       is_eligible_for_paid_tier: { Args: { uid: string }; Returns: boolean }
       is_moderator: { Args: { uid?: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }

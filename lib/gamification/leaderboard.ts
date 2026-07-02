@@ -31,6 +31,47 @@ export interface LeaderboardRow {
   username: string | null
   avatarUrl: string | null
   metricValue: number
+  /** true si la ligne est celle du caller (sprint 69 : sa ligne sort TOUJOURS). */
+  isSelf: boolean
+  /** Nombre de pêcheurs éligibles du scope (agrégat, porté par chaque ligne). */
+  eligibleCount: number
+}
+
+// ── Lisibilité à 1 joueur (sprint 69) ───────────────────────────────────────────
+// Seuil k-anon des scopes publics (aligné sur v_kanon de get_leaderboard, mig. 102/105).
+export const LEADERBOARD_KANON = 3
+
+export type LeaderboardView =
+  | { kind: 'empty' }
+  | {
+      /** Sous le seuil k-anon : seule la ligne du caller existe. */
+      kind: 'under_threshold'
+      myRow: LeaderboardRow
+      /** Combien de pêcheurs visibles manquent pour publier le classement. */
+      missing: number
+    }
+  | { kind: 'table'; rows: LeaderboardRow[]; myRow: LeaderboardRow | null }
+
+/**
+ * Décide du rendu du classement (helper PUR, testé) : état vide, « ton rang »
+ * seul sous le seuil, ou tableau complet. Le scope follows n'a pas de seuil
+ * (cercle choisi par l'utilisateur, cf migration 102).
+ */
+export function resolveLeaderboardView(
+  rows: LeaderboardRow[],
+  scope: LeaderboardScope,
+  kanon: number = LEADERBOARD_KANON
+): LeaderboardView {
+  if (rows.length === 0) return { kind: 'empty' }
+  const myRow = rows.find((r) => r.isSelf) ?? null
+  const eligible = rows[0]?.eligibleCount ?? rows.length
+  if (scope !== 'follows' && eligible < kanon) {
+    // La RPC ne renvoie que la ligne self sous le seuil ; si elle est absente
+    // (caller non opté-in ou sans activité), on retombe sur l'état vide.
+    if (!myRow) return { kind: 'empty' }
+    return { kind: 'under_threshold', myRow, missing: Math.max(1, kanon - eligible) }
+  }
+  return { kind: 'table', rows, myRow }
 }
 
 // ── Métriques (source unique des libellés + du formatage) ──────────────────────

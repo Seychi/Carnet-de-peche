@@ -24,19 +24,28 @@ type Op = { table: string; op: 'insert' | 'update' | 'delete'; payload?: unknown
 function makeClient(cfg: {
   user?: { id: string } | null
   responses?: Term[]
+  /** File dédiée aux selects `{ count: 'exact', head: true }` (rate-limit sprint 69) :
+      consommée à part pour ne PAS décaler la FIFO des réponses terminales. Défaut 0. */
+  counts?: number[]
   storageUpload?: Term
   storageRemove?: Term
 }) {
   const ops: Op[] = []
   const queue = [...(cfg.responses ?? [])]
   const nextTerm = (): Term => (queue.length ? (queue.shift() as Term) : { data: null, error: null })
+  const countQueue = [...(cfg.counts ?? [])]
   const removed: string[][] = []
 
   const makeBuilder = (table: string) => {
+    let isCount = false
     const b: Record<string, unknown> = {}
-    for (const m of ['select', 'eq', 'neq', 'in', 'is', 'match', 'order', 'limit', 'range', 'gte', 'gt', 'lt']) {
+    for (const m of ['eq', 'neq', 'in', 'is', 'not', 'match', 'order', 'limit', 'range', 'gte', 'gt', 'lt']) {
       b[m] = vi.fn(() => b)
     }
+    b.select = vi.fn((_cols?: unknown, opts?: { count?: string; head?: boolean }) => {
+      if (opts?.head) isCount = true
+      return b
+    })
     b.insert = vi.fn((p: unknown) => {
       ops.push({ table, op: 'insert', payload: p })
       return b
@@ -51,8 +60,16 @@ function makeClient(cfg: {
     })
     b.single = vi.fn(() => Promise.resolve(nextTerm()))
     b.maybeSingle = vi.fn(() => Promise.resolve(nextTerm()))
-    b.then = (resolve: (v: Term) => unknown, reject?: (e: unknown) => unknown) =>
-      Promise.resolve(nextTerm()).then(resolve, reject)
+    b.then = (resolve: (v: Term & { count?: number }) => unknown, reject?: (e: unknown) => unknown) => {
+      if (isCount) {
+        return Promise.resolve({
+          count: countQueue.length ? (countQueue.shift() as number) : 0,
+          data: null,
+          error: null,
+        }).then(resolve, reject)
+      }
+      return Promise.resolve(nextTerm()).then(resolve, reject)
+    }
     return b
   }
 
@@ -204,6 +221,89 @@ describe('createCatch', () => {
     const res = await createCatch(validCreate)
     expect(res).toEqual({ error: expect.stringContaining('Impossible de créer la prise') })
   })
+
+  // ── Photo obligatoire pour « vérifiée » (sprint 69) ──
+
+  it('refuse une mesure cochée SANS photo (aucun insert, message doux)', async () => {
+    const { client, ops } = makeClient({ user: USER })
+    inject(client)
+
+    const res = await createCatch({
+      ...validCreate,
+      is_measured: true,
+      measured_length_cm: 52,
+      reference_object: 'règle',
+    })
+
+    expect(res).toEqual({ error: expect.stringContaining('Ajoute la photo') })
+    expect(ops).toHaveLength(0)
+  })
+
+  it('pose photo_verified_at quand mesure + photo présentes', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [{ data: { id: 'm1' }, error: null }],
+    })
+    inject(client)
+
+    const res = await createCatch({
+      ...validCreate,
+      is_measured: true,
+      measured_length_cm: 52,
+      reference_object: 'règle',
+      photo_path: `${USER.id}/photo.webp`,
+    })
+
+    expect('id' in res).toBe(true)
+    const payload = ops[0].payload as Record<string, unknown>
+    expect(payload.photo_verified_at).not.toBeNull()
+    expect(payload.measured_length_cm).toBe(52)
+  })
+
+  it('sans la case mesure, la photo seule ne pose PAS photo_verified_at', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [{ data: { id: 'm2' }, error: null }],
+    })
+    inject(client)
+
+    await createCatch({ ...validCreate, photo_path: `${USER.id}/photo.webp` })
+    const payload = ops[0].payload as Record<string, unknown>
+    expect(payload.photo_verified_at).toBeNull()
+  })
+
+  // ── Rate-limit créations (sprint 69) : 20/24h + burst 5/h ──
+
+  it('refuse la 21e prise en 24h (aucun insert)', async () => {
+    const { client, ops } = makeClient({ user: USER, counts: [20, 0] })
+    inject(client)
+
+    const res = await createCatch(validCreate)
+    expect(res).toEqual({ error: expect.stringContaining('20 prises en 24h') })
+    expect(ops).toHaveLength(0)
+  })
+
+  it('refuse la 6e prise dans l’heure (burst)', async () => {
+    const { client, ops } = makeClient({ user: USER, counts: [10, 5] })
+    inject(client)
+
+    const res = await createCatch(validCreate)
+    expect(res).toEqual({ error: expect.stringContaining('dans l’heure') })
+    expect(ops).toHaveLength(0)
+  })
+
+  it('laisse passer une sortie chargée honnête (19 en 24h, 4 dans l’heure)', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      counts: [19, 4],
+      responses: [{ data: { id: 'ok' }, error: null }],
+    })
+    inject(client)
+
+    const res = await createCatch(validCreate)
+    expect(res).toEqual({ id: 'ok' })
+    expect(ops).toHaveLength(1)
+  })
 })
 
 // ─── updateCatch ──────────────────────────────────────────────────────────────
@@ -263,6 +363,132 @@ describe('updateCatch', () => {
     await updateCatch({ id: CATCH_ID, weight_kg: 1.2 })
     const upd = ops.find((o) => o.op === 'update')!.payload as Record<string, unknown>
     expect(upd.weight_g).toBe(1200)
+  })
+
+  // ── Photo obligatoire pour « vérifiée » à l'update (sprint 69) ──
+
+  it('refuse de poser la mesure sans photo effective (ni soumise ni existante)', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [
+        {
+          data: {
+            id: CATCH_ID,
+            photo_path: null,
+            measured_length_cm: null,
+            reference_object: null,
+            photo_verified_at: null,
+            privacy: 'private',
+          },
+          error: null,
+        },
+      ],
+    })
+    inject(client)
+
+    const res = await updateCatch({
+      id: CATCH_ID,
+      is_measured: true,
+      measured_length_cm: 48,
+      reference_object: 'leurre',
+    })
+
+    expect(res).toEqual({ error: expect.stringContaining('Ajoute la photo') })
+    expect(ops.some((o) => o.op === 'update')).toBe(false)
+  })
+
+  it('pose photo_verified_at à l’update quand la photo EXISTANTE suffit', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [
+        {
+          data: {
+            id: CATCH_ID,
+            photo_path: `${USER.id}/deja-la.webp`,
+            measured_length_cm: null,
+            reference_object: null,
+            photo_verified_at: null,
+            privacy: 'private',
+          },
+          error: null,
+        },
+        { error: null }, // update
+      ],
+    })
+    inject(client)
+
+    const res = await updateCatch({
+      id: CATCH_ID,
+      is_measured: true,
+      measured_length_cm: 48,
+      reference_object: 'leurre',
+    })
+
+    expect(res).toEqual({ ok: true })
+    const upd = ops.find((o) => o.op === 'update')!.payload as Record<string, unknown>
+    expect(upd.photo_verified_at).not.toBeNull()
+  })
+
+  it('NE re-date PAS photo_verified_at d’une prise déjà vérifiée (anti-re-datage S69)', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [
+        {
+          data: {
+            id: CATCH_ID,
+            photo_path: `${USER.id}/deja-la.webp`,
+            measured_length_cm: 48,
+            reference_object: 'leurre',
+            photo_verified_at: '2026-06-01T10:00:00.000Z', // déjà vérifiée
+            privacy: 'private',
+          },
+          error: null,
+        },
+        { error: null }, // update
+      ],
+    })
+    inject(client)
+
+    // Édition anodine (une note) : le form ré-soumet les champs de mesure inchangés.
+    const res = await updateCatch({
+      id: CATCH_ID,
+      notes: 'juste une note',
+      is_measured: true,
+      measured_length_cm: 48,
+      reference_object: 'leurre',
+    })
+
+    expect(res).toEqual({ ok: true })
+    const upd = ops.find((o) => o.op === 'update')!.payload as Record<string, unknown>
+    // Le timestamp d'origine n'est pas touché → pas de clé photo_verified_at au payload.
+    expect(upd).not.toHaveProperty('photo_verified_at')
+    expect(upd.notes).toBe('juste une note')
+  })
+
+  it('dé-vérifie explicitement quand is_measured passe à false', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      responses: [
+        {
+          data: {
+            id: CATCH_ID,
+            photo_path: `${USER.id}/deja-la.webp`,
+            measured_length_cm: 48,
+            reference_object: 'leurre',
+            photo_verified_at: '2026-06-01T10:00:00.000Z',
+            privacy: 'private',
+          },
+          error: null,
+        },
+        { error: null },
+      ],
+    })
+    inject(client)
+
+    const res = await updateCatch({ id: CATCH_ID, is_measured: false })
+    expect(res).toEqual({ ok: true })
+    const upd = ops.find((o) => o.op === 'update')!.payload as Record<string, unknown>
+    expect(upd.photo_verified_at).toBeNull()
   })
 })
 
@@ -428,5 +654,33 @@ describe('bulkCreateCatches', () => {
     inject(client)
     const res = await bulkCreateCatches([] as unknown as BulkArg)
     expect('error' in res).toBe(true)
+  })
+
+  // ── Rate-limit import (sprint 69) : 100 prises bulk / 24h ──
+
+  it('refuse quand le quota bulk 24h serait dépassé (100 déjà importées + 1)', async () => {
+    const { client, ops } = makeClient({ user: USER, counts: [100] })
+    inject(client)
+    const rows = [
+      { species: 'bar', caught_at: '2026-06-20T12:00:00.000Z', department: '29' },
+    ] as unknown as BulkArg
+    const res = await bulkCreateCatches(rows)
+    expect(res).toEqual({ error: expect.stringContaining('100 prises importées') })
+    expect(ops.some((o) => o.op === 'insert')).toBe(false)
+  })
+
+  it('laisse passer un import sous le quota (99 + 1)', async () => {
+    const { client, ops } = makeClient({
+      user: USER,
+      counts: [99],
+      responses: [{ data: [{ id: 'a' }], error: null }],
+    })
+    inject(client)
+    const rows = [
+      { species: 'bar', caught_at: '2026-06-20T12:00:00.000Z', department: '29' },
+    ] as unknown as BulkArg
+    const res = await bulkCreateCatches(rows)
+    expect(res).toEqual({ inserted: 1 })
+    expect(ops.some((o) => o.op === 'insert')).toBe(true)
   })
 })

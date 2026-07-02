@@ -98,6 +98,45 @@ async function assertSpotAccessible(
   return { ok: true }
 }
 
+// ─── Rate-limit prises (sprint 69) ────────────────────────────────────────────
+// Anti-spam de créations (l'anti-farm XP, lui, vit au niveau du ledger xp_events,
+// migration 105). Pattern countLast24h du fil (app/actions/feed.ts, migration 022).
+// Les deux flux ont leur compteur PROPRE pour éviter les faux positifs croisés :
+// un import d'historique (50 prises bulk) ne doit pas bloquer le log du jour.
+// Discriminant : une prise unitaire a TOUJOURS une technique (zod enum requis),
+// une prise importée en bulk JAMAIS (technique volontairement omise, sprint 22).
+const MAX_CATCHES_PER_24H = 20
+const MAX_CATCHES_BURST_PER_HOUR = 5
+const MAX_BULK_CATCHES_PER_24H = 100
+const CATCH_LIMIT_24H_MSG =
+  'Doucement moussaillon : 20 prises en 24h, c’est le max. Reviens demain 🎣'
+const CATCH_LIMIT_HOUR_MSG =
+  'Doucement moussaillon : 5 prises dans l’heure, c’est le max. Souffle un peu et réessaie 🎣'
+const BULK_LIMIT_MSG =
+  'Doucement moussaillon : 100 prises importées en 24h, c’est le max. Reviens demain 🎣'
+
+/** Compte les prises créées par l'utilisateur depuis `sinceIso`, par flux. */
+async function countCatchesCreatedSince(
+  supabase: SupabaseServerClient,
+  userId: string,
+  sinceIso: string,
+  flux: 'unitaire' | 'bulk'
+): Promise<number> {
+  let q = supabase
+    .from('catches')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', sinceIso)
+  q = flux === 'bulk' ? q.is('technique', null) : q.not('technique', 'is', null)
+  const { count } = await q
+  return count ?? 0
+}
+
+// Message unique du garde « photo obligatoire pour vérifiée » (sprint 69) :
+// partagé create/update, affiché aussi côté client (CatchForm).
+const MEASURED_PHOTO_MSG =
+  'Ajoute la photo pour valider la mesure (c’est elle qui rend le record vérifiable).'
+
 // ─── createCatch ──────────────────────────────────────────────────────────────
 
 export async function createCatch(
@@ -115,6 +154,22 @@ export async function createCatch(
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
+
+  // Photo obligatoire pour « vérifiée » (sprint 69) : une prise mesurée sans photo
+  // n'est plus acceptée cochée (décoche la case pour loguer sans photo). Le même
+  // garde existe côté client (CatchForm) et en DB (contrainte miroir, migration 105).
+  if (data.is_measured === true && !data.photo_path) {
+    return { error: MEASURED_PHOTO_MSG }
+  }
+
+  // Rate-limit créations (sprint 69) : 20/24h + burst 5/h sur le flux unitaire.
+  const now = Date.now()
+  const [count24h, countHour] = await Promise.all([
+    countCatchesCreatedSince(supabase, user.id, new Date(now - 24 * 3600 * 1000).toISOString(), 'unitaire'),
+    countCatchesCreatedSince(supabase, user.id, new Date(now - 3600 * 1000).toISOString(), 'unitaire'),
+  ])
+  if (count24h >= MAX_CATCHES_PER_24H) return { error: CATCH_LIMIT_24H_MSG }
+  if (countHour >= MAX_CATCHES_BURST_PER_HOUR) return { error: CATCH_LIMIT_HOUR_MSG }
 
   // Garde ownership/accessibilité AVANT l'insert : un gear_id ou spot_id non
   // autorisé exposerait le matériel/spot d'autrui via les colonnes dénormalisées.
@@ -142,14 +197,15 @@ export async function createCatch(
       ? toEwkt(data.latitude, data.longitude)
       : undefined
 
-  // Prise « mesurée » (WS-D, sprint 39) : auto-déclarée mesurée par le pêcheur
-  // (longueur réelle + objet de référence visible). `photo_verified_at` n'est posé
-  // QUE si la case est cochée ET les deux champs renseignés (jamais à tort). C'est
-  // la donnée que le mobile remplira automatiquement (caméra + IA) sans migration.
+  // Prise « mesurée » (WS-D sprint 39, durci sprint 69) : `photo_verified_at`
+  // n'est posé QUE si la case est cochée ET longueur + objet de référence + PHOTO
+  // présents (la photo est ce qui rend la mesure vérifiable ; garde early ci-dessus,
+  // re-check ici en défense en profondeur + contrainte DB miroir en 105).
   const isMeasured =
     data.is_measured === true &&
     data.measured_length_cm !== undefined &&
-    !!data.reference_object
+    !!data.reference_object &&
+    !!data.photo_path
 
   const { data: row, error } = await supabase
     .from('catches')
@@ -188,6 +244,11 @@ export async function createCatch(
 
   if (error) {
     console.error('[catches/actions] createCatch insert error :', error)
+    // Backstop rate-limit DB (migration 105b) : message doux si le trigger a mordu
+    // (cas d'un contournement du compteur applicatif ci-dessus, ex. course).
+    if (typeof error.message === 'string' && error.message.includes('rate_limit_catches')) {
+      return { error: CATCH_LIMIT_24H_MSG }
+    }
     return { error: 'Impossible de créer la prise. Réessaie.' }
   }
 
@@ -344,11 +405,27 @@ export async function updateCatch(
       data.measured_length_cm !== undefined ? data.measured_length_cm : existing.measured_length_cm
     const effReference =
       data.reference_object !== undefined ? data.reference_object : existing.reference_object
+    // Photo EFFECTIVE (soumise sinon existante) : obligatoire pour « vérifiée »
+    // (sprint 69). Une prise mesurée sans photo est refusée explicitement plutôt
+    // que dé-vérifiée en silence (pas de perte de statut muette).
+    const effPhoto = data.photo_path !== undefined ? data.photo_path : existing.photo_path
     // `is_measured` non soumis = on conserve l'état antérieur (déjà mesurée si déjà daté).
     const wantsMeasured =
       data.is_measured !== undefined ? data.is_measured : existing.photo_verified_at !== null
-    payload.photo_verified_at =
-      wantsMeasured && effLength != null && !!effReference ? new Date().toISOString() : null
+    if (wantsMeasured && !effPhoto) {
+      return { error: MEASURED_PHOTO_MSG }
+    }
+    const shouldBeVerified = wantsMeasured && effLength != null && !!effReference && !!effPhoto
+    // Anti-re-datage (sprint 69, finding correctness #1) : le formulaire ré-soumet
+    // les champs de mesure à CHAQUE édition (même un simple changement de note),
+    // donc `measurementTouched` est quasi toujours vrai. Sans ce garde,
+    // `photo_verified_at` glisserait à chaque save et un tricheur pourrait re-dater
+    // une vieille prise. On ne touche au timestamp QUE sur une vraie transition.
+    if (shouldBeVerified && existing.photo_verified_at) {
+      // déjà vérifiée et le reste : on préserve la date d'origine (ne rien mettre au payload).
+    } else {
+      payload.photo_verified_at = shouldBeVerified ? new Date().toISOString() : null
+    }
   }
   if (data.released !== undefined) payload.released = data.released
   if (data.water_temperature_c !== undefined) payload.water_temperature_c = data.water_temperature_c
@@ -560,6 +637,18 @@ export async function bulkCreateCatches(
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
+  // Rate-limit import (sprint 69) : 100 prises importées / 24h, comptées sur le
+  // flux bulk uniquement (technique IS NULL) pour ne pas pénaliser le log unitaire.
+  const bulk24h = await countCatchesCreatedSince(
+    supabase,
+    user.id,
+    new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+    'bulk'
+  )
+  if (bulk24h + data.length > MAX_BULK_CATCHES_PER_24H) {
+    return { error: BULK_LIMIT_MSG }
+  }
+
   // Enrichissement météo best-effort par prise (jamais bloquant), en parallèle.
   // Localisation approximative = point de mer du département → marée/vent du jour
   // (la marée est dérivée au passage, sprint 22). Le département est garanti côtier
@@ -598,6 +687,9 @@ export async function bulkCreateCatches(
 
   if (error) {
     console.error('[catches/actions] bulkCreateCatches insert error :', error)
+    if (typeof error.message === 'string' && error.message.includes('rate_limit_catches')) {
+      return { error: BULK_LIMIT_MSG }
+    }
     return { error: "Impossible d'importer les prises. Réessaie." }
   }
 

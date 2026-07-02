@@ -44,7 +44,9 @@ export function RankingVisibilityToggle({ initial }: { initial: boolean }) {
             </p>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-600">
               Ton pseudo et tes stats (XP, prises, records) peuvent apparaître dans les
-              classements. Jamais tes spots ni une coordonnée. Réversible à tout moment.
+              classements. Le classement départemental affiche ton département de
+              rattachement (celui de ton profil), jamais tes lieux de pêche ni une
+              coordonnée. Réversible à tout moment.
             </p>
           </div>
         </div>

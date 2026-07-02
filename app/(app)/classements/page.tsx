@@ -27,11 +27,15 @@ export default async function ClassementsPage() {
     .eq('id', user.id)
     .maybeSingle()
 
+  // `home_department` est un char(3) → paddé (« 29 ␠ ») ; sans trim, le <select>
+  // du tableau n'a aucune option qui matche (gotcha S67, finding correctness #3).
+  const homeDepartment = profile?.home_department?.trim() || null
+
   const initial = await getLeaderboard({
     scope: 'national',
     metric: 'xp',
     period: 'season',
-    dept: profile?.home_department ?? null,
+    dept: homeDepartment,
     species: null,
     seasonOffset: 0,
   })
@@ -44,7 +48,14 @@ export default async function ClassementsPage() {
   const currentSeasonKey =
     (Array.isArray(seasonRows) ? seasonRows[0]?.season_key : null) ??
     `${new Date().getFullYear()}-Q${Math.floor(new Date().getMonth() / 3) + 1}`
-  const seasons = seasonOptions(currentSeasonKey, 3)
+  // Sprint 69 : ne proposer que les saisons passées AYANT des résultats archivés
+  // (fini les chips « Automne 2025 » pré-lancement forcément vides). Filtre sur
+  // contenu réel (season_results via RPC), la saison courante reste toujours là.
+  const { data: archivedKeys } = await supabase.rpc('get_archived_season_keys')
+  const archived = new Set(((archivedKeys ?? []) as string[]).map(String))
+  const seasons = seasonOptions(currentSeasonKey, 3).filter(
+    (s) => s.offset === 0 || archived.has(s.key)
+  )
 
   return (
     <div className="min-h-screen bg-sand-50 py-10">
@@ -62,8 +73,9 @@ export default async function ClassementsPage() {
 
         <LeaderboardTable
           initialRows={initialRows}
+          initialErrored={!initial.ok}
           myUserId={user.id}
-          homeDepartment={profile?.home_department ?? null}
+          homeDepartment={homeDepartment}
           seasons={seasons}
           optedIn={profile?.public_ranking ?? false}
         />

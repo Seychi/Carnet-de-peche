@@ -200,6 +200,10 @@ export function CatchForm(props: CatchFormProps) {
     : null
 
   const [photoFile, setPhotoFile] = useState<File | null>(null)
+  // Photo obligatoire pour valider la mesure (sprint 69). La photo vit HORS du
+  // form RHF (photoFile, uploadée au submit) → le check est une garde
+  // d'orchestration ici (message doux), doublée côté serveur et en DB.
+  const [measuredPhotoError, setMeasuredPhotoError] = useState<string | null>(null)
   const [geoLoading, setGeoLoading] = useState(false)
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>('idle')
   const submittedRef = useRef(false)
@@ -448,6 +452,15 @@ export function CatchForm(props: CatchFormProps) {
   }
 
   const onSubmit: SubmitHandler<CreateCatchInput> = async (data) => {
+    // Mesure cochée sans photo (ni nouvelle ni existante) : bloque AVANT
+    // l'upload, message doux sous la section mesure (sprint 69).
+    if (data.is_measured && !photoFile && !data.photo_path) {
+      setMeasuredPhotoError(
+        'Ajoute la photo pour valider la mesure (c’est elle qui rend le record vérifiable).'
+      )
+      return
+    }
+    setMeasuredPhotoError(null)
     setSubmitPhase('saving')
     const conditionsTimer = setTimeout(() => setSubmitPhase('conditions'), 500)
 
@@ -753,25 +766,33 @@ export function CatchForm(props: CatchFormProps) {
             </p>
           )}
 
-          {/* ── Aide à la mesure honnête (WS-D, sprint 39) ──
+          {/* ── Aide à la mesure honnête (WS-D sprint 39, durci sprint 69) ──
               « Mesurée », JAMAIS « vérifiée » : la vérif IA arrive sur mobile.
-              Case + longueur réelle + objet de référence visible sur la photo. */}
+              Case + longueur réelle + objet de référence + PHOTO obligatoire. */}
           <div className="mt-5 border-t border-sand-200 pt-4">
             <Controller
               name="is_measured"
               control={control}
               render={({ field }) => (
                 <ToggleRow
-                  label="Prise mesurée"
+                  label="Mesurée avec photo (longueur + objet de référence visibles)"
                   checked={field.value ?? false}
-                  onChange={(v) => field.onChange(v)}
+                  onChange={(v) => {
+                    field.onChange(v)
+                    if (!v) setMeasuredPhotoError(null)
+                  }}
                   onBlur={field.onBlur}
                 />
               )}
             />
             <p className="mt-1.5 text-[11px] leading-snug text-ink-400">
-              Tu as posé la prise à côté d&rsquo;une référence de taille connue sur la photo. Honnête : auto-déclaré, pas vérifié.
+              Tu as posé la prise à côté d&rsquo;une référence de taille connue, et la photo le montre. C&rsquo;est elle qui rend la mesure vérifiable.
             </p>
+            {measuredPhotoError && (
+              <p className="mt-1.5 text-[13px] text-coral-500" role="alert">
+                {measuredPhotoError}
+              </p>
+            )}
 
             {watchedIsMeasured && (
               <div className="mt-3 space-y-3">
@@ -1165,7 +1186,10 @@ export function CatchForm(props: CatchFormProps) {
       <Card>
         <SectionTitle>Photo</SectionTitle>
         <PhotoInput
-          onChange={setPhotoFile}
+          onChange={(f) => {
+            setPhotoFile(f)
+            if (f) setMeasuredPhotoError(null)
+          }}
           className="mt-3"
           initialUrl={isEdit ? existingPhotoUrl : null}
         />

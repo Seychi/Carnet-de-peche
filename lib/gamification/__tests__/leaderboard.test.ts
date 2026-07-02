@@ -5,7 +5,9 @@ import {
   metricMeta,
   isSpeciesFilterable,
   rankMedal,
+  resolveLeaderboardView,
   LEADERBOARD_METRICS,
+  type LeaderboardRow,
 } from '../leaderboard'
 
 // Compare en aplatissant TOUTE espace (normale, insécable U+00A0, fine) en '_' → robuste
@@ -78,5 +80,66 @@ describe('rankMedal', () => {
     expect(rankMedal(2)).toBe('🥈')
     expect(rankMedal(3)).toBe('🥉')
     expect(rankMedal(4)).toBeNull()
+  })
+})
+
+// ── Sprint 69 : lisibilité à 1 joueur (resolveLeaderboardView) ──────────────────
+
+function row(overrides: Partial<LeaderboardRow>): LeaderboardRow {
+  return {
+    rank: 1,
+    userId: 'u1',
+    username: 'pecheur',
+    avatarUrl: null,
+    metricValue: 100,
+    isSelf: false,
+    eligibleCount: 3,
+    ...overrides,
+  }
+}
+
+describe('resolveLeaderboardView', () => {
+  it('0 ligne → état vide', () => {
+    expect(resolveLeaderboardView([], 'national')).toEqual({ kind: 'empty' })
+  })
+
+  it('solo opté-in (eligible_count=1) → under_threshold avec « il en manque 2 »', () => {
+    const mine = row({ isSelf: true, eligibleCount: 1 })
+    const view = resolveLeaderboardView([mine], 'national')
+    expect(view).toEqual({ kind: 'under_threshold', myRow: mine, missing: 2 })
+  })
+
+  it('2 éligibles → il en manque 1', () => {
+    const mine = row({ isSelf: true, eligibleCount: 2 })
+    const view = resolveLeaderboardView([mine], 'national')
+    expect(view.kind).toBe('under_threshold')
+    if (view.kind === 'under_threshold') expect(view.missing).toBe(1)
+  })
+
+  it('sous le seuil SANS ligne self (non opté-in) → vide, jamais d’identité tierce', () => {
+    // Cas défensif : la RPC ne renvoie pas ce cas (identités gatées), mais le
+    // client ne doit jamais rendre un « classement » d'une identité tierce isolée.
+    const other = row({ isSelf: false, eligibleCount: 2 })
+    expect(resolveLeaderboardView([other], 'national')).toEqual({ kind: 'empty' })
+  })
+
+  it('seuil K=3 atteint → tableau complet avec myRow repérée', () => {
+    const rows = [
+      row({ rank: 1, userId: 'a', eligibleCount: 3 }),
+      row({ rank: 2, userId: 'me', isSelf: true, eligibleCount: 3 }),
+      row({ rank: 3, userId: 'c', eligibleCount: 3 }),
+    ]
+    const view = resolveLeaderboardView(rows, 'national')
+    expect(view.kind).toBe('table')
+    if (view.kind === 'table') {
+      expect(view.rows).toHaveLength(3)
+      expect(view.myRow?.userId).toBe('me')
+    }
+  })
+
+  it('scope follows : jamais de seuil (cercle choisi)', () => {
+    const rows = [row({ isSelf: true, eligibleCount: 1 })]
+    const view = resolveLeaderboardView(rows, 'follows')
+    expect(view.kind).toBe('table')
   })
 })

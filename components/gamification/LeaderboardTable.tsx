@@ -14,6 +14,7 @@ import {
   isSpeciesFilterable,
   formatMetricValue,
   rankMedal,
+  resolveLeaderboardView,
   type LeaderboardParams,
   type LeaderboardRow,
   type LeaderboardScope,
@@ -24,6 +25,7 @@ import type { SeasonOption } from '@/lib/gamification/season'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { DEPARTMENT_OPTIONS } from '@/lib/geo/departments'
 import { LeaderboardEmptyState } from './LeaderboardEmptyState'
+import { ShareButton } from '@/components/share/ShareButton'
 
 // Options espèces triées par label (source unique SPECIES_LABELS).
 const SPECIES_OPTIONS = Object.entries(SPECIES_LABELS)
@@ -59,12 +61,15 @@ function Chip({
 
 export function LeaderboardTable({
   initialRows,
+  initialErrored = false,
   myUserId,
   homeDepartment,
   seasons,
   optedIn,
 }: {
   initialRows: LeaderboardRow[]
+  /** true si le fetch SSR a échoué → on montre l'erreur, pas un faux « vide ». */
+  initialErrored?: boolean
   myUserId: string
   homeDepartment: string | null
   /** Saison courante + saisons passées (Sprint 67), offset 0 en tête. */
@@ -81,7 +86,7 @@ export function LeaderboardTable({
   })
   const [rows, setRows] = useState<LeaderboardRow[]>(initialRows)
   const [loading, setLoading] = useState(false)
-  const [errored, setErrored] = useState(false)
+  const [errored, setErrored] = useState(initialErrored)
   // Jeton de requête : ignore les réponses obsolètes (clics rapides sur les sélecteurs →
   // fetchs concurrents ; sans ce garde, une réponse en retard écraserait le bon résultat).
   const requestId = useRef(0)
@@ -113,6 +118,32 @@ export function LeaderboardTable({
   const selectedSeason = seasons.find((s) => s.offset === currentOffset) ?? seasons[0]
   const periodLabel =
     params.period === 'season' ? `Saison ${selectedSeason?.label ?? ''}`.trim() : 'Depuis le début'
+  // Sprint 69 : la RPC renvoie TOUJOURS la ligne du caller opté-in (is_self) +
+  // eligible_count. Le helper pur décide : vide / « ton rang » seul / tableau.
+  const view = resolveLeaderboardView(rows, params.scope)
+
+  // Carte « Ton rang » : toujours visible pour l'opté-in dès qu'il a une ligne.
+  const myRow = view.kind === 'table' ? view.myRow : view.kind === 'under_threshold' ? view.myRow : null
+  const rankCard = myRow && (
+    <div className="mb-3 flex items-center justify-between gap-3 rounded-[14px] border border-teal-500/40 bg-teal-500/[0.07] px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-navy-900 font-mono text-[14px] font-bold text-white">
+          {myRow.rank}
+        </span>
+        <div>
+          <p className="text-[14px] font-semibold text-navy-900">Ton rang</p>
+          <p className="text-[12px] text-ink-500">
+            {view.kind === 'under_threshold'
+              ? 'Visible de toi seul pour le moment.'
+              : `Sur ${myRow.eligibleCount} pêcheur${myRow.eligibleCount > 1 ? 's' : ''} classé${myRow.eligibleCount > 1 ? 's' : ''}.`}
+          </p>
+        </div>
+      </div>
+      <span className="font-mono text-[15px] font-semibold tabular-nums text-navy-900">
+        {formatMetricValue(params.metric, myRow.metricValue)}
+      </span>
+    </div>
+  )
 
   return (
     <div>
@@ -251,9 +282,37 @@ export function LeaderboardTable({
           <div className="rounded-[14px] border border-dashed border-sand-200 bg-white px-6 py-8 text-center text-[14px] text-ink-600">
             Choisis un département ci-dessus pour voir son classement.
           </div>
-        ) : rows.length === 0 ? (
+        ) : view.kind === 'empty' ? (
           <LeaderboardEmptyState scope={params.scope} optedIn={optedIn} />
+        ) : view.kind === 'under_threshold' ? (
+          // Sous le seuil k-anon (sprint 69) : ton rang est visible, les identités
+          // tierces non. On dit POURQUOI et combien il en manque, avec un partage
+          // pour faire venir du monde (mécanique cartes S45/S47, rien de nouveau).
+          <div>
+            {rankCard}
+            <div className="rounded-[14px] border border-dashed border-sand-200 bg-white px-6 py-8 text-center">
+              <p className="text-[14px] font-semibold text-navy-900">
+                Classement publié à partir de 3 pêcheurs visibles.
+              </p>
+              <p className="mt-1 text-[13.5px] text-ink-600">
+                Il en manque{' '}
+                <span className="font-mono font-semibold text-navy-900">{view.missing}</span>.
+                Partage tes records pour donner envie aux copains de se classer.
+              </p>
+              <div className="mt-4 flex justify-center">
+                <ShareButton
+                  input={{ kind: 'records' }}
+                  title="Mes records de pêche"
+                  text="Mes records sur Carnet de Pêche. Viens te mesurer, sans jamais dévoiler un spot."
+                  label="Partager mes records"
+                  variant="ghost"
+                />
+              </div>
+            </div>
+          </div>
         ) : (
+          <div>
+            {rankCard}
           <ol className="flex flex-col gap-1.5">
             {rows.map((row) => {
               const isMe = row.userId === myUserId
@@ -311,6 +370,7 @@ export function LeaderboardTable({
               )
             })}
           </ol>
+          </div>
         )}
       </div>
     </div>

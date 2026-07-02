@@ -49,8 +49,8 @@ describe('getLeaderboard', () => {
     expect(res).toEqual({
       ok: true,
       rows: [
-        { rank: 1, userId: 'u1', username: 'kevin', avatarUrl: 'http://a/1.webp', metricValue: 1500 },
-        { rank: 2, userId: 'u2', username: 'lea', avatarUrl: null, metricValue: 900 },
+        { rank: 1, userId: 'u1', username: 'kevin', avatarUrl: 'http://a/1.webp', metricValue: 1500, isSelf: false, eligibleCount: 0 },
+        { rank: 2, userId: 'u2', username: 'lea', avatarUrl: null, metricValue: 900, isSelf: false, eligibleCount: 0 },
       ],
     })
   })
@@ -112,5 +112,60 @@ describe('getLeaderboard', () => {
     const client = mockClient({ user: USER, rpc: { get_leaderboard: { data: [] } } })
     await getLeaderboard({ ...DEFAULT, seasonOffset: -1 })
     expect(firstRpcArgs(client).p_season_offset).toBe(-1)
+  })
+
+  // ── Sprint 69 : is_self + eligible_count dans le mapping ──
+
+  it('mappe is_self et eligible_count (ligne self sous le seuil)', async () => {
+    mockClient({
+      user: USER,
+      rpc: {
+        get_leaderboard: {
+          data: [
+            {
+              rank: 1,
+              user_id: USER.id,
+              username: 'moi',
+              avatar_url: null,
+              metric_value: '305',
+              is_self: true,
+              eligible_count: 1,
+            },
+          ],
+        },
+      },
+    })
+    const res = await getLeaderboard(DEFAULT)
+    expect(res.ok).toBe(true)
+    if (res.ok) {
+      expect(res.rows[0]).toEqual({
+        rank: 1,
+        userId: USER.id,
+        username: 'moi',
+        avatarUrl: null,
+        metricValue: 305,
+        isSelf: true,
+        eligibleCount: 1,
+      })
+    }
+  })
+
+  it('défaulte isSelf=false / eligibleCount=0 si la RPC ne les renvoie pas (robustesse)', async () => {
+    mockClient({
+      user: USER,
+      rpc: {
+        get_leaderboard: {
+          data: [
+            { rank: 1, user_id: 'x', username: 'a', avatar_url: null, metric_value: 10 },
+          ],
+        },
+      },
+    })
+    const res = await getLeaderboard(DEFAULT)
+    expect(res.ok).toBe(true)
+    if (res.ok) {
+      expect(res.rows[0].isSelf).toBe(false)
+      expect(res.rows[0].eligibleCount).toBe(0)
+    }
   })
 })
