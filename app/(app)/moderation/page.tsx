@@ -14,7 +14,14 @@ import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels
 import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
 import ImportsCurationList from '@/components/spots/ImportsCurationList'
 import type { ImportToCurate } from '@/components/spots/CurateSpotForm'
-import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor, RotateCw } from 'lucide-react'
+import {
+  mintInviteCodes,
+  revokeCompGrant,
+  disableInviteCode,
+  type MintResult,
+} from '@/app/actions/invites'
+import { MintCodesForm, CopyCodeButton } from './InviteCodesClient'
+import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor, RotateCw, Ticket, Ban } from 'lucide-react'
 import { ModActionForm, type ModResult } from './ModActionForm'
 
 export const metadata = { title: 'Modération — Carnet de Pêche' }
@@ -67,6 +74,30 @@ type PendingSpot = {
   proposer_username: string | null
 }
 
+// Codes fondateurs + comp grants (sprint 68, onglet Invitations).
+type InviteCodeRow = {
+  code: string
+  label: string | null
+  max_uses: number
+  uses: number
+  grants_tier: string
+  grant_months: number | null
+  expires_at: string | null
+  disabled_at: string | null
+  created_at: string
+}
+
+type CompGrantRow = {
+  id: string
+  user_id: string
+  username: string | null
+  tier: string
+  source_code: string | null
+  granted_at: string
+  expires_at: string | null
+  revoked_at: string | null
+}
+
 // ---------------------------------------------------------------------------
 // Server Actions wrapped pour revalidation de route
 // ---------------------------------------------------------------------------
@@ -103,6 +134,19 @@ async function verifySpotAction(_prev: ModResult | null, formData: FormData): Pr
 async function reverifySpotAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
   'use server'
   return moderateReverifySpot(formData.get('spotId') as string)
+}
+// Invitations (sprint 68).
+async function mintCodesAction(_prev: MintResult | null, formData: FormData): Promise<MintResult> {
+  'use server'
+  return mintInviteCodes(formData)
+}
+async function revokeGrantAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
+  'use server'
+  return revokeCompGrant(formData.get('grantId') as string)
+}
+async function disableCodeAction(_prev: ModResult | null, formData: FormData): Promise<ModResult> {
+  'use server'
+  return disableInviteCode(formData.get('code') as string)
 }
 
 // ---------------------------------------------------------------------------
@@ -438,7 +482,9 @@ export default async function ModerationPage({
         ? 'imports'
         : tab === 'reverify'
           ? 'reverify'
-          : 'reports'
+          : tab === 'invites'
+            ? 'invites'
+            : 'reports'
 
   const supabase = await createClient()
   const {
@@ -488,8 +534,41 @@ export default async function ModerationPage({
   let curatedTotalCount = 0
   let importsDeptCounts: { department: string; count: number }[] = []
   const importsPage = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
+  // Invitations (sprint 68) : codes + grants (lecture via policies modérateur).
+  let inviteCodes: InviteCodeRow[] = []
+  let compGrants: CompGrantRow[] = []
 
-  if (activeTab === 'imports') {
+  if (activeTab === 'invites') {
+    const { data: codes } = await supabase
+      .from('invite_codes')
+      .select('code, label, max_uses, uses, grants_tier, grant_months, expires_at, disabled_at, created_at')
+      .order('created_at', { ascending: false })
+      .limit(200)
+    inviteCodes = codes ?? []
+
+    const { data: rawGrants } = await supabase
+      .from('comp_grants')
+      .select('id, user_id, tier, source_code, granted_at, expires_at, revoked_at')
+      .order('granted_at', { ascending: false })
+      .limit(200)
+    const grantRows = rawGrants ?? []
+    const granteeIds = [...new Set(grantRows.map((g) => g.user_id))]
+    const grantees = new Map<string, string>()
+    if (granteeIds.length > 0) {
+      const { data } = await supabase.from('profiles').select('id, username').in('id', granteeIds)
+      for (const p of data ?? []) if (p.id && p.username) grantees.set(p.id, p.username)
+    }
+    compGrants = grantRows.map((g) => ({
+      id: g.id,
+      user_id: g.user_id,
+      username: grantees.get(g.user_id) ?? null,
+      tier: g.tier,
+      source_code: g.source_code,
+      granted_at: g.granted_at,
+      expires_at: g.expires_at,
+      revoked_at: g.revoked_at,
+    }))
+  } else if (activeTab === 'imports') {
     // Total curés depuis le départ (dénominateur de progression).
     const { count: curated } = await supabase
       .from('spots')
@@ -683,6 +762,9 @@ export default async function ModerationPage({
         <Link href="/moderation?tab=reverify" className={tabCls(activeTab === 'reverify')}>
           Re-vérifier
         </Link>
+        <Link href="/moderation?tab=invites" className={tabCls(activeTab === 'invites')}>
+          Invitations
+        </Link>
       </div>
 
       {activeTab === 'reports' ? (
@@ -716,6 +798,8 @@ export default async function ModerationPage({
           page={reverifyPage}
           perPage={IMPORTS_PER_PAGE}
         />
+      ) : activeTab === 'invites' ? (
+        <InvitesTab codes={inviteCodes} grants={compGrants} />
       ) : (
         <ImportsTab
           imports={imports}
@@ -1005,6 +1089,153 @@ function ImportsTab({
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Onglet « Invitations » (sprint 68) : mint de codes fondateurs + liste des
+// codes (usage, tier, durée, désactivation) + liste des comp grants
+// (révocation). Modérateur-only (page gardée is_moderator + RPC re-gatées).
+// ---------------------------------------------------------------------------
+const TIER_LABELS: Record<string, string> = { local: 'Local', itinerant: 'Itinérant' }
+
+function shortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  })
+}
+
+function codeStatus(c: InviteCodeRow): { label: string; cls: string } {
+  if (c.disabled_at) return { label: 'Désactivé', cls: 'bg-ink-100 text-ink-500' }
+  if (c.expires_at && new Date(c.expires_at).getTime() <= Date.now())
+    return { label: 'Expiré', cls: 'bg-ink-100 text-ink-500' }
+  if (c.uses >= c.max_uses) return { label: 'Épuisé', cls: 'bg-sand-100 text-ink-600' }
+  return { label: 'Actif', cls: 'bg-teal-500/10 text-teal-700' }
+}
+
+function grantStatus(g: CompGrantRow): { label: string; cls: string } {
+  if (g.revoked_at) return { label: 'Révoqué', cls: 'bg-ink-100 text-ink-500' }
+  if (g.expires_at && new Date(g.expires_at).getTime() <= Date.now())
+    return { label: 'Expiré', cls: 'bg-sand-100 text-ink-600' }
+  return { label: 'Actif', cls: 'bg-teal-500/10 text-teal-700' }
+}
+
+function InvitesTab({ codes, grants }: { codes: InviteCodeRow[]; grants: CompGrantRow[] }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <MintCodesForm action={mintCodesAction} />
+
+      {/* Codes existants */}
+      <div>
+        <p className="mb-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-navy-900">
+          <Ticket size={15} aria-hidden="true" />
+          Codes ({codes.length})
+        </p>
+        {codes.length === 0 ? (
+          <Empty label="Aucun code fondateur. Génère ta première vague ci-dessus." />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {codes.map((c) => {
+              const st = codeStatus(c)
+              const active = st.label === 'Actif'
+              return (
+                <div
+                  key={c.code}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[14px] border border-sand-200 bg-white px-4 py-3"
+                >
+                  <code className="font-mono text-[13px] font-semibold text-navy-900">{c.code}</code>
+                  <CopyCodeButton code={c.code} />
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.cls}`}>
+                    {st.label}
+                  </span>
+                  <span className="font-mono text-[12px] text-ink-600">
+                    {c.uses}/{c.max_uses} utilisé{c.uses > 1 ? 's' : ''}
+                  </span>
+                  <span className="text-[12px] text-ink-600">
+                    {TIER_LABELS[c.grants_tier] ?? c.grants_tier} ·{' '}
+                    {c.grant_months ? `${c.grant_months} mois` : 'sans expiration'}
+                  </span>
+                  {c.label && <span className="text-[12px] text-ink-400">« {c.label} »</span>}
+                  <span className="ml-auto font-mono text-[11px] text-ink-400">{shortDate(c.created_at)}</span>
+                  {active && (
+                    <ModActionForm
+                      action={disableCodeAction}
+                      hidden={{ code: c.code }}
+                      successMessage="Code désactivé."
+                      title="Désactiver ce code (plus échangeable)"
+                      className="inline-flex min-h-[44px] items-center gap-1 rounded-full border border-coral-500/40 px-3 py-1 text-[11px] font-semibold text-coral-500 transition-colors hover:bg-coral-500/10"
+                    >
+                      <Ban size={12} aria-hidden="true" />
+                      Désactiver
+                    </ModActionForm>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Accès offerts */}
+      <div>
+        <p className="mb-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-navy-900">
+          <BadgeCheck size={15} aria-hidden="true" />
+          Accès offerts ({grants.length})
+        </p>
+        {grants.length === 0 ? (
+          <Empty label="Aucun code n'a encore été échangé." />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {grants.map((g) => {
+              const st = grantStatus(g)
+              const active = st.label === 'Actif'
+              return (
+                <div
+                  key={g.id}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[14px] border border-sand-200 bg-white px-4 py-3"
+                >
+                  <span className="text-[13px] font-semibold text-navy-900">
+                    {g.username ? `@${g.username}` : 'Profil sans pseudo'}
+                  </span>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.cls}`}>
+                    {st.label}
+                  </span>
+                  <span className="text-[12px] text-ink-600">
+                    {TIER_LABELS[g.tier] ?? g.tier} offert
+                    {g.expires_at ? (
+                      <>
+                        {' '}
+                        jusqu&rsquo;au <span className="font-mono">{shortDate(g.expires_at)}</span>
+                      </>
+                    ) : (
+                      ' · sans expiration'
+                    )}
+                  </span>
+                  {g.source_code && (
+                    <code className="font-mono text-[11px] text-ink-400">{g.source_code}</code>
+                  )}
+                  <span className="ml-auto font-mono text-[11px] text-ink-400">{shortDate(g.granted_at)}</span>
+                  {active && (
+                    <ModActionForm
+                      action={revokeGrantAction}
+                      hidden={{ grantId: g.id }}
+                      successMessage="Accès révoqué. Le compte redescend à son tier réel."
+                      title="Révoquer cet accès offert"
+                      className="inline-flex min-h-[44px] items-center gap-1 rounded-full border border-coral-500/40 px-3 py-1 text-[11px] font-semibold text-coral-500 transition-colors hover:bg-coral-500/10"
+                    >
+                      <Ban size={12} aria-hidden="true" />
+                      Révoquer
+                    </ModActionForm>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

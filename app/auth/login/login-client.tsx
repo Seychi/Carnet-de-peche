@@ -573,20 +573,24 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
               />
               <FieldError message={signupErrors.password_confirm} />
             </div>
-            {/* Code d'invitation (beta fondateurs, sprint 25). Optionnel côté UI :
-                le serveur ne l'exige que si INVITE_ONLY=true. */}
+            {/* Code fondateur (sprint 68) : optionnel, il OFFRE l'abonnement
+                Local (comp via redeem_comp_code). Le serveur ne l'exige que si
+                INVITE_ONLY=true (gate historique, off) : le libellé suit. */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="signup-invite" className="text-[14px] font-semibold text-ink-900">
-                Code d&rsquo;invitation
+                {inviteOnly ? "Code fondateur" : "Code fondateur (optionnel)"}
               </Label>
               <Input
                 id="signup-invite"
                 name="invite_code"
                 type="text"
                 autoComplete="off"
-                placeholder="Si tu as un code beta"
+                placeholder="Ex. FDR-XXXX-XXXX"
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
               />
+              <p className="text-[12px] text-ink-500">
+                Il active l&rsquo;abonnement Local offert sur ton compte.
+              </p>
             </div>
             {signupState.error && (
               <p className="text-[13px] text-coral-500 -mt-2" role="alert">

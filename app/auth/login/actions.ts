@@ -218,17 +218,13 @@ export async function signUpWithPassword(
     };
   }
 
-  // Gate beta fondateurs (sprint 25) : si INVITE_ONLY=true, un code d'invitation
-  // valide est requis. OFF par défaut → inscription ouverte, comportement inchangé.
-  // Consommation atomique via RPC service_role (consume_invite_code, migration 052).
-  // Gate beta fondateurs (sprint 25, réordonné sprint 54 WS-D) : on EXIGE un code
-  // non vide ici, mais on ne le CONSOMME qu'APRÈS le succès de auth.signUp (plus bas)
-  // — sinon un signup raté (email déjà pris, mot de passe rejeté) brûlerait un code
-  // à usage unique. OFF par défaut → inscription ouverte, comportement inchangé.
-  const inviteCode =
-    process.env.INVITE_ONLY === "true"
-      ? String(formData.get("invite_code") ?? "").trim()
-      : null;
+  // Code fondateur (sprint 68) : lu SYSTÉMATIQUEMENT et OPTIONNEL — il n'est
+  // plus un gate mais un comp (abonnement Local offert via redeem_comp_code,
+  // migration 104). Un code invalide n'empêche JAMAIS l'inscription.
+  // Le gate historique INVITE_ONLY (sprint 25/54) reste en place quand le flag
+  // est ON : on exige alors un code non vide, mais on ne le traite qu'APRÈS le
+  // succès de auth.signUp (un signup raté ne brûle pas de code, sprint 54 WS-D).
+  const inviteCode = String(formData.get("invite_code") ?? "").trim() || null;
   if (process.env.INVITE_ONLY === "true" && !inviteCode) {
     return {
       error: "Un code d'invitation est requis pour rejoindre la beta fondateurs.",
@@ -290,27 +286,60 @@ export async function signUpWithPassword(
   // Si la confirmation est ACTIVE, data.session est null → on retombe sur
   // l'écran SentScreen ci-dessous. Le code marche donc dans les deux cas, sans
   // hypothèse figée sur le réglage Supabase.
-  // Consommation du code APRÈS le succès du signup (réordonnancement WS-D, sprint 54) :
-  // un signup raté ne brûle plus de code. Atomique via RPC service_role (migration 052).
+  // Échange du code fondateur APRÈS le succès du signup (sprint 68) : la RPC
+  // redeem_comp_code (migration 104) valide + consomme le code + crée le
+  // comp_grant en un appel atomique, en tant que NOUVEL utilisateur (le client
+  // `supabase` porte la session posée par signUp). Fail-open : un code invalide
+  // ne bloque jamais l'inscrit, on lui remonte un message doux via ?comp=.
+  let compQuery = "";
   if (inviteCode) {
-    try {
-      const { createAdminClient } = await import("@/lib/supabase/admin");
-      const { data: consumed, error: cErr } = await createAdminClient().rpc(
-        "consume_invite_code",
-        { p_code: inviteCode },
-      );
-      if (cErr || consumed !== true) {
-        // Le compte auth est créé mais le code n'a pas pu être consommé (expiré
-        // entre-temps, course). On loggue pour ops sans bloquer l'inscrit.
-        console.error("[signUpWithPassword] consume after signUp failed", cErr);
+    if (data.session) {
+      try {
+        const { data: redeemed, error: rErr } = await supabase.rpc(
+          "redeem_comp_code",
+          { p_code: inviteCode },
+        );
+        const res = redeemed as { ok?: boolean; tier?: string; error?: string } | null;
+        if (rErr || res?.ok !== true) {
+          console.error(
+            "[signUpWithPassword] redeem_comp_code après signUp",
+            rErr ?? res?.error,
+          );
+          compQuery = "?comp=invalid";
+        } else {
+          // Le tier réel (local/itinerant) est porté à la bannière onboarding
+          // pour ne pas afficher « Local » en dur sur un code Itinérant.
+          const tier = res.tier === "itinerant" ? "itinerant" : "local";
+          compQuery = `?comp=granted&tier=${tier}`;
+        }
+      } catch (e) {
+        console.error("[signUpWithPassword] redeem comp", e);
+        compQuery = "?comp=invalid";
       }
-    } catch (e) {
-      console.error("[signUpWithPassword] invite consume", e);
+    } else if (process.env.INVITE_ONLY === "true") {
+      // Pas de session (confirmation email active côté Dashboard) : la RPC
+      // authentifiée est inappelable ici. On garde le comportement historique
+      // du gate beta (consommation service_role, sprint 54) ; l'utilisateur
+      // pourra échanger un code fondateur dans son compte après confirmation.
+      try {
+        const { createAdminClient } = await import("@/lib/supabase/admin");
+        const { data: consumed, error: cErr } = await createAdminClient().rpc(
+          "consume_invite_code",
+          { p_code: inviteCode },
+        );
+        if (cErr || consumed !== true) {
+          console.error("[signUpWithPassword] consume after signUp failed", cErr);
+        }
+      } catch (e) {
+        console.error("[signUpWithPassword] invite consume", e);
+      }
     }
+    // INVITE_ONLY off + pas de session : le code n'est pas consommé, il reste
+    // échangeable depuis le compte une fois l'email confirmé.
   }
 
   if (data.session) {
-    redirect("/onboarding/1");
+    redirect(`/onboarding/1${compQuery}`);
   }
 
   return { error: null, success: true, email, submittedAt: Date.now() };

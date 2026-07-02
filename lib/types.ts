@@ -211,6 +211,47 @@ export type Database = {
         }
         Relationships: []
       }
+      comp_grants: {
+        Row: {
+          expires_at: string | null
+          granted_at: string
+          id: string
+          revoked_at: string | null
+          revoked_by: string | null
+          source_code: string | null
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          source_code?: string | null
+          tier?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          source_code?: string | null
+          tier?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comp_grants_source_code_fkey"
+            columns: ["source_code"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       feed_comments: {
         Row: {
           author_id: string
@@ -511,7 +552,10 @@ export type Database = {
           code: string
           created_at: string
           created_by: string | null
+          disabled_at: string | null
           expires_at: string | null
+          grant_months: number | null
+          grants_tier: string
           label: string | null
           max_uses: number
           uses: number
@@ -520,7 +564,10 @@ export type Database = {
           code: string
           created_at?: string
           created_by?: string | null
+          disabled_at?: string | null
           expires_at?: string | null
+          grant_months?: number | null
+          grants_tier?: string
           label?: string | null
           max_uses?: number
           uses?: number
@@ -529,7 +576,10 @@ export type Database = {
           code?: string
           created_at?: string
           created_by?: string | null
+          disabled_at?: string | null
           expires_at?: string | null
+          grant_months?: number | null
+          grants_tier?: string
           label?: string | null
           max_uses?: number
           uses?: number
@@ -1961,8 +2011,19 @@ export type Database = {
         }[]
       }
       consume_invite_code: { Args: { p_code: string }; Returns: boolean }
+      create_invite_codes: {
+        Args: {
+          p_count?: number
+          p_grant_months?: number
+          p_grants_tier?: string
+          p_label?: string
+          p_max_uses?: number
+        }
+        Returns: string[]
+      }
       current_tier: { Args: { uid: string }; Returns: string }
       delete_my_account: { Args: never; Returns: undefined }
+      disable_invite_code: { Args: { p_code: string }; Returns: boolean }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -2464,7 +2525,9 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      redeem_comp_code: { Args: { p_code: string }; Returns: Json }
       refresh_user_streak: { Args: { p_user_id: string }; Returns: undefined }
+      revoke_comp_grant: { Args: { p_grant_id: string }; Returns: boolean }
       season_window: {
         Args: { p_offset?: number }
         Returns: {

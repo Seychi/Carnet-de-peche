@@ -11,6 +11,8 @@ import {
   type PlanInterval,
 } from "@/lib/stripe/pricing";
 import { EmailPrefsToggle } from "./email-prefs-toggle";
+import { RedeemCodeForm } from "./redeem-code-form";
+import { Gift } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +91,22 @@ export default async function AbonnementPage() {
     .eq("id", user.id)
     .maybeSingle();
   const marketingOptin = profile?.marketing_email_optin ?? true;
+
+  // Entitlement offert (sprint 68) : comp_grant ACTIF le plus élevé.
+  // ⚠️ Filtre user_id explicite : RLS a AUSSI une policy select modérateur
+  // (migration 104) → sans ce filtre, un modérateur verrait les grants des
+  // autres comme les siens (finding revue).
+  const { data: grants } = await supabase
+    .from("comp_grants")
+    .select("tier, expires_at, granted_at")
+    .eq("user_id", user.id)
+    .is("revoked_at", null)
+    .order("granted_at", { ascending: false });
+  const activeGrants = (grants ?? []).filter(
+    (g) => !g.expires_at || new Date(g.expires_at).getTime() > Date.now()
+  );
+  const activeComp =
+    activeGrants.find((g) => g.tier === "itinerant") ?? activeGrants[0] ?? null;
 
   const plan = (sub?.plan === "local" || sub?.plan === "itinerant" ? sub.plan : null) as PaidPlan | null;
   const interval: PlanInterval | null = sub?.stripe_price_id
@@ -290,6 +308,47 @@ export default async function AbonnementPage() {
           )}
         </div>
       )}
+
+      {/* Code fondateur (sprint 68) : entitlement actif ou champ d'échange.
+          Toujours visible, indépendant de l'abonnement Stripe. */}
+      <div className="mt-6 bg-white border border-sand-200 rounded-[18px] p-6">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-500/10">
+            <Gift size={17} className="text-teal-700" aria-hidden="true" />
+          </div>
+          <p className="text-sm font-semibold text-navy-900">Code fondateur</p>
+        </div>
+        {activeComp ? (
+          <div className="rounded-[14px] border border-teal-200 bg-teal-50 p-4">
+            <p className="text-sm text-navy-900">
+              <span className="font-semibold">
+                Abonnement {activeComp.tier === "itinerant" ? "Itinérant" : "Local"} offert
+              </span>{" "}
+              · actif
+              {activeComp.expires_at ? (
+                <>
+                  {" "}
+                  jusqu&rsquo;au{" "}
+                  <span className="font-mono">{formatDate(activeComp.expires_at)}</span>
+                </>
+              ) : (
+                <span className="text-ink-500"> · sans date de fin</span>
+              )}
+            </p>
+            <p className="mt-1.5 text-[13px] text-ink-500">
+              Offert par un code fondateur. Merci d&rsquo;être là depuis le début.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-[13px] text-ink-500 mb-3">
+              Tu as reçu un code fondateur ? Échange-le ici : il active ton
+              abonnement offert, sans carte bancaire.
+            </p>
+            <RedeemCodeForm />
+          </>
+        )}
+      </div>
 
       {/* Préférences email — opt-out marketing en 1 clic. Toujours visible. */}
       <div className="mt-6 bg-white border border-sand-200 rounded-[18px] p-6">

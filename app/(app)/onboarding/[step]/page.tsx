@@ -6,8 +6,10 @@ const TOTAL_STEPS = 6;
 
 export default async function OnboardingStepPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ step: string }>;
+  searchParams: Promise<{ comp?: string; tier?: string }>;
 }) {
   const { step: stepParam } = await params;
   const step = parseInt(stepParam, 10);
@@ -28,11 +30,42 @@ export default async function OnboardingStepPage({
 
   if (profile?.onboarded) redirect("/home");
 
+  // Retour du code fondateur saisi à l'inscription (sprint 68) : message doux,
+  // jamais bloquant (l'inscription a réussi dans les deux cas). Le tier vient
+  // de l'URL (posé par la server action depuis la réponse RPC), validé ici.
+  const { comp, tier } = await searchParams;
+  const grantedTier = tier === "itinerant" ? "Itinérant" : "Local";
+
   return (
-    <OnboardingStep
-      step={step}
-      totalSteps={TOTAL_STEPS}
-      profile={profile ?? {}}
-    />
+    <>
+      {comp === "granted" && (
+        <div className="mx-auto max-w-[560px] px-4 pt-4">
+          <p
+            role="status"
+            className="rounded-[12px] border border-teal-200 bg-teal-50 px-4 py-3 text-[14px] text-navy-900"
+          >
+            🎉 <span className="font-semibold">Abonnement {grantedTier} offert, activé !</span>{" "}
+            Ton code fondateur a bien été échangé.
+          </p>
+        </div>
+      )}
+      {comp === "invalid" && (
+        <div className="mx-auto max-w-[560px] px-4 pt-4">
+          <p
+            role="status"
+            className="rounded-[12px] border border-sand-200 bg-sand-50 px-4 py-3 text-[14px] text-ink-700"
+          >
+            Ton compte est créé, mais le code fondateur n&rsquo;a pas été reconnu.
+            Tu pourras réessayer plus tard depuis{" "}
+            <span className="font-semibold">Mon abonnement</span>.
+          </p>
+        </div>
+      )}
+      <OnboardingStep
+        step={step}
+        totalSteps={TOTAL_STEPS}
+        profile={profile ?? {}}
+      />
+    </>
   );
 }
