@@ -21,6 +21,8 @@ import { toggleLike, deletePost, moderatorDeletePost } from '@/app/actions/feed'
 import { usePostInteractionsRealtime } from '@/lib/feed/usePostInteractionsRealtime'
 import { linkifyText } from '@/lib/feed/linkify'
 import type { FeedPost } from '@/lib/feed/types'
+import type { OutingSummary } from '@/lib/outings/summary'
+import { OutingSummaryBanner } from '@/components/outings/OutingSummaryBanner'
 
 // Commentaires + signalement ne s'affichent qu'au clic : lazy-load (sprint 11
 // Bloc F) pour sortir leurs deps (Server Actions, Radix Dialog…) du first load
@@ -69,7 +71,10 @@ export const PostCard = memo(function PostCard({
   showFollow = true,
   onDeleted,
 }: {
-  post: FeedPost
+  // outingSummary (Sprint 73) n'est pas porté par la vue : injecté par getFeedPage
+  // (FeedPostEnriched). Optionnel → un post construit ailleurs (profil, optimistic)
+  // le traite comme « pas de sortie ».
+  post: FeedPost & { outingSummary?: OutingSummary | null }
   currentUserId: string | null
   /** Identité complète du viewer — utilisée pour le commentaire optimiste. */
   currentUser?: ViewerIdentity | null
@@ -267,6 +272,12 @@ export const PostCard = memo(function PostCard({
           </DropdownMenu>
         )}
       </header>
+
+      {/* Bandeau « sortie » (Sprint 73) — au-dessus du contenu, quand ce post est
+          rattaché à une sortie solo ET que le résumé (per-viewer, geom-free) est présent. */}
+      {post.outing_id && post.outingSummary && (
+        <OutingSummaryBanner summary={post.outingSummary} />
+      )}
 
       {/* Texte */}
       {post.text && (

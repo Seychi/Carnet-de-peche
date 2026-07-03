@@ -7,6 +7,7 @@ import { attachPostMedia } from '@/lib/feed/media'
 import { createNotification } from '@/lib/notifications/create'
 import type { FeedPost, FeedTab } from '@/lib/feed/types'
 import { buildFeedCursor, parseFeedCursor } from '@/lib/feed/cursor'
+import { parseOutingSummary, type OutingSummary } from '@/lib/outings/summary'
 import '@/lib/zod-config'
 import { z } from 'zod'
 
@@ -95,6 +96,9 @@ const photoInputSchema = z.object({
 const createPostSchema = z.object({
   text: z.string().max(2000, 'Ton message ne peut pas dépasser 2000 caractères.').optional(),
   catchId: z.string().uuid('Prise invalide.').optional(),
+  // Sortie solo rattachée (Sprint 73) : un « post de sortie ». Optionnel → un post
+  // normal sans outingId garde exactement le comportement d'avant.
+  outingId: z.string().uuid('Sortie invalide.').optional(),
   region: z
     .string()
     .refine(isCoastalDepartment, 'Ce département côtier n’est pas reconnu.'),
@@ -102,9 +106,13 @@ const createPostSchema = z.object({
   photos: z.array(photoInputSchema).max(4, 'Maximum 4 photos par post.').optional(),
 })
 
+const OUTING_ALREADY_POSTED_MSG = 'Cette sortie a déjà un récit publié.'
+const OUTING_NOT_MINE_MSG = 'Cette sortie n’est pas la tienne.'
+
 export async function createPost(input: {
   text?: string
   catchId?: string
+  outingId?: string
   region: string
   photos?: { path: string; width?: number; height?: number }[]
 }): Promise<ActionResult<{ id: string }>> {
@@ -117,10 +125,10 @@ export async function createPost(input: {
   const parsed = createPostSchema.safeParse(input)
   if (!parsed.success) return fail(firstZodError(parsed.error))
 
-  const { region, catchId } = parsed.data
+  const { region, catchId, outingId } = parsed.data
   const text = parsed.data.text?.trim() || undefined
   const photos = parsed.data.photos ?? []
-  if (!text && !catchId && photos.length === 0) {
+  if (!text && !catchId && !outingId && photos.length === 0) {
     return fail('Écris un message, ajoute une photo ou partage une prise.')
   }
 
@@ -151,14 +159,41 @@ export async function createPost(input: {
     if (!own) return fail('Cette prise ne t’appartient pas.')
   }
 
+  // Post de sortie (Sprint 73) : la sortie doit exister ET m'appartenir. On ne lit
+  // que l'id (les outings ne portent aucune coordonnée, l'affichage passera par la
+  // RPC get_outing_summary côté lecture). L'unicité (1 post par sortie) est garantie
+  // par l'index partiel feed_posts_one_post_per_outing_idx, géré plus bas.
+  if (outingId) {
+    const { data: ownOuting } = await supabase
+      .from('outings')
+      .select('id')
+      .eq('id', outingId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (!ownOuting) return fail(OUTING_NOT_MINE_MSG)
+  }
+
   const { data: post, error } = await supabase
     .from('feed_posts')
-    .insert({ author_id: user.id, text: text ?? null, catch_id: catchId ?? null, region })
+    .insert({
+      author_id: user.id,
+      text: text ?? null,
+      catch_id: catchId ?? null,
+      outing_id: outingId ?? null,
+      region,
+    })
     .select('id')
     .single()
 
   if (error || !post) {
     if (error?.message.includes('rate_limit_posts')) return fail(POST_LIMIT_MSG)
+    // Violation de l'unicité 1 post par sortie (23505 sur l'index partiel).
+    if (
+      error?.code === '23505' ||
+      error?.message.includes('feed_posts_one_post_per_outing')
+    ) {
+      return fail(OUTING_ALREADY_POSTED_MSG)
+    }
     console.error('[createPost]', error?.message)
     return fail('Impossible de publier ton post. Réessaie.')
   }
@@ -708,6 +743,12 @@ const PAGE_SIZE = 20
 export type FeedPostEnriched = FeedPost & {
   catchPhotoUrl: string | null
   photoUrls: string[]
+  // Résumé de la sortie rattachée (Sprint 73) : présent uniquement sur un « post de
+  // sortie » (outing_id != null), sinon null. Calculé serveur, per-viewer, geom-free.
+  // Optionnel : getFeedPage le renseigne toujours (null ou résumé) ; les posts
+  // construits ailleurs (optimistic) peuvent l'omettre → le client traite l'absence
+  // comme « pas de sortie ».
+  outingSummary?: OutingSummary | null
 }
 
 export async function getFeedPage(params: {
@@ -782,9 +823,38 @@ export async function getFeedPage(params: {
     for (const r of frows ?? []) followingSet.add(r.following_id)
   }
 
+  // Posts de sortie (Sprint 73) : enrichir chaque post ayant outing_id via la RPC
+  // get_outing_summary. L'appel passe par la SESSION du viewer → le résumé est
+  // PER-VIEWER (prise private d'autrui masquée) et GEOM-FREE. Rares par page ; un
+  // appel par outing distinct, bornés à PAGE_SIZE, en parallèle.
+  const outingIds = [
+    ...new Set(
+      posts.map((p) => p.outing_id).filter((id): id is string => Boolean(id)),
+    ),
+  ]
+  const summaryByOuting = new Map<string, OutingSummary>()
+  if (outingIds.length > 0) {
+    const results = await Promise.all(
+      outingIds.map(async (oid) => {
+        const { data, error: sErr } = await supabase.rpc('get_outing_summary', {
+          p_outing_id: oid,
+        })
+        if (sErr) {
+          console.error('[getFeedPage:outing_summary]', sErr.message)
+          return null
+        }
+        return parseOutingSummary(data)
+      }),
+    )
+    for (const s of results) {
+      if (s) summaryByOuting.set(s.outing_id, s)
+    }
+  }
+
   const enriched: FeedPostEnriched[] = withMedia.map((p) => ({
     ...p,
     author_is_following: p.author_id ? followingSet.has(p.author_id) : false,
+    outingSummary: p.outing_id ? summaryByOuting.get(p.outing_id) ?? null : null,
   }))
 
   const last = enriched[enriched.length - 1]
@@ -848,4 +918,46 @@ export async function getMyCatches(params: {
     caught_at: c.caught_at,
   }))
   return ok(result)
+}
+
+// ---------------------------------------------------------------------------
+// getOutingPostState — pour le CTA « Raconter la sortie » côté client : dit,
+// pour un lot de sorties de l'utilisateur, laquelle a déjà un post publié
+// (id du post) et laquelle n'en a pas (null). Une seule requête, owner-scopée.
+// L'index unique partiel garantit au plus 1 post par sortie → pas d'ambiguïté.
+// ---------------------------------------------------------------------------
+export async function getOutingPostState(
+  outingIds: string[],
+): Promise<ActionResult<Record<string, string | null>>> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return fail(AUTH_MSG)
+
+  const ids = [
+    ...new Set(
+      (outingIds ?? []).filter((id) => z.string().uuid().safeParse(id).success),
+    ),
+  ]
+  // Init à null (aucun post) pour toutes les sorties demandées.
+  const state: Record<string, string | null> = {}
+  for (const id of ids) state[id] = null
+  if (ids.length === 0) return ok(state)
+
+  const { data, error } = await supabase
+    .from('feed_posts')
+    .select('id, outing_id')
+    .eq('author_id', user.id)
+    .in('outing_id', ids)
+
+  if (error) {
+    console.error('[getOutingPostState]', error.message)
+    return fail('Impossible de vérifier tes sorties.')
+  }
+
+  for (const row of data ?? []) {
+    if (row.outing_id) state[row.outing_id] = row.id
+  }
+  return ok(state)
 }

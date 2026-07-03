@@ -14,6 +14,8 @@ import { SPECIES_LABELS } from '@/lib/labels'
 import { createClient } from '@/lib/supabase/client'
 import { resizeImageToWebp } from '@/lib/storage/image-resize'
 import { createPost, getMyCatches, type FeedPostEnriched } from '@/app/actions/feed'
+import type { OutingSummary } from '@/lib/outings/summary'
+import { OutingSummaryBanner } from '@/components/outings/OutingSummaryBanner'
 
 export type RecentCatch = {
   id: string
@@ -27,6 +29,14 @@ export type ComposerUser = {
   username: string | null
   display_name: string | null
   avatar_url: string | null
+}
+
+// Sortie rattachée (Sprint 73) : quand fourni, le composer passe en « post de sortie »
+// (en-tête récapitulatif + publication liée à l'outing). summary peut être null si la
+// RPC n'a rien renvoyé (l'en-tête dégrade proprement).
+export type ComposerOuting = {
+  id: string
+  summary: OutingSummary | null
 }
 
 const MAX_PHOTOS = 4
@@ -56,15 +66,26 @@ export function PostComposer({
   recentCatches = [],
   onOptimisticCreate,
   onReconcile,
+  outing,
+  onPublished,
+  autoFocus = false,
 }: {
   region: string
   currentUser: ComposerUser
   recentCatches?: RecentCatch[]
   // Insertion optimiste : la carte apparaît tout de suite (onOptimisticCreate),
-  // puis on confirme/annule selon la réponse serveur (onReconcile).
-  onOptimisticCreate: (post: FeedPostEnriched) => void
-  onReconcile: (tempId: string, success: boolean) => void
+  // puis on confirme/annule selon la réponse serveur (onReconcile). Optionnels :
+  // en mode « post de sortie » (dialog), il n'y a pas de liste de fil à mettre à jour.
+  onOptimisticCreate?: (post: FeedPostEnriched) => void
+  onReconcile?: (tempId: string, success: boolean) => void
+  // Mode « post de sortie » (Sprint 73) : pré-remplit l'en-tête et lie le post à la sortie.
+  outing?: ComposerOuting
+  // Appelé après une publication réussie (mode sortie) : le dialog se ferme et rafraîchit.
+  onPublished?: () => void
+  autoFocus?: boolean
 }) {
+  const isOutingMode = Boolean(outing)
+
   // Textarea NON contrôlée + flag « contient du texte » (Bloc E, INP sprint 31) :
   // taper ne re-render plus PostComposer (ni l'aperçu photos, ni le picker, ni le
   // bouton) — zéro reconciliation par frappe. Le flag ne bascule qu'au passage
@@ -197,40 +218,49 @@ export function PostComposer({
 
   async function handleSubmit() {
     const value = textRef.current?.value ?? ''
-    if (!value.trim() && !attached && photos.length === 0) return
+    // En mode sortie, publier la sortie seule (sans texte ni photo) est permis : la
+    // bredouille comme la belle journée méritent leur récit. Hors mode sortie, il faut
+    // au moins du texte, une prise ou une photo.
+    if (!isOutingMode && !value.trim() && !attached && photos.length === 0) return
     setSubmitting(true)
 
     const tempId = `temp-${crypto.randomUUID()}`
-    const now = new Date().toISOString()
-    const temp: FeedPostEnriched = {
-      id: tempId,
-      author_id: currentUser.id,
-      author_username: currentUser.username,
-      author_display_name: currentUser.display_name,
-      author_avatar_url: currentUser.avatar_url,
-      author_home_department: null,
-      catch_id: attached?.id ?? null,
-      catch_species: attached?.species ?? null,
-      catch_size_cm: attached?.size_cm ?? null,
-      catch_weight_g: null,
-      catch_caught_at: attached?.caught_at ?? null,
-      catch_photo_path: null,
-      catch_technique: null,
-      catch_spot_name: null,
-      catch_spot_slug: null,
-      text: value.trim() || null,
-      region,
-      likes_count: 0,
-      comments_count: 0,
-      liked_by_me: false,
-      created_at: now,
-      updated_at: now,
-      photo_paths: null,
-      author_is_following: false,
-      catchPhotoUrl: null,
-      photoUrls: photos.map((p) => p.previewUrl),
+    // Insertion optimiste seulement dans le fil (mode normal). En mode sortie, on
+    // publie depuis un dialog : pas de liste locale à préremplir.
+    if (!isOutingMode) {
+      const now = new Date().toISOString()
+      const temp: FeedPostEnriched = {
+        id: tempId,
+        author_id: currentUser.id,
+        author_username: currentUser.username,
+        author_display_name: currentUser.display_name,
+        author_avatar_url: currentUser.avatar_url,
+        author_home_department: null,
+        catch_id: attached?.id ?? null,
+        catch_species: attached?.species ?? null,
+        catch_size_cm: attached?.size_cm ?? null,
+        catch_weight_g: null,
+        catch_caught_at: attached?.caught_at ?? null,
+        catch_photo_path: null,
+        catch_technique: null,
+        catch_spot_name: null,
+        catch_spot_slug: null,
+        text: value.trim() || null,
+        region,
+        likes_count: 0,
+        comments_count: 0,
+        liked_by_me: false,
+        created_at: now,
+        updated_at: now,
+        photo_paths: null,
+        outing_id: null,
+        author_is_following: false,
+        catchPhotoUrl: null,
+        photoUrls: photos.map((p) => p.previewUrl),
+        outingSummary: null,
+      }
+      onOptimisticCreate?.(temp)
     }
-    onOptimisticCreate(temp)
 
     const supabase = createClient()
     const groupId = crypto.randomUUID()
@@ -263,7 +293,10 @@ export function PostComposer({
 
       const res = await createPost({
         text: value.trim() || undefined,
-        catchId: attached?.id,
+        // En mode sortie, on ne rattache pas de prise unique (le récit porte sur la
+        // sortie entière) : catchId reste undefined.
+        catchId: isOutingMode ? undefined : attached?.id,
+        outingId: outing?.id,
         region,
         photos: uploaded,
       })
@@ -272,7 +305,8 @@ export function PostComposer({
         if (uploaded.length) {
           await supabase.storage.from('feed-photos').remove(uploaded.map((u) => u.path))
         }
-        onReconcile(tempId, false)
+        if (!isOutingMode) onReconcile?.(tempId, false)
+        // Message serveur tel quel (dont « Cette sortie a déjà un récit publié. »).
         toast.error(res.error)
         return
       }
@@ -285,13 +319,18 @@ export function PostComposer({
       setHasText(false)
       setAttached(null)
       setPhotos([])
-      onReconcile(tempId, true)
-      toast.success('Posté !')
+      if (isOutingMode) {
+        toast.success('Récit de sortie publié !')
+        onPublished?.()
+      } else {
+        onReconcile?.(tempId, true)
+        toast.success('Posté !')
+      }
     } catch (err) {
       if (uploaded.length) {
         await supabase.storage.from('feed-photos').remove(uploaded.map((u) => u.path))
       }
-      onReconcile(tempId, false)
+      if (!isOutingMode) onReconcile?.(tempId, false)
       console.error('[PostComposer] publish', err)
       toast.error('Échec de l’envoi. Réessaie.')
     } finally {
@@ -299,17 +338,37 @@ export function PostComposer({
     }
   }
 
-  const canSubmit = (hasText || attached || photos.length > 0) && !submitting && !resizing
+  // En mode sortie, la publication est toujours possible (récit de sortie, même vide).
+  const canSubmit = (isOutingMode || hasText || attached || photos.length > 0) && !submitting && !resizing
 
   return (
     <div className="flex flex-col gap-2 rounded-[14px] border border-sand-200 bg-white p-3">
+      {/* En-tête « post de sortie » (Sprint 73) : récapitulatif agrégé geom-free */}
+      {outing && (
+        <div className="mb-1 flex flex-col gap-2">
+          <p className="text-[14px] font-semibold text-navy-900">Raconte cette sortie</p>
+          {outing.summary ? (
+            <OutingSummaryBanner summary={outing.summary} />
+          ) : (
+            <p className="text-[13px] text-ink-500">
+              Ajoute quelques mots sur ta sortie. Le résumé s&rsquo;affichera sur ton post.
+            </p>
+          )}
+        </div>
+      )}
+
       <textarea
         ref={textRef}
         defaultValue=""
+        autoFocus={autoFocus}
         onChange={handleComposerChange}
         rows={3}
         maxLength={2000}
-        placeholder="Quoi de neuf sur le bord ?"
+        placeholder={
+          isOutingMode
+            ? 'Comment s’est passée cette sortie ? (même une bredouille a son histoire)'
+            : 'Quoi de neuf sur le bord ?'
+        }
         className="w-full resize-none text-[15px] focus:outline-none placeholder:text-ink-500"
       />
 
@@ -377,65 +436,67 @@ export function PostComposer({
             Photo{photos.length > 0 ? ` (${photos.length}/${MAX_PHOTOS})` : ''}
           </button>
 
-          {/* Partager une prise */}
-          <Sheet open={pickerOpen} onOpenChange={handlePickerOpenChange}>
-            <SheetTrigger className="inline-flex min-h-11 items-center gap-1.5 px-1 text-[13px] font-semibold text-teal-600 hover:text-teal-700">
-              <Fish size={15} />
-              Prise
-            </SheetTrigger>
-            <SheetContent side="bottom" className="bg-white">
-              <SheetHeader>
-                <SheetTitle>Tes prises</SheetTitle>
-              </SheetHeader>
-              <div className="px-4 pb-2 pt-1">
-                <div className="flex items-center gap-2 rounded-full border border-sand-200 px-3">
-                  <Search size={15} className="text-ink-400" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Rechercher (espèce, lieu)…"
-                    className="min-h-10 flex-1 text-[14px] focus:outline-none"
-                  />
-                  {optLoading && <Loader2 size={14} className="animate-spin text-ink-400" />}
+          {/* Partager une prise — masqué en mode sortie (le récit porte sur la sortie entière) */}
+          {!isOutingMode && (
+            <Sheet open={pickerOpen} onOpenChange={handlePickerOpenChange}>
+              <SheetTrigger className="inline-flex min-h-11 items-center gap-1.5 px-1 text-[13px] font-semibold text-teal-600 hover:text-teal-700">
+                <Fish size={15} />
+                Prise
+              </SheetTrigger>
+              <SheetContent side="bottom" className="bg-white">
+                <SheetHeader>
+                  <SheetTitle>Tes prises</SheetTitle>
+                </SheetHeader>
+                <div className="px-4 pb-2 pt-1">
+                  <div className="flex items-center gap-2 rounded-full border border-sand-200 px-3">
+                    <Search size={15} className="text-ink-400" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Rechercher (espèce, lieu)…"
+                      className="min-h-10 flex-1 text-[14px] focus:outline-none"
+                    />
+                    {optLoading && <Loader2 size={14} className="animate-spin text-ink-400" />}
+                  </div>
                 </div>
-              </div>
-              <div className="flex max-h-[50vh] flex-col gap-1 overflow-y-auto px-4 pb-6">
-                {options.length === 0 ? (
-                  <p className="py-4 text-[13px] text-ink-400">
-                    {searched ? 'Aucune prise trouvée.' : 'Tu n’as pas encore de prise dans ton carnet.'}
-                  </p>
-                ) : (
-                  options.map((c) => (
+                <div className="flex max-h-[50vh] flex-col gap-1 overflow-y-auto px-4 pb-6">
+                  {options.length === 0 ? (
+                    <p className="py-4 text-[13px] text-ink-400">
+                      {searched ? 'Aucune prise trouvée.' : 'Tu n’as pas encore de prise dans ton carnet.'}
+                    </p>
+                  ) : (
+                    options.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setAttached(c)
+                          setPickerOpen(false)
+                        }}
+                        className="flex min-h-12 items-center gap-3 rounded-[10px] px-2 text-left hover:bg-ink-50"
+                      >
+                        <Fish size={16} className="shrink-0 text-teal-500" />
+                        <span className="text-[14px] text-navy-900">
+                          {SPECIES_LABELS[c.species ?? ''] ?? c.species ?? 'Prise'}
+                          {c.size_cm ? ` · ${c.size_cm} cm` : ''}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                  {optHasMore && (
                     <button
-                      key={c.id}
                       type="button"
-                      onClick={() => {
-                        setAttached(c)
-                        setPickerOpen(false)
-                      }}
-                      className="flex min-h-12 items-center gap-3 rounded-[10px] px-2 text-left hover:bg-ink-50"
+                      onClick={loadMoreCatches}
+                      disabled={optLoading}
+                      className="mt-1 self-start text-[13px] font-semibold text-teal-600 hover:underline disabled:opacity-50"
                     >
-                      <Fish size={16} className="shrink-0 text-teal-500" />
-                      <span className="text-[14px] text-navy-900">
-                        {SPECIES_LABELS[c.species ?? ''] ?? c.species ?? 'Prise'}
-                        {c.size_cm ? ` · ${c.size_cm} cm` : ''}
-                      </span>
+                      Voir plus de prises
                     </button>
-                  ))
-                )}
-                {optHasMore && (
-                  <button
-                    type="button"
-                    onClick={loadMoreCatches}
-                    disabled={optLoading}
-                    className="mt-1 self-start text-[13px] font-semibold text-teal-600 hover:underline disabled:opacity-50"
-                  >
-                    Voir plus de prises
-                  </button>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -455,7 +516,7 @@ export function PostComposer({
             className="inline-flex min-h-11 items-center gap-2 rounded-full bg-teal-500 px-5 text-[14px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 disabled:opacity-40"
           >
             {submitting && <Loader2 size={15} className="animate-spin" />}
-            Publier
+            {isOutingMode ? 'Publier le récit' : 'Publier'}
           </button>
         </div>
       </div>

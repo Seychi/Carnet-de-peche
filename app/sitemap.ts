@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/guides`,                priority: 0.8, changeFrequency: 'weekly' },
     { url: `${BASE_URL}/fil`,                   priority: 0.5, changeFrequency: 'monthly' },
     { url: `${BASE_URL}/especes`,               priority: 0.6, changeFrequency: 'monthly' },
+    { url: `${BASE_URL}/declarer-ses-prises`,   priority: 0.7, changeFrequency: 'monthly' },
     // /techniques exclu : la page est en robots noindex (stub teaser) tant que les
     // guides techniques ne sont pas publiés → ne pas l'annoncer dans le sitemap.
     { url: `${BASE_URL}/contact`,               priority: 0.5, changeFrequency: 'yearly' },

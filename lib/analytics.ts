@@ -47,6 +47,17 @@ export const analytics = {
   homeCtaClicked(props: { cta: string }): void {
     capture('home_cta_clicked', props)
   },
+  /**
+   * Affichage de la landing SEO « déclarer ses prises » (wedge RecFishing, sprint 73).
+   * `utm*` = attribution de campagne (jamais de PII). Champs omis si absents de l'URL.
+   */
+  landingRecfishingViewed(props: {
+    utmSource?: string
+    utmMedium?: string
+    utmCampaign?: string
+  }): void {
+    capture('landing_recfishing_viewed', props)
+  },
   /** Soumission du CTA de Checkout (avant la redirection Stripe). */
   checkoutStarted(props: { plan: 'local' | 'itinerant'; interval: 'monthly' | 'annual' }): void {
     capture('checkout_started', props)

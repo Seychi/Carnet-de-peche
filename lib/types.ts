@@ -499,6 +499,7 @@ export type Database = {
           moderated_at: string | null
           moderated_by: string | null
           moderation_status: string
+          outing_id: string | null
           region: string | null
           text: string | null
           updated_at: string
@@ -513,6 +514,7 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_status?: string
+          outing_id?: string | null
           region?: string | null
           text?: string | null
           updated_at?: string
@@ -527,6 +529,7 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_status?: string
+          outing_id?: string | null
           region?: string | null
           text?: string | null
           updated_at?: string
@@ -558,6 +561,13 @@ export type Database = {
             columns: ["moderated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_outing_id_fkey"
+            columns: ["outing_id"]
+            isOneToOne: false
+            referencedRelation: "outings"
             referencedColumns: ["id"]
           },
         ]
@@ -901,6 +911,7 @@ export type Database = {
           department: string
           ended_at: string | null
           id: string
+          is_retroactive: boolean
           notes: string | null
           species_targeted: string[] | null
           spot_id: string | null
@@ -913,6 +924,7 @@ export type Database = {
           department: string
           ended_at?: string | null
           id?: string
+          is_retroactive?: boolean
           notes?: string | null
           species_targeted?: string[] | null
           spot_id?: string | null
@@ -925,6 +937,7 @@ export type Database = {
           department?: string
           ended_at?: string | null
           id?: string
+          is_retroactive?: boolean
           notes?: string | null
           species_targeted?: string[] | null
           spot_id?: string | null
@@ -1750,6 +1763,7 @@ export type Database = {
           id: string | null
           liked_by_me: boolean | null
           likes_count: number | null
+          outing_id: string | null
           photo_paths: string[] | null
           region: string | null
           text: string | null
@@ -1768,6 +1782,13 @@ export type Database = {
             columns: ["catch_id"]
             isOneToOne: false
             referencedRelation: "catches_for_viewer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_outing_id_fkey"
+            columns: ["outing_id"]
+            isOneToOne: false
+            referencedRelation: "outings"
             referencedColumns: ["id"]
           },
         ]
@@ -2357,6 +2378,7 @@ export type Database = {
       get_my_catches_breakdown: { Args: { uid?: string }; Returns: Json }
       get_my_outing_stats: { Args: never; Returns: Json }
       get_my_streak: { Args: never; Returns: Json }
+      get_outing_summary: { Args: { p_outing_id: string }; Returns: Json }
       get_overtaken_followers: {
         Args: { p_actor: string; p_delta: number }
         Returns: {

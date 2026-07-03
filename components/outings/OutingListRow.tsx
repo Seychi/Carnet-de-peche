@@ -4,6 +4,8 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { ShareButton } from '@/components/share/ShareButton'
+import { TellOutingButton } from '@/components/outings/TellOutingButton'
+import type { ComposerUser } from '@/components/feed/PostComposer'
 
 // Une ligne de la liste « Mes sorties » (page /carnet/sorties). Server Component
 // pur (présentation) : chiffres en mono (DA v2), zéro coordonnée, et un bouton
@@ -42,11 +44,23 @@ function formatDuration(startIso: string, endIso: string | null): string | null 
   return `${h} h ${String(m).padStart(2, '0')}`
 }
 
-export function OutingListRow({ outing }: { outing: OutingListItem }) {
+export function OutingListRow({
+  outing,
+  composerUser = null,
+  postId = null,
+}: {
+  outing: OutingListItem
+  // Identité de l'auteur (pour le composer de récit) — présente sur /carnet/sorties.
+  composerUser?: ComposerUser | null
+  // Id du post de récit déjà publié pour cette sortie (null si aucun).
+  postId?: string | null
+}) {
   const deptLabel = DEPARTMENT_LABELS[outing.department] ?? outing.department
   const duration = formatDuration(outing.started_at, outing.ended_at)
   const best = outing.bestCatch
   const techniqueLabel = outing.technique ? TECHNIQUE_LABELS[outing.technique] ?? outing.technique : null
+  // CTA « Raconte cette sortie » : sortie clôturée (ended_at) + identité auteur connue.
+  const canTell = composerUser != null && outing.ended_at != null
 
   return (
     <li className="rounded-[14px] border border-sand-200 bg-white px-4 py-4">
@@ -119,8 +133,11 @@ export function OutingListRow({ outing }: { outing: OutingListItem }) {
         </div>
       )}
 
-      {/* Partage (opt-in, sans coordonnée) */}
-      <div className="mt-3 flex justify-end">
+      {/* Raconter la sortie (post de fil, opt-in) + partage (carte, sans coordonnée) */}
+      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+        {canTell && composerUser && (
+          <TellOutingButton outingId={outing.id} postId={postId} currentUser={composerUser} />
+        )}
         <ShareButton
           input={{ kind: 'outing', outingId: outing.id }}
           title="Ma sortie — Carnet de Pêche"

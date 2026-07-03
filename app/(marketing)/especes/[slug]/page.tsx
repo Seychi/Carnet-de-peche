@@ -21,6 +21,11 @@ import { SpeciesScore, SpeciesScoreSkeleton } from '@/components/especes/species
 import { SpeciesTopSpots, SpeciesTopSpotsSkeleton } from '@/components/especes/species-top-spots'
 import { SpeciesPersonal, SpeciesPersonalSkeleton } from '@/components/especes/species-personal'
 import { SpeciesSeasonNow } from '@/components/especes/species-season-now'
+import { RECFISHING_SENSITIVE } from '@/lib/regulation/recfishing'
+
+// Espèces de NOTRE carnet soumises à déclaration RecFishing sous 24 h (source
+// unique : lib/regulation/recfishing) → cross-link honnête vers la landing wedge.
+const DECLARABLE_SLUGS = new Set<string>(RECFISHING_SENSITIVE.flatMap((s) => s.matchSlugs))
 
 export const revalidate = 86400
 export const dynamicParams = false
@@ -283,6 +288,19 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                   Source : {content.regulation.source}. La réglementation évolue. Vérifie
                   l&apos;arrêté en vigueur de ta façade avant de prélever.
                 </p>
+                {DECLARABLE_SLUGS.has(speciesSlug) && (
+                  <p className="mt-3 border-t border-gold-500/20 pt-3 text-[12px] leading-snug text-ink-600">
+                    Espèce sensible : chaque prise ({species.articleDe}{species.labelLower}) est à
+                    déclarer sous 24 h via RecFishing, même relâchée.{' '}
+                    <Link
+                      href="/declarer-ses-prises"
+                      className="font-semibold text-teal-700 underline underline-offset-2 hover:text-teal-800"
+                    >
+                      Comment déclarer ses prises en mer
+                    </Link>
+                    .
+                  </p>
+                )}
               </aside>
             </section>
 
