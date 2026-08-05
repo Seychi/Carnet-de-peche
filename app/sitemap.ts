@@ -29,11 +29,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/auth/register`,         priority: 0.7, changeFrequency: 'yearly' },
   ]
 
-  // Spots publics — inclut lastModified pour signaler les mises à jour à Google
+  // Spots publics — inclut lastModified pour signaler les mises à jour à Google.
+  // ⚠️ Fix 2026-08-05 : filtre moderation_status ajouté. Sans lui, les 941 imports
+  // OSM en backlog (pending depuis la migration 072) étaient déclarés dans le
+  // sitemap alors que leurs fiches filtrent 'approved' → ~80 % d'URLs mortes
+  // déclarées à Google. Le filtre aligne le sitemap sur ce que les fiches servent.
   const { data: spots } = await supabase
     .from('spots')
     .select('slug, updated_at, created_at, department, species')
     .eq('visibility', 'public')
+    .eq('moderation_status', 'approved')
 
   const spotPages: MetadataRoute.Sitemap = (spots ?? []).map((s) => ({
     url: `${BASE_URL}/spots/${s.slug}`,
