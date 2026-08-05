@@ -4,6 +4,7 @@ import { priceIdToInterval, PLAN_PRICING, type PaidPlan } from "@/lib/stripe/pri
 import { AppShell } from "@/components/layout/AppShell";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppInstruments } from "@/components/layout/AppInstruments";
+import { AnalyticsIdentify } from "@/components/analytics/AnalyticsIdentify";
 import { TrialBanner } from "./trial-banner";
 
 function daysUntil(iso: string): number {
@@ -73,6 +74,8 @@ export default async function AppLayout({
       isModerator={isModerator}
       homeDepartment={homeDepartment}
     >
+      {/* Rattache les events client au user_id (funnel d'activation, sprint 74). */}
+      <AnalyticsIdentify userId={user.id} />
       {children}
     </AppShell>
   );

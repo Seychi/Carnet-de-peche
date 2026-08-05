@@ -5,6 +5,7 @@ import { Menu, X, LogOut, User, BookOpen, CreditCard, MessageCircle, Users, Hand
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/actions/auth'
+import { analytics } from '@/lib/analytics'
 
 const NAV_ITEMS = [
   { label: 'Carte', href: '/carte' },
@@ -30,6 +31,8 @@ export function MobileNav({ isAuthenticated = false, username = null }: MobileNa
 
   function handleSignOut() {
     setOpen(false)
+    // Casse le lien d'identité PostHog (sprint 74), cf UserMenu.
+    analytics.reset()
     // Server Action : session révoquée côté serveur, puis redirect '/'
     startTransition(() => signOut('/'))
   }

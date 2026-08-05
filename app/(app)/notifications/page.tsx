@@ -11,6 +11,7 @@ import { DEFAULT_ALERT_THRESHOLD } from '@/lib/alerts/decision'
 import { MarkAllRead } from './MarkAllRead'
 import { PushSettingsToggle } from '@/components/notifications/PushSettingsToggle'
 import { NotificationTypeToggles } from '@/components/notifications/NotificationTypeToggles'
+import { WeeklyEmailToggle } from '@/components/notifications/WeeklyEmailToggle'
 import {
   AlertSettingsPanel,
   type WatchedFavorite,
@@ -100,7 +101,9 @@ export default async function NotificationsPage() {
 
   // Alertes par port (sprint 72) : réglages + favoris surveillés, lectures RLS own.
   // Aucune coordonnée : l'embed spots ne sort que name/slug.
-  const [{ data: alertRow }, { data: favoriteRows }] = await Promise.all([
+  // Email hebdo (sprint 74) : réglage GRATUIT distinct de ces alertes payantes,
+  // même colonne/action que le checkbox de fin d'onboarding (weekly-window.ts).
+  const [{ data: alertRow }, { data: favoriteRows }, { data: profileRow }] = await Promise.all([
     supabase
       .from('alert_settings')
       .select('alerts_enabled, channel_push, channel_email, alert_threshold')
@@ -112,6 +115,7 @@ export default async function NotificationsPage() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: true })
       .limit(10),
+    supabase.from('profiles').select('weekly_window_optin').eq('id', user.id).maybeSingle(),
   ])
 
   const alertSettings = {
@@ -301,6 +305,18 @@ export default async function NotificationsPage() {
             quels que soient ces réglages.
           </p>
           <NotificationTypeToggles prefs={notificationPrefs} tier={tier} />
+        </div>
+
+        {/* Emails (sprint 74) : distinct des alertes par port ci-dessous (celles-ci
+            sont push/email PAYANTES, réservées Local/Itinérant). Le créneau du
+            week-end est gratuit, ouvert à tous les tiers, un seul email/semaine. */}
+        <div className="mt-4 rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+          <p className="mb-1 text-sm font-semibold text-navy-900">Emails</p>
+          <p className="mb-4 text-xs text-ink-500 leading-relaxed">
+            Indépendant des alertes ci-dessous. Un email de temps en temps, jamais de
+            spam, désinscription en un clic.
+          </p>
+          <WeeklyEmailToggle initial={profileRow?.weekly_window_optin ?? false} />
         </div>
 
         {/* Alertes par port (sprint 72) : opt-in Local/Itinérant. Pour Découverte,

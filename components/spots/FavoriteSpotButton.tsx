@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Loader2, Star, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { toggleFavoriteSpot, isFavoriteSpot } from '@/app/actions/favorites'
+import { toggleFavoriteSpot, isFavoriteSpot, type FavoriteSource } from '@/app/actions/favorites'
 import { cn } from '@/lib/utils'
 
 // ─── Étoile « spot favori » (sprint 72, Bloc 3) ───────────────────────────────
@@ -25,6 +25,7 @@ export function FavoriteSpotButton({
   loginHref,
   onDark = false,
   className,
+  source = 'spot_page',
 }: {
   spotId: string
   /**
@@ -37,6 +38,8 @@ export function FavoriteSpotButton({
   /** Fond sombre (hero navy-950 de la fiche spot). */
   onDark?: boolean
   className?: string
+  /** Surface d'origine pour l'event favorite_spot_added (funnel sprint 74). */
+  source?: FavoriteSource
 }) {
   const [favorite, setFavorite] = useState(initialFavorite ?? false)
   const [pending, startTransition] = useTransition()
@@ -73,7 +76,7 @@ export function FavoriteSpotButton({
     const was = favorite
     setFavorite(!was) // optimiste
     startTransition(async () => {
-      const res = await toggleFavoriteSpot(spotId)
+      const res = await toggleFavoriteSpot(spotId, source)
       if (!res.ok) {
         setFavorite(was) // rollback
         toast.error(res.error)

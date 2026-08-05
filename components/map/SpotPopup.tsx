@@ -280,6 +280,7 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
               serveur refuse de toute façon). État lazy-chargé côté client. */}
           <FavoriteSpotButton
             spotId={spot.id}
+            source="map"
             loginHref={
               userTier === 'anonymous' ? buildLoginRedirect(`/spots/${spot.slug}`) : undefined
             }

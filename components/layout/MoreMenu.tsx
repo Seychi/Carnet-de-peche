@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { signOut } from '@/app/actions/auth'
+import { analytics } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
@@ -87,6 +88,8 @@ export function MoreMenu({ isModerator = false }: { isModerator?: boolean }) {
 
   function handleSignOut() {
     setOpen(false)
+    // Casse le lien d'identité PostHog (sprint 74), cf UserMenu.
+    analytics.reset()
     startTransition(() => signOut('/'))
   }
 

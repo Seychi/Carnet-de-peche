@@ -104,6 +104,8 @@ describe('cron recfishing-reminders — greffon alertes par port', () => {
     expect(res.status).toBe(200)
     expect(body.ok).toBe(true)
     // Compteurs à zéro par défaut (aucune alerte revendiquée à tort).
+    // `truncated` fait partie du fallback depuis la time-box S72 : l'assertion
+    // était restée en arrière (seul test rouge de la suite avant le sprint 74).
     expect(body.spotAlerts).toEqual({
       quietHours: false,
       optedIn: 0,
@@ -111,6 +113,7 @@ describe('cron recfishing-reminders — greffon alertes par port', () => {
       deduped: 0,
       skipped: 0,
       errors: 0,
+      truncated: 0,
     })
   })
 

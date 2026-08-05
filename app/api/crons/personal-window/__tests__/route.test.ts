@@ -120,6 +120,13 @@ vi.mock('@/lib/notifications/weekly-digest', async (importOriginal) => {
   return { ...actual, composeWeeklyDigest: composeWeeklyDigestMock }
 })
 
+// Greffon lifecycle (sprint 74) : sa logique a ses propres tests unitaires
+// (lib/lifecycle/__tests__/cron.test.ts). On le neutralise ici pour deux raisons :
+// garder ce test focalisé sur la notif perso, et ne pas charger `server-only` via
+// la chaîne d'import des templates email.
+const { runLifecycleGreffonMock } = vi.hoisted(() => ({ runLifecycleGreffonMock: vi.fn() }))
+vi.mock('@/lib/lifecycle/cron', () => ({ runLifecycleGreffon: runLifecycleGreffonMock }))
+
 import { GET } from '@/app/api/crons/personal-window/route'
 
 function makeRequest(secret = 'test-secret') {
@@ -158,6 +165,13 @@ beforeEach(() => {
   getBigTideForDayMock.mockResolvedValue(null)
   getDeptUpcomingWindowsMock.mockResolvedValue([])
   composeWeeklyDigestMock.mockReturnValue(null)
+  runLifecycleGreffonMock.mockResolvedValue({
+    j1: 0,
+    j3: 0,
+    weekly: 0,
+    failed: 0,
+    timedOut: false,
+  })
 })
 
 describe('cron personal-window — sécurité', () => {
@@ -245,5 +259,56 @@ describe('cron personal-window — logique de notif', () => {
     const payload = insertSpy.mock.calls[0][0] as { preview_text: string }
     expect(/tu prendras|pêches mieux|prédit|garanti/i.test(payload.preview_text)).toBe(false)
     expect(payload.preview_text.length).toBeLessThanOrEqual(140)
+  })
+})
+
+describe('cron personal-window — greffon lifecycle (sprint 74)', () => {
+  it('appelle le greffon avec une time-box et remonte ses compteurs', async () => {
+    runLifecycleGreffonMock.mockResolvedValue({
+      j1: 2,
+      j3: 1,
+      weekly: 3,
+      failed: 0,
+      timedOut: false,
+    })
+
+    const res = await GET(makeRequest())
+    const body = await res.json()
+
+    expect(body.lifecycle).toEqual({ j1: 2, j3: 1, weekly: 3, failed: 0, timedOut: false })
+    expect(runLifecycleGreffonMock).toHaveBeenCalledTimes(1)
+    // 3e argument = échéance absolue, forcément dans le futur au moment de l'appel.
+    expect(runLifecycleGreffonMock.mock.calls[0][2]).toBeGreaterThan(Date.now())
+  })
+
+  it('BEST-EFFORT STRICT : un throw du greffon ne casse ni le cron ni le legacy', async () => {
+    setProfiles([{ id: 'u-local', home_department: '29' }])
+    setTierByUser({ 'u-local': 'local' })
+    setCatchesByUser({ 'u-local': fourMorningCatches })
+    runLifecycleGreffonMock.mockRejectedValue(new Error('Resend down'))
+
+    const res = await GET(makeRequest())
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.ok).toBe(true)
+    // Le legacy (notif perso de l'abonné Local) a bien tourné malgré l'échec.
+    expect(body.notified).toBe(1)
+    expect(insertSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('le greffon tourne APRÈS le legacy (aucune notif perso perdue)', async () => {
+    setProfiles([{ id: 'u-local', home_department: '29' }])
+    setTierByUser({ 'u-local': 'local' })
+    setCatchesByUser({ 'u-local': fourMorningCatches })
+    runLifecycleGreffonMock.mockImplementation(async () => {
+      // À cet instant, l'insert legacy doit déjà avoir eu lieu.
+      expect(insertSpy).toHaveBeenCalledTimes(1)
+      return { j1: 0, j3: 0, weekly: 0, failed: 0, timedOut: false }
+    })
+
+    const res = await GET(makeRequest())
+    expect((await res.json()).notified).toBe(1)
+    expect(runLifecycleGreffonMock).toHaveBeenCalledTimes(1)
   })
 })

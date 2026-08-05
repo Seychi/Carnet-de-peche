@@ -16,11 +16,17 @@ import { getBigTideForDay, bigTidePreviewText } from '@/lib/notifications/big-ti
 import { getUpcomingClosuresForFavorites } from '@/lib/notifications/species-closure'
 import { composeWeeklyDigest, type DigestCatchRow } from '@/lib/notifications/weekly-digest'
 import { emitSeasonRecapNotifications, type SeasonRecapRow } from '@/lib/notifications/season-recap'
+import { runLifecycleGreffon } from '@/lib/lifecycle/cron'
 
 // Runtime Node implicite (aucun `export const runtime = 'edge'`) : requis car
 // createAdminClient + web-push (via sendPushToUser) ont besoin du crypto Node.
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
+
+// Budget du greffon lifecycle (sprint 74). Le legacy (notifs perso + greffons S49/S63/S67)
+// tourne AVANT et n'est jamais décalé ; l'envoi d'emails s'arrête proprement à cette borne
+// pour laisser ~15 s de marge sous maxDuration. Ce qui n'est pas parti repart demain.
+const LIFECYCLE_BUDGET_MS = 45_000
 
 // Cron de la NOTIF PERSO PROACTIVE (sprint 26, WS-B, décision D-F2 : IN-APP SEUL).
 //
@@ -49,6 +55,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const startedAt = Date.now()
     const admin = createAdminClient()
     const todayParis = parisDateKey(new Date())
 
@@ -235,7 +242,27 @@ export async function GET(request: NextRequest) {
       notified++
     }
 
-    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests, streakDangers, seasonRecaps })
+    // ─── Greffon LIFECYCLE (sprint 74, PAS de 5e cron) ─────────────────────────
+    // Emails d'activation J+1 / J+3 + hebdo du vendredi. Placé APRÈS la boucle
+    // legacy (qui n'est donc jamais décalée) et en requêtes groupées : son coût DB
+    // ne dépend pas du nombre d'inscrits. Best-effort STRICT et time-boxé : ne
+    // renvoie jamais d'exception, s'arrête proprement si le budget est consommé.
+    let lifecycle: Awaited<ReturnType<typeof runLifecycleGreffon>> = {
+      j1: 0,
+      j3: 0,
+      weekly: 0,
+      failed: 0,
+      timedOut: false,
+    }
+    try {
+      lifecycle = await runLifecycleGreffon(admin, new Date(), startedAt + LIFECYCLE_BUDGET_MS)
+    } catch (e) {
+      // runLifecycleGreffon ne throw pas par design ; ceinture et bretelles, comme
+      // pour tous les autres greffons de ce cron.
+      console.error('[cron personal-window] lifecycle greffon (non bloquant) :', e)
+    }
+
+    return NextResponse.json({ ok: true, notified, skipped, bigTides, closures, digests, streakDangers, seasonRecaps, lifecycle })
   } catch (err) {
     console.error('[cron personal-window] échec global:', err)
     Sentry.captureException(err, { tags: { job: 'personal-window' } })

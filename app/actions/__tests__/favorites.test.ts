@@ -3,8 +3,12 @@ import { makeSupabase } from './_supabase-mock'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
+// lib/analytics/server importe 'server-only' (throw hors runtime React Server) :
+// mocké, et l'émission de favorite_spot_added est assertée (sprint 74, Bloc 4).
+vi.mock('@/lib/analytics/server', () => ({ captureServerEvent: vi.fn(async () => {}) }))
 
 import { createClient } from '@/lib/supabase/server'
+import { captureServerEvent } from '@/lib/analytics/server'
 import { toggleFavoriteSpot, isFavoriteSpot } from '../favorites'
 
 const USER = { id: 'aaaaaaaa-0000-4000-8000-000000000001' }
@@ -44,6 +48,32 @@ describe('toggleFavoriteSpot', () => {
     })
     const r = await toggleFavoriteSpot(SPOT)
     expect(r).toEqual({ ok: true, data: { favorite: true } })
+    // Funnel sprint 74 : ajout net → favorite_spot_added avec la surface (défaut
+    // spot_page) et le BON userId. Zéro PII : jamais le spot_id.
+    expect(captureServerEvent).toHaveBeenCalledExactlyOnceWith(
+      USER.id,
+      'favorite_spot_added',
+      { source: 'spot_page' },
+    )
+  })
+
+  it("attribue la surface passée par l'appelant (onboarding) à l'event", async () => {
+    mock({
+      user: USER,
+      tables: {
+        favorite_spots: [
+          { data: null, error: null }, // select : pas encore favori
+          { data: null, error: null }, // insert OK
+        ],
+      },
+    })
+    const r = await toggleFavoriteSpot(SPOT, 'onboarding')
+    expect(r).toEqual({ ok: true, data: { favorite: true } })
+    expect(captureServerEvent).toHaveBeenCalledExactlyOnceWith(
+      USER.id,
+      'favorite_spot_added',
+      { source: 'onboarding' },
+    )
   })
 
   it('retire quand le spot est déjà favori', async () => {
@@ -58,6 +88,8 @@ describe('toggleFavoriteSpot', () => {
     })
     const r = await toggleFavoriteSpot(SPOT)
     expect(r).toEqual({ ok: true, data: { favorite: false } })
+    // Un RETRAIT n'est pas une activation : pas d'event.
+    expect(captureServerEvent).not.toHaveBeenCalled()
   })
 
   it('remonte le cap 10 du trigger DB en message FR honnête', async () => {
@@ -106,6 +138,8 @@ describe('toggleFavoriteSpot', () => {
     })
     const r = await toggleFavoriteSpot(SPOT)
     expect(r).toEqual({ ok: true, data: { favorite: true } })
+    // Doublon = déjà compté au 1er ajout : pas de 2e event (pas de double comptage).
+    expect(captureServerEvent).not.toHaveBeenCalled()
   })
 })
 

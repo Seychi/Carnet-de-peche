@@ -73,7 +73,7 @@ export async function completeOnboarding(data: Record<string, unknown>) {
   // (l'étape 6 peut être re-soumise — pas de doublon).
   const { data: before } = await supabase
     .from("profiles")
-    .select("onboarded, display_name, username")
+    .select("onboarded, display_name, username, home_department")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -92,19 +92,24 @@ export async function completeOnboarding(data: Record<string, unknown>) {
     return { error: error.message };
   }
 
-  // Email de bienvenue (sprint 11 Bloc C) — onboarding terminé = inscription
-  // effective. Jamais bloquant : sendEmail ne throw pas, et un échec d'envoi
-  // ne doit pas faire échouer la fin d'onboarding.
-  if (!before?.onboarded && user.email) {
-    const { sendEmail } = await import("@/lib/email/send");
-    const { default: WelcomeEmail } = await import("@/emails/welcome");
-    await sendEmail({
-      to: user.email,
-      subject: "Bienvenue dans Carnet de Pêche 🎣",
-      react: WelcomeEmail({
-        firstName: before?.display_name || before?.username || undefined,
-      }),
-    });
+  // Premier passage uniquement (l'étape 6 peut être re-soumise) : email de
+  // bienvenue + event du funnel d'activation. Jamais bloquant.
+  if (!before?.onboarded) {
+    // Funnel d'activation (sprint 74, Bloc 4) : signup_completed → onboarding_finished
+    // → favorite_spot_added → retour. Best-effort, ne throw jamais, zéro PII.
+    const { captureServerEvent } = await import("@/lib/analytics/server");
+    await captureServerEvent(user.id, "onboarding_finished");
+
+    // Email de bienvenue (sprint 11 Bloc C, enrichi au sprint 74) — onboarding
+    // terminé = inscription effective. Passe désormais par l'orchestrateur
+    // lifecycle : prénom + créneau du secteur + UTM + désinscription un clic,
+    // opt-out marketing respecté, et journalisation dans `lifecycle_emails`
+    // (dédup durable même si l'étape 6 est rejouée). Ne throw jamais : un échec
+    // d'envoi ne fait pas échouer la fin d'onboarding.
+    const dept =
+      ((data.home_department as string | undefined) ?? before?.home_department)?.trim() || null;
+    const { sendWelcomeEmail } = await import("@/lib/lifecycle/send");
+    await sendWelcomeEmail(user.id, dept);
   }
 
   revalidatePath("/home");

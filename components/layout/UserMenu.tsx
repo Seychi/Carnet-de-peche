@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/auth'
+import { analytics } from '@/lib/analytics'
 import { LogOut, User, BookOpen, CreditCard, ChevronDown, Shield, MessageCircle, Users, Home, Handshake, Fish, Bell } from 'lucide-react'
 
 interface UserMenuProps {
@@ -28,6 +29,10 @@ export function UserMenu({ username, avatarUrl, isModerator = false }: UserMenuP
 
   function handleSignOut() {
     setOpen(false)
+    // Casse le lien d'identité PostHog (sprint 74) : sans ça, l'identify du layout
+    // authentifié survivrait à la déconnexion et attribuerait la session du visiteur
+    // suivant au compte précédent sur un appareil partagé.
+    analytics.reset()
     // Server Action : session révoquée côté serveur, puis redirect '/'
     startTransition(() => signOut('/'))
   }

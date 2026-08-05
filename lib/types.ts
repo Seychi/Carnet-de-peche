@@ -698,6 +698,27 @@ export type Database = {
         }
         Relationships: []
       }
+      lifecycle_emails: {
+        Row: {
+          kind: string
+          sent_at: string
+          sent_key: string
+          user_id: string
+        }
+        Insert: {
+          kind: string
+          sent_at?: string
+          sent_key: string
+          user_id: string
+        }
+        Update: {
+          kind?: string
+          sent_at?: string
+          sent_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -987,6 +1008,7 @@ export type Database = {
           techniques: string[] | null
           updated_at: string
           username: string | null
+          weekly_window_optin: boolean
           years_practicing: number | null
         }
         Insert: {
@@ -1013,6 +1035,7 @@ export type Database = {
           techniques?: string[] | null
           updated_at?: string
           username?: string | null
+          weekly_window_optin?: boolean
           years_practicing?: number | null
         }
         Update: {
@@ -1039,6 +1062,7 @@ export type Database = {
           techniques?: string[] | null
           updated_at?: string
           username?: string | null
+          weekly_window_optin?: boolean
           years_practicing?: number | null
         }
         Relationships: []

@@ -26,12 +26,21 @@ const MAX_MSG = 'Tu as déjà 10 favoris, retire-en un d’abord.'
 const UNAVAILABLE_MSG = 'Ce spot n’est pas disponible pour le moment.'
 const SAVE_MSG = 'Impossible de mettre à jour tes favoris. Réessaie.'
 
+// Surface d'origine de l'ajout (funnel d'activation sprint 74). Validée en zod :
+// c'est un input client, on ne fait pas confiance au frontend (règle §11.4).
+const favoriteSourceSchema = z.enum(['onboarding', 'spot_page', 'map'])
+export type FavoriteSource = z.infer<typeof favoriteSourceSchema>
+
 /**
  * Ajoute ou retire un spot des favoris du viewer (toggle idempotent).
  * Renvoie l'état final : { favorite: true } = désormais favori.
+ * `source` (optionnel) alimente l'event `favorite_spot_added` du funnel
+ * d'activation : émis uniquement sur un AJOUT net (pas au retrait, pas sur le
+ * doublon 23505 d'un double-clic, sinon on double-compterait).
  */
 export async function toggleFavoriteSpot(
   spotId: string,
+  source: FavoriteSource = 'spot_page',
 ): Promise<ActionResult<{ favorite: boolean }>> {
   const supabase = await createClient()
   const {
@@ -39,6 +48,7 @@ export async function toggleFavoriteSpot(
   } = await supabase.auth.getUser()
   if (!user) return fail(AUTH_MSG)
   if (!z.string().uuid().safeParse(spotId).success) return fail(ID_MSG)
+  if (!favoriteSourceSchema.safeParse(source).success) source = 'spot_page'
 
   // État courant — lecture own explicite (.eq user_id EN PLUS de la RLS).
   const { data: existing, error: readErr } = await supabase
@@ -86,6 +96,12 @@ export async function toggleFavoriteSpot(
     console.error('[toggleFavoriteSpot] insert', error.message)
     return fail(SAVE_MSG)
   }
+
+  // Funnel d'activation (sprint 74, Bloc 4) : ajout NET réussi. Best-effort,
+  // captureServerEvent ne throw jamais. Zéro PII : userId + surface seulement
+  // (jamais le spot, un identifiant de spot favorisé est une info de pêcheur).
+  const { captureServerEvent } = await import('@/lib/analytics/server')
+  await captureServerEvent(user.id, 'favorite_spot_added', { source })
 
   revalidatePath('/profil')
   revalidatePath('/notifications')
