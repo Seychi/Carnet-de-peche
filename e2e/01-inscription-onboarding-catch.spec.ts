@@ -37,7 +37,11 @@ test("inscription → onboarding 6 étapes → première catch loguée", async (
   await page.getByRole("button", { name: "Continuer" }).click();
 
   // --- Étape 2 : ville + département -------------------------------------
-  await expect(page.getByRole("heading", { name: "D'où tu pêches ?" })).toBeVisible();
+  // Regex et non chaîne littérale : le titre rendu porte une apostrophe
+  // TYPOGRAPHIQUE (’ U+2019), que l'apostrophe droite de ce fichier ne matchait
+  // pas. Le test échouait donc ici, ce qui a laissé passer le saut de l'écran
+  // final corrigé au sprint 74.
+  await expect(page.getByRole("heading", { name: /D.où tu pêches/ })).toBeVisible();
   await fillStable(page.getByLabel("Ta ville"), "Brest");
   // Select natif département : on cible par valeur '29' (Finistère).
   await page.locator("select").selectOption("29");

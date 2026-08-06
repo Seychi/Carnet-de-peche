@@ -49,7 +49,10 @@ export function SpotFavoritePicker({
     })
 
     startTransition(async () => {
-      const res = await toggleFavoriteSpot(spotId)
+      // `source` explicite : sans lui, l'action retombe sur son défaut
+      // 'spot_page' et le funnel attribuerait à la fiche spot des favoris
+      // ajoutés depuis l'onboarding (Bloc 4, event favorite_spot_added).
+      const res = await toggleFavoriteSpot(spotId, 'onboarding')
       if (!res.ok) {
         // Rollback optimiste + message d'erreur retourné par l'action.
         setFavorites((prev) => {

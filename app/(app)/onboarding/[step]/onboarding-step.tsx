@@ -204,9 +204,16 @@ export function OnboardingStep({
   }, [watchedUsername, step, verifyUsername]);
 
   // Précharge le payload RSC de l'étape suivante pour réduire la latence du push.
+  //
+  // ⚠️ On ne préfetche SURTOUT PAS /onboarding/fini. À l'étape 6, l'utilisateur
+  // n'est pas encore onboardé : le middleware répond à cette requête par une
+  // redirection vers /onboarding/1, et cette redirection reste dans le cache du
+  // routeur client. Au push final (onboarded = true entre-temps), le cache
+  // renvoie donc vers /onboarding/1, que le middleware redirige à son tour vers
+  // /home. Résultat : l'écran « Ton carnet est prêt » était purement et
+  // simplement sauté. Reproduit sur 2 comptes neufs à la QA du sprint 74.
   useEffect(() => {
     if (step < totalSteps) router.prefetch(`/onboarding/${step + 1}`);
-    else router.prefetch("/onboarding/fini");
   }, [step, totalSteps, router]);
 
   // Étape 2 — ville + département
