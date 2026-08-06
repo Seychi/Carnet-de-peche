@@ -105,11 +105,34 @@ Style cible (fiche curée réelle, à imiter) : « Accès à pied depuis Saint-M
 6. **Vérifications post-lot** : 2-3 fiches live (`/spots/[slug]`) rendent le contenu ; les nouveaux slugs apparaissent dans `/sitemap.xml` (le sitemap filtre `approved` depuis le fix du 05/08) ; `get_advisors` sans nouvel ERROR ; lint tirets sur les textes.
 7. Cocher `LOTS.md` (statut, compteurs, date) et s'arrêter proprement.
 
-## 9. Cadence, priorités, réalisme
+## 9. Stratégie « un département à la fois » (décision John 2026-08-05)
 
-- **Débit honnête : 15-25 spots/session** (la recherche est le coût). 941 bruts ≈ 800 nets ≈ **35-45 lots ≈ 3-4 mois à 3 lots/semaine**. Publier par vagues départementales (pas de bulk 900 pages d'un coup côté Google).
-- **Ordre des lots** (cœur produit + trafic d'abord) : 29 → 56 → 22 → 17 → 44 → 50 → 14 → 35 → 33 → 62 → 76 → 64 → 40 → 59, puis Méditerranée : 13 → 34 → 66 → 83 → 30 → 11. (Bretagne = 432 spots = 46 % du backlog.)
-- Chaque session est lançable par John en une ligne, ou automatisable en tâche planifiée (un lot/jour, RECAP à valider). L'état vit dans `LOTS.md`, pas en mémoire de session.
+**Objectif : ~100 spots publiés et complets par département, un département fini avant de passer au suivant.** On remplit la carte par zones denses plutôt que de saupoudrer 20 départements à moitié. Un département « fini » = ~100 fiches publiées (ou backlog épuisé, cf enrichissement §9.3), toutes avec espèces + difficulté + hazards + accès + description.
+
+### 9.1 Ordre de traitement (par notoriété, pas alphabétique)
+
+À l'intérieur d'un département, traiter dans cet ordre (c'est ce qui remplit la carte utilement et ce qui ranke) :
+1. **Postes connus et nommés** : pointes et caps identifiés, digues et môles de ports, estacades, phares accessibles.
+2. **Plages et grandes anses nommées** (surfcasting).
+3. **Estuaires, passes, cales de mise à l'eau nommées.**
+4. **Micro-toponymes** (rochers bretons « Beg ar … », etc.) : en dernier, et seulement s'ils passent la règle « série OSM » (cf LOTS.md, décisions du lot 1).
+
+Requête d'ordonnancement : privilégier les noms contenant pointe/cap/digue/môle/jetée/estacade/phare/plage/anse/port, puis le reste.
+
+### 9.2 Débit et horizon
+
+**15-25 spots/session**, un lot/jour par la tâche planifiée. Taux de publication observé au lot 1 : **64 %** (16 publiés / 25 traités). Un département de 100 fiches ≈ **8-10 lots ≈ 2 semaines**. Ordre des départements : **29 (en cours) → 56 → 22 → 17 → 44 → 50 → 14** puis Méditerranée **13 → 83 → 66 → 34**, le reste (petits départements) en fin de file.
+
+### 9.3 Enrichissement quand le backlog ne suffit pas (à faire AVANT d'attaquer le département)
+
+Seul le **29** peut atteindre 100 avec le backlog actuel (183 pending + 34 publiés). Partout ailleurs le backlog plafonne sous l'objectif (56 ≈ 76 attendus, 13 ≈ 71, 22 ≈ 58, 17 ≈ 48…). Deux sources d'appoint, dans cet ordre :
+
+1. **Ré-import OSM élargi, ciblé département** (`scripts/import-osm-spots.ts`) : le script ne requête aujourd'hui que 6 tags (`man_made=pier|breakwater|groyne|quay`, `natural=cape` node+way). Tags à ajouter, tous pertinents pour la canne du bord : `natural=beach` (le plus gros gisement : plages nommées = surfcasting), `natural=bay`, `natural=reef`, `natural=strait`, `man_made=lighthouse`, `man_made=dyke`, `man_made=embankment`, `leisure=slipway`. Les nouveaux objets entrent en `pending` (comportement déjà en place), donc sans risque : ils passent par la même curation. **Filtrer à l'import les noms invalides** (lettres seules, « Panne X », « Quai A ») avec le prédicat du lot 0, pour ne pas re-polluer le backlog.
+2. **Recherche éditoriale** : postes cités par les guides locaux, offices de tourisme, forums, absents d'OSM → créés à la main en `imported`/`pending` avec coords vérifiées, puis curés normalement.
+
+### 9.4 Invariants de cadence
+
+Chaque session est lançable par John en une ligne, ou automatisée (un lot/jour). L'état vit dans `LOTS.md` + la base, jamais en mémoire de session : un run interrompu (limite d'usage, app fermée) reprend proprement au run suivant.
 
 ## 10. Posture (cf CLAUDE.md §19)
 

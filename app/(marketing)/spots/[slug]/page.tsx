@@ -25,7 +25,7 @@ import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
-import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
+import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS, HAZARDS_LABELS } from '@/lib/labels'
 import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
 import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
 
@@ -891,8 +891,8 @@ export default async function SpotPage({
                 </h3>
                 <ul className="flex flex-col gap-1.5">
                   {spot.hazards.map((h) => (
-                    <li key={h} className="text-sm text-red-700 capitalize">
-                      {h.replace(/_/g, ' ')}
+                    <li key={h} className="text-sm text-red-700 first-letter:uppercase">
+                      {HAZARDS_LABELS[h] ?? h.replace(/_/g, ' ')}
                     </li>
                   ))}
                 </ul>

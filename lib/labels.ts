@@ -47,6 +47,21 @@ export const HAZARDS_LABELS: Record<string, string> = {
   rochers_immerges: 'Rochers immergés',
   acces_falaise: 'Accès par la falaise',
   isolement: 'Zone isolée',
+  // Vocabulaire réellement stocké par la curation éditoriale (fiches curées +
+  // lots de curation des imports, cf docs/contenu/curation-spots/PLAYBOOK.md §2.3).
+  // Sans ces clés, la fiche spot affichait la valeur brute désaccentuée
+  // (« Submersion maree », « Vagues scelerats »). Les deux familles cohabitent :
+  // le formulaire de curation propose les clés du haut, la base contient les deux.
+  submersion_maree: 'Submersion à marée montante',
+  rochers_glissants: 'Rochers glissants',
+  vagues_scelerats: 'Vagues scélérates',
+  vagues: 'Vagues',
+  falaise: 'Falaise',
+  isolation: 'Zone isolée',
+  baines: 'Baïnes',
+  baignade_dangereuse: 'Baignade dangereuse',
+  rejet_eaux_usees: 'Rejet d’eaux usées',
+  sentier_expose: 'Sentier exposé',
 }
 
 // Provenance d'un spot (migration 041) — source unique pour les badges
