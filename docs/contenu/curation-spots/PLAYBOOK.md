@@ -119,13 +119,17 @@ Style cible (fiche curée réelle, à imiter) : « Accès à pied depuis Saint-M
 
 Requête d'ordonnancement : privilégier les noms contenant pointe/cap/digue/môle/jetée/estacade/phare/plage/anse/port, puis le reste.
 
-### 9.2 Débit et horizon
+### 9.2 Débit, couverture et horizon
 
-**15-25 spots/session**, un lot/jour par la tâche planifiée. Taux de publication observé au lot 1 : **64 %** (16 publiés / 25 traités). Un département de 100 fiches ≈ **8-10 lots ≈ 2 semaines**. Ordre des départements : **29 (en cours) → 56 → 22 → 17 → 44 → 50 → 14** puis Méditerranée **13 → 83 → 66 → 34**, le reste (petits départements) en fin de file.
+**15-25 spots/session**, un lot/jour par la tâche planifiée. Taux de publication observé : 64 % au lot 1, ~90 % ensuite (le tri par notoriété écarte moins de spots). Un département de 100 fiches ≈ **6-8 lots ≈ 1,5 semaine**.
+
+**Le plan couvre les 24 départements côtiers** (`COASTAL_DEPARTMENTS`, sans la Somme 80) : tableau vague par vague, cible par département et besoin de ré-import dans `LOTS.md` § « Plan de couverture ». Aucun département n'est hors périmètre.
+
+**Objectif par département = `min(100, couverture exhaustive des postes réels)`.** La cible s'ajuste au linéaire côtier : 100 pour les grandes façades (29, 56, 22, 50, 17, 13, 83), 40-60 pour les moyennes, 20-30 pour les littoraux courts (59 Nord ≈ 40 km, 30 Gard ≈ 20 km). **On ne remplit jamais un quota en inventant des postes** : si un département n'a plus de poste réel documentable, il est fini, point. Horizon total ≈ 1 475 fiches ≈ 4-5 mois.
 
 ### 9.3 Enrichissement quand le backlog ne suffit pas (à faire AVANT d'attaquer le département)
 
-Seul le **29** peut atteindre 100 avec le backlog actuel (183 pending + 34 publiés). Partout ailleurs le backlog plafonne sous l'objectif (56 ≈ 76 attendus, 13 ≈ 71, 22 ≈ 58, 17 ≈ 48…). Deux sources d'appoint, dans cet ordre :
+**21 des 24 départements ont besoin du ré-import** pour atteindre leur cible (tous sauf 29 ✅ fini, 13 et 56 partiellement). Cas extrême : **85, 06, 2A et 2B ont zéro backlog** — les 6 anciens tags OSM ne trouvaient rien de nommé dans leurs bbox, alors que le script les couvre. Sans ré-import, ces quatre départements resteraient à ~10 fiches pour toujours. Deux sources d'appoint, dans cet ordre :
 
 1. **Ré-import OSM élargi, ciblé département** (`scripts/import-osm-spots.ts`) : le script ne requête aujourd'hui que 6 tags (`man_made=pier|breakwater|groyne|quay`, `natural=cape` node+way). Tags à ajouter, tous pertinents pour la canne du bord : `natural=beach` (le plus gros gisement : plages nommées = surfcasting), `natural=bay`, `natural=reef`, `natural=strait`, `man_made=lighthouse`, `man_made=dyke`, `man_made=embankment`, `leisure=slipway`. Les nouveaux objets entrent en `pending` (comportement déjà en place), donc sans risque : ils passent par la même curation. **Filtrer à l'import les noms invalides** (lettres seules, « Panne X », « Quai A ») avec le prédicat du lot 0, pour ne pas re-polluer le backlog.
 2. **Recherche éditoriale** : postes cités par les guides locaux, offices de tourisme, forums, absents d'OSM → créés à la main en `imported`/`pending` avec coords vérifiées, puis curés normalement.
