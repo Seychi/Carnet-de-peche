@@ -124,8 +124,8 @@ La réponse contient désormais un bloc `lifecycle: { j1, j3, weekly, failed, ti
 | Throw sur un user → les suivants et le legacy continuent | ✅ testé (2 niveaux) |
 | Previews HTML des 4 templates | ✅ |
 | Copy : tutoiement, zéro tiret cadratin, zéro % inventé, désinscription visible | ✅ testé sur les 4 |
-| **QA compte neuf réel (qa-chrome), mobile 390 px + desktop** | ❌ **non fait, cf §6** |
-| **deploy-watch après déploiement** | ❌ non déployé |
+| **QA compte neuf réel, mobile 390 px + desktop** | ✅ **faite sur la prod, cf §8** |
+| deploy-watch après déploiement | ⚠️ partiel : routes publiques + preuves DB, pas de connecteur Vercel |
 
 ---
 
@@ -144,6 +144,54 @@ Faille **pré-existante** (migration 054, sprint 26), pas introduite ici, mais e
 Le correctif évident ne marche pas (testé en prod, en rollback) : un `revoke select (colonne)` est inopérant tant que le grant TABLE existe. Le vrai correctif suit le modèle 028b (revoke table + re-grant des 23 autres colonnes), mais il impose de **re-granter à la main chaque colonne future** de `profiles`, sinon elle devient silencieusement illisible côté app. Aucun chemin client ne lit ce token (`recipient.ts` et `unsubscribe/actions.ts` passent tous deux par service-role), donc le verrou ne casserait rien fonctionnellement.
 
 **C'est un arbitrage de maintenance, pas technique.** Le correctif est prêt et tient en une `108b`. Dis-moi si je la pose.
+
+---
+
+## 8. QA du parcours compte neuf (prod, 2026-08-06)
+
+Exécutée au pilotage Playwright sur `www.carnet-de-peche.com` (chrome-devtools et le connecteur Playwright étant tous deux indisponibles). Comptes de test en plus-addressing, convention déjà en place chez John : `redkps4+qa74@`, `+qa74b@`, `+qa74c@`. Script : `scratchpad/qa-full.mjs`.
+
+**Bilan : 16/17 au premier run complet**, zéro erreur console, zéro erreur JS, zéro réponse HTTP ≥ 400 sur tout le parcours.
+
+### ★ Le défaut trouvé : l'écran fini v2 était SAUTÉ
+
+Reproduit à l'identique sur **deux comptes neufs** : après l'étape 6, l'utilisateur atterrissait sur `/home` sans jamais voir « Ton carnet est prêt ». **Tout le Bloc 2 de ce sprint était donc invisible en production.**
+
+Cause : `router.prefetch("/onboarding/fini")` partait à l'étape 6, alors que le profil n'était pas encore onboardé. Le middleware répondait à cette requête par une redirection vers `/onboarding/1`, que le cache du routeur client conservait. Au push final (`onboarded` devenu `true`), ce cache renvoyait vers `/onboarding/1`, que le middleware redirigeait à son tour vers `/home`.
+
+Corrigé au commit `11d9805` (retrait du prefetch), déployé, puis **re-testé sur un troisième compte neuf : 17/17, atterrissage sur `/onboarding/fini` confirmé**. Deux autres défauts trouvés pendant la même passe :
+
+- `SpotFavoritePicker` appelait `toggleFavoriteSpot` **sans `source`** : les favoris ajoutés à l'onboarding remontaient en `spot_page` dans le funnel.
+- Le spec E2E `01-inscription-onboarding-catch` cherchait le titre de l'étape 2 avec une apostrophe **droite** alors que la page rend une apostrophe **typographique** (`’` U+2019). Le test échouait là, ce qui explique qu'il n'ait jamais attrapé ce saut d'écran.
+
+### Ce qui est vérifié bon
+
+| Vérification | Résultat |
+|---|---|
+| 6 étapes d'onboarding franchies | ✅ |
+| Écran fini : titre, créneau, spots, encart import, CTA | ✅ |
+| 5 spots curés proposés (dépt 29), nom + structure, zéro coordonnée | ✅ |
+| Tap sur un spot le passe en favori (persisté en DB) | ✅ `Aber Wrac'h` |
+| Checkbox hebdo NON pré-cochée, puis cochable | ✅ `aria-checked` false → true |
+| Opt-in persisté et visible sur `/notifications` | ✅ colonne à `true` |
+| Libellé honnête « Créneau du secteur Finistère » | ✅ |
+| Aucun pourcentage perso affiché | ✅ |
+| Aucun débordement horizontal (390 px et 1440 px) | ✅ `overflow = 0` |
+| **Gating S72 intact** : Découverte voit « Réservé aux abonnés » | ✅ |
+| État favori daltonien-safe (étoile pleine + or + libellé « FAVORI ») | ✅ |
+| Console / erreurs JS / réponses ≥ 400 | ✅ aucune |
+
+### ★★ `RESEND_API_KEY` est bien configurée en prod
+
+Preuve indirecte mais décisive : `lifecycle_emails` contient `welcome/once` pour les deux comptes ayant terminé l'onboarding. Or l'orchestrateur **ne journalise que si `sendEmail` renvoie `sent: true`**. L'email de bienvenue enrichi est donc réellement parti, et toute la chaîne lifecycle fonctionne de bout en bout en production. Les deux emails sont dans la boîte de John (plus-addressing).
+
+### Note hors périmètre
+
+113 noms de spots curés utilisent le tiret cadratin comme séparateur « Ville — lieu-dit » (`Aber Wrac'h — dunes de Sainte-Marguerite`). C'est un **libellé de donnée**, explicitement toléré par CLAUDE.md §6 : ce n'est pas un défaut, juste à connaître si la lane curation veut homogénéiser.
+
+### Comptes de test à nettoyer
+
+`redkps4+qa74@`, `redkps4+qa74b@`, `redkps4+qa74c@` (dépt 29, Brest). À flagger anti-traîne ou purger, comme les comptes de test existants.
 
 ---
 
