@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker coef</title>
+  <desc>VIDEO-DS §4.2 — cadran demi-cercle gradué + aiguille, l&#39;instrument signature en mini.</desc>
+  <path d="M 26 176 A 94 94 0 0 1 214 176 Z" fill="#0B2530" stroke="#04141C" stroke-width="18" stroke-linejoin="round"></path>
+  <path d="M 34.0 176.0 L 60.0 176.0" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 40.5 143.1 L 57.2 150.0" stroke="#04141C" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M 59.2 115.2 L 77.6 133.6" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 87.1 96.5 L 94.0 113.2" stroke="#04141C" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M 120.0 90.0 L 120.0 116.0" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 152.9 96.5 L 146.0 113.2" stroke="#04141C" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M 180.8 115.2 L 162.4 133.6" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 199.5 143.1 L 182.8 150.0" stroke="#04141C" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M 206.0 176.0 L 180.0 176.0" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 120 176 L 168 104" stroke="#D9A53C" stroke-width="11" stroke-linecap="round"></path>
+  <circle cx="120" cy="176" r="15" fill="#D9A53C" stroke="#04141C" stroke-width="7"></circle>
+</svg>

@@ -17,6 +17,8 @@ import { serializeFiltersToSearchParams, countActiveFilters, hasActiveFilters } 
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { analytics } from '@/lib/analytics'
+import { getWallKind } from '@/lib/gating/wall'
+import { SignupWall } from '@/components/map/SignupBanner'
 
 const UPSELL_SURFACE = 'map_filters'
 
@@ -194,13 +196,19 @@ export default function MapFilters({
     return () => clearTimeout(id)
   }, [filters, pathname, layout])
 
-  const isGated = userTier === 'anonymous' || userTier === 'discovery'
+  // Sprint 75 Bloc 1 : le mur dépend de QUI regarde. `signup` pour un visiteur
+  // sans compte (on ne lui vend rien), `upsell` pour un inscrit gratuit.
+  // ⚠️ `isGated` (donc le verrouillage RÉEL des filtres) reste inchangé : les
+  // deux publics gardent exactement les mêmes droits sur la donnée.
+  const wall = getWallKind(userTier)
+  const isGated = wall !== 'none'
   const activeCount = countActiveFilters(filters)
 
-  // Paywall vu : le bandeau de gating des filtres est affiché.
+  // Paywall vu : réservé aux inscrits gratuits. Un anonyme émet `signup_wall_viewed`
+  // depuis SignupWall, jamais `paywall_viewed` (sinon les deux funnels se mélangent).
   useEffect(() => {
-    if (isGated) analytics.paywallViewed({ surface: UPSELL_SURFACE })
-  }, [isGated])
+    if (wall === 'upsell') analytics.paywallViewed({ surface: UPSELL_SURFACE })
+  }, [wall])
 
   // ── Toggles ────────────────────────────────────────────────────────────────
 
@@ -255,8 +263,19 @@ export default function MapFilters({
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Bandeau gating */}
-      {isGated && (
+      {/* Bandeau gating — visiteur SANS compte : on propose le carnet gratuit,
+          jamais un abonnement (sprint 75 Bloc 1). */}
+      {wall === 'signup' && (
+        <SignupWall
+          surface="map_filters"
+          compact
+          intro="Les filtres arrivent avec l’abonnement, mais ton carnet et le fil de ton département sont gratuits."
+          className="mx-4 mt-4 mb-1"
+        />
+      )}
+
+      {/* Bandeau gating — inscrit gratuit : c'est le seul à qui on parle de prix. */}
+      {wall === 'upsell' && (
         <div className="mx-4 mt-4 mb-1 flex items-start gap-2 bg-ink-50 border border-ink-200 rounded-xl p-3">
           <Lock size={14} className="text-ink-400 mt-0.5 shrink-0" />
           <div className="min-w-0">

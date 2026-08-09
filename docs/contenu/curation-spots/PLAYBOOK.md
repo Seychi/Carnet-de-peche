@@ -20,6 +20,7 @@
 2. **Espèces = potentiel du poste, jamais des prises affirmées.** La liste `species` vient de la matrice façade × structure (§5) affinée par la recherche. La copy dit « poste à bar et sar » ou « on y cherche le bar », jamais « ça sort régulièrement du 60+ » sans source.
 3. **Hazards = vocabulaire fermé, dangers STRUCTURELS du type de poste.** Un danger local spécifique (baïne précise, zone interdite) exige une source. Vocabulaire canonique : `baignade_dangereuse`, `baines`, `courants_forts`, `falaise`, `isolation`, `rejet_eaux_usees`, `ressac`, `rochers_glissants`, `sentier_expose`, `submersion_maree`, `vagues`, `vagues_scelerats`. (Variantes `courants` et `sentier_exposé` existent en base : à normaliser au Lot 0, ne pas en créer de nouvelles.)
 4. **Interdiction découverte = reject.** Réserve naturelle, port militaire, propriété privée, arrêté anti-pêche → `moderation_status='rejected'` + raison dans le RECAP du lot. Dans le doute sur une interdiction, on NE publie PAS.
+   ⚠️ **Ne pas confondre protection d'habitat et interdiction de pêche** (lot 12, Houat et Hœdic). Natura 2000, aire marine protégée ou propriété du Conservatoire du littoral **n'interdisent pas** la pêche à la ligne du bord : à Houat/Hœdic les mesures préfectorales visent les **engins dormants** sur une zone précise, et les arrêtés de 2013-2014 la **pêche à pied**. Vérifier ce que l'arrêté interdit réellement, puis publier en portant la mention « reste sur le sentier balisé » dans l'accès. Seule une interdiction visant la pêche à la ligne fait rejeter.
 5. **Pas de badge menti** : `verified` reste `false`, `verification_level` reste `NULL` (les 3 valeurs autorisées impliquent une vérification humaine/terrain qu'on n'a pas). `source` reste `'imported'`. La vérification terrain viendra de la communauté/l'équipe.
 6. **Charte copy** : tutoiement, AUCUN tiret cadratin dans la copy (lint `node scripts/lint-copy-dashes.mjs`), pas de jargon corporate, pas de promesse produit.
 7. **Ne JAMAIS toucher** : `geom`, `geom_public`, `visibility`, `source`, `verified`, les policies RLS. Le floutage et le gating carte ne sont pas le sujet.
@@ -48,6 +49,14 @@ Hiérarchie des preuves :
 Chaque fiche full note son niveau de preuve (A/B/C) + lien dans le RECAP du lot (pas dans la fiche publique).
 
 Vérification géo systématique (sans web) : coords cohérentes avec la côte, `structure` OSM plausible, bathy EMODnet à proximité (profondeur du poste), façade réglementaire du département (source de vérité : le mapping façade du code, cf `lib/especes/season.ts`, ne pas le réinventer).
+
+★ **Vérification toponymique croisée, OBLIGATOIRE avant rédaction** (règle 13, audit du 2026-08-06). Confronter la coordonnée du spot à une source donnant la position du toponyme, ou aux objets OSM homonymes du même import. **Écart supérieur à ~1 km = objet mal nommé ou mal placé, on ne publie pas.** Ne JAMAIS déduire la commune du seul nom de l'objet OSM. Sources de contrôle qui ont fait leurs preuves : les listes Wikipédia de pointes sourcées **Géoportail** (13 candidats validés d'un coup au lot 10 pour le golfe du Morbihan, écarts de 10 à 140 m) et les pages mapcarta, qui donnent la commune de rattachement.
+
+★ **Sources de contrôle toponymique qui ont fait leurs preuves** (à essayer dans cet ordre) : les **relevés par commune de [tchinggiz.org](https://www.tchinggiz.org/)** pour les îles et la côte bretonnes, qui donnent position décimale et étymologie de chaque micro-toponyme (9 spots validés d'un coup au lot 12, écarts de 5 à 196 m) ; ⚠️ **ses libellés « Long: » et « Lat: » sont inversés, le premier nombre est la latitude**. Puis les listes Wikipédia sourcées **Géoportail** (13 candidats validés au lot 10 sur le golfe du Morbihan), puis mapcarta/AllTrails pour la commune de rattachement.
+
+★ **Un nom homonyme déjà rejeté ne vaut pas rejet pour son homonyme** (lot 12). Le 56 contient deux « Pointe du Vieux Château », l'une à Belle-Île rejetée pour réserve ornithologique, l'autre à Hœdic 30 km plus loin et parfaitement pêchable. Avant d'appliquer une décision passée, vérifier que c'est **le même objet** par la coordonnée et le slug, jamais par le nom.
+
+★ **Une anomalie de rattachement départemental se démontre sur les DEUX coordonnées** (fausse alerte du lot 6, levée au lot 10). Une grappe du 56 avait été signalée comme étant en 44 sur la seule latitude : c'était Houat et Hœdic, à 2.87-2.96 O, confondues avec Piriac-sur-Mer à 2.546 O. Une erreur de lecture de longitude allait déplacer une dizaine de spots dans le mauvais département. Jamais de latitude seule, jamais d'impression de proximité.
 
 ## 5. Matrice espèces façade × structure (POINT DE DÉPART, à affiner par recherche + bathy)
 
@@ -100,8 +109,10 @@ Style cible (fiche curée réelle, à imiter) : « Accès à pied depuis Saint-M
    - **Mode A (défaut)** : John répond « GO lot NN » (ou liste d'exclusions) → étape 5.
    - **Mode B (délégué)** : exécution directe, John spot-checke a posteriori ; tout spot douteux reste `pending` (le doute ne se publie jamais).
 5. **Écriture DB** (connecteur Supabase, un UPDATE par spot, jamais de SQL destructif) :
-   `update public.spots set name=…, species=…, techniques=…, difficulty=…, structure=…, description=…, access_notes=…, hazards=…, moderation_status='approved', updated_at=now() where id='…' and source='imported' and moderation_status='pending';`
+   `update public.spots set name=…, species=…, techniques=…, difficulty=…, structure=…, description=…, access_notes=…, hazards=…, moderation_status='approved', updated_at=now() where id='…' and slug='[slug d'origine]' and source='imported' and moderation_status='pending';`
    Rejects : `set moderation_status='rejected'`. Aucune migration nécessaire (colonnes existantes).
+
+   ★ **La clause `and slug='[slug d'origine]'` est OBLIGATOIRE** (décision 15, incident du lot 10 : une fiche écrite sur l'identifiant d'un autre spot, détectée et corrigée en séance). Les identifiants sont recopiés à la main depuis le tableau d'extraction ; sans ce verrou, un `id` mal copié écrit du contenu sur le mauvais spot, en silence. Avec, il ne modifie rien du tout. Coût nul, protection totale contre cette classe d'erreur.
 6. **Vérifications post-lot** : 2-3 fiches live (`/spots/[slug]`) rendent le contenu ; les nouveaux slugs apparaissent dans `/sitemap.xml` (le sitemap filtre `approved` depuis le fix du 05/08) ; `get_advisors` sans nouvel ERROR ; lint tirets sur les textes.
 7. Cocher `LOTS.md` (statut, compteurs, date) et s'arrêter proprement.
 

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquettes — Audit UX/Dopamine/Social 2026-07-06 · Carnet de Pêche</title>
+<!-- Réutilise la DA v2 « Instrument de précision marine » -->
+<link rel="stylesheet" href="../maquette-v2/assets/style.css">
+<style>
+  body{padding-bottom:80px}
+  .doc-head{background:var(--navy-950);color:#fff;padding:56px 0 48px;position:relative;overflow:hidden}
+  .doc-head .wrap{position:relative;z-index:2}
+  .gal{max-width:1180px;margin:0 auto;padding:0 28px}
+  .mockblock{margin:64px 0;padding-top:56px;border-top:var(--border)}
+  .mockblock:first-of-type{border-top:0}
+  .note{background:var(--sand-100);border:var(--border);border-left:3px solid var(--coral-500);border-radius:var(--r-md);padding:18px 22px;margin:18px 0 26px;font-size:15px}
+  .note b{color:var(--navy-900)}
+  .badge-prio{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--coral-500);padding:3px 9px;border-radius:6px;margin-right:8px;vertical-align:middle}
+  .badge-new{background:var(--teal-600)}
+  /* Frame simulant un écran d'app */
+  .frame{border:var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);background:#fff}
+  .app-head{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 22px;background:#fff;border-bottom:var(--border)}
+  /* Cluster de progression (P1) */
+  .prog{display:flex;align-items:center;gap:14px}
+  .rankchip{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:12.5px;font-weight:600;letter-spacing:.03em;padding:6px 12px;border-radius:99px;background:rgba(217,165,60,.12);border:1px solid rgba(217,165,60,.35);color:#A87C20}
+  .rankchip .lv{color:var(--ink-400);font-weight:500}
+  .xpmini{min-width:120px}
+  .xpmini .lab{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-400);margin-bottom:4px}
+  .xpmini .track{height:6px;border-radius:99px;background:var(--sand-200);overflow:hidden}
+  .xpmini .fill{height:100%;background:linear-gradient(90deg,var(--teal-600),var(--teal-300));border-radius:99px}
+  .flame{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:var(--coral-500)}
+  .flame.risk{color:var(--ink-400)}
+  /* Ring simple (conic) */
+  .ring{border-radius:50%;display:grid;place-items:center;flex:none}
+  .ring .in{background:#fff;border-radius:50%;display:grid;place-items:center;text-align:center}
+  .ring .v{font-family:var(--font-mono);font-weight:600;color:var(--navy-900);line-height:1}
+  .ring .u{font-family:var(--font-mono);font-size:9px;color:var(--ink-400);letter-spacing:.06em}
+  /* bande de progression compacte */
+  .pband{display:flex;align-items:center;gap:22px;flex-wrap:wrap;background:var(--navy-950);color:#fff;border-radius:var(--r-md);padding:18px 22px}
+  .pband .seg{display:flex;align-items:center;gap:10px}
+  .pband .sep{width:1px;height:34px;background:rgba(255,255,255,.12)}
+  .pband .lbl{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  .pband .big{font-family:var(--font-mono);font-weight:600;font-size:18px;color:var(--teal-300)}
+  .pband a.more{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--teal-300);border:1px solid rgba(94,234,212,.3);padding:8px 14px;border-radius:99px}
+  /* reward card cold-start */
+  .reward{display:flex;gap:20px;align-items:center;background:linear-gradient(120deg,var(--navy-900),var(--navy-800));color:#fff;border-radius:var(--r-md);padding:24px}
+  .reward .unlocks{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .ulk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:rgba(255,255,255,.08);border:var(--border-dark);padding:6px 11px;border-radius:99px}
+  .ladder{display:flex;gap:0;margin-top:16px;counter-reset:s}
+  .ladder .step{flex:1;padding:12px 14px;border:var(--border);border-right:0;font-size:13px;color:var(--ink-600);background:var(--sand-50)}
+  .ladder .step:last-child{border-right:var(--border);border-radius:0 var(--r-sm) var(--r-sm) 0}
+  .ladder .step:first-child{border-radius:var(--r-sm) 0 0 var(--r-sm)}
+  .ladder .step.on{background:#fff;color:var(--navy-900);border-bottom:3px solid var(--teal-500)}
+  .ladder .step .n{font-family:var(--font-mono);font-size:11px;color:var(--teal-600);display:block;margin-bottom:3px}
+  /* défis grid */
+  .chgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .chrow{display:flex;align-items:center;gap:14px;border:var(--border);border-radius:var(--r-md);padding:14px 16px;background:#fff}
+  .chrow .t{font-weight:600;font-size:14.5px}
+  .chrow .d{font-size:12.5px;color:var(--ink-400)}
+  .xpchip{margin-left:auto;font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--teal-600);background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.25);padding:4px 9px;border-radius:99px;flex:none}
+  /* duel */
+  .duel{border:var(--border);border-radius:var(--r-lg);overflow:hidden}
+  .duel .top{display:flex;align-items:center;justify-content:space-between;background:var(--navy-950);color:#fff;padding:20px 24px}
+  .duel .vs{font-family:var(--font-display);font-weight:700;font-size:22px}
+  .duel .who{display:flex;align-items:center;gap:12px}
+  .duel .who .name{font-family:var(--font-mono);font-weight:600}
+  .duel .rows{padding:14px 24px 22px}
+  .drow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding:12px 0;border-bottom:var(--border)}
+  .drow:last-child{border-bottom:0}
+  .drow .bar{height:10px;border-radius:99px;background:var(--sand-200);position:relative;overflow:hidden}
+  .drow .bar .f{position:absolute;top:0;bottom:0;background:var(--teal-500);border-radius:99px}
+  .drow .bar.r .f{background:var(--gold-500);right:0}
+  .drow .metric{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-400);text-align:center;min-width:96px}
+  .drow .val{font-family:var(--font-mono);font-weight:600;font-size:15px}
+  .drow .val.l{text-align:right} .drow .val.r{text-align:left;color:#A87C20}
+  .safe{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--teal-700,#0E7466);background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.2);padding:6px 12px;border-radius:99px}
+  /* phone tab bar */
+  .phones{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start}
+  .tabbar{display:flex;justify-content:space-around;align-items:flex-end;background:#fff;border-top:var(--border);padding:8px 6px 10px;position:relative}
+  .tabbar .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--ink-400);font-weight:600;flex:1}
+  .tabbar .tab.on{color:var(--navy-900)}
+  .tabbar .tab .ico{width:22px;height:22px;border-radius:6px;border:1.8px solid currentColor;opacity:.85}
+  .tabbar .fab{width:46px;height:46px;border-radius:50%;background:var(--teal-500);color:var(--navy-950);display:grid;place-items:center;font-size:26px;font-weight:700;margin-top:-24px;box-shadow:0 6px 16px rgba(20,184,166,.4);flex:none}
+  .mini-inst{background:var(--navy-950);color:#fff;font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;display:flex;align-items:center;gap:10px;padding:7px 12px;white-space:nowrap;overflow:hidden}
+  .mini-inst b{color:var(--teal-300)}
+  .mini-inst .prog-pill{margin-left:auto;background:rgba(94,234,212,.14);border:1px solid rgba(94,234,212,.3);color:var(--teal-300);padding:3px 9px;border-radius:99px;flex:none}
+  .scr-body{padding:16px;min-height:230px;background:var(--sand-50)}
+  .legend{display:flex;gap:8px;margin:10px 0 0}
+  .legend .old,.legend .new{font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:6px}
+  .legend .old{background:var(--sand-200);color:var(--ink-600);text-decoration:line-through}
+  .legend .new{background:var(--teal-500);color:var(--navy-950);font-weight:600}
+  h2.mock-t{font-size:26px;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="bathy" aria-hidden="true"><svg viewBox="0 0 1200 300" preserveAspectRatio="none"><g fill="none" stroke="rgba(94,234,212,.18)" stroke-width="1"><path d="M0,60 C300,20 900,100 1200,50"/><path d="M0,110 C300,70 900,150 1200,100"/><path d="M0,160 C300,120 900,200 1200,150"/><path d="M0,210 C300,170 900,250 1200,200"/></g></svg></div>
+  <div class="wrap">
+    <div class="kicker" style="color:var(--teal-300)">Maquettes · Audit 2026-07-06</div>
+    <h1 class="h-section" style="max-width:820px">Rendre visible et désirable la dopamine déjà construite.</h1>
+    <p class="lead" style="color:rgba(255,255,255,.7);max-width:720px;margin-top:14px">Cinq maquettes qui accompagnent l'audit UX/Dopamine/Social. Elles illustrent les priorités P1–P6 : mettre en scène l'existant (rang, XP, série, défis, classements) et ajouter le face-à-face et la boucle quotidienne. DA v2, spot-safe. <span class="tag-data on-dark">RIEN N'EST FINAL · SUPPORT DE BRIEF</span></p>
+  </div>
+</header>
+
+<div class="gal">
+
+  <!-- 1. HEADER DE PROGRESSION -->
+  <section class="mockblock">
+    <div class="sec-num">01 — DOPAMINE VISIBLE</div>
+    <h2 class="mock-t">Header de progression persistant</h2>
+    <div class="note"><span class="badge-prio">P1</span><b>Problème :</b> aujourd'hui, ton rang / ton XP / ta série ne se voient <b>nulle part</b> en permanence — il faut ouvrir <code>/home</code> et scroller tout en bas. <b>Proposé :</b> un cluster de progression dans le chrome persistant, cliquable → <code>/progression</code>. Meilleur ratio impact/effort de l'audit.
+      <div class="legend"><span class="old">Header = logo + recherche + cloche + avatar</span><span class="new">+ ⚓ rang · barre XP · 🔥 série</span></div>
+    </div>
+    <div class="frame">
+      <div class="app-head">
+        <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="var(--teal-500)" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="var(--teal-500)" stroke-width="1.6" stroke-linecap="round"/></svg> Carnet de Pêche</div>
+        <div class="prog">
+          <span class="rankchip">⚓ Habitué du bord <span class="lv">Lv.3</span></span>
+          <div class="xpmini">
+            <div class="lab"><span>XP</span><span>120 / 400</span></div>
+            <div class="track"><div class="fill" style="width:30%"></div></div>
+          </div>
+          <span class="flame">🔥 2&nbsp;sem.</span>
+          <div class="avatar">SE</div>
+        </div>
+      </div>
+      <div class="instruments"><div class="wrap"><span>ALPES-MARITIMES · 06</span><span class="sep">|</span><span>VENT <b>SE 8</b></span><span class="sep">|</span><span>HOULE <b>0,2 m · 3 s</b></span><span class="sep">|</span><span>TON CRÉNEAU : <b>17:30 → 19:30</b></span></div></div>
+    </div>
+    <p class="small muted" style="margin-top:12px">Sur mobile, le cluster se condense en une pastille tapable dans le bandeau d'instruments (voir maquette 05).</p>
+  </section>
+
+  <!-- 2. COLD-START -->
+  <section class="mockblock">
+    <div class="sec-num">02 — COLD-START</div>
+    <h2 class="mock-t">Cockpit à froid : une seule marche, pas l'escalier vide</h2>
+    <div class="note"><span class="badge-prio">P2</span><span class="badge-prio">P3</span><b>Problème :</b> un compte neuf tombe sur ~50 items vides (0/100 XP, 0/15 badges, 26 Pokédex « à débloquer »). <b>Proposé :</b> une <b>unique prochaine récompense</b> + un <b>escalier de valeur</b>, le reste replié. On montre la pente, pas le trou.</div>
+    <div class="frame" style="padding:24px;background:var(--sand-50)">
+      <div class="tag-data" style="margin-bottom:10px">◵ PREMIÈRE ÉTAPE</div>
+      <div class="reward">
+        <div class="ring" style="width:74px;height:74px;background:conic-gradient(var(--teal-300) 0deg,rgba(255,255,255,.15) 0deg)">
+          <div class="in" style="width:58px;height:58px;background:var(--navy-900)"><span class="v" style="font-size:13px;color:#fff">1<span style="color:var(--teal-300)">re</span></span><span class="u" style="color:rgba(255,255,255,.5)">prise</span></div>
+        </div>
+        <div style="flex:1">
+          <h3 style="color:#fff;margin-bottom:2px">Ta première prise débloque déjà 3 choses.</h3>
+          <div class="unlocks">
+            <span class="ulk">🏅 Badge « Première prise »</span>
+            <span class="ulk">＋10 XP</span>
+            <span class="ulk">🐟 1re case Pokédex</span>
+          </div>
+        </div>
+        <a class="btn accent" href="#">Loguer une prise</a>
+      </div>
+      <div class="ladder">
+        <div class="step on"><span class="n">1 PRISE</span>Ton carnet démarre</div>
+        <div class="step"><span class="n">3 PRISES</span>Ton scoring perso s'active</div>
+        <div class="step"><span class="n">5 ESPÈCES</span>Badge Explorateur</div>
+        <div class="step"><span class="n">1 SEMAINE</span>Ta série commence</div>
+      </div>
+      <p class="small muted" style="margin-top:16px">Badges &amp; Pokédex : <b>3 aperçus + « voir les 26 › »</b> vers <code>/progression</code>. Plus jamais 26 lignes vides sur l'accueil.</p>
+    </div>
+  </section>
+
+  <!-- 3. BANDE COMPACTE + /defis -->
+  <section class="mockblock">
+    <div class="sec-num">03 — DESTINATIONS</div>
+    <h2 class="mock-t">Bande de progression compacte + page <code>/defis</code></h2>
+    <div class="note"><span class="badge-prio">P3</span><span class="badge-prio">P5</span><b>Problème :</b> 6 mécaniques empilées en bas de <code>/home</code>, et les <b>défis n'ont aucune page</b>. <b>Proposé :</b> <code>/home</code> résume la progression en une bande qui renvoie vers <code>/progression</code> et <code>/defis</code> ; <code>/defis</code> accueille la <b>boucle quotidienne</b> (P5).</div>
+
+    <!-- bande compacte -->
+    <div class="pband" style="margin-bottom:22px">
+      <div class="seg"><div class="ring" style="width:44px;height:44px;background:conic-gradient(var(--teal-400,#2dd4bf) 108deg,rgba(255,255,255,.14) 0)"><div class="in" style="width:34px;height:34px;background:var(--navy-950)"><span class="v" style="font-size:11px;color:#fff">Lv3</span></div></div><div><div class="lbl">Rang</div><div class="big" style="font-size:14px">Habitué du bord</div></div></div>
+      <div class="sep"></div>
+      <div class="seg"><div><div class="lbl">XP saison</div><div class="big">120<span style="color:rgba(255,255,255,.4);font-size:13px"> / 400</span></div></div></div>
+      <div class="sep"></div>
+      <div class="seg"><div><div class="lbl">Série</div><div class="big">🔥 2 sem.</div></div></div>
+      <div class="sep"></div>
+      <div class="seg"><div><div class="lbl">Défis en cours</div><div class="big">2</div></div></div>
+      <a class="more" href="#">Ma progression ›</a>
+    </div>
+
+    <!-- page /defis -->
+    <div class="frame" style="padding:24px">
+      <div class="tag-data" style="margin-bottom:14px">/DEFIS</div>
+      <!-- daily loop -->
+      <div class="card live" style="display:flex;align-items:center;gap:18px;margin-bottom:18px;padding:20px 22px">
+        <div style="font-size:30px">🎯</div>
+        <div style="flex:1">
+          <div class="tag-data teal">RENDEZ-VOUS DU JOUR · +5 XP</div>
+          <h3 style="margin:3px 0 2px">Ton meilleur créneau : 17:30 → 19:30. Tu vises ?</h3>
+          <p class="small muted">Prévois ta sortie du jour. Bonus si tu logues une prise dans le créneau. Un rendez-vous quotidien, même sans pêcher.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px"><a class="btn accent sm" href="#">Je vise</a><a class="btn ghost sm" href="#">Pas aujourd'hui</a></div>
+      </div>
+      <!-- solo challenges -->
+      <div class="chgrid">
+        <div class="chrow"><div class="ring" style="width:44px;height:44px;background:conic-gradient(var(--teal-500) 120deg,var(--sand-200) 0)"><div class="in" style="width:34px;height:34px"><span class="v" style="font-size:11px">1/3</span></div></div><div><div class="t">Trois espèces ce mois</div><div class="d">La variété d'un pêcheur curieux</div></div><span class="xpchip">＋40 XP</span></div>
+        <div class="chrow"><div class="ring" style="width:44px;height:44px;background:conic-gradient(var(--sand-200) 0,var(--sand-200) 0)"><div class="in" style="width:34px;height:34px"><span class="v" style="font-size:11px">0/1</span></div></div><div><div class="t">Mesure une prise</div><div class="d">Rends tes records fiables</div></div><span class="xpchip">＋15 XP</span></div>
+        <div class="chrow"><div class="ring" style="width:44px;height:44px;background:conic-gradient(var(--sand-200) 0,var(--sand-200) 0)"><div class="in" style="width:34px;height:34px"><span class="v" style="font-size:11px">0/1</span></div></div><div><div class="t">Pêche au lever du soleil</div><div class="d">Le meilleur créneau du bord</div></div><span class="xpchip">＋20 XP</span></div>
+        <div class="chrow"><div class="ring" style="width:44px;height:44px;background:conic-gradient(var(--sand-200) 0,var(--sand-200) 0)"><div class="in" style="width:34px;height:34px"><span class="v" style="font-size:11px">0/1</span></div></div><div><div class="t">Logue une sortie</div><div class="d">Même bredouille, ça compte</div></div><span class="xpchip">＋20 XP</span></div>
+      </div>
+      <!-- seasonal event -->
+      <div class="card" style="margin-top:18px;background:var(--navy-950);color:#fff;border:0;display:flex;align-items:center;gap:16px">
+        <div style="font-size:26px">🏆</div>
+        <div style="flex:1"><div class="tag-data on-dark">ÉVÉNEMENT · SAISON DU BAR</div><h3 style="color:#fff;margin:2px 0">Ton plus gros bar de la saison</h3><p class="small" style="color:rgba(255,255,255,.6)">On suit ta meilleure prise, rien qu'à toi. Jusqu'au 31 oct.</p></div>
+        <div style="text-align:right"><div class="num" style="color:var(--gold-500);font-size:22px">71 cm</div><div class="tag-data">TA MEILLEURE</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DUEL -->
+  <section class="mockblock">
+    <div class="sec-num">04 — FACE-À-FACE</div>
+    <h2 class="mock-t">Duel / rival, 100 % spot-safe</h2>
+    <div class="note"><span class="badge-prio">P6</span><b>Problème :</b> les classements donnent un rang global, mais aucune <b>confrontation 1v1</b> — le vrai hook social-dopamine. <b>Proposé :</b> défier un pêcheur que tu suis sur la saison ; résultat = carte partageable. La confrontation porte sur des <b>compteurs</b>, jamais un lieu.</div>
+    <div class="duel">
+      <div class="top">
+        <div class="who"><div class="avatar">SE</div><span class="name">@Seychi</span></div>
+        <div style="text-align:center"><div class="vs">3 — 1</div><div class="tag-data on-dark">DUEL · ÉTÉ 2026</div></div>
+        <div class="who"><span class="name" style="color:var(--gold-500)">@SHW</span><div class="avatar" style="background:rgba(217,165,60,.2);color:var(--gold-500)">SH</div></div>
+      </div>
+      <div class="rows">
+        <div class="drow"><div class="val l">340</div><div class="metric">XP saison</div><div class="val r">210</div></div>
+        <div class="drow"><span class="val l">9</span><div class="metric">Prises</div><span class="val r">6</span></div>
+        <div class="drow"><span class="val l">71 cm</span><div class="metric">Plus grosse</div><span class="val r">50 cm</span></div>
+        <div class="drow"><span class="val l">4</span><div class="metric">Espèces</div><span class="val r">3</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap">
+      <span class="safe">🔒 Aucun spot ni coordonnée : que des compteurs</span>
+      <a class="btn ghost sm" href="#">Partager la carte de duel</a>
+      <span class="small muted">Variante « Rival de la semaine » : le système te désigne un pêcheur de niveau proche dans ton dépt (opt-in) et notifie « à 2 prises de le doubler ».</span>
+    </div>
+  </section>
+
+  <!-- 5. MOBILE NAV -->
+  <section class="mockblock">
+    <div class="sec-num">05 — NAV MOBILE</div>
+    <h2 class="mock-t">Tab bar mobile : sortir le compétitif du menu « Plus »</h2>
+    <div class="note"><span class="badge-prio">P4</span><b>Problème :</b> sur mobile, <b>Classements</b> et <b>Co-pêchage</b> sont enterrés dans la bottom-sheet « Plus » — sur la plateforme qui est tout l'enjeu de la phase à venir. <b>Proposé :</b> une tab bar qui surface Classements + un bandeau d'instruments qui porte enfin la progression.</div>
+    <div class="phones">
+      <!-- avant -->
+      <div>
+        <div class="tag-data" style="margin-bottom:8px;color:var(--ink-400)">AUJOURD'HUI</div>
+        <div class="phone">
+          <div class="screen">
+            <div class="mini-inst"><span>06</span><b>PM 06:42</b><span>·</span><b>COEF 88</b><span>·</span><b>17:30›19:30</b></div>
+            <div class="scr-body">
+              <div class="card flat" style="padding:14px;margin-bottom:10px"><div class="tag-data">MAINTENANT</div><div class="num" style="font-size:20px;color:var(--navy-900)">89 · TRÈS BONNE</div></div>
+              <div class="row" style="padding:10px"><div class="thumb" style="width:38px;height:38px"></div><div><div style="font-weight:600;font-size:13px">@SHW · Bar 50 cm</div><div class="tag-data">IL Y A 23 J</div></div></div>
+            </div>
+            <div class="tabbar">
+              <div class="tab on"><span class="ico"></span>Carnet</div>
+              <div class="tab"><span class="ico"></span>Carte</div>
+              <div class="fab">＋</div>
+              <div class="tab"><span class="ico"></span>Fil</div>
+              <div class="tab"><span class="ico" style="border-radius:50%"></span>Plus</div>
+            </div>
+          </div>
+        </div>
+        <p class="small muted" style="max-width:300px;margin-top:10px">Classements, Co-pêchage, Mes pêcheurs, Accueil = tous cachés derrière « Plus ». Aucun signal de progression.</p>
+      </div>
+      <!-- proposé -->
+      <div>
+        <div class="tag-data" style="margin-bottom:8px;color:var(--teal-600)">PROPOSÉ</div>
+        <div class="phone">
+          <div class="screen">
+            <div class="mini-inst"><span>06</span><b>PM 06:42</b><span>·</span><b>COEF 88</b><span class="prog-pill">⚓3 · 🔥2</span></div>
+            <div class="scr-body">
+              <div class="pband" style="padding:12px 14px;margin-bottom:10px;gap:12px"><div class="seg"><div><div class="lbl">XP</div><div class="big" style="font-size:14px">120/400</div></div></div><div class="sep"></div><div class="seg"><div><div class="lbl">Défis</div><div class="big" style="font-size:14px">2 ›</div></div></div></div>
+              <div class="card flat" style="padding:14px"><div class="tag-data teal">RENDEZ-VOUS DU JOUR</div><div style="font-weight:600;font-size:13px;margin-top:2px">Tu vises 17:30 ? ＋5 XP</div></div>
+            </div>
+            <div class="tabbar">
+              <div class="tab on"><span class="ico"></span>Carnet</div>
+              <div class="tab"><span class="ico"></span>Carte</div>
+              <div class="fab">＋</div>
+              <div class="tab"><span class="ico" style="border-radius:50%"></span>Classements</div>
+              <div class="tab"><span class="ico"></span>Fil</div>
+            </div>
+          </div>
+        </div>
+        <p class="small muted" style="max-width:300px;margin-top:10px">Pastille de progression <b>⚓3 · 🔥2</b> tapable dans le bandeau ; <b>Classements</b> en tab de 1er niveau ; le reste (Co-pêchage, Mes pêcheurs) reste accessible via un menu compte.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="small faint" style="margin-top:56px;text-align:center">Maquettes statiques · DA v2 « Instrument de précision marine » · support de brief pour l'audit 2026-07-06 · rien n'est final.</p>
+</div>
+
+</body>
+</html>

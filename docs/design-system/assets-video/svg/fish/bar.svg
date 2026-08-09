@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 400" width="990" height="400">
+  <title>Bar (Dicentrarchus labrax)</title>
+  <desc>VIDEO-DS §4.1 — profil gauche, flat vector semi-naturaliste. Groupes: tail/fins/body/eye. Aucune ombre (posée par le renderer).</desc>
+  <defs><clipPath id="bar-body-clip"><path d="M 26 206 C 52 180, 92 154, 152 136 C 212 118, 300 100, 400 94 C 470 91, 560 100, 650 122 C 706 136, 748 158, 770 176 L 770 240 C 744 250, 716 258, 680 266 C 600 288, 500 306, 410 308 C 320 310, 240 296, 170 268 C 116 246, 66 226, 40 216 C 34 213, 28 209, 26 206 Z"></path></clipPath></defs>
+
+  <g id="tail" data-pivot="762 210">
+    <path d="M 748 178 C 802 174, 834 162, 866 146 C 898 128, 924 116, 944 110 C 932 146, 922 178, 920 208 C 922 240, 934 274, 948 310 C 926 298, 898 282, 864 266 C 832 254, 800 248, 748 242 Z" fill="#6F8C86"></path>
+    <path d="M 774 202 L 936 116" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 774 205 L 912 148" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 774 208 L 900 184" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 774 211 L 900 226" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 774 214 L 910 268" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 774 217 L 936 302" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+  </g>
+
+  <g id="fins">
+    <g id="fin-dorsal-1">
+      <path d="M 310 118 L 330 46 C 366 32, 410 38, 446 66 L 460 108 C 410 116, 358 118, 310 118 Z" fill="#64817B"></path>
+    <path d="M 330 46 L 322 112" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 352 38 L 342 110" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 376 36 L 366 108" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 402 38 L 392 106" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 428 48 L 418 104" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 446 64 L 436 102" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    </g>
+    <g id="fin-dorsal-2">
+      <path d="M 496 112 L 508 56 C 546 58, 586 76, 616 100 L 632 130 C 584 130, 540 122, 496 112 Z" fill="#6F8C86"></path>
+    <path d="M 508 58 L 506 102" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 536 62 L 530 106" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 564 72 L 556 110" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 592 86 L 582 112" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    </g>
+    <g id="fin-anal">
+      <path d="M 540 300 C 560 330, 584 346, 614 344 C 630 330, 638 312, 642 292 C 608 300, 574 302, 540 300 Z" fill="#6F8C86"></path>
+    <path d="M 556 304 L 592 340" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 578 300 L 606 336" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 600 296 L 624 322" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    </g>
+    <g id="fin-pelvic">
+      <path d="M 300 300 C 318 312, 332 328, 338 346 C 320 342, 302 330, 294 312 C 292 306, 295 302, 300 300 Z" fill="#6F8C86"></path>
+      <path d="M 302 306 L 326 334" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    </g>
+  </g>
+
+  <g id="body" clip-path="url(#bar-body-clip)">
+    <rect x="-10" y="-10" width="1010" height="420" fill="#EDEAE0"></rect>
+    <path d="M -10 -10 L 990 -10 L 990 230 C 840 240, 700 254, 560 268 C 460 278, 340 282, 220 274 C 150 268, 80 254, -10 240 Z" fill="#C7D2CC"></path>
+    <path d="M -10 -10 L 990 -10 L 990 214 C 840 206, 700 206, 560 216 C 460 224, 340 232, 220 234 C 150 235, 80 232, -10 228 Z" fill="#9FB4AE"></path>
+    <path d="M -10 -10 L 990 -10 L 990 200 C 850 186, 700 168, 560 160 C 460 155, 340 158, 220 172 C 150 180, 80 194, -10 214 Z" fill="#5E7B76"></path>
+    <path d="M 180 142 C 300 116, 430 110, 560 118 C 640 124, 700 138, 736 156" stroke="#FBF8F2" stroke-opacity="0.7" stroke-width="6" stroke-linecap="round" fill="none"></path>
+    <path d="M 236 192 C 380 202, 520 208, 700 198" stroke="#04141C" stroke-opacity="0.28" stroke-width="3" fill="none"></path>
+    <path d="M 320 184 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 309 206 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 320 228 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 331 250 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 26 206 C 60 218, 94 230, 126 242" stroke="#04141C" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round" fill="none"></path>
+    <path d="M 30 214 C 52 224, 74 232, 96 240" stroke="#04141C" stroke-opacity="0.35" stroke-width="3.5" stroke-linecap="round" fill="none"></path>
+    <path d="M 118 226 L 128 248" stroke="#04141C" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round" fill="none"></path>
+    <path d="M 168 168 C 180 192, 180 214, 168 234" stroke="#04141C" stroke-opacity="0.3" stroke-width="3.5" fill="none"></path>
+    <path d="M 196 148 C 216 184, 216 222, 192 252" stroke="#04141C" stroke-opacity="0.4" stroke-width="4" fill="none"></path>
+    <path d="M 228 152 C 250 186, 252 220, 230 250" stroke="#04141C" stroke-opacity="0.5" stroke-width="4" fill="none"></path>
+    <path d="M 246 200 L 262 212 L 244 222" stroke="#04141C" stroke-opacity="0.5" stroke-width="4" stroke-linejoin="round" fill="none"></path>
+    <circle cx="96" cy="172" r="3.5" fill="#04141C" fill-opacity="0.55"></circle>
+  </g>
+
+  <g id="fin-pectoral" class="fins" data-pivot="284 218">
+    <path d="M 280 212 C 322 208, 356 224, 378 252 C 350 258, 312 250, 286 234 C 278 226, 276 218, 280 212 Z" fill="#6F8C86"></path>
+    <path d="M 288 220 C 316 226, 344 236, 366 246" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 288 226 C 310 234, 330 242, 348 250" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 290 214 C 320 214, 348 222, 372 236" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+  </g>
+
+  <g id="eye">
+    <circle cx="150" cy="176" r="17" fill="#04141C"></circle>
+    <circle cx="144" cy="169" r="5" fill="#FBF8F2"></circle>
+  </g>
+</svg>

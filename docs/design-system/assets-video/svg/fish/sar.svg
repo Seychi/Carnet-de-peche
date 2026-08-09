@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" width="920" height="600">
+  <title>Sar commun (Diplodus sargus)</title>
+  <desc>VIDEO-DS §4.1 — ovale comprime argente, 8-9 bandes verticales sombres, tache noire pedoncule, levres epaisses.</desc>
+  <defs><clipPath id="sar-body-clip"><path d="M 74 316 C 84 262, 112 204, 158 166 C 210 124, 284 100, 366 96 C 452 92, 538 108, 606 148 C 672 186, 718 244, 736 312 C 744 336, 744 336, 736 360 C 716 424, 664 476, 588 508 C 506 542, 410 544, 324 518 C 244 494, 176 442, 140 376 C 116 332, 74 372, 74 316 Z"></path></clipPath></defs>
+  <g id="tail" data-pivot="722 312">
+    <path d="M 720 268 C 766 260, 800 246, 836 224 C 860 208, 882 198, 898 194 C 886 232, 878 270, 878 316 C 878 362, 886 400, 898 438 C 880 430, 858 416, 832 398 C 798 376, 764 362, 720 356 Z" fill="#8A9BA0"></path>
+    <path d="M 742 296 L 888 206" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 742 316 L 872 316" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 742 336 L 888 426" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+  </g>
+  <g id="fins">
+    <path d="M 300 108 L 320 40 C 356 30, 420 32, 470 50 C 540 74, 600 108, 648 150 L 660 178 C 560 156, 430 130, 300 108 Z" fill="#7E9095"></path>
+    <path d="M 340 40 L 332 116" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 400 40 L 392 126" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 470 52 L 462 140" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 540 74 L 532 156" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 604 108 L 596 168" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 470 470 C 492 508, 522 524, 556 518 C 578 496, 592 466, 600 430 C 558 448, 514 462, 470 470 Z" fill="#8A9BA0"></path>
+    <path d="M 300 466 C 320 484, 334 506, 340 528 C 320 520, 300 504, 290 482 C 288 474, 292 468, 300 466 Z" fill="#8A9BA0"></path>
+  </g>
+  <g id="body" clip-path="url(#sar-body-clip)">
+    <rect x="-12" y="-12" width="944" height="624" fill="#ECEAE0"></rect>
+    <path d="M -12 -12 L 932 -12 L 932 300 C 800 268, 660 240, 500 236 C 380 234, 260 258, 180 300 C 130 326, 90 360, -12 396 Z" fill="#8A9BA0"></path>
+    <path d="M 210 138 C 320 108, 450 104, 560 130 C 630 146, 686 178, 720 224" stroke="#FBF8F2" stroke-opacity="0.65" stroke-width="6" stroke-linecap="round" fill="none"></path>
+    <path d="M 214 150 C 200 250, 200 360, 214 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 268 150 C 254 250, 254 360, 268 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 322 150 C 308 250, 308 360, 322 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 376 150 C 362 250, 362 360, 376 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 430 150 C 416 250, 416 360, 430 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 484 150 C 470 250, 470 360, 484 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 538 150 C 524 250, 524 360, 538 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 592 150 C 578 250, 578 360, 592 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="20" fill="none"></path>
+    <path d="M 640 150 C 626 250, 626 360, 640 468" stroke="#04141C" stroke-opacity="0.42" stroke-width="16" fill="none"></path>
+    <path d="M 214 176 C 236 232, 236 300, 214 356" stroke="#04141C" stroke-opacity="0.4" stroke-width="4" fill="none"></path>
+    <ellipse cx="712" cy="312" rx="26" ry="34" fill="#04141C" fill-opacity="0.85"></ellipse>
+    <path d="M 74 316 C 100 326, 124 332, 146 336" stroke="#04141C" stroke-opacity="0.6" stroke-width="8" stroke-linecap="round" fill="none"></path>
+    <path d="M 76 300 C 96 298, 116 298, 136 302" stroke="#04141C" stroke-opacity="0.45" stroke-width="6" stroke-linecap="round" fill="none"></path>
+  </g>
+  <g id="fin-pectoral" class="fins" data-pivot="320 326">
+    <path d="M 316 320 C 366 314, 410 334, 440 372 C 404 382, 358 370, 326 348 C 316 340, 312 328, 316 320 Z" fill="#8A9BA0"></path>
+    <path d="M 326 330 C 362 338, 396 352, 426 372" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+  </g>
+  <g id="eye"><circle cx="186" cy="250" r="18" fill="#04141C"></circle><circle cx="179" cy="242" r="5.5" fill="#FBF8F2"></circle></g>
+</svg>

@@ -14,6 +14,8 @@ import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/soluna
 import { QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
+import { getWallKind } from '@/lib/gating/wall'
+import { SignupWall } from '@/components/map/SignupBanner'
 
 // ─── Solunar helpers ─────────────────────────────────────────────────────────
 
@@ -230,6 +232,9 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
   useFocusTrap(containerRef, onClose)
 
   const isPaid = userTier === 'local' || userTier === 'itinerant'
+  // Sprint 75 Bloc 1 : `isPaid` continue de porter le gating des DONNÉES (coords
+  // précises, fiche complète) ; `wall` ne décide que du message montré à qui.
+  const wall = getWallKind(userTier)
 
   // ── Prochain créneau : lazy-load via Server Action ────────────────────────
   const [windowStatus, setWindowStatus] = useState<'idle' | 'loading' | 'done'>('idle')
@@ -379,8 +384,19 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
       )}
       {userTier === 'discovery' && <NextWindowTeaser />}
 
-      {/* Message gating */}
-      {!isPaid && (
+      {/* Message gating — visiteur SANS compte : aucune mention de prix, on lui
+          propose le carnet gratuit et on le ramène ici après inscription. */}
+      {wall === 'signup' && (
+        <SignupWall
+          surface="spot_popup"
+          compact
+          redirectTo={`/spots/${spot.slug}`}
+          intro="Les coordonnées précises sont réservées aux abonnés, mais ton carnet et les marées de ce spot sont gratuits."
+        />
+      )}
+
+      {/* Message gating — inscrit gratuit : le seul à qui on parle d'abonnement. */}
+      {wall === 'upsell' && (
         <div className="flex items-start gap-2 bg-ink-100 rounded-xl p-3">
           <Lock size={14} className="text-ink-500 mt-0.5 shrink-0" />
           <p className="text-xs text-ink-500 leading-snug">

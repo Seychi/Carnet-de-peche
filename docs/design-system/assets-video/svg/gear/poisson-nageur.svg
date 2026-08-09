@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" height="200">
+  <title>Gear — poisson-nageur</title>
+  <desc>Extension DS §4 — jerkbait bicolore (dos water-1, ventre sand), bavette, 2 triples, œil gold.</desc>
+  <path d="M 96 100 C 130 66, 210 60, 286 78 C 310 84, 322 92, 322 100 C 322 108, 310 116, 286 122 C 210 140, 130 134, 96 100 Z" fill="#FBF8F2" stroke="#04141C" stroke-width="9" stroke-linejoin="round"></path>
+  <path d="M 96 100 C 130 66, 210 60, 286 78 C 310 84, 322 92, 322 100 C 300 96, 210 82, 96 100 Z" fill="#2E6D8C"></path>
+  <path d="M 96 100 C 130 66, 210 60, 286 78 C 310 84, 322 92, 322 100 C 322 108, 310 116, 286 122 C 210 140, 130 134, 96 100 Z" fill="none" stroke="#04141C" stroke-width="9" stroke-linejoin="round"></path>
+  <path d="M 322 78 C 340 88, 344 90, 348 74 C 350 92, 350 108, 348 126 C 344 110, 340 112, 322 122" fill="#7BA6B4" stroke="#04141C" stroke-width="8" stroke-linejoin="round"></path>
+  <path d="M 96 100 L 64 128 C 76 116, 78 96, 66 78 Z" fill="#DFF3F2" stroke="#04141C" stroke-width="8" stroke-linejoin="round"></path>
+  <g stroke="#7FA3B0" stroke-width="8" fill="none" stroke-linecap="round">
+    <path d="M 150 128 L 150 160 M 138 150 L 150 168 L 162 150"></path>
+    <path d="M 236 126 L 236 158 M 224 148 L 236 166 L 248 148"></path>
+  </g>
+  <circle cx="128" cy="96" r="13" fill="#D9A53C" stroke="#04141C" stroke-width="7"></circle>
+  <circle cx="124" cy="92" r="3.5" fill="#04141C"></circle>
+</svg>

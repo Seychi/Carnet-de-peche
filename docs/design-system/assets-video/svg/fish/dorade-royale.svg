@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560">
+  <title>Dorade royale (Sparus aurata)</title>
+  <desc>VIDEO-DS §4.1 — front bombé, bande dorée entre les yeux (gold-500), tache opercule, dorsale unique. Groupes: tail/fins/body/eye.</desc>
+  <defs><clipPath id="dor-body-clip"><path d="M 70 300 C 78 262, 96 214, 132 178 C 168 146, 224 118, 296 104 C 360 92, 430 92, 500 106 C 570 120, 640 156, 690 210 C 704 226, 712 240, 716 252 L 716 318 C 706 330, 694 340, 678 350 C 610 392, 520 424, 420 432 C 330 438, 240 418, 176 380 C 130 352, 96 330, 82 316 C 74 308, 70 304, 70 300 Z"></path></clipPath></defs>
+
+  <g id="tail" data-pivot="716 285">
+    <path d="M 700 250 C 748 242, 782 226, 818 202 C 844 184, 866 172, 884 166 C 872 204, 864 240, 862 284 C 864 328, 872 366, 886 404 C 866 396, 842 382, 814 364 C 780 342, 746 328, 700 320 Z" fill="#7A9198"></path>
+    <path d="M 722 278 L 872 178" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 722 282 L 856 230" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 722 286 L 854 284" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 722 290 L 858 338" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 722 294 L 874 392" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+  </g>
+
+  <g id="fins">
+    <g id="fin-dorsal">
+      <path d="M 298 118 L 318 44 C 352 32, 390 30, 424 40 C 448 47, 462 56, 470 62 C 500 74, 560 106, 614 148 L 642 186 C 540 168, 420 142, 298 118 Z" fill="#6E8890"></path>
+    <path d="M 318 44 L 308 118" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 348 36 L 338 124" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 380 34 L 372 130" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 412 40 L 404 136" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 442 50 L 434 142" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 486 68 L 478 150" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 530 88 L 522 158" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 574 112 L 566 166" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    <path d="M 610 140 L 602 174" stroke="#04141C" stroke-opacity="0.5" stroke-width="3.5" fill="none"></path>
+    </g>
+    <g id="fin-anal">
+      <path d="M 498 414 C 518 450, 546 466, 578 464 C 598 444, 610 418, 618 386 C 580 400, 538 410, 498 414 Z" fill="#7A9198"></path>
+    <path d="M 516 420 L 548 458" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 556 410 L 584 448" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    </g>
+    <g id="fin-pelvic">
+      <path d="M 306 414 C 322 428, 334 446, 340 466 C 322 460, 304 446, 296 426 C 294 420, 298 415, 306 414 Z" fill="#7A9198"></path>
+    </g>
+  </g>
+
+  <g id="body" clip-path="url(#dor-body-clip)">
+    <rect x="-10" y="-10" width="970" height="580" fill="#EFECE0"></rect>
+    <path d="M -10 -10 L 950 -10 L 950 340 C 800 334, 660 334, 540 348 C 430 360, 300 376, 200 382 C 140 386, 90 388, -10 392 Z" fill="#CDD5D3"></path>
+    <path d="M -10 -10 L 950 -10 L 950 300 C 800 282, 660 268, 540 268 C 420 270, 300 284, 200 306 C 140 318, 95 330, -10 352 Z" fill="#A3B3B4"></path>
+    <path d="M -10 -10 L 950 -10 L 950 262 C 820 222, 700 186, 560 166 C 440 152, 320 158, 230 184 C 170 202, 120 232, -10 300 Z" fill="#5C7076"></path>
+    <path d="M 200 132 C 300 108, 420 104, 520 120 C 600 134, 660 164, 700 204" stroke="#FBF8F2" stroke-opacity="0.7" stroke-width="6" stroke-linecap="round" fill="none"></path>
+    <path d="M 300 196 C 420 208, 540 230, 664 268" stroke="#04141C" stroke-opacity="0.28" stroke-width="3" fill="none"></path>
+    <path d="M 310 250 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 321 276 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 310 302 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 321 328 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0 a11 8 0 0 1 22 0" stroke="#04141C" stroke-opacity="0.13" stroke-width="2.5" fill="none"></path>
+    <path d="M 70 300 C 92 306, 112 312, 130 318" stroke="#04141C" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round" fill="none"></path>
+    <path d="M 72 290 C 84 292, 96 295, 108 298" stroke="#04141C" stroke-opacity="0.3" stroke-width="4" stroke-linecap="round" fill="none"></path>
+    <path d="M 250 172 C 268 214, 268 258, 246 292" stroke="#04141C" stroke-opacity="0.35" stroke-width="4" fill="none"></path>
+    <path d="M 286 176 C 306 216, 306 258, 284 296" stroke="#04141C" stroke-opacity="0.5" stroke-width="4" fill="none"></path>
+    <path d="M 300 240 L 316 252 L 298 262" stroke="#04141C" stroke-opacity="0.5" stroke-width="4" stroke-linejoin="round" fill="none"></path>
+    <ellipse cx="306" cy="162" rx="24" ry="18" fill="#04141C" fill-opacity="0.72"></ellipse>
+    <path d="M 140 170 C 152 190, 157 212, 154 240" stroke="#D9A53C" stroke-width="18" stroke-linecap="round" fill="none"></path>
+    <circle cx="120" cy="252" r="3.5" fill="#04141C" fill-opacity="0.55"></circle>
+  </g>
+
+  <g id="fin-pectoral" class="fins" data-pivot="326 298">
+    <path d="M 322 292 C 368 288, 408 306, 436 340 C 404 348, 362 338, 332 318 C 322 310, 318 300, 322 292 Z" fill="#7A9198"></path>
+    <path d="M 330 300 C 362 304, 392 316, 420 334" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M 330 306 C 356 314, 380 324, 402 336" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+  </g>
+
+  <g id="eye">
+    <circle cx="176" cy="236" r="17" fill="#04141C"></circle>
+    <circle cx="170" cy="229" r="5" fill="#FBF8F2"></circle>
+  </g>
+</svg>

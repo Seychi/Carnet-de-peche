@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker cross</title>
+  <desc>VIDEO-DS §4.2 — croix dans un disque coral-500, contour navy-950.</desc>
+  <circle cx="120" cy="120" r="94" fill="#E5604F" stroke="#04141C" stroke-width="18"></circle>
+  <path d="M 86 86 L 154 154 M 154 86 L 86 154" stroke="#04141C" stroke-width="22" stroke-linecap="round" fill="none"></path>
+</svg>

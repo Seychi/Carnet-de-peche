@@ -43,6 +43,40 @@ export const analytics = {
   upsellClicked(props: { surface: string }): void {
     capture('upsell_clicked', props)
   },
+  /**
+   * Mur d'INSCRIPTION affiché à un visiteur anonyme (sprint 75, Bloc 1).
+   * Strictement DISTINCT de `paywall_viewed`, qui reste réservé aux inscrits
+   * gratuits : sans cette séparation, on ne peut pas savoir si le trafic SEO
+   * bute sur « crée un compte » ou sur « paie un abonnement ».
+   * `surface` = identifiant stable (cf SIGNUP_WALL_SURFACES dans lib/gating/wall).
+   */
+  signupWallViewed(props: { surface: string }): void {
+    capture('signup_wall_viewed', props)
+  },
+  /** Clic sur le CTA d'un mur d'inscription (vers /auth/register). */
+  signupWallClicked(props: { surface: string }): void {
+    capture('signup_wall_clicked', props)
+  },
+  /**
+   * Clic sur un CTA produit d'une fiche espèce (sprint 75, Bloc 5). `position`
+   * distingue le CTA contextuel précoce du sticky et du pied de page : c'est
+   * exactement ce qu'on cherche à savoir (l'ancien CTA était ligne 478 sur 494
+   * et n'était jamais atteint sur mobile).
+   */
+  speciesPageCtaClicked(props: {
+    species: string
+    position: 'inline' | 'sticky' | 'footer'
+  }): void {
+    capture('species_page_cta_clicked', props)
+  },
+  /**
+   * Clic d'une fiche espèce vers une fiche spot (sprint 75, Bloc 5). Mesure le
+   * PONT du sprint : /especes (36 % des impressions, 1,7 % de CTR) doit alimenter
+   * /spots (8,4 % de CTR). `spot_slug` est un identifiant public, jamais une coord.
+   */
+  speciesToSpotClicked(props: { species: string; spot_slug: string }): void {
+    capture('species_to_spot_clicked', props)
+  },
   /** Clic sur un CTA de la home (conversion funnel). `cta` = identifiant du bouton. */
   homeCtaClicked(props: { cta: string }): void {
     capture('home_cta_clicked', props)

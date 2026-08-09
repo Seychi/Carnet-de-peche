@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 380" width="240" height="380">
+  <title>Décor algue-2 (fucus)</title>
+  <desc>VIDEO-DS §4.4 — fucus buissonnant, water-1 70%, brins nommés.</desc>
+  <g id="brin-1"><path d="M 120 380 C 116 300, 116 240, 122 190" fill="none" stroke="#0F4C5C" stroke-opacity="0.7" stroke-width="22" stroke-linecap="round"></path>
+    <path d="M 122 240 C 100 210, 78 196, 58 196 M 122 210 C 146 184, 168 172, 190 176 M 122 190 C 108 150, 92 128, 74 118 M 122 190 C 138 150, 156 126, 178 116 M 122 200 C 122 160, 122 132, 122 108" fill="none" stroke="#0F4C5C" stroke-opacity="0.6" stroke-width="16" stroke-linecap="round"></path>
+    <circle cx="74" cy="114" r="12" fill="#0F4C5C" fill-opacity="0.6"></circle><circle cx="178" cy="112" r="12" fill="#0F4C5C" fill-opacity="0.6"></circle><circle cx="122" cy="104" r="12" fill="#0F4C5C" fill-opacity="0.6"></circle><circle cx="56" cy="192" r="11" fill="#0F4C5C" fill-opacity="0.6"></circle><circle cx="192" cy="172" r="11" fill="#0F4C5C" fill-opacity="0.6"></circle></g>
+</svg>

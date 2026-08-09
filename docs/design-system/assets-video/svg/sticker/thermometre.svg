@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker thermomètre</title>
+  <desc>VIDEO-DS §4.2 — tube foam, mercure coral-500, contour navy-950.</desc>
+  <path d="M 152 66 L 176 66 M 152 96 L 170 96 M 152 126 L 176 126" stroke="#04141C" stroke-width="8" stroke-linecap="round" fill="none"></path>
+  <path d="M 98 50 A 22 22 0 0 1 142 50 L 142 148 A 33 33 0 1 1 98 148 Z" fill="#DFF3F2" stroke="#04141C" stroke-width="16" stroke-linejoin="round"></path>
+  <circle cx="120" cy="176" r="19" fill="#E5604F"></circle>
+  <rect x="111" y="100" width="18" height="76" rx="9" fill="#E5604F"></rect>
+</svg>

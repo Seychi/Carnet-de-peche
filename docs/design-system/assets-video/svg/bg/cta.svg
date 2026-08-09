@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <title>Fond cta</title>
+  <desc>VIDEO-DS §4.3 — navy-950, houle water-2/3 en bas, espace central dégagé pour le wordmark.</desc>
+  <defs><radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+    <stop offset="0" stop-color="#0B2530"></stop><stop offset="1" stop-color="#04141C"></stop>
+  </radialGradient></defs>
+  <rect x="0" y="0" width="1080" height="1920" fill="url(#glow)"></rect>
+  <path d="M -20 1500 L -20 1495.0 L 20 1505.0 L 60 1514.4 L 100 1522.2 L 140 1527.6 L 180 1529.9 L 220 1529.0 L 260 1524.8 L 300 1518.0 L 340 1509.1 L 380 1499.2 L 420 1489.5 L 460 1480.9 L 500 1474.4 L 540 1470.7 L 580 1470.2 L 620 1473.0 L 660 1478.8 L 700 1487.0 L 740 1496.5 L 780 1506.5 L 820 1515.7 L 860 1523.2 L 900 1528.1 L 940 1530.0 L 980 1528.5 L 1020 1524.0 L 1060 1516.7 L 1100 1507.7 L 1100 1920 L -20 1920 Z" fill="#0B3A4A"></path>
+  <path d="M -20 1640 L -20 1673.1 L 20 1667.5 L 60 1657.5 L 100 1644.8 L 140 1631.3 L 180 1619.2 L 220 1610.4 L 260 1606.2 L 300 1607.4 L 340 1613.7 L 380 1624.2 L 420 1637.2 L 460 1650.6 L 500 1662.3 L 540 1670.6 L 580 1674.0 L 620 1672.0 L 660 1665.0 L 700 1654.0 L 740 1640.8 L 780 1627.5 L 820 1616.2 L 860 1608.6 L 900 1606.0 L 940 1608.7 L 980 1616.4 L 1020 1627.8 L 1060 1641.1 L 1100 1654.3 L 1100 1920 L -20 1920 Z" fill="#082C3A"></path>
+</svg>

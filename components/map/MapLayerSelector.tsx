@@ -9,6 +9,7 @@ import { HEAT_LEGEND_STOPS } from '@/lib/map/heatmap'
 import { QUALITY_LEGEND } from '@/lib/map/quality'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { analytics } from '@/lib/analytics'
+import { getWallKind } from '@/lib/gating/wall'
 
 // Espèces proposées par le sélecteur dédié de la couche Qualité (les 6 cœur).
 const QUALITY_SPECIES = ['bar', 'dorade_royale', 'lieu_jaune', 'maquereau', 'sar', 'orphie'] as const
@@ -88,12 +89,19 @@ export default function MapLayerSelector({
 
   // Paywall vu : à l'ouverture du panneau, on logue chaque couche verrouillée
   // visible (score si non payant, fond marin si < Local, qualité si non itinérant).
+  // Sprint 75 Bloc 1 : ces couches restent payantes pour TOUT LE MONDE, compte ou
+  // pas. Proposer « crée ton carnet » ici serait une promesse fausse (le compte
+  // gratuit ne les débloque pas) : on se contente donc de retirer la surface de
+  // PRIX aux visiteurs sans compte. Le CTA d'inscription vit dans le bandeau de
+  // la carte, où il est honnête.
+  const wall = getWallKind(userTier)
+
   useEffect(() => {
-    if (!open) return
+    if (!open || wall !== 'upsell') return
     if (!isPaid) analytics.paywallViewed({ surface: 'layer_score' })
     if (!canUseBathy) analytics.paywallViewed({ surface: 'layer_bathy' })
     if (!isItinerant) analytics.paywallViewed({ surface: 'layer_quality' })
-  }, [open, isPaid, canUseBathy, isItinerant])
+  }, [open, wall, isPaid, canUseBathy, isItinerant])
 
   return (
     <div className="absolute top-3 left-3 z-20">
@@ -206,6 +214,10 @@ export default function MapLayerSelector({
                 </div>
                 {isPaid ? (
                   <Switch on={scoreOn} onClick={() => onScoreToggle(!scoreOn)} label="Afficher ton score perso" />
+                ) : wall === 'signup' ? (
+                  <span className="shrink-0 rounded-full bg-ink-100 px-2 py-1 text-xs font-medium text-ink-400">
+                    Abonnés
+                  </span>
                 ) : (
                   <Link
                     href="/tarifs"
@@ -233,6 +245,10 @@ export default function MapLayerSelector({
                 </div>
                 {canUseBathy ? (
                   <Switch on={bathyOn} onClick={() => onBathyToggle(!bathyOn)} label="Afficher la couche fond marin" />
+                ) : wall === 'signup' ? (
+                  <span className="shrink-0 rounded-full bg-ink-100 px-2 py-1 text-xs font-medium text-ink-400">
+                    Abonnés
+                  </span>
                 ) : (
                   <Link
                     href="/tarifs"
@@ -318,7 +334,13 @@ export default function MapLayerSelector({
                   )}
 
                   {/* Note tier — aperçu vs complet */}
-                  {!isItinerant && (
+                  {!isItinerant && wall === 'signup' && (
+                    <p className="text-xs leading-snug text-ink-400">
+                      Aperçu communautaire. Le détail complet (fond adapté à l&apos;espèce + ton
+                      historique) au clic est réservé aux abonnés.
+                    </p>
+                  )}
+                  {!isItinerant && wall !== 'signup' && (
                     <p className="text-xs leading-snug text-ink-400">
                       Aperçu communautaire. Le détail complet (fond adapté à l&apos;espèce + ton historique)
                       au clic est{' '}

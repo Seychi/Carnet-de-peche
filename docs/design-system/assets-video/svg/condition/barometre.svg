@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Condition — baromètre</title>
+  <desc>Extension DS §4 — pression atmosphérique : cadran sand, aiguille gold vers le beau, flèche de tendance.</desc>
+  <circle cx="120" cy="120" r="94" fill="#DFF3F2" stroke="#04141C" stroke-width="18"></circle>
+  <path d="M 57.2 172.7 L 69.4 162.4" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 38.7 130.7 L 54.6 128.6" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 45.7 85.3 L 60.2 92.1" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 75.9 50.8 L 84.5 64.3" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 120.0 38.0 L 120.0 54.0" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 164.1 50.8 L 155.5 64.3" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 194.3 85.3 L 179.8 92.1" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 201.3 130.7 L 185.4 128.6" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 182.8 172.7 L 170.6 162.4" stroke="#04141C" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M 120 120 L 168 74" stroke="#D9A53C" stroke-width="11" stroke-linecap="round"></path>
+  <circle cx="120" cy="120" r="14" fill="#D9A53C" stroke="#04141C" stroke-width="6"></circle>
+  <path d="M 150 150 l 26 8 l -6 -26" fill="none" stroke="#5EEAD4" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

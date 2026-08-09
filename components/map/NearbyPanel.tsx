@@ -7,6 +7,8 @@ import type { NearbySpot } from '@/lib/spots/nearby'
 import type { UserTier } from '@/lib/auth/tier'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { analytics } from '@/lib/analytics'
+import { getWallKind } from '@/lib/gating/wall'
+import { SignupWall } from '@/components/map/SignupBanner'
 
 const UPSELL_SURFACE = 'nearby_panel'
 
@@ -91,7 +93,12 @@ export default function NearbyPanel({
   const [sort, setSort] = useState<SortKey>('distance')
 
   const limit = TIER_LIMITS[userTier]
-  const showUpsell = userTier === 'discovery'
+  // Sprint 75 Bloc 1 : l'upsell reste réservé aux inscrits gratuits ; le visiteur
+  // sans compte reçoit un mur d'INSCRIPTION. La limite de spots (TIER_LIMITS) est
+  // strictement inchangée pour les deux.
+  const wall = getWallKind(userTier)
+  const showUpsell = wall === 'upsell'
+  const showSignup = wall === 'signup'
 
   // Paywall vu : l'encart upsell du panneau « spots autour de moi » est affiché.
   useEffect(() => {
@@ -219,6 +226,19 @@ export default function NearbyPanel({
           </>
         )}
       </div>
+
+      {/* Footer inscription (visiteurs sans compte) : zéro prix, on propose le
+          carnet gratuit. Même emplacement que l'upsell, jamais les deux. */}
+      {showSignup && !isLoading && (
+        <div className="shrink-0 px-4 py-3 border-t border-ink-100">
+          <SignupWall
+            surface="nearby"
+            compact
+            tone="dark"
+            intro={`Tu vois ${TIER_LIMITS.anonymous} spots autour de toi. Avec un carnet gratuit, tu gardes tes spots et tes prises au même endroit.`}
+          />
+        </div>
+      )}
 
       {/* Footer upsell (discovery uniquement) */}
       {showUpsell && !isLoading && (

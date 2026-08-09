@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker pin-spot</title>
+  <desc>VIDEO-DS §4.2 — épingle de carte, tête coral-500, rond foam central, contour navy-950.</desc>
+  <path d="M 120 34 C 158 34, 188 64, 188 102 C 188 152, 120 214, 120 214 C 120 214, 52 152, 52 102 C 52 64, 82 34, 120 34 Z" fill="#E5604F" stroke="#04141C" stroke-width="18" stroke-linejoin="round"></path>
+  <circle cx="120" cy="102" r="26" fill="#DFF3F2" stroke="#04141C" stroke-width="12"></circle>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 220" width="340" height="220">
+  <title>Gear — leurre souple (shad)</title>
+  <desc>Extension DS §4 — shad sand-50 sur tête plombée gold, hameçon muted. Objet flat, contour navy.</desc>
+  <path d="M 150 78 C 196 66, 250 70, 286 92 C 270 104, 264 106, 274 118 C 288 128, 292 132, 286 140 C 250 160, 196 164, 150 152 C 138 128, 138 102, 150 78 Z" fill="#FBF8F2" stroke="#04141C" stroke-width="9" stroke-linejoin="round"></path>
+  <path d="M 286 92 C 320 74, 332 70, 332 70 C 322 92, 320 108, 332 132 C 320 132, 300 128, 286 140" fill="#E7E2D2" stroke="#04141C" stroke-width="9" stroke-linejoin="round"></path>
+  <path d="M 210 96 C 236 100, 258 108, 276 120" stroke="#04141C" stroke-opacity="0.28" stroke-width="4" fill="none" stroke-linecap="round"></path>
+  <path d="M 150 152 C 150 190, 118 214, 84 200 C 60 188, 60 160, 84 148" fill="none" stroke="#7FA3B0" stroke-width="12" stroke-linecap="round"></path>
+  <path d="M 84 148 L 70 136 M 84 148 L 100 140" stroke="#7FA3B0" stroke-width="10" stroke-linecap="round" fill="none"></path>
+  <circle cx="150" cy="112" r="26" fill="#D9A53C" stroke="#04141C" stroke-width="9"></circle>
+  <circle cx="142" cy="106" r="6" fill="#04141C"></circle>
+</svg>

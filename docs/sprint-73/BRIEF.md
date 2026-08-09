@@ -18,7 +18,7 @@
 
 ## 🚀 Ligne de lancement (à copier-coller par John)
 
-> ultracode — effort xhigh. Exécute `docs/sprint-73/BRIEF.md`. Lance les workstreams A/D en parallèle dès maintenant, puis B → C selon le tableau, et termine par le workstream VERIF avant de me rendre la main. Ne push pas.
+v
 
 ---
 

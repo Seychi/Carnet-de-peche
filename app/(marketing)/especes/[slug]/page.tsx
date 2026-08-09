@@ -12,7 +12,9 @@ import {
   type Facade,
 } from '@/lib/seo/programmatic'
 import { ESPECES_CONTENT } from '@/lib/especes/content'
+import { buildSpeciesTitle, buildSpeciesDescription } from '@/lib/especes/seo'
 import { getAllGuides } from '@/lib/guides/loader'
+import { relatedGuidesFor } from '@/lib/guides/related'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { buttonVariants } from '@/components/ui/button'
@@ -21,6 +23,10 @@ import { SpeciesScore, SpeciesScoreSkeleton } from '@/components/especes/species
 import { SpeciesTopSpots, SpeciesTopSpotsSkeleton } from '@/components/especes/species-top-spots'
 import { SpeciesPersonal, SpeciesPersonalSkeleton } from '@/components/especes/species-personal'
 import { SpeciesSeasonNow } from '@/components/especes/species-season-now'
+import { SpeciesAnswer } from '@/components/especes/species-answer'
+import { POSTES_PUCES } from '@/lib/especes/postes-puces'
+import { SpeciesCtaLink } from '@/components/especes/tracked-links'
+import { SpeciesSeasons } from '@/components/especes/species-seasons'
 import { RECFISHING_SENSITIVE } from '@/lib/regulation/recfishing'
 
 // Espèces de NOTRE carnet soumises à déclaration RecFishing sous 24 h (source
@@ -62,14 +68,18 @@ export async function generateMetadata({
   if (!(slug in SPECIES)) return { title: 'Espèce introuvable — Carnet de Pêche' }
   const species = SPECIES[slug as SpeciesSlug]
   const canonical = `${BASE_URL}/especes/${slug}`
-  // Titre SERP < 65 car. : le nom latin sort du <title> (conservé en H1, OG et
-  // JSON-LD) ; suffixe marque ajouté seulement s'il rentre (sprint 57 WS-C). Avant :
-  // « {label} ({latin}) : … saisons, taille légale · Carnet de Pêche » ~88-91 car.,
-  // tronqué par Google.
-  const baseTitle = `${species.label} : pêche du bord, saisons & taille légale`
-  const title = baseTitle.length <= 46 ? `${baseTitle} · Carnet de Pêche` : baseTitle
+  // Sprint 75 Bloc 4 : le title et la description portent désormais la DONNÉE
+  // ACTIONNABLE (maille, marquage, saison en cours) au lieu de décrire le site.
+  // Constat GSC 90 j : /especes = 36 % des impressions pour 11 % des clics. Les
+  // requêtes qui cliquent sont « maille du maigre 2026 », « bar maille » : on leur
+  // répond dans le SERP. Construction PURE et dégradante (lib/especes/seo.ts) :
+  // rien n'est inventé, une espèce sans maille retombe sur l'intention pêche.
+  const seoInput = { meta: species, content: ESPECES_CONTENT[slug as SpeciesSlug] }
+  const title = buildSpeciesTitle(seoInput)
+  const description = buildSpeciesDescription(seoInput)
+  // Le nom latin reste dans l'OG et le H1 : il porte la reconnaissance de l'espèce
+  // sans coûter les caractères du <title>, qui sert l'intention pêche.
   const ogTitle = `${species.label} (${species.latin}) : pêche du bord`
-  const description = `La fiche complète ${species.articleDe}${species.labelLower} pour la canne du bord : taille légale vérifiée, saisons par façade, techniques, postes selon les conditions, prises récentes de la communauté.`
   return {
     title,
     description,
@@ -93,12 +103,6 @@ async function fetchCatches30d(dbKey: string): Promise<number> {
   return count ?? 0
 }
 
-const ACTIVITY_DOTS: Record<1 | 2 | 3, { label: string; cls: string }> = {
-  1: { label: 'Calme', cls: 'text-ink-500' },
-  2: { label: 'Bonne', cls: 'text-gold-700' },
-  3: { label: 'Pleine saison', cls: 'text-teal-700' },
-}
-
 // Date de vérif réglementaire « 21/06/2026 » (format FR) → « 2026-06-21 » (ISO 8601
 // requis par Schema.org pour datePublished/dateModified). Sprint 55 WS-D.
 function toIso(fr: string): string {
@@ -117,9 +121,9 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
     fetchCatches30d(species.dbKey),
     getAllGuides().catch(() => []),
   ])
-  const relatedGuides = allGuides
-    .filter((g) => g.species === species.label || g.species === 'Multi-espèces')
-    .slice(0, 3)
+  // Sprint 75 Bloc 4 : les guides DÉDIÉS à l'espèce passent devant les
+  // multi-espèces, même s'ils sont plus anciens (lib/guides/related).
+  const relatedGuides = relatedGuidesFor(allGuides, [species.label])
 
   const jsonLd = [
     {
@@ -196,7 +200,38 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             {species.article}{species.labelLower}{' '}
             <span className="text-[0.55em] font-normal italic text-white/40">{species.latin}</span>
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">{content.intro[0]}</p>
+          {/* Sprint 75 Bloc 2 : LA RÉPONSE D'ABORD. Maille, statut du jour et quota
+              remontent au-dessus de l'intro, sinon ils sont hors écran en 390 px
+              (82 % du trafic). La prose de fond reste juste en dessous, intacte. */}
+          <SpeciesAnswer
+            slug={speciesSlug}
+            facades={facades}
+            minSizeCm={content.regulation.minSizeCm}
+            verifiedAt={content.regulation.verifiedAt}
+            source={content.regulation.source}
+            marquage={content.regulation.marquage}
+          />
+
+          {/* CTA contextuel PRÉCOCE (sprint 75 Bloc 2) : relié à ce qu'on vient de
+              lire, pas un bandeau publicitaire. L'ancien CTA était ligne 478 sur
+              494, donc jamais atteint sur mobile. Le CTA final reste en place.
+              Un seul href pour les deux publics : le middleware renvoie les
+              déconnectés vers /auth/login?redirect=/carnet/nouvelle. */}
+          <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <SpeciesCtaLink
+              species={speciesSlug}
+              position="inline"
+              href="/carnet/nouvelle"
+              className="inline-flex min-h-11 items-center rounded-xl bg-teal-500 px-4 text-[13.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-400"
+            >
+              Loguer une prise {species.articleDe}{species.labelLower}
+            </SpeciesCtaLink>
+            <span className="text-[12.5px] leading-snug text-white/45">
+              Gratuit. Ton carnet te dira quand tes prises tombent.
+            </span>
+          </div>
+
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/60">{content.intro[0]}</p>
 
           {/* Carte d'identité mono */}
           <div className="mt-7 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
@@ -318,37 +353,14 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
                   />
                 </div>
               )}
-              <div className={`mt-4 grid gap-4 ${facades.length > 1 ? 'md:grid-cols-2' : ''}`}>
-                {facades.map((f) => (
-                  <div key={f} className="rounded-[14px] border border-sand-200 bg-white p-4">
-                    <TagData className="mb-3 block">{FACADE_LABELS[f].toUpperCase()}</TagData>
-                    {/* Disposition empilée (pas de table) : l'en-tête saison + activité sur
-                        une ligne, la note EN DESSOUS en pleine largeur — évite la colonne
-                        note écrasée (un mot par ligne) dans la grille 2 façades sur desktop. */}
-                    <div className="flex flex-col">
-                      {content.saisons[f].map((s) => (
-                        <div
-                          key={s.saison}
-                          className="border-t border-sand-200 py-2.5 first:border-t-0 first:pt-0"
-                        >
-                          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                            <span className="font-mono text-[11.5px] font-medium uppercase tracking-[0.06em] text-ink-500">
-                              {s.saison}
-                            </span>
-                            <span
-                              className={`font-mono text-[11px] font-semibold uppercase tracking-[0.04em] ${ACTIVITY_DOTS[s.activite].cls}`}
-                            >
-                              {'●'.repeat(s.activite)}
-                              {'○'.repeat(3 - s.activite)} {ACTIVITY_DOTS[s.activite].label}
-                            </span>
-                          </div>
-                          <p className="mt-1 text-[13.5px] leading-snug text-ink-700">{s.note}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {/* Sprint 75 Bloc 2 : 8 blocs de prose (4 saisons × 2 façades) → une
+                  frise de 4 lignes, saison en cours mise en avant, notes au
+                  dépliement mais TOUJOURS dans le HTML servi (<details> natif). */}
+              <SpeciesSeasons
+                saisons={content.saisons}
+                facades={facades}
+                facadeLabels={FACADE_LABELS}
+              />
             </section>
 
             {/* ── Techniques ──────────────────────────────────────────── */}
@@ -381,9 +393,38 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             {/* ── Postes & conditions ─────────────────────────────────── */}
             <section className="prose prose-slate mt-10 max-w-none prose-headings:font-display prose-headings:text-navy-900 prose-p:text-ink-700 prose-strong:text-navy-900">
               <h2 className="!text-xl">Où se poster selon les conditions</h2>
-              {content.postes.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
+
+              {/* Sprint 75 Bloc 2 : 3 paragraphes de prose → puces concrètes. Chaque
+                  puce est la CONDENSATION d'une phrase existante de la fiche, jamais
+                  un fait ajouté (lib/especes/postes-puces.ts). Règle d'élagage : une
+                  phrase vraie pour n'importe quelle espèce dégage ; on garde les
+                  chiffres, les seuils et les postes nommés. */}
+              <ul className="not-prose mt-4 flex flex-col gap-2.5">
+                {POSTES_PUCES[speciesSlug].map((b) => (
+                  <li key={b.label} className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
+                    <span className="shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-teal-700 sm:w-24 sm:pt-0.5">
+                      {b.label}
+                    </span>
+                    <span className="text-[14.5px] leading-relaxed text-ink-700">{b.text}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* La prose d'origine reste DANS LE HTML SERVI (<details> natif, pas un
+                  montage au clic) : elle porte le référencement, on la hiérarchise
+                  sans jamais la retirer de l'index. */}
+              <details className="not-prose mt-5 rounded-[14px] border border-sand-200 bg-white px-4 py-3">
+                <summary className="cursor-pointer text-[13.5px] font-semibold text-navy-900">
+                  Le détail, en texte
+                </summary>
+                <div className="mt-3 flex flex-col gap-3">
+                  {content.postes.map((p, i) => (
+                    <p key={i} className="text-[14.5px] leading-relaxed text-ink-700">
+                      {p}
+                    </p>
+                  ))}
+                </div>
+              </details>
               <p>
                 Chaque fiche spot de{' '}
                 <Link href="/carte">la carte</Link> affiche la courbe de marée du jour, le vent et
@@ -439,7 +480,11 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             <div className="flex flex-col gap-5 lg:sticky lg:top-8">
               {/* Meilleurs spots pour l'espèce (triés par signal réel — RPC 049) */}
               <Suspense fallback={<SpeciesTopSpotsSkeleton />}>
-                <SpeciesTopSpots dbKey={species.dbKey} label={species.label} />
+                <SpeciesTopSpots
+                  dbKey={species.dbKey}
+                  label={species.label}
+                  speciesSlug={speciesSlug}
+                />
               </Suspense>
 
               {/* Tes tendances sur cette espèce (moteur perso unifié sprint 22) */}

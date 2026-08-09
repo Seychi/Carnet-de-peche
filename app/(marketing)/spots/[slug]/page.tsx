@@ -9,12 +9,14 @@ import { createClient } from '@/lib/supabase/server'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
+import { SignupWall } from '@/components/map/SignupBanner'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { TideCalibrationNote } from '@/components/spots/TideCalibrationNote'
 import { SpotReportButton, SpotConfirmButton } from '@/components/spots/ReportSpotDialog'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { getAllGuides } from '@/lib/guides/loader'
+import { relatedGuidesFor } from '@/lib/guides/related'
 import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
 import { refineExtremumHour, formatHourFraction } from '@/lib/conditions/tide'
 import { getTideCalibration, isLowTidalRangeDepartment, getTideAccuracyChip, monthsAgo } from '@/lib/conditions/tide-calibration'
@@ -343,6 +345,12 @@ export default async function SpotPage({
     supabase.auth.getUser(),
   ])
 
+  // Sprint 75 Bloc 1 : cette page est le 1er format d'entrée depuis Google
+  // (8,4 % de CTR). Un visiteur SANS compte n'a pas à lire « voir les formules » :
+  // on lui propose le carnet gratuit. Un connecté qui n'a pas les coords précises
+  // est, lui, un vrai candidat à l'abonnement, sa copie ne change pas.
+  const showSignupWall = !user
+
   if (!spot) notFound()
 
   const [
@@ -370,9 +378,9 @@ export default async function SpotPage({
   const spotSpeciesLabels = new Set(
     spot.species.map((s) => SPECIES_LABELS[s] ?? s),
   )
-  const relatedGuideLinks = allGuides
-    .filter((g) => spotSpeciesLabels.has(g.species) || g.species === 'Multi-espèces')
-    .slice(0, 3)
+  // Sprint 75 Bloc 4 : le commentaire ci-dessus décrivait déjà cette priorité, mais
+  // l'ancien filter().slice(3) ne la faisait pas. Elle est désormais réelle et testée.
+  const relatedGuideLinks = relatedGuidesFor(allGuides, spotSpeciesLabels)
 
   // Scoring perso neutralisé (B1 sprint 7.5) : le forecast reste générique tant que
   // la « vraie performance » (sorties loguées) n'est pas implémentée.
@@ -620,7 +628,9 @@ export default async function SpotPage({
 
               {!spot.is_precise && (
                 <p className="text-xs text-ink-500 text-center mt-2">
-                  Coordonnées approchées. Abonne-toi pour le GPS précis
+                  {showSignupWall
+                    ? 'Coordonnées approchées, comme pour tous les visiteurs.'
+                    : 'Coordonnées approchées. Abonne-toi pour le GPS précis'}
                 </p>
               )}
             </div>
@@ -919,19 +929,29 @@ export default async function SpotPage({
                 </a>
               </div>
             ) : (
-              <div className="bg-navy-900 rounded-[18px] p-6 text-center">
-                <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
-                <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
-                <p className="text-white/60 text-xs mb-5 leading-snug">
-                  Score d&apos;activité, GPS exact, filtres avancés.
-                </p>
-                <Link
-                  href="/tarifs"
-                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
-                >
-                  Voir les formules
-                </Link>
-              </div>
+              showSignupWall ? (
+                <SignupWall
+                  surface="spot_page"
+                  tone="dark"
+                  redirectTo={`/spots/${slug}`}
+                  intro="Les coordonnées précises sont réservées aux abonnés. Ton carnet, les marées de ce spot et le fil de ton département, eux, sont gratuits."
+                  className="p-6"
+                />
+              ) : (
+                <div className="bg-navy-900 rounded-[18px] p-6 text-center">
+                  <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
+                  <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
+                  <p className="text-white/60 text-xs mb-5 leading-snug">
+                    Score d&apos;activité, GPS exact, filtres avancés.
+                  </p>
+                  <Link
+                    href="/tarifs"
+                    className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
+                  >
+                    Voir les formules
+                  </Link>
+                </div>
+              )
             )}
 
             {/* CTA desktop */}

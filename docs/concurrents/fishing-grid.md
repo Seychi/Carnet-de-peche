@@ -87,6 +87,8 @@
 - S'ils sortent : scoring personnalisé, spots curés mer, ou un tier payant → réévaluer immédiatement.
 - Leur boutique : s'ils signent Decathlon/Pacific Pêche, ça crédibilise notre propre piste affiliation post-MVP.
 
+> **Màj 2026-07-02 (analyse vidéo TikTok)** : Play Store affiché dans leur propre CTA vidéo = **4,6★, 102 avis, 10k+ téléchargements** (vs 5K/76 avis relevés en juin → ~×2 en un mois, portés par TikTok 54,8K followers). Leur formule vidéo décortiquée image par image : collage d'assets illustrés statiques + inserts drone réels annotés + stickers emoji + chips CapCut, ~14 changements visuels en 38 s (un toutes les ~2,6 s), VO présente mixée bas, CTA = capture du store avec preuve sociale. Détail : analyse comparative du 2026-07-02 (session Cowork).
+
 ## 7. Impact roadmap (résumé)
 
 - Sprint 10 (guides/SEO) : **confirmé et durci** — profondeur > eux sur nos 6 espèces.

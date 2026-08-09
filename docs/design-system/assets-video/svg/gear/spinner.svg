@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" width="240" height="300">
+  <title>Gear — cuillère tournante (spinner)</title>
+  <desc>Extension DS §4 — palette tournante gold, corps perles muted, triple.</desc>
+  <path d="M 132 56 L 132 232" stroke="#7FA3B0" stroke-width="8" stroke-linecap="round" fill="none"></path>
+  <circle cx="132" cy="52" r="14" fill="none" stroke="#7FA3B0" stroke-width="9"></circle>
+  <path d="M 132 84 C 78 92, 60 140, 84 176 C 100 152, 116 132, 132 128 Z" fill="#D9A53C" stroke="#04141C" stroke-width="9" stroke-linejoin="round"></path>
+  <path d="M 96 108 C 84 128, 82 150, 90 168" stroke="#FBF8F2" stroke-opacity="0.6" stroke-width="7" stroke-linecap="round" fill="none"></path>
+  <circle cx="132" cy="150" r="15" fill="#0A2F3D" stroke="#04141C" stroke-width="7"></circle>
+  <circle cx="132" cy="180" r="13" fill="#0A2F3D" stroke="#04141C" stroke-width="7"></circle>
+  <path d="M 132 232 L 132 262 M 114 250 L 132 272 L 150 250" stroke="#7FA3B0" stroke-width="9" stroke-linecap="round" fill="none"></path>
+</svg>

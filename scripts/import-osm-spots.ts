@@ -4,8 +4,17 @@
 // modèle `spots` (source='imported'), déduplique, et ÉCRIT UN FICHIER SQL —
 // jamais d'écriture directe en base. John relit le SQL avant insertion.
 //
-//   Lancer :  pnpm tsx scripts/import-osm-spots.ts
+//   Lancer :  pnpm tsx scripts/import-osm-spots.ts [--dept=56[,44]] [--out=chemin.sql]
 //   (Node 18+ requis pour `fetch`. Aucune dépendance npm.)
+//
+// 2026-08-06 — RÉ-IMPORT ÉLARGI (GO John, playbook curation §9.3). Le script ne
+// requêtait que 6 tags, ce qui laissait un trou béant : AUCUNE plage nommée dans
+// tout le backlog, alors que les plages sont le premier gisement de surfcasting.
+// Ajout de 8 tags (beach, bay, reef, strait, lighthouse, dyke, embankment,
+// slipway) + un filtre de noms invalides repris du lot 0 d'assainissement, pour
+// ne pas re-polluer le backlog avec des « Panne A », « Quai 6 » ou « Accueil ».
+// Nouveau : `--dept` permet de cibler un département (la stratégie est « un
+// département à la fois », inutile de re-balayer les 24 bbox à chaque fois).
 //
 // ⚠️ LICENCE OSM (ODbL v1.0) : les positions importées proviennent
 // d'OpenStreetMap. La carte DOIT afficher « © OpenStreetMap contributors »
@@ -22,7 +31,18 @@ const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter'
 const USER_AGENT = 'Carnet-de-Peche/1.0 (import OSM spots; contact@carnet-de-peche.com)'
 const DEDUP_RADIUS_M = 150 // doublon probable en-deçà
 const POLITE_PAUSE_MS = 3000 // entre deux requêtes Overpass
-const OUTPUT_FILE = 'supabase/seed-spots-import-osm-01.sql'
+const DEFAULT_OUTPUT_FILE = 'supabase/seed-spots-import-osm-01.sql'
+
+// --- CLI ---------------------------------------------------------------
+function argValue(flag: string): string | null {
+  const hit = process.argv.slice(2).find((a) => a.startsWith(`${flag}=`))
+  return hit ? hit.slice(flag.length + 1) : null
+}
+const ONLY_DEPTS = (argValue('--dept') ?? '')
+  .split(',')
+  .map((d) => d.trim())
+  .filter(Boolean)
+const OUTPUT_FILE = argValue('--out') ?? DEFAULT_OUTPUT_FILE
 
 // [south, west, north, east] — une bbox par département côtier (généreuses ;
 // la revue + le filtre `name` + le dédup nettoient les débordements). Liste
@@ -74,6 +94,7 @@ type OverpassEl = {
   lat?: number
   lon?: number
   center?: { lat: number; lon: number }
+  geometry?: { lat: number; lon: number }[]
   tags?: Record<string, string>
 }
 
@@ -91,7 +112,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 function buildQuery(b: Bbox): string {
   const bb = `${b[0]},${b[1]},${b[2]},${b[3]}`
-  return `[out:json][timeout:120];
+  return `[out:json][timeout:180];
 (
   way["man_made"="pier"](${bb});
   way["man_made"="breakwater"](${bb});
@@ -99,8 +120,23 @@ function buildQuery(b: Bbox): string {
   way["man_made"="quay"](${bb});
   node["natural"="cape"](${bb});
   way["natural"="cape"](${bb});
+  // --- élargissement 2026-08-06 (playbook §9.3) ---
+  node["natural"="beach"](${bb});
+  way["natural"="beach"](${bb});
+  node["natural"="bay"](${bb});
+  way["natural"="bay"](${bb});
+  node["natural"="reef"](${bb});
+  way["natural"="reef"](${bb});
+  node["natural"="strait"](${bb});
+  way["natural"="strait"](${bb});
+  node["man_made"="lighthouse"](${bb});
+  way["man_made"="lighthouse"](${bb});
+  way["man_made"="dyke"](${bb});
+  way["man_made"="embankment"](${bb});
+  node["leisure"="slipway"](${bb});
+  way["leisure"="slipway"](${bb});
 );
-out center tags;`
+out geom tags;`
 }
 
 async function overpass(query: string, attempt = 0): Promise<OverpassEl[]> {
@@ -126,24 +162,109 @@ async function overpass(query: string, attempt = 0): Promise<OverpassEl[]> {
 
 // Overpass renvoie lat/lon ; PostGIS veut [lon, lat] (X d'abord). Inverser est
 // l'erreur classique (spots dans le désert) → on sort explicitement [lng, lat].
+//
+// ⚠️ CORRECTIF 2026-08-06 (signalé par John : « Plage de Penhors au milieu de la
+// terre »). On utilisait `out center`, qui renvoie le centre de la BOÎTE
+// ENGLOBANTE du way, pas un point SUR l'objet. Pour une plage en arc de cercle
+// ou un polygone d'anse, ce centre tombe dans les terres ou au large, parfois à
+// plusieurs kilomètres du rivage. Avec `out geom` on récupère la vraie
+// polyligne, et on prend un SOMMET : pour une plage ou une digue tracée en
+// ligne, c'est le milieu de l'ouvrage ; pour un polygone, c'est un point de son
+// contour, donc sur le rivage. Jamais dans les terres.
 function toLonLat(el: OverpassEl): [number, number] | null {
   if (el.type === 'node' && typeof el.lat === 'number' && typeof el.lon === 'number') {
     return [el.lon, el.lat]
   }
-  if (el.center) return [el.center.lon, el.center.lat]
+  const g = el.geometry?.filter((p) => typeof p?.lat === 'number' && typeof p?.lon === 'number')
+  if (g && g.length > 0) {
+    const v = g[Math.floor(g.length / 2)] // sommet médian : sur l'objet, par construction
+    return [v.lon, v.lat]
+  }
+  if (el.center) return [el.center.lon, el.center.lat] // relations : dernier recours
   return null
+}
+
+// Écart entre l'ancien calcul (centre de bbox) et le nouveau (sommet réel).
+// Sert uniquement au rapport de fin : il quantifie le nombre d'objets que
+// l'ancienne méthode plaçait n'importe où.
+//
+// ⚠️ 2026-08-09 : cette mesure n'est plus calculable en une seule requête. Les
+// modes de géométrie d'Overpass (`geom`, `center`, `bb`) sont EXCLUSIFS — le
+// dernier écrit gagne. Depuis qu'on est passé à `out geom`, `el.center` n'est
+// plus renvoyé (vérifié : `out geom center tags` renvoie center et PAS geometry),
+// donc la fonction rend toujours null et le compteur reste à 0. On la garde pour
+// les relations, qui peuvent encore porter un center, et le rapport de fin dit
+// explicitement quand la mesure n'a pas pu être faite plutôt que d'afficher un
+// « 0 objet » trompeur. Pour re-mesurer la dérive, il faut deux requêtes.
+function bboxCenterDriftM(el: OverpassEl, lat: number, lng: number): number | null {
+  if (!el.center) return null
+  return haversineM(el.center.lat, el.center.lon, lat, lng)
 }
 
 function structureFor(tags: Record<string, string>): string | null {
   if (tags.natural === 'cape') return 'pointe_rocheuse'
+  if (tags.natural === 'beach') return 'plage'
+  if (tags.natural === 'strait') return 'passe'
+  if (tags.leisure === 'slipway') return 'cale'
   const mm = tags.man_made
   if (mm === 'quay') return 'cale'
   if (mm === 'pier' || mm === 'breakwater' || mm === 'groyne') return 'digue'
+  if (mm === 'dyke' || mm === 'embankment') return 'digue'
+  // `bay`, `reef` et `lighthouse` n'ont pas d'équivalent fiable dans notre
+  // vocabulaire fermé (une anse peut être sableuse ou rocheuse, un phare peut
+  // être sur une digue comme sur une pointe). On laisse NULL : la curation
+  // tranche sur pièces plutôt que d'hériter d'une valeur fausse.
   return null
 }
 
 function isPrivate(tags: Record<string, string>): boolean {
   return tags.access === 'private' || tags.access === 'customers' || tags.access === 'no'
+}
+
+// --- Filtre de noms invalides (repris du lot 0 d'assainissement, 2026-08-05) --
+// 94 des 941 lignes du premier import étaient des objets OSM sans valeur pour un
+// pêcheur : pannes de marina lettrées, quais numérotés, sigles, « Accueil ».
+// On les écarte À L'IMPORT pour ne pas refaire ce ménage à la main.
+const GENERIC_NAMES = new Set([
+  'accueil', 'avitaillement', 'visiteur', 'visiteurs', 'capitainerie', 'carburant',
+  'go', 'epices', 'épices', 'embarcadere', 'embarcadère', 'ponton', 'pontons',
+  'cale', 'la cale', 'digue', 'la digue', 'petite digue', 'grande digue',
+  'quai', 'le quai', 'jetee', 'jetée', 'la jetee', 'la jetée', 'mole', 'môle',
+  'estacade', 'l estacade', 'slipway', 'plage', 'la plage', 'port', 'le port',
+  'anse', 'baie', 'phare', 'terre-plein', 'terre plein', 'passerelle', 'quai nul',
+  // compagnie de vedettes, jamais un poste de bord (relevé au lot 12 du 56, Arzon)
+  'navix',
+])
+
+function isInvalidName(raw: string): boolean {
+  const name = raw.trim()
+  if (name.length < 3) return true // lettres seules de pannes : A, B, E'…
+  const norm = name
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (GENERIC_NAMES.has(norm)) return true
+  // « l'estacade », « l'embarcadère »… l'apostrophe empêche le match direct contre
+  // GENERIC_NAMES (relevé au ré-import du 56, lot 8 : « l'estacade » de Port-Louis,
+  // déjà rejeté au lot 12, repassait par cette porte).
+  const normSpaced = norm.replace(/['’]/g, ' ').replace(/\s+/g, ' ').trim()
+  if (GENERIC_NAMES.has(normSpaced)) return true
+  if (/^\d+$/.test(norm)) return true // « 2 », « 11 », « 16 »
+  // Un « ponton » est toujours un appontement de marina, jamais un poste de bord
+  // (relevé au ré-import du 56 : « Ponton Pen Duick », « Ponton d'Honneur »,
+  // « Ponton M Ouest »… tous inaccessibles ou interdits à la ligne).
+  if (/^ponton\b/.test(norm)) return true
+  // « Panne A », « Quai 6 », « Ponton B2 », « Catway 12 », « Passerelle n°2 ».
+  // La ponctuation est retirée d'abord : « Panne K' » passait au travers.
+  const noPunct = norm.replace(/['’.-]/g, '').replace(/\s+/g, ' ').trim()
+  if (/^(panne|quai|ponton|catway|appontement|passerelle|digue|cale|mole|jetee|epi)\s*(n\s*°?\s*)?[a-z0-9]{1,3}$/.test(noPunct)) return true
+  // sigles seuls : ADM, PC, PFM, QR1, YCT, V3, W
+  if (/^[a-z]{1,4}\d{0,2}$/.test(norm.replace(/[.\s']/g, ''))) return true
+  // « Quai Accueil et Quai Armement » et variantes purement fonctionnelles
+  if (/^(quai|panne|ponton)\s+(accueil|armement|visiteurs?|technique|service)/.test(norm)) return true
+  return false
 }
 
 function slugify(name: string): string {
@@ -224,7 +345,18 @@ async function main() {
   const candidates: Candidate[] = []
   const seen: { lat: number; lng: number }[] = []
 
-  for (const [dept, bbox] of Object.entries(DEPT_BBOXES)) {
+  const entries = Object.entries(DEPT_BBOXES).filter(
+    ([dept]) => ONLY_DEPTS.length === 0 || ONLY_DEPTS.includes(dept),
+  )
+  if (ONLY_DEPTS.length > 0) {
+    console.error(`Ciblage département : ${entries.map(([d]) => d).join(', ') || '(aucun match)'}`)
+  }
+  let skippedName = 0
+  let drift300 = 0
+  let driftMax = 0
+  let driftMeasurable = 0
+
+  for (const [dept, bbox] of entries) {
     process.stderr.write(`\n[${dept}] Overpass…`)
     let els: OverpassEl[]
     try {
@@ -240,9 +372,19 @@ async function main() {
       const tags = el.tags ?? {}
       if (!tags.name) continue // anti spot-burning : structures NOMMÉES seulement
       if (isPrivate(tags)) continue
+      if (isInvalidName(tags.name)) {
+        skippedName++
+        continue
+      }
       const ll = toLonLat(el)
       if (!ll) continue
       const [lng, lat] = ll
+      const drift = bboxCenterDriftM(el, lat, lng)
+      if (drift !== null) {
+        driftMeasurable++
+        if (drift > 300) drift300++
+        if (drift > driftMax) driftMax = drift
+      }
       // dédup intra-lot (deux structures OSM trop proches)
       if (seen.some((p) => haversineM(p.lat, p.lng, lat, lng) < DEDUP_RADIUS_M)) continue
       seen.push({ lat, lng })
@@ -264,6 +406,20 @@ async function main() {
   mkdirSync(dirname(OUTPUT_FILE), { recursive: true })
   writeFileSync(OUTPUT_FILE, renderSql(candidates), 'utf8')
   console.error(`\n\n✅ ${candidates.length} structures publiques → ${OUTPUT_FILE}`)
+  console.error(`   ${skippedName} objets écartés par le filtre de noms invalides (pannes, quais numérotés, sigles).`)
+  if (driftMeasurable === 0) {
+    console.error(
+      `   Positionnement : dérive non mesurable (Overpass ne renvoie pas « center » avec ` +
+        `« out geom » — les modes de géométrie sont exclusifs). Les positions viennent du ` +
+        `sommet médian, donc SUR l'objet par construction ; c'est le correctif de fond.`,
+    )
+  } else {
+    console.error(
+      `   Positionnement : ${drift300} objets sur ${driftMeasurable} mesurables étaient à plus ` +
+        `de 300 m de leur centre de bbox (écart max ${Math.round(driftMax)} m). C'est exactement ` +
+        `ce que l'ancien « out center » plaçait dans les terres ou au large.`,
+    )
+  }
   console.error('   ⚠️ Relis le SQL (façades, doublons évidents) AVANT de l’insérer.')
 }
 
