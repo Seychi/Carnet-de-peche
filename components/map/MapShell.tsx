@@ -10,6 +10,7 @@ import { BackButton } from '@/components/layout/BackButton'
 import type { Map as MapLibreMap } from 'maplibre-gl'
 
 import UpsellBanner from '@/components/map/UpsellBanner'
+import SignupBanner from '@/components/map/SignupBanner'
 import UserLocationMarker from '@/components/map/UserLocationMarker'
 import MapLegend from '@/components/map/MapLegend'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
@@ -92,6 +93,12 @@ type MapShellProps = {
   initialCenter?: [number, number]
   initialZoom?: number
   showUpsell?: boolean
+  /**
+   * Bandeau d'INSCRIPTION pour les visiteurs sans compte (sprint 75, Bloc 1).
+   * Distinct de `showUpsell` : un anonyme n'a rien à acheter. Le composant gère
+   * lui-même son cookie de fermeture (7 jours, distinct de celui de l'upsell).
+   */
+  showSignupBanner?: boolean
   initialFilters?: SpotFilters
   userDepartment?: string
   availableDepartments?: string[]
@@ -179,6 +186,7 @@ export default function MapShell({
   initialCenter,
   initialZoom,
   showUpsell = false,
+  showSignupBanner = false,
   initialFilters = {},
   userDepartment,
   availableDepartments = [],
@@ -667,7 +675,7 @@ export default function MapShell({
         <DepartmentStats />
 
         {/* Couche « ton score » — tendances perso descriptives (payant, gating serveur) */}
-        {scoreOn && <ScorePanel onClose={() => setScoreOn(false)} />}
+        {scoreOn && <ScorePanel onClose={() => setScoreOn(false)} userTier={userTier} />}
 
         {/* Marqueur position utilisateur — affiché après géolocalisation */}
         <UserLocationMarker map={mapInstance} position={userPosition} />
@@ -695,8 +703,13 @@ export default function MapShell({
           </div>
         )}
 
-        {/* Bandeau upsell discovery */}
+        {/* Bandeau upsell — inscrits gratuits UNIQUEMENT (le seul public à qui
+            on parle d'abonnement). */}
         {showUpsell && !activeSpot && <UpsellBanner />}
+
+        {/* Bandeau inscription — visiteurs sans compte (sprint 75, Bloc 1).
+            Zéro prix : on leur propose le carnet gratuit, pas un abonnement. */}
+        {showSignupBanner && !activeSpot && <SignupBanner />}
       </div>
 
       {/* ── Desktop : sidebar DROITE — NearbyPanel quand ouvert (lg+) */}

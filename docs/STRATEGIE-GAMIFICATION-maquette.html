@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette — Coffre de session · Stratégie gamification · Carnet de Pêche</title>
+<link rel="stylesheet" href="maquette-v2/assets/style.css">
+<style>
+  body{padding-bottom:80px}
+  .doc-head{background:var(--navy-950);color:#fff;padding:52px 0 44px;position:relative;overflow:hidden}
+  .doc-head .wrap{position:relative;z-index:2}
+  .gal{max-width:1180px;margin:0 auto;padding:0 28px}
+  .block{margin:56px 0;padding-top:48px;border-top:var(--border)}
+  .block:first-of-type{border-top:0}
+  .note{background:var(--sand-100);border:var(--border);border-left:3px solid var(--teal-500);border-radius:var(--r-md);padding:16px 20px;margin:16px 0 26px;font-size:15px}
+  .badge-x{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:#fff;background:var(--teal-600);padding:3px 9px;border-radius:6px;margin-right:8px}
+  /* Storyboard */
+  .storyboard{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
+  .step-col{display:flex;flex-direction:column;align-items:center;width:288px}
+  .step-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-600);margin-bottom:10px}
+  .arrow{align-self:center;font-size:26px;color:var(--ink-400);padding-top:120px}
+  .cap{font-size:13px;color:var(--ink-600);margin-top:12px;text-align:center;line-height:1.5}
+  /* Reveal screen (dark celebration) */
+  .reveal{width:288px;height:420px;border-radius:30px;background:radial-gradient(120% 90% at 50% 15%,var(--navy-800),var(--navy-950) 70%);color:#fff;position:relative;overflow:hidden;border:6px solid var(--navy-950);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px}
+  .reveal .spark{position:absolute;inset:0;pointer-events:none;opacity:.9}
+  .dot{position:absolute;width:6px;height:6px;border-radius:50%}
+  .ring-lg{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;position:relative}
+  .ring-lg .inner{width:96px;height:96px;border-radius:50%;background:var(--navy-950);display:grid;place-items:center}
+  .ring-lg .fishname{font-family:var(--font-display);font-weight:700;font-size:19px}
+  .ring-lg .sz{font-family:var(--font-mono);font-size:12px;color:var(--teal-300);margin-top:2px}
+  .xp-big{font-family:var(--font-mono);font-weight:600;font-size:44px;color:var(--teal-300);line-height:1}
+  .xp-lab{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.55);margin-top:4px}
+  .drop{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.07);border:var(--border-dark);border-radius:12px;padding:9px 13px;margin-top:10px;width:100%;font-size:13px;text-align:left}
+  .drop .em{font-size:20px;flex:none}
+  .drop.gold{background:rgba(217,165,60,.14);border-color:rgba(217,165,60,.4)}
+  .drop b{color:#fff}
+  .drop .sub{color:rgba(255,255,255,.55);font-size:11.5px}
+  .spinner{width:118px;height:118px;border-radius:50%;border:5px solid rgba(94,234,212,.18);border-top-color:var(--teal-300);}
+  .waitlab{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,.6);letter-spacing:.08em;margin-top:22px}
+  .lever{margin-top:14px;font-size:12px;color:rgba(255,255,255,.4)}
+  /* honest vs casino */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+  .cmp .col{border:var(--border);border-radius:var(--r-md);padding:20px 22px;background:#fff}
+  .cmp .col.no{border-left:3px solid var(--coral-500)}
+  .cmp .col.yes{border-left:3px solid var(--teal-500)}
+  .cmp h4{font-family:var(--font-display);font-size:16px;margin-bottom:12px}
+  .cmp ul li{padding:6px 0 6px 24px;position:relative;font-size:14px;color:var(--ink-600)}
+  .cmp .yes ul li::before{content:'✓';position:absolute;left:0;color:var(--teal-600);font-weight:700}
+  .cmp .no ul li::before{content:'✕';position:absolute;left:0;color:var(--coral-500);font-weight:700}
+  /* notifs */
+  .notif{display:flex;gap:14px;align-items:flex-start;background:#fff;border:var(--border);border-radius:var(--r-md);padding:14px 16px;margin-top:10px;max-width:640px}
+  .notif .ic{width:38px;height:38px;border-radius:10px;background:var(--navy-950);color:var(--teal-300);display:grid;place-items:center;flex:none;font-size:18px}
+  .notif .t{font-weight:600;font-size:14.5px}
+  .notif .d{font-size:13px;color:var(--ink-400)}
+  .notif .fam{margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--ink-400);text-transform:uppercase;flex:none}
+  .mini-chest{display:flex;align-items:center;gap:16px;background:var(--navy-950);color:#fff;border-radius:var(--r-md);padding:18px 22px;max-width:520px}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="bathy" aria-hidden="true"><svg viewBox="0 0 1200 300" preserveAspectRatio="none"><g fill="none" stroke="rgba(94,234,212,.16)" stroke-width="1"><path d="M0,70 C300,30 900,110 1200,60"/><path d="M0,120 C300,80 900,160 1200,110"/><path d="M0,170 C300,130 900,210 1200,160"/><path d="M0,220 C300,180 900,260 1200,210"/></g></svg></div>
+  <div class="wrap">
+    <div class="kicker" style="color:var(--teal-300)">Stratégie gamification · Maquette</div>
+    <h1 class="h-section" style="max-width:840px">Le coffre de session : la machine à sous honnête.</h1>
+    <p class="lead" style="color:rgba(255,255,255,.7);max-width:740px;margin-top:14px">La mécanique signature. Après chaque prise loguée, un reveal à suspense : XP variable + drops surprise. L'aléa est réel (la mer), gratuit, non payant. <span class="tag-data on-dark">SUPPORT DE BRIEF · RIEN N'EST FINAL</span></p>
+  </div>
+</header>
+
+<div class="gal">
+
+  <!-- STORYBOARD -->
+  <section class="block">
+    <div class="sec-num">01 — LA MÉCANIQUE CENTRALE</div>
+    <h2 style="font-size:26px;margin:4px 0">Le reveal en 3 temps (après un log de prise)</h2>
+    <div class="note"><span class="badge-x">§5</span>On garde la célébration existante (<code>CelebrationOverlay</code>) et on la transforme en <b>tirage à suspense</b> : anticipation → XP variable → surprise. Le suspense (l'anneau qui tourne) EST la dopamine — exactement comme le levier d'une machine à sous, sauf que le gain récompense une <b>vraie prise vérifiée</b>, pas un pari.</div>
+
+    <div class="storyboard">
+      <!-- Step 1: anticipation -->
+      <div class="step-col">
+        <div class="step-tag">1 · Anticipation (0,8 s)</div>
+        <div class="reveal">
+          <div class="spinner"></div>
+          <div class="waitlab">ON DÉPOUILLE TA PRISE…</div>
+          <div class="lever">🎣 le levier, c'est ta ligne</div>
+        </div>
+        <div class="cap">Le suspense arme la dopamine. On ne sait pas encore ce que la prise va lâcher.</div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- Step 2: variable base -->
+      <div class="step-col">
+        <div class="step-tag">2 · Récompense variable</div>
+        <div class="reveal">
+          <div class="spark" aria-hidden="true">
+            <span class="dot" style="left:22%;top:20%;background:var(--teal-300)"></span>
+            <span class="dot" style="left:76%;top:26%;background:var(--gold-500)"></span>
+            <span class="dot" style="left:60%;top:14%;background:var(--teal-300)"></span>
+            <span class="dot" style="left:34%;top:30%;background:var(--coral-500)"></span>
+          </div>
+          <div class="ring-lg" style="background:conic-gradient(var(--teal-300) 300deg,rgba(255,255,255,.12) 0)">
+            <div class="inner"><div><div class="fishname">Bar</div><div class="sz">53 cm</div></div></div>
+          </div>
+          <div style="margin-top:18px" class="xp-big">+18 XP</div>
+          <div class="xp-lab">GAIN VARIABLE · 8 À 25</div>
+        </div>
+        <div class="cap">Pas un « +10 » fixe : un montant variable, plafonné et honnête (jamais 0). Plus grosse prise = plus d'XP.</div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- Step 3: surprise drops -->
+      <div class="step-col">
+        <div class="step-tag">3 · Drops surprise</div>
+        <div class="reveal" style="justify-content:flex-start;padding-top:34px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;margin-bottom:6px">🎁 Et en bonus…</div>
+          <div class="drop gold"><span class="em">🐟</span><div><b>Nouvelle espèce !</b><div class="sub">1re case Pokédex : Bar</div></div></div>
+          <div class="drop"><span class="em">🏅</span><div><b>Palier Argent</b><div class="sub">Volume de prises 10/10</div></div></div>
+          <div class="drop"><span class="em">⚡</span><div><b>Série chaude : XP ×2</b><div class="sub">créneau optimal respecté</div></div></div>
+          <div class="drop" style="background:transparent;border-color:rgba(255,255,255,.14)"><span class="em">🎯</span><div><b>À 2 cm de ton record</b><div class="sub">arme ta prochaine sortie</div></div></div>
+        </div>
+        <div class="cap">La couche imprévisible : selon la prise, un ou plusieurs drops. Le near-miss (🎯) arme déjà le retour.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HONEST VS CASINO -->
+  <section class="block">
+    <div class="sec-num">02 — LA LIGNE À NE PAS FRANCHIR</div>
+    <h2 style="font-size:26px;margin:4px 0">Accro, oui. Jeu d'argent, non.</h2>
+    <div class="note"><span class="badge-x">§9</span>Même mécanique de dopamine, deux mondes. Ce qui rend le casino prédateur (hasard truqué + argent), on ne le prend pas — et on n'en a pas besoin : ton aléa gratuit (la mer) est déjà plus fort.</div>
+    <div class="cmp">
+      <div class="col yes">
+        <h4>✓ Notre coffre (honnête)</h4>
+        <ul>
+          <li>L'aléa est réel : c'est la mer, pas un RNG</li>
+          <li>On l'ouvre en <b>pêchant</b>, jamais en payant</li>
+          <li>Jamais 0 : on ne peut pas « perdre »</li>
+          <li>Récompense un fait vérifié (prise mesurée)</li>
+          <li>Récompenses = statut cosmétique, pas de l'argent</li>
+        </ul>
+      </div>
+      <div class="col no">
+        <h4>✕ Ce qu'on ne fait PAS</h4>
+        <ul>
+          <li>Coffre / tirage acheté avec de l'argent</li>
+          <li>« Retente ta chance pour 0,99 € »</li>
+          <li>Hasard truqué (near-miss fabriqués)</li>
+          <li>Récompense de hasard convertible en cash</li>
+          <li>Fausse rareté / faux rivaux / faux compteurs</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DAILY + NOTIFS -->
+  <section class="block">
+    <div class="sec-num">03 — LE BATTEMENT QUOTIDIEN</div>
+    <h2 style="font-size:26px;margin:4px 0">Mini-coffre du jour + déclencheurs de retour</h2>
+    <div class="note"><span class="badge-x">§4</span><span class="badge-x">§6</span>Les jours sans sortie, un mini-coffre léger (check-in / quiz) garde l'habitude. Et les notifs ramènent — toujours avec une info <b>vraie</b>.</div>
+
+    <div class="mini-chest">
+      <div style="font-size:30px">🎁</div>
+      <div style="flex:1">
+        <div class="tag-data on-dark" style="color:var(--teal-300)">RENDEZ-VOUS DU JOUR</div>
+        <div style="font-weight:600;margin-top:2px">Quiz réussi · <span class="num" style="color:var(--teal-300)">+5 XP</span> · série quotidienne 🔥 3</div>
+        <div class="small" style="color:rgba(255,255,255,.55)">Un petit gain chaque jour, même sans aller à l'eau.</div>
+      </div>
+    </div>
+
+    <h3 style="margin:26px 0 6px;font-size:16px">Exemples de déclencheurs (par famille, §6)</h3>
+    <div class="notif"><div class="ic">⚡</div><div><div class="t">Ton créneau optimal aujourd'hui : 17:30 → 19:30 · TRÈS BONNE</div><div class="d">Grand coef ce soir sur ta côte.</div></div><span class="fam">Opportunité réelle</span></div>
+    <div class="notif"><div class="ic">🏁</div><div><div class="t">@Marco vient de te doubler dans le 06</div><div class="d">1 prise d'écart. Reprends ta place cette semaine.</div></div><span class="fam">Rival / near-miss</span></div>
+    <div class="notif"><div class="ic">🔥</div><div><div class="t">Ta série de 4 semaines expire dimanche soir</div><div class="d">Une prise ou une sortie suffit. Joker dispo si besoin.</div></div><span class="fam">Aversion à la perte</span></div>
+    <div class="notif"><div class="ic">🌊</div><div><div class="t">Conditions dangereuses ce week-end — ta série est gelée</div><div class="d">Houle 2,5 m. Reste au sec, on protège ta série.</div></div><span class="fam">Sécurité (garde-fou)</span></div>
+    <p class="small muted" style="margin-top:14px;max-width:640px">Règles : ~1 notif/jour max, personnalisée (tes espèces, ton dépt, tes rivaux), heures utiles, opt-in granulaire déjà en place. La dernière (🌊) illustre le garde-fou §9-3 : jamais pousser à sortir dans le mauvais temps pour tenir un streak.</p>
+  </section>
+
+  <p class="small faint" style="margin-top:52px;text-align:center">Maquette statique · DA v2 « Instrument de précision marine » · accompagne <code>docs/STRATEGIE-GAMIFICATION-2026-07-06.md</code> · rien n'est final.</p>
+</div>
+
+</body>
+</html>

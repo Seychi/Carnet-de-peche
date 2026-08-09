@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Condition — nuageux</title>
+  <desc>Extension DS §4 — soleil gold en arrière + nuage foam au premier plan (couverture variable).</desc>
+  <g transform="translate(150 86)">
+    <circle cx="0" cy="0" r="40" fill="#D9A53C" stroke="#04141C" stroke-width="12"></circle>
+    <g stroke="#D9A53C" stroke-width="11" stroke-linecap="round"><path d="M 0 -58 L 0 -46"></path><path d="M 41 -41 L 33 -33"></path><path d="M 58 0 L 46 0"></path><path d="M 41 41 L 33 33"></path></g>
+  </g>
+  <path d="M 60 168 C 30 168, 20 138, 44 122 C 40 92, 92 78, 116 104 C 134 80, 182 88, 184 122 C 214 120, 224 160, 192 172 C 170 178, 82 176, 60 168 Z" fill="#DFF3F2" stroke="#04141C" stroke-width="14" stroke-linejoin="round"></path>
+</svg>

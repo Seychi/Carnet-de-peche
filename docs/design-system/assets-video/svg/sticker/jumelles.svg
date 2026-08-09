@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker jumelles</title>
+  <desc>VIDEO-DS §4.2 — jumelles navy-900, verres teal-300 (repérage).</desc>
+  <rect x="40" y="86" width="66" height="112" rx="24" fill="#0A2F3D" stroke="#04141C" stroke-width="15"></rect>
+  <rect x="134" y="86" width="66" height="112" rx="24" fill="#0A2F3D" stroke="#04141C" stroke-width="15"></rect>
+  <rect x="100" y="98" width="40" height="40" rx="8" fill="#0A2F3D" stroke="#04141C" stroke-width="12"></rect>
+  <rect x="52" y="64" width="42" height="34" rx="12" fill="#0A2F3D" stroke="#04141C" stroke-width="13"></rect>
+  <rect x="146" y="64" width="42" height="34" rx="12" fill="#0A2F3D" stroke="#04141C" stroke-width="13"></rect>
+  <circle cx="73" cy="170" r="22" fill="#5EEAD4" stroke="#04141C" stroke-width="10"></circle>
+  <circle cx="167" cy="170" r="22" fill="#5EEAD4" stroke="#04141C" stroke-width="10"></circle>
+</svg>

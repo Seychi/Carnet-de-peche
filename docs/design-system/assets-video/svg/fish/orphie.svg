@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1220 260" width="1220" height="260">
+  <title>Orphie (Belone belone)</title>
+  <desc>VIDEO-DS §4.1 — corps tres allonge, long bec fin, dorsale et anale reculees pres de la queue, dos bleu-vert.</desc>
+  <defs><clipPath id="orphie-body-clip"><path d="M 168 116 C 360 106, 620 102, 860 108 C 980 111, 1058 118, 1104 126 C 1108 128, 1108 132, 1104 134 C 1058 142, 980 149, 860 152 C 620 158, 360 154, 168 144 C 164 140, 164 120, 168 116 Z"></path></clipPath></defs>
+  <g id="tail" data-pivot="1096 130">
+    <path d="M 1092 118 C 1118 122, 1140 116, 1166 104 C 1180 98, 1194 93, 1204 91 C 1196 112, 1188 124, 1184 130 C 1188 136, 1196 148, 1204 170 C 1194 166, 1180 160, 1166 152 C 1140 140, 1118 136, 1092 142 Z" fill="#2E6D8C"></path>
+  </g>
+  <g id="fins">
+    <path d="M 940 108 L 968 84 C 992 90, 1014 100, 1030 114 C 1000 112, 970 110, 940 108 Z" fill="#2E6D8C"></path>
+    <path d="M 950 152 C 972 172, 998 180, 1024 174 C 1010 158, 986 150, 962 148 C 956 149, 952 150, 950 152 Z" fill="#5C7E90"></path>
+  </g>
+  <g id="body" clip-path="url(#orphie-body-clip)">
+    <rect x="-12" y="-12" width="1244" height="284" fill="#E9EFEE"></rect>
+    <path d="M 150 108 L 1104 118 L 1104 126 C 900 120, 600 116, 300 120 C 240 121, 190 124, 150 128 Z" fill="#2E6D8C"></path>
+    <path d="M 220 116 C 460 108, 760 106, 1000 114" stroke="#FBF8F2" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round" fill="none"></path>
+    <path d="M 240 132 C 500 126, 820 126, 1060 132" stroke="#04141C" stroke-opacity="0.22" stroke-width="2.5" fill="none"></path>
+  </g>
+  <g id="beak">
+    <path d="M 168 120 L 26 128 L 168 132" stroke="#04141C" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" fill="none"></path>
+    <path d="M 26 128 L 18 134 L 168 138" stroke="#04141C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" fill="none"></path>
+    <path d="M 30 128 L 168 130" stroke="#D9A53C" stroke-width="3" stroke-linecap="round" fill="none"></path>
+  </g>
+  <g id="fin-pectoral" class="fins" data-pivot="300 132">
+    <path d="M 300 128 C 336 124, 366 134, 386 156 C 360 164, 328 156, 306 142 C 300 138, 298 132, 300 128 Z" fill="#5C7E90"></path>
+  </g>
+  <g id="eye"><circle cx="210" cy="126" r="13" fill="#04141C"></circle><circle cx="205" cy="121" r="4" fill="#FBF8F2"></circle></g>
+</svg>

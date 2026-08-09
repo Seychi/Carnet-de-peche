@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
 import { getMapScoreInsights, type MapScoreResult } from '@/app/actions/map-insights'
 import { analytics } from '@/lib/analytics'
+import type { UserTier } from '@/lib/auth/tier'
+import { getWallKind } from '@/lib/gating/wall'
+import { SignupWall } from '@/components/map/SignupBanner'
 
 const SURFACE = 'map_score'
 
@@ -16,7 +19,14 @@ const SURFACE = 'map_score'
  * l'historique ne suffit pas → le composant invite à loguer (état dégradé/vide).
  * Le gating Local/Itinérant est porté côté SERVEUR par getMapScoreInsights.
  */
-export default function ScorePanel({ onClose }: { onClose: () => void }) {
+export default function ScorePanel({
+  onClose,
+  userTier = 'anonymous',
+}: {
+  onClose: () => void
+  /** Sprint 75 Bloc 1 : décide du MUR affiché quand l'accès est refusé, pas de l'accès lui-même. */
+  userTier?: UserTier
+}) {
   const [state, setState] = useState<MapScoreResult | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -29,10 +39,13 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
     return () => { alive = false }
   }, [])
 
-  // Paywall vu : quand l'état gaté est confirmé côté serveur.
+  const wall = getWallKind(userTier)
+
+  // Paywall vu : quand l'état gaté est confirmé côté serveur, et UNIQUEMENT pour
+  // un inscrit gratuit. Un anonyme émet signup_wall_viewed via SignupWall.
   useEffect(() => {
-    if (state?.gated) analytics.paywallViewed({ surface: SURFACE })
-  }, [state?.gated])
+    if (state?.gated && wall === 'upsell') analytics.paywallViewed({ surface: SURFACE })
+  }, [state?.gated, wall])
 
   // Position : bas-gauche en mobile (légende + readout masqués < md) ; bas-DROITE en
   // desktop pour ne pas recouvrir la légende couleurs ni les coords GPS (bas-gauche).
@@ -59,7 +72,19 @@ export default function ScorePanel({ onClose }: { onClose: () => void }) {
           </p>
         )}
 
-        {!loading && state?.gated && (
+        {/* Accès refusé, visiteur SANS compte : on ne lui parle pas d'abonnement,
+            on lui propose le carnet gratuit (sprint 75 Bloc 1). Le gating réel
+            reste porté par getMapScoreInsights côté serveur, inchangé. */}
+        {!loading && state?.gated && wall === 'signup' && (
+          <SignupWall
+            surface="score"
+            compact
+            intro="Ton score se calcule sur TES prises. Commence par créer ton carnet, c’est gratuit."
+          />
+        )}
+
+        {/* Accès refusé, inscrit gratuit : le seul public à qui on parle de prix. */}
+        {!loading && state?.gated && wall === 'upsell' && (
           <div className="flex flex-col gap-2">
             <p className="flex items-center gap-1.5 text-[13px] text-ink-600">
               <Lock size={13} className="text-ink-400" /> Réservé aux abonnés Local / Itinérant.

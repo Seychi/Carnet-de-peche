@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" width="520" height="300">
+  <title>Décor rocher-1</title>
+  <desc>VIDEO-DS §4.4 — masse navy-900 arrondie, liseré muted 20%.</desc>
+  <path d="M 8 300 C 20 200, 74 130, 172 108 C 280 84, 396 122, 452 196 C 480 234, 498 272, 506 300 Z" fill="#0A2F3D"></path>
+  <path d="M 40 236 C 92 160, 168 120, 250 112" fill="none" stroke="#7FA3B0" stroke-opacity="0.2" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 300 118 C 378 132, 434 176, 468 226" fill="none" stroke="#7FA3B0" stroke-opacity="0.14" stroke-width="7" stroke-linecap="round"></path>
+</svg>

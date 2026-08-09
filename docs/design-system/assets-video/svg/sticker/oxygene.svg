@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker oxygène</title>
+  <desc>VIDEO-DS §4.2 — 3 bulles foam de tailles croissantes, contour navy-950.</desc>
+  <circle cx="150" cy="160" r="52" fill="#DFF3F2" stroke="#04141C" stroke-width="16"></circle>
+  <path d="M 118 138 A 40 40 0 0 1 148 122" stroke="#04141C" stroke-opacity="0.35" stroke-width="8" stroke-linecap="round" fill="none"></path>
+  <circle cx="80" cy="92" r="33" fill="#DFF3F2" stroke="#04141C" stroke-width="14"></circle>
+  <path d="M 60 82 A 24 24 0 0 1 78 71" stroke="#04141C" stroke-opacity="0.35" stroke-width="7" stroke-linecap="round" fill="none"></path>
+  <circle cx="150" cy="40" r="20" fill="#DFF3F2" stroke="#04141C" stroke-width="12"></circle>
+</svg>

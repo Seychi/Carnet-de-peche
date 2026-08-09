@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import MapShell from '@/components/map/MapShell'
 import { getUserTier } from '@/lib/auth/tier'
+import { getWallKind } from '@/lib/gating/wall'
 import type { UserTier } from '@/lib/auth/tier'
 import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
 import type { SpotMarker } from '@/lib/map/utils'
@@ -165,7 +166,13 @@ export default async function CartePage({
   const isDismissed = dismissedAt
     ? Date.now() - parseInt(dismissedAt, 10) < SEVEN_DAYS_MS
     : false
-  const showUpsell = tier === 'discovery' && !isDismissed
+  // Sprint 75 Bloc 1 : deux murs distincts, jamais les deux à la fois.
+  // `discovery` (inscrit gratuit) → upsell abonnement, comportement inchangé.
+  // `anonymous` (pas de compte) → bandeau d'inscription, zéro prix. Sa fermeture
+  // est gérée par SignupBanner lui-même (cookie dédié, 7 jours).
+  const wall = getWallKind(tier)
+  const showUpsell = wall === 'upsell' && !isDismissed
+  const showSignupBanner = wall === 'signup'
 
   return (
     <>
@@ -177,6 +184,7 @@ export default async function CartePage({
         initialCenter={initialCenter}
         initialZoom={initialZoom}
         showUpsell={showUpsell}
+        showSignupBanner={showSignupBanner}
         initialFilters={initialFilters}
         userDepartment={homeDept ?? undefined}
         availableDepartments={availableDepartments}

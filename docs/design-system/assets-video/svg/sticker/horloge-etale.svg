@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker horloge-étale</title>
+  <desc>VIDEO-DS §4.2 — cadran avec secteur ±2h surligné teal-300.</desc>
+  <circle cx="120" cy="120" r="92" fill="#DFF3F2" stroke="#04141C" stroke-width="18"></circle>
+  <path d="M 120 120 L 120 32 A 88 88 0 0 1 196 76 Z" fill="#5EEAD4"></path>
+  <circle cx="120" cy="120" r="92" fill="none" stroke="#04141C" stroke-width="18"></circle>
+  <path d="M 120 44 L 120 58 M 196 120 L 182 120 M 120 196 L 120 182 M 44 120 L 58 120" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 120 120 L 120 62" stroke="#04141C" stroke-width="9" stroke-linecap="round"></path>
+  <path d="M 120 120 L 162 120" stroke="#04141C" stroke-width="9" stroke-linecap="round"></path>
+  <circle cx="120" cy="120" r="12" fill="#04141C"></circle>
+</svg>

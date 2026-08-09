@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker flotteur</title>
+  <desc>VIDEO-DS §4.2 — flotteur marque : corps navy-900, cerclage et centre gold-500.</desc>
+  <path d="M 120 30 L 120 62" stroke="#D9A53C" stroke-width="11" stroke-linecap="round"></path>
+  <circle cx="120" cy="132" r="74" fill="#0A2F3D" stroke="#04141C" stroke-width="18"></circle>
+  <path d="M 52 116 Q 120 100 188 116 L 188 148 Q 120 164 52 148 Z" fill="#D9A53C"></path>
+  <path d="M 52 116 Q 120 100 188 116 M 52 148 Q 120 164 188 148" stroke="#04141C" stroke-width="7" fill="none"></path>
+  <circle cx="120" cy="132" r="17" fill="#D9A53C" stroke="#04141C" stroke-width="8"></circle>
+</svg>

@@ -33,6 +33,30 @@ type RpcRow = {
   perso_catches: number
 }
 
+/**
+ * Nombre TOTAL de spots publiés portant l'espèce (sprint 75, Bloc 3) — alimente le
+ * lien « voir les N spots ». Compte only (`head: true`), donc une requête légère.
+ *
+ * ⚠️ Passe par la RLS (client de session, pas la RPC definer) : elle restreint déjà
+ * `anon` aux spots approuvés, donc ce compteur est cohérent avec ce que la landing
+ * `/spots?species=` affichera réellement. Annoncer un nombre que la page suivante
+ * ne montre pas serait pire que de ne rien annoncer.
+ */
+export async function countSpotsForSpecies(dbKey: string): Promise<number> {
+  try {
+    const supabase = await createClient()
+    const { count, error } = await supabase
+      .from('spots')
+      .select('id', { count: 'exact', head: true })
+      .eq('visibility', 'public')
+      .contains('species', [dbKey])
+    if (error) return 0
+    return count ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export async function getTopSpotsForSpecies(
   dbKey: string,
   opts?: { dept?: string | null; limit?: number },

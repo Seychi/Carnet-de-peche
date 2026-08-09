@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Condition — pluie</title>
+  <desc>Extension DS §4 — nuage foam + 3 gouttes water-1, contour navy.</desc>
+  <path d="M 74 132 C 42 132, 30 100, 56 84 C 52 50, 108 34, 132 62 C 152 36, 202 44, 204 82 C 236 80, 248 122, 214 134 C 190 140, 98 140, 74 132 Z" fill="#DFF3F2" stroke="#04141C" stroke-width="14" stroke-linejoin="round"></path>
+  <g fill="#0F4C5C" stroke="#04141C" stroke-width="7">
+    <path d="M 92 168 C 92 186, 76 196, 76 176 C 76 170, 84 160, 84 160 Z"></path>
+    <path d="M 132 176 C 132 194, 116 204, 116 184 C 116 178, 124 168, 124 168 Z"></path>
+    <path d="M 172 168 C 172 186, 156 196, 156 176 C 156 170, 164 160, 164 160 Z"></path>
+  </g>
+</svg>

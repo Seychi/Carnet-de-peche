@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <title>Fond collage-split — nuit</title>
+  <desc>VIDEO-DS §4.3 — ciel dégradé + ligne de flottaison foam ondulée + eau en aplats. Scène reine.</desc>
+  <defs><linearGradient id="sky-nuit" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#030B12"></stop><stop offset="1" stop-color="#0A2233"></stop>
+  </linearGradient></defs>
+  <rect x="0" y="0" width="1080" height="808" fill="url(#sky-nuit)"></rect>
+  <path d="M -20 768 L -20 762.3 L 10 770.9 L 40 778.7 L 70 783.4 L 100 784.0 L 130 781.5 L 160 777.8 L 190 774.7 L 220 773.5 L 250 773.7 L 280 773.8 L 310 772.0 L 340 767.5 L 370 760.8 L 400 753.8 L 430 749.0 L 460 748.3 L 490 751.9 L 520 758.6 L 550 765.9 L 580 771.5 L 610 774.4 L 640 774.7 L 670 774.2 L 700 774.5 L 730 776.6 L 760 780.0 L 790 783.0 L 820 783.5 L 850 780.1 L 880 773.3 L 910 764.6 L 940 756.8 L 970 752.1 L 1000 751.5 L 1030 754.1 L 1060 758.1 L 1090 761.5 L 1100 1920 L -20 1920 Z" fill="#0A3240"></path>
+  <path d="M -20 1208 L 1100 1208 L 1100 1920 L -20 1920 Z" fill="#08252F"></path>
+  <path d="M -20 1668 L 1100 1668 L 1100 1920 L -20 1920 Z" fill="#051A22"></path>
+  <path d="M -20 768 L -20 762.3 L 10 770.9 L 40 778.7 L 70 783.4 L 100 784.0 L 130 781.5 L 160 777.8 L 190 774.7 L 220 773.5 L 250 773.7 L 280 773.8 L 310 772.0 L 340 767.5 L 370 760.8 L 400 753.8 L 430 749.0 L 460 748.3 L 490 751.9 L 520 758.6 L 550 765.9 L 580 771.5 L 610 774.4 L 640 774.7 L 670 774.2 L 700 774.5 L 730 776.6 L 760 780.0 L 790 783.0 L 820 783.5 L 850 780.1 L 880 773.3 L 910 764.6 L 940 756.8 L 970 752.1 L 1000 751.5 L 1030 754.1 L 1060 758.1 L 1090 761.5" fill="none" stroke="#DFF3F2" stroke-opacity="0.6" stroke-width="12" stroke-linecap="round"></path>
+  <path d="M -20 768 L -20 762.3 L 10 770.9 L 40 778.7 L 70 783.4 L 100 784.0 L 130 781.5 L 160 777.8 L 190 774.7 L 220 773.5 L 250 773.7 L 280 773.8 L 310 772.0 L 340 767.5 L 370 760.8 L 400 753.8 L 430 749.0 L 460 748.3 L 490 751.9 L 520 758.6 L 550 765.9 L 580 771.5 L 610 774.4 L 640 774.7 L 670 774.2 L 700 774.5 L 730 776.6 L 760 780.0 L 790 783.0 L 820 783.5 L 850 780.1 L 880 773.3 L 910 764.6 L 940 756.8 L 970 752.1 L 1000 751.5 L 1030 754.1 L 1060 758.1 L 1090 761.5" transform="translate(0 26)" fill="none" stroke="#DFF3F2" stroke-opacity="0.24" stroke-width="6" stroke-linecap="round"></path>
+</svg>

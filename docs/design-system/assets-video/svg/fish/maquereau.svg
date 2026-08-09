@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 360" width="1080" height="360">
+  <title>Maquereau (Scomber scombrus)</title>
+  <desc>VIDEO-DS §4.1 — torpille, dos bleu-vert zebre de rayures ondulees, pinnules, caudale tres fourchue.</desc>
+  <defs><clipPath id="maquereau-body-clip"><path d="M 30 180 C 66 154, 134 132, 238 120 C 364 106, 512 108, 640 124 C 744 138, 826 156, 874 172 C 878 176, 878 184, 874 188 C 826 204, 744 222, 640 236 C 512 252, 364 254, 238 240 C 134 228, 66 206, 30 180 Z"></path></clipPath></defs>
+  <g id="tail" data-pivot="864 180">
+    <path d="M 860 156 C 902 162, 940 156, 984 136 C 1012 123, 1038 112, 1058 108 C 1044 144, 1028 168, 1022 180 C 1028 192, 1044 216, 1058 252 C 1038 248, 1012 237, 984 224 C 940 204, 902 198, 860 204 Z" fill="#2E6D8C"></path>
+    <path d="M 884 168 L 1050 116" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 884 180 L 1030 180" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+    <path d="M 884 192 L 1050 244" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" fill="none"></path>
+  </g>
+  <g id="fins">
+    <path d="M 300 122 L 324 94 C 346 100, 366 112, 380 128 C 354 126, 328 124, 300 122 Z" fill="#2E6D8C"></path>
+    <path d="M 486 128 L 510 104 C 530 110, 548 120, 560 134 C 536 132, 510 130, 486 128 Z" fill="#2E6D8C"></path>
+    <path d="M 500 232 C 522 258, 548 270, 576 264 C 584 248, 584 236, 578 226 C 552 230, 526 232, 500 232 Z" fill="#7BA6B4"></path>
+    <path d="M 300 236 C 318 258, 338 268, 362 264 C 366 250, 364 240, 358 232 C 338 234, 320 236, 300 236 Z" fill="#7BA6B4"></path>
+    <path d="M 636 150 l 30 -8 l -14 20 Z" fill="#2E6D8C" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 682 150 l 30 -8 l -14 20 Z" fill="#2E6D8C" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 728 150 l 30 -8 l -14 20 Z" fill="#2E6D8C" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 774 150 l 30 -8 l -14 20 Z" fill="#2E6D8C" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 820 150 l 30 -8 l -14 20 Z" fill="#2E6D8C" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 636 210 l 30 8 l -14 -20 Z" fill="#7BA6B4" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 682 210 l 30 8 l -14 -20 Z" fill="#7BA6B4" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 728 210 l 30 8 l -14 -20 Z" fill="#7BA6B4" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 774 210 l 30 8 l -14 -20 Z" fill="#7BA6B4" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+    <path d="M 820 210 l 30 8 l -14 -20 Z" fill="#7BA6B4" stroke="#04141C" stroke-width="3" stroke-linejoin="round"></path>
+  </g>
+  <g id="body" clip-path="url(#maquereau-body-clip)">
+    <rect x="-12" y="-12" width="1034" height="384" fill="#EAF0EE"></rect>
+    <path d="M -12 -12 L 1010 -12 L 1010 150 C 860 132, 700 120, 540 118 C 420 118, 300 128, 210 150 C 150 165, 74 176, -12 190 Z" fill="#2E6D8C"></path>
+    <path d="M -12 -12 L 1010 -12 L 1010 172 C 860 162, 700 160, 540 164 C 420 168, 300 176, 210 182 C 150 185, 74 184, -12 184 Z" fill="#7BA6B4"></path>
+    <path d="M 180 138 C 320 116, 480 114, 620 126 C 710 134, 786 150, 828 172" stroke="#FBF8F2" stroke-opacity="0.55" stroke-width="5" stroke-linecap="round" fill="none"></path>
+    <path d="M 150 128 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0" stroke="#04141C" stroke-opacity="0.5" stroke-width="5" fill="none"></path>
+    <path d="M 300 122 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0" stroke="#04141C" stroke-opacity="0.5" stroke-width="5" fill="none"></path>
+    <path d="M 450 122 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0" stroke="#04141C" stroke-opacity="0.5" stroke-width="5" fill="none"></path>
+    <path d="M 600 128 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0 q 22 -13 44 0 q 22 13 44 0" stroke="#04141C" stroke-opacity="0.5" stroke-width="5" fill="none"></path>
+    <path d="M 150 176 C 320 172, 520 176, 760 186" stroke="#04141C" stroke-opacity="0.25" stroke-width="3" fill="none"></path>
+  </g>
+  <g id="fin-pectoral" class="fins" data-pivot="268 180">
+    <path d="M 268 178 C 308 174, 342 188, 364 214 C 336 222, 300 214, 274 198 C 266 192, 262 184, 268 178 Z" fill="#2E6D8C"></path>
+    <path d="M 276 186 C 306 194, 334 204, 356 216" stroke="#04141C" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"></path>
+  </g>
+  <g id="eye"><circle cx="116" cy="168" r="15" fill="#04141C"></circle><circle cx="110" cy="161" r="4.5" fill="#FBF8F2"></circle></g>
+</svg>

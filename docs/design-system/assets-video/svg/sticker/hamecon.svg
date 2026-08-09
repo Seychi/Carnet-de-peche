@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker hameçon</title>
+  <desc>VIDEO-DS §4.2 — hameçon fin muted, reflet sand-50.</desc>
+  <circle cx="150" cy="46" r="16" fill="none" stroke="#7FA3B0" stroke-width="12"></circle>
+  <path d="M 150 62 L 150 134 C 150 178, 110 202, 76 178 C 52 160, 56 130, 80 118" fill="none" stroke="#7FA3B0" stroke-width="15" stroke-linecap="round"></path>
+  <path d="M 80 118 L 66 104 M 80 118 L 98 108" stroke="#7FA3B0" stroke-width="12" stroke-linecap="round" fill="none"></path>
+  <path d="M 146 66 L 146 130" stroke="#FBF8F2" stroke-width="5" stroke-linecap="round" fill="none"></path>
+</svg>

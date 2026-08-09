@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 640" width="660" height="640">
+  <title>Pêcheur — attente</title>
+  <desc>VIDEO-DS §4.6 — silhouette de bord, 3/4 dos, aplat navy-950, sans visage. Canne au repos. Groupe canne avec pivot aux mains.</desc>
+  <g id="corps" fill="#04141C">
+    <path d="M 250 352 L 214 574" stroke="#04141C" stroke-width="47" stroke-linecap="round"></path>
+    <path d="M 258 356 L 300 574" stroke="#04141C" stroke-width="47" stroke-linecap="round"></path>
+    <ellipse cx="230" cy="582" rx="26" ry="13"></ellipse>
+    <ellipse cx="316" cy="582" rx="26" ry="13"></ellipse>
+    <path d="M 214 356 C 200 300, 202 250, 216 212 C 224 194, 252 188, 270 196 C 292 204, 300 240, 298 282 C 296 322, 292 346, 286 358 C 262 368, 238 368, 214 356 Z"></path>
+    <ellipse cx="240" cy="198" rx="27" ry="23"></ellipse>
+    <ellipse cx="262" cy="150" rx="41" ry="45"></ellipse>
+    <path d="M 286 140 L 340 146 L 338 159 L 288 161 Z"></path>
+    <path d="M 244 214 Q 320 248 398 314" fill="none" stroke="#04141C" stroke-width="26" stroke-linecap="round"></path>
+    <path d="M 272 220 Q 340 280 400 320" fill="none" stroke="#04141C" stroke-width="31" stroke-linecap="round"></path>
+    <circle cx="401" cy="319" r="19"></circle>
+    <circle cx="398" cy="346" r="15"></circle>
+  </g>
+  <g id="canne" data-pivot="400 318">
+    <circle cx="372" cy="342" r="7" fill="#04141C"></circle>
+    <path d="M 372 342 Q 502 208 604 116" fill="none" stroke="#04141C" stroke-width="7" stroke-linecap="round"></path>
+  </g>
+</svg>

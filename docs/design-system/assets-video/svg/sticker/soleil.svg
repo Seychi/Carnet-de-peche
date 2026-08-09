@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>Sticker soleil</title>
+  <desc>VIDEO-DS §4.2 — disque gold-500 + 8 rayons trapèze, contour navy-950.</desc>
+  <g id="rayons">
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(0 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(45 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(90 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(135 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(180 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(225 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(270 120 120)"></path>
+    <path d="M 109 6 L 131 6 L 125 42 L 115 42 Z" fill="#D9A53C" stroke="#04141C" stroke-width="11" stroke-linejoin="round" transform="rotate(315 120 120)"></path>
+  </g>
+  <circle cx="120" cy="120" r="56" fill="#D9A53C" stroke="#04141C" stroke-width="16"></circle>
+</svg>

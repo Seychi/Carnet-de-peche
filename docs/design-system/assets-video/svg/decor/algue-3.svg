@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 400" width="260" height="400">
+  <title>Décor algue-3 (zostère)</title>
+  <desc>VIDEO-DS §4.4 — zostère (herbier), fins brins water-1 70%, nommés.</desc>
+  <g id="brin-1"><path d="M 70 400 C 64 300, 90 210, 98 60 C 100 40, 100 24, 96 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.72" stroke-width="13" stroke-linecap="round"></path></g>
+  <g id="brin-2"><path d="M 104 400 C 98 300, 90 210, 84.4 60 C 83 40, 83 24, 85.8 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.67" stroke-width="10" stroke-linecap="round"></path></g>
+  <g id="brin-3"><path d="M 134 400 C 128 300, 150 210, 156.4 60 C 158 40, 158 24, 154.8 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.62" stroke-width="13" stroke-linecap="round"></path></g>
+  <g id="brin-4"><path d="M 166 400 C 160 300, 156 210, 152 60 C 151 40, 151 24, 153 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.57" stroke-width="10" stroke-linecap="round"></path></g>
+  <g id="brin-5"><path d="M 196 400 C 190 300, 218 210, 226.8 60 C 229 40, 229 24, 224.6 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.52" stroke-width="13" stroke-linecap="round"></path></g>
+</svg>

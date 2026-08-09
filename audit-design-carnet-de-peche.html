@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnet de Pêche · Pistes design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#04141c; --navy-900:#0a2f3d; --navy-800:#0e3d4f;
+    --gold-500:#d9a53c; --coral-500:#e5604f;
+    --teal-300:#5eead4; --teal-400:#2dd4bf; --teal-500:#14b8a6;
+    --sand-50:#fbf8f2; --ink-900:#0e1a22; --ink-700:#2d3f4a; --ink-500:#5b6b74;
+    --line:#e7e0d3;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--sand-50);color:var(--ink-900);font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-500)}
+  h1,h2,h3{font-family:"Space Grotesk",sans-serif;margin:0;line-height:1.05;letter-spacing:-.01em}
+  h1{font-size:clamp(34px,5vw,60px);font-weight:700}
+  h2{font-size:clamp(26px,3.4vw,40px);font-weight:700}
+  h3{font-size:20px;font-weight:700}
+  p{margin:0 0 14px}
+  .lead{font-size:18px;color:var(--ink-700);max-width:62ch}
+  a{color:var(--teal-500);text-decoration:none}
+
+  /* hero */
+  header.top{background:radial-gradient(120% 140% at 78% 0%, #0e3d4f 0%, #072733 42%, #04141c 100%);color:var(--sand-50);padding:64px 0 72px;position:relative;overflow:hidden}
+  header.top .depth{position:absolute;inset:0;pointer-events:none;opacity:.5}
+  header.top .depth span{position:absolute;right:24px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#3f6b78;letter-spacing:1px}
+  header.top h1{color:#fff;margin:14px 0 18px;max-width:16ch}
+  header.top .accent{color:var(--teal-300)}
+  header.top .lead{color:#bcd3d6}
+  .pill{display:inline-flex;gap:8px;align-items:center;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:1px;color:#bcd3d6;border:1px solid #21525f;border-radius:999px;padding:7px 14px;margin-top:26px;background:rgba(255,255,255,.02)}
+  .pill b{color:var(--teal-300);font-weight:500}
+
+  section{padding:60px 0;border-bottom:1px solid var(--line)}
+  .sec-head{display:flex;gap:14px;align-items:baseline;margin-bottom:8px}
+  .sec-head .num{font-family:"JetBrains Mono",monospace;color:var(--teal-500);font-size:13px;letter-spacing:1px}
+  .sub{color:var(--ink-700);max-width:64ch;margin-top:14px}
+
+  /* toggle */
+  .toggle{display:inline-flex;background:#efe9dc;border:1px solid var(--line);border-radius:999px;padding:4px;margin:26px 0 8px;font-family:"JetBrains Mono",monospace;font-size:13px}
+  .toggle button{border:0;background:transparent;color:var(--ink-700);padding:8px 18px;border-radius:999px;cursor:pointer;letter-spacing:.5px;transition:.18s}
+  .toggle button.on{background:var(--navy-950);color:#fff}
+  .hint{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-500);margin-left:12px}
+
+  /* species grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin-top:22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 0 rgba(14,26,34,.03);transition:transform .18s ease, box-shadow .18s ease}
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 34px -18px rgba(4,20,28,.55)}
+  .card .head{position:relative;height:128px;background:linear-gradient(135deg,#0c3543 0%,#06212c 70%,#04141c 100%);overflow:hidden}
+  .card .head .lines{position:absolute;inset:0;opacity:.35}
+  .card .head .lines i{position:absolute;left:0;right:0;height:1px;background:#1d4a57}
+  .card .fish{position:absolute;right:8px;top:50%;transform:translateY(-50%);height:104px;color:var(--teal-300);transition:color .2s, transform .25s}
+  .card:hover .fish{transform:translateY(-52%) scale(1.03)}
+  .card[data-mode="avant"] .fish{color:#2f6675;height:78px;right:50%;transform:translate(50%,-50%)}
+  .card .latin{position:absolute;left:14px;bottom:11px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:1.5px;color:#6fd8c6;text-transform:uppercase}
+  .card .body{padding:16px 16px 14px}
+  .card .body h3{font-size:18px;margin-bottom:6px}
+  .card .desc{font-size:13.5px;color:var(--ink-700);min-height:74px}
+  .card .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:11px;margin-top:6px}
+  .card .foot .v{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.5px;color:var(--ink-500)}
+  .card .foot .f{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--teal-500)}
+  .note{margin-top:22px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal-400);border-radius:10px;padding:14px 18px;font-size:14px;color:var(--ink-700)}
+  .note b{color:var(--ink-900)}
+
+  /* detail hero before/after */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
+  @media(max-width:760px){.ba{grid-template-columns:1fr}}
+  .ba .tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;color:var(--ink-500)}
+  .ba .tag.after{color:var(--teal-500)}
+  .hero-demo{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(120% 130% at 85% 0%,#0e3d4f,#06222d 55%,#04141c);color:#fff;padding:22px 20px;min-height:230px;border:1px solid #0c2f3b}
+  .hero-demo .crumb{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:1px;color:#5f93a0}
+  .hero-demo h3{font-size:30px;margin:8px 0 4px}
+  .hero-demo h3 em{font-family:"Space Grotesk";font-style:italic;font-weight:500;color:#9fb9bd;font-size:18px}
+  .hero-demo .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:16px;max-width:62%}
+  .hero-demo .stats .k{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:1px;color:#5f93a0;text-transform:uppercase}
+  .hero-demo .stats .val{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--teal-300);line-height:1.35}
+  .hero-demo .depth i{position:absolute;right:18px;font-family:"JetBrains Mono",monospace;font-size:10px;color:#3f6b78}
+  .hero-demo .watermark{position:absolute;right:-6px;bottom:-6px;height:172px;color:rgba(94,234,212,.16)}
+  .hero-demo .watermark.stroke{color:transparent}
+
+  /* polish minis */
+  .minis{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px}
+  @media(max-width:760px){.minis{grid-template-columns:1fr}}
+  .mini{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 18px 20px}
+  .mini h3{font-size:16px;margin-bottom:4px}
+  .mini p{font-size:13.5px;color:var(--ink-700)}
+  .demo-row{display:flex;gap:12px;margin-top:14px}
+  .demo-row>div{flex:1}
+  .mlab{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:1px;color:var(--ink-500);margin-bottom:6px;text-transform:uppercase}
+  .statband{background:var(--navy-950);border-radius:10px;padding:14px 12px;display:flex;justify-content:space-around;text-align:center;color:#fff}
+  .statband .n{font-family:"Space Grotesk";font-weight:700;font-size:20px}
+  .statband .n.dup{color:var(--coral-500)}
+  .statband .n.fix{color:var(--teal-300)}
+  .statband .t{font-family:"JetBrains Mono",monospace;font-size:8.5px;letter-spacing:.5px;color:#7fa0a8;text-transform:uppercase;margin-top:3px}
+  .maptile{height:104px;border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .maptile.before{background:#06222d}
+  .maptile.before .sp{width:26px;height:26px;border:3px solid #1d4a57;border-top-color:var(--teal-400);border-radius:50%;animation:spin 1s linear infinite}
+  .maptile.before .t{position:absolute;bottom:8px;font-family:"JetBrains Mono",monospace;font-size:9px;color:#5f93a0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .maptile.after{background:linear-gradient(135deg,#0c3543,#06212c)}
+  .maptile.after .shine{position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(94,234,212,.10) 50%,transparent 70%);animation:shine 1.6s linear infinite}
+  @keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .maptile .dot{position:absolute;width:7px;height:7px;border-radius:50%}
+  ul.fixlist{list-style:none;padding:0;margin:18px 0 0}
+  ul.fixlist li{padding:11px 0;border-top:1px solid var(--line);font-size:14px;color:var(--ink-700);display:flex;gap:12px}
+  ul.fixlist li b{color:var(--ink-900)}
+  ul.fixlist li .ic{color:var(--teal-500);font-family:"JetBrains Mono",monospace;flex:0 0 auto}
+
+  footer.end{background:var(--navy-950);color:#cfe3e4;padding:48px 0 56px}
+  footer.end h2{color:#fff;margin-bottom:14px}
+  footer.end .cta{display:inline-block;margin-top:18px;background:var(--teal-500);color:#04141c;font-family:"JetBrains Mono",monospace;font-weight:500;padding:13px 22px;border-radius:999px}
+  footer.end .small{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#5f93a0;margin-top:22px;letter-spacing:.5px}
+</style>
+</head>
+<body>
+
+<!-- hidden fish library -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="f-generic" viewBox="0 0 250 124">
+      <ellipse cx="112" cy="62" rx="78" ry="34" fill="currentColor"/>
+      <path d="M188,62 L236,40 L236,84 Z" fill="currentColor"/>
+      <circle cx="64" cy="56" r="5" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-bar" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M18,66 C40,50 78,46 120,48 C150,49 174,55 196,64 C174,75 150,81 120,82 C78,84 40,80 18,66 Z"/>
+      <path fill="currentColor" d="M192,64 L236,48 L222,64 L236,82 Z"/>
+      <path fill="currentColor" d="M72,49 L86,30 L106,47 Z"/>
+      <path fill="currentColor" d="M120,48 L140,33 L156,50 Z"/>
+      <path fill="currentColor" d="M122,81 L140,95 L156,78 Z"/>
+      <path fill="currentColor" d="M66,80 L78,92 L90,79 Z"/>
+      <path fill="currentColor" d="M56,68 L74,74 L60,80 Z"/>
+      <circle cx="34" cy="62" r="4" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-dorade" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M20,70 C26,44 46,30 84,28 C128,26 166,42 198,62 C166,84 128,94 84,92 C46,90 26,82 20,70 Z"/>
+      <path fill="currentColor" d="M98,27 L122,16 L152,29 Z"/>
+      <path fill="currentColor" d="M194,62 L236,46 L224,62 L236,80 Z"/>
+      <path fill="currentColor" d="M126,90 L142,99 L156,83 Z"/>
+      <path fill="currentColor" d="M92,92 L102,101 L114,90 Z"/>
+      <circle cx="44" cy="58" r="4" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-lieu" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M16,60 C38,46 80,42 122,44 C152,45 178,52 198,62 C178,72 152,79 122,80 C80,82 40,78 18,68 L11,64 Z"/>
+      <path fill="currentColor" d="M54,44 Q64,33 76,44 Z"/>
+      <path fill="currentColor" d="M92,43 Q104,32 118,43 Z"/>
+      <path fill="currentColor" d="M132,45 Q146,35 160,47 Z"/>
+      <path fill="currentColor" d="M96,79 Q110,90 126,78 Z"/>
+      <path fill="currentColor" d="M138,77 Q152,87 166,75 Z"/>
+      <path fill="currentColor" d="M196,62 L234,50 L224,62 L234,74 Z"/>
+      <path fill="currentColor" d="M40,66 L58,73 L44,79 Z"/>
+      <circle cx="32" cy="60" r="4" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-maquereau" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M14,64 C40,52 80,50 120,52 C150,53 172,57 188,63 C172,69 150,73 120,74 C80,76 40,76 14,64 Z"/>
+      <path fill="currentColor" d="M64,51 L76,38 L90,50 Z"/>
+      <path fill="currentColor" d="M120,52 L132,43 L144,52 Z"/>
+      <path fill="currentColor" d="M152,55 L160,49 L162,56 Z"/>
+      <path fill="currentColor" d="M165,55 L173,50 L175,56 Z"/>
+      <path fill="currentColor" d="M178,56 L185,52 L186,57 Z"/>
+      <path fill="currentColor" d="M152,71 L160,77 L162,70 Z"/>
+      <path fill="currentColor" d="M165,71 L173,76 L175,70 Z"/>
+      <path fill="currentColor" d="M178,70 L185,74 L186,69 Z"/>
+      <path fill="currentColor" d="M186,63 L232,44 L214,63 L232,82 Z"/>
+      <path fill="currentColor" d="M120,74 L134,84 L146,73 Z"/>
+      <circle cx="30" cy="63" r="3.5" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-sar" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M22,66 C28,40 54,24 100,26 C142,28 174,46 198,64 C174,82 142,96 100,96 C54,96 28,82 22,66 Z"/>
+      <path fill="currentColor" d="M58,30 L70,16 L110,28 L168,46 L176,58 Z"/>
+      <path fill="currentColor" d="M196,64 L236,48 L224,64 L236,80 Z"/>
+      <path fill="currentColor" d="M126,93 L146,101 L166,82 Z"/>
+      <path fill="currentColor" d="M92,95 L102,104 L114,93 Z"/>
+      <circle cx="46" cy="58" r="4" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-orphie" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M6,62 L58,58 C120,52 170,54 206,60 C170,68 120,70 58,66 L6,62 Z"/>
+      <path fill="currentColor" d="M168,55 L180,46 L192,56 Z"/>
+      <path fill="currentColor" d="M168,69 L180,78 L192,68 Z"/>
+      <path fill="currentColor" d="M204,60 L236,50 L226,60 L236,72 Z"/>
+      <circle cx="70" cy="61" r="3" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-congre" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M14,60 Q80,42 150,58 Q205,72 236,65 Q205,80 150,70 Q80,86 14,68 Z"/>
+      <circle cx="28" cy="62" r="3.5" fill="#04141c"/>
+    </symbol>
+    <symbol id="f-seiche" viewBox="0 0 250 124">
+      <path fill="currentColor" d="M120,40 C170,38 210,48 224,65 C210,82 170,92 120,90 C96,89 84,80 84,65 C84,50 96,41 120,40 Z"/>
+      <path fill="currentColor" d="M92,82 Q155,96 222,80 L220,84 Q155,92 96,86 Z"/>
+      <path fill="currentColor" d="M84,56 L44,52 L84,62 Z"/>
+      <path fill="currentColor" d="M84,60 L38,60 L84,66 Z"/>
+      <path fill="currentColor" d="M84,64 L42,68 L84,70 Z"/>
+      <path fill="currentColor" d="M84,68 L50,76 L84,73 Z"/>
+      <path fill="currentColor" d="M84,62 L30,46 L26,49 L80,66 Z"/>
+      <circle cx="112" cy="58" r="5" fill="#04141c"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="depth"><span style="top:30%">— 15 m</span><span style="top:52%">— 10 m</span><span style="top:74%">— 5 m</span></div>
+  <div class="wrap">
+    <div class="eyebrow">Carnet de Pêche · pistes design · 27 juin 2026</div>
+    <h1>Améliorer ce qui est <span class="accent">déjà bon.</span></h1>
+    <p class="lead">Le site est solide : la DA « instrument marine » est tenue partout, le carnet qui parle est lisible, les fiches espèces sont profondes. Pas de refonte. Des upgrades ciblés, à fort effet, à faible risque. En voici deux, rendus avec tes vrais tokens.</p>
+    <div class="pill">Rendu avec <b>#04141c</b> · <b>#5eead4</b> · <b>Space&nbsp;Grotesk</b> · <b>JetBrains&nbsp;Mono</b> &nbsp;·&nbsp; aucune ligne de l'app touchée</div>
+  </div>
+</header>
+
+<!-- SPECIES -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2>Une silhouette par espèce</h2></div>
+    <p class="sub">Aujourd'hui, tes 26 fiches partagent le <b>même</b> petit poisson générique. Sur une page qui vend « espèces traitées à fond », c'est le seul endroit qui dit le contraire : rien à reconnaître, rien à scanner. Une silhouette dédiée par espèce transforme la grille, le hero de fiche, et plus tard les marqueurs de carte. Clique pour comparer.</p>
+
+    <div class="toggle" role="group" aria-label="Avant / Après">
+      <button id="b-avant" onclick="setMode('avant')">Avant</button>
+      <button id="b-apres" class="on" onclick="setMode('apres')">Après</button>
+      <span class="hint" id="modehint">silhouette dédiée · proposé</span>
+    </div>
+
+    <div class="grid" id="species-grid" data-mode="apres"></div>
+
+    <div class="note"><b>8 espèces montrées ici, sur tes 26.</b> Même gabarit de carte, exactement ta DA : une silhouette monochrome teal-300 par espèce, le nom latin en mono en bas, le reste identique. Le maquereau a ses pinnules, l'orphie son bec, la dorade sa bosse frontale, la seiche ses bras. Reconnaissable d'un coup d'œil, même en vignette.</div>
+
+    <h3 style="margin-top:46px;font-size:18px">Et le même atout sur le hero de fiche</h3>
+    <p class="sub" style="margin-top:8px">Le hero de <span class="mono" style="font-size:13px">/especes/bar</span> n'a aujourd'hui que des lignes de sonde à droite : beaucoup de vide. La silhouette de l'espèce, posée en filigrane derrière la sonde, signe la page sans rien casser de la mise en page.</p>
+    <div class="ba">
+      <div>
+        <div class="tag">Avant · hero actuel</div>
+        <div class="hero-demo">
+          <div class="depth"><i style="top:26%">— 15 m</i><i style="top:54%">— 10 m</i><i style="top:80%">— 5 m</i></div>
+          <div class="crumb">ESPÈCES › BAR</div>
+          <h3>Le bar &nbsp;<em>Dicentrarchus labrax</em></h3>
+          <div class="stats">
+            <div><div class="k">Taille courante</div><div class="val">35-55 cm du bord</div></div>
+            <div><div class="k">Taille max</div><div class="val">~1 m, 10-12 kg</div></div>
+            <div><div class="k">Habitat</div><div class="val">Roches, plages, ports</div></div>
+            <div><div class="k">Régime</div><div class="val">Lançons, crabes, vers</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="tag after">Après · silhouette en filigrane</div>
+        <div class="hero-demo">
+          <div class="depth"><i style="top:26%">— 15 m</i><i style="top:54%">— 10 m</i><i style="top:80%">— 5 m</i></div>
+          <svg class="watermark" viewBox="0 0 250 124"><use href="#f-bar"/></svg>
+          <div class="crumb">ESPÈCES › BAR</div>
+          <h3>Le bar &nbsp;<em>Dicentrarchus labrax</em></h3>
+          <div class="stats">
+            <div><div class="k">Taille courante</div><div class="val">35-55 cm du bord</div></div>
+            <div><div class="k">Taille max</div><div class="val">~1 m, 10-12 kg</div></div>
+            <div><div class="k">Habitat</div><div class="val">Roches, plages, ports</div></div>
+            <div><div class="k">Régime</div><div class="val">Lançons, crabes, vers</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POLISH -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2>Passe de polish</h2></div>
+    <p class="sub">Des petits trucs vus en parcourant le site live. Rien de structurel, mais ça enlève les rares accrocs qui dépareillent d'un produit par ailleurs très propre.</p>
+
+    <div class="minis">
+      <div class="mini">
+        <h3>Le « 157 spots » apparaît deux fois</h3>
+        <p>Dans le hero, puis re-compté dans le bandeau juste en dessous. Le second relais peut porter une autre preuve (de la donnée vivante plutôt qu'un doublon).</p>
+        <div class="demo-row">
+          <div>
+            <div class="mlab">Avant</div>
+            <div class="statband">
+              <div><div class="n">26</div><div class="t">espèces</div></div>
+              <div><div class="n dup">157</div><div class="t">spots</div></div>
+              <div><div class="n dup">157</div><div class="t">spots</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="mlab">Après</div>
+            <div class="statband">
+              <div><div class="n">26</div><div class="t">espèces</div></div>
+              <div><div class="n">157</div><div class="t">spots</div></div>
+              <div><div class="n fix">24</div><div class="t">départements</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini">
+        <h3>La carte met ~8 s à peindre</h3>
+        <p>Au chargement, gros vide sombre + spinner (le hic perf connu). Un squelette instantané, aux couleurs de la DA, occupe l'œil et fait sentir la carte « déjà là ».</p>
+        <div class="demo-row">
+          <div>
+            <div class="mlab">Avant · ~8 s</div>
+            <div class="maptile before"><div class="sp"></div><div class="t">CARTE</div></div>
+          </div>
+          <div>
+            <div class="mlab">Après · squelette immédiat</div>
+            <div class="maptile after">
+              <div class="shine"></div>
+              <span class="dot" style="left:30%;top:40%;background:var(--gold-500)"></span>
+              <span class="dot" style="left:54%;top:60%;background:var(--teal-300)"></span>
+              <span class="dot" style="left:70%;top:35%;background:#7fa0a8"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="fixlist">
+      <li><span class="ic">→</span><span><b>Marqueurs de carte trop gris.</b> La majorité des spots tombent en « moyenne » (réservoir encore vide) : la carte lit comme une mer de points neutres. Encoder la qualité par la couleur de ta DA (or/teal pour le bon, gris discret pour l'inconnu) redonne du relief, même avec peu de données.</span></li>
+      <li><span class="ic">→</span><span><b>Aperçu carte sur la home.</b> Le bloc « 02 — la carte » spinne lui aussi quelques secondes. Même squelette que ci-dessus, ou une image statique de la côte en attendant l'interactif.</span></li>
+      <li><span class="ic">→</span><span><b>Filtre espèces dense.</b> 28 puces d'un bloc à gauche de la carte. Un repli « + d'espèces » après les 6 du cœur, ou un groupage par façade, allège la première lecture.</span></li>
+      <li><span class="ic">→</span><span><b>Hub espèces.</b> Un filtre façade / saison en tête de grille (« qui mord chez moi en juin ? ») rendrait les silhouettes encore plus actionnables.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer class="end">
+  <div class="wrap">
+    <div class="eyebrow" style="color:var(--teal-300)">Prochaine étape</div>
+    <h2>Si une piste te parle, je la code.</h2>
+    <p style="max-width:60ch;color:#cfe3e4">Les silhouettes sont des SVG légers (un seul chemin par espèce, en <span class="mono" style="color:var(--teal-300);font-size:13px">currentColor</span>) : ça se branche dans un composant <span class="mono" style="color:var(--teal-300);font-size:13px">&lt;SpeciesSilhouette/&gt;</span> et ça se mappe sur tes 26 espèces sans toucher au reste. Dis « implémente les silhouettes » et je pars sur une branche, tu relis le diff avant tout push.</p>
+    <a class="cta" href="#">Implémenter les silhouettes →</a>
+    <div class="small">Mockup statique · pistes à valider · aucune migration, aucun commit · tes tokens, ta DA</div>
+  </div>
+</footer>
+
+<script>
+  const SPECIES = [
+    ["f-bar","Bar","Dicentrarchus labrax","Le poisson du bord par excellence. Présent de Dunkerque à Menton, il chasse dans 50 cm d'eau le long des digues."],
+    ["f-dorade","Dorade royale","Sparus aurata","La belle méfiante des fonds coquilliers : un bandeau doré entre les yeux, des mâchoires à broyer l'huître."],
+    ["f-lieu","Lieu jaune","Pollachius pollachius","Le combattant des pointes profondes : un premier rush vers la roche qui plie la canne et punit un frein trop dur."],
+    ["f-maquereau","Maquereau","Scomber scombrus","Le sprinteur des chasses estivales : il arrive en banc, prend tout ce qui brille, régale les débutants."],
+    ["f-sar","Sar","Diplodus sargus","Le casse-tête des enrochements : fin sur l'appât, un vrai test de discrétion au bas de ligne."],
+    ["f-orphie","Orphie","Belone belone","La flèche verte de surface : un bec d'aiguille, des arêtes turquoise, des touches qui ratent une fois sur deux."],
+    ["f-congre","Congre","Conger conger","La force tranquille des ports de nuit. Tapi dans les enrochements, il encaisse puis tire vers le trou."],
+    ["f-seiche","Seiche","Sepia officinalis","La reine de la turlutte de printemps : encre, camouflage et bourrades sèches au lancer-ramener."]
+  ];
+  const grid = document.getElementById('species-grid');
+  grid.innerHTML = SPECIES.map(([id,fr,la,desc])=>`
+    <article class="card">
+      <div class="head">
+        <div class="lines"><i style="top:34%"></i><i style="top:56%"></i><i style="top:78%"></i></div>
+        <svg class="fish" viewBox="0 0 250 124" data-fish="#${id}"><use href="#${id}"/></svg>
+        <div class="latin">${la}</div>
+      </div>
+      <div class="body">
+        <h3>${fr}</h3>
+        <div class="desc">${desc}</div>
+        <div class="foot"><span class="v">VÉRIFIÉ LE 21/06/2026</span><span class="f">La fiche →</span></div>
+      </div>
+    </article>`).join('');
+
+  function setMode(m){
+    grid.dataset.mode = m;
+    document.getElementById('b-avant').classList.toggle('on', m==='avant');
+    document.getElementById('b-apres').classList.toggle('on', m==='apres');
+    document.getElementById('modehint').textContent = m==='avant' ? 'glyph générique identique · actuel' : 'silhouette dédiée · proposé';
+    grid.querySelectorAll('svg.fish use').forEach(u=>{
+      const target = m==='avant' ? '#f-generic' : u.parentNode.getAttribute('data-fish');
+      u.setAttribute('href', target);
+    });
+  }
+</script>
+</body>
+</html>

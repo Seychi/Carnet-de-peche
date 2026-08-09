@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 420" width="260" height="420">
+  <title>Décor algue-1 (laminaire)</title>
+  <desc>VIDEO-DS §4.4 — laminaire, silhouette water-1 70%, brins nommés pour ondulation.</desc>
+  <g id="brin-1"><path d="M 120 420 C 110 320, 108 220, 120 120 C 126 70, 138 36, 150 8" fill="none" stroke="#0F4C5C" stroke-opacity="0.7" stroke-width="26" stroke-linecap="round"></path><path d="M 120 150 C 156 140, 176 150, 190 172 M 120 210 C 84 200, 64 210, 50 232 M 120 270 C 156 262, 178 272, 194 294" fill="none" stroke="#0F4C5C" stroke-opacity="0.55" stroke-width="15" stroke-linecap="round"></path></g>
+  <g id="brin-2"><path d="M 78 420 C 70 330, 66 250, 74 176 C 80 128, 90 92, 100 64" fill="none" stroke="#0F4C5C" stroke-opacity="0.55" stroke-width="18" stroke-linecap="round"></path></g>
+</svg>
