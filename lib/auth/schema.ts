@@ -30,16 +30,15 @@ export const signinSchema = z.object({
   password: z.string().min(1, "Saisis ton mot de passe"),
 })
 
-export const signupSchema = z
-  .object({
-    email: emailField,
-    password: newPasswordField,
-    password_confirm: z.string().min(1, "Confirme ton mot de passe"),
-  })
-  .refine((d) => d.password === d.password_confirm, {
-    message: "Les deux mots de passe ne correspondent pas",
-    path: ['password_confirm'],
-  })
+// Sprint 76, Bloc 3 : le champ « Confirme le mot de passe » a été retiré du
+// formulaire (4 champs → 2). `PasswordInput` porte déjà un bouton d'affichage,
+// c'est le standard et ça retire une friction sur le seul écran qui convertit.
+// ⚠️ Le schéma DOIT suivre : `gateSubmit` valide `Object.fromEntries(FormData)`
+// et un champ requis absent du DOM bloquerait tous les envois côté client.
+export const signupSchema = z.object({
+  email: emailField,
+  password: newPasswordField,
+})
 
 export const emailOnlySchema = z.object({
   email: emailField,

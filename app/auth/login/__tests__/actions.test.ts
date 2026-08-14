@@ -26,11 +26,11 @@ import { signUpWithPassword, type LoginState } from '../actions'
 
 const PREV: LoginState = { error: null, success: false, email: '', submittedAt: null }
 
+// Sprint 76, Bloc 3 : le formulaire ne poste plus `password_confirm` (2 champs).
 function signupForm(inviteCode?: string) {
   const f = new FormData()
   f.set('email', 'nouveau@exemple.fr')
   f.set('password', 'motdepasse1')
-  f.set('password_confirm', 'motdepasse1')
   if (inviteCode !== undefined) f.set('invite_code', inviteCode)
   return f
 }
@@ -129,5 +129,38 @@ describe('signUpWithPassword — code fondateur optionnel', () => {
     const res = await signUpWithPassword(PREV, f)
     expect(res.success).toBe(false)
     expect(supabase.auth.signUp).not.toHaveBeenCalled()
+  })
+})
+
+describe('signUpWithPassword — sans champ de confirmation (sprint 76, Bloc 3)', () => {
+  it('inscrit sans `password_confirm` dans le FormData', async () => {
+    const supabase = mockAuthClient({ session: true })
+    const f = signupForm()
+    expect(f.get('password_confirm')).toBeNull()
+    await expect(signUpWithPassword(PREV, f)).rejects.toThrow('REDIRECT:/onboarding/1')
+    expect(supabase.auth.signUp).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'nouveau@exemple.fr', password: 'motdepasse1' })
+    )
+  })
+
+  it('la règle de mot de passe reste appliquée côté SERVEUR (8 car. dont 1 chiffre)', async () => {
+    const supabase = mockAuthClient({ session: true })
+    for (const bad of ['court1', 'sanschiffre']) {
+      const f = signupForm()
+      f.set('password', bad)
+      const res = await signUpWithPassword(PREV, f)
+      expect(res.success).toBe(false)
+      expect(res.error).toBeTruthy()
+    }
+    expect(supabase.auth.signUp).not.toHaveBeenCalled()
+  })
+
+  it('un `password_confirm` résiduel (vieux cache HTML) n’est plus lu et ne bloque plus', async () => {
+    // Non-régression : la comparaison serveur a disparu, un champ obsolète
+    // envoyé par un formulaire en cache ne doit pas faire échouer l'inscription.
+    mockAuthClient({ session: true })
+    const f = signupForm()
+    f.set('password_confirm', 'autre-chose')
+    await expect(signUpWithPassword(PREV, f)).rejects.toThrow('REDIRECT:/onboarding/1')
   })
 })

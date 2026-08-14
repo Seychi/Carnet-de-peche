@@ -77,6 +77,15 @@ export const analytics = {
   speciesToSpotClicked(props: { species: string; spot_slug: string }): void {
     capture('species_to_spot_clicked', props)
   },
+  /**
+   * Clic d'une fiche spot vers une AUTRE fiche spot (sprint 76, Bloc 10). Mesure
+   * le maillage horizontal ouvert ce sprint : 54 % des sessions ne voyaient
+   * qu'une seule page, faute de lien entre les 416 fiches. Les deux slugs sont
+   * des identifiants publics, jamais une coordonnée.
+   */
+  spotToSpotClicked(props: { from_slug: string; to_slug: string }): void {
+    capture('spot_to_spot_clicked', props)
+  },
   /** Clic sur un CTA de la home (conversion funnel). `cta` = identifiant du bouton. */
   homeCtaClicked(props: { cta: string }): void {
     capture('home_cta_clicked', props)
