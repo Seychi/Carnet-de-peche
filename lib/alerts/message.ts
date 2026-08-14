@@ -12,6 +12,7 @@
 
 import type {
   AlertMessage,
+  BigTideAlertPayload,
   JustificationInput,
   MatchedTendency,
   SpotAlertPayload,
@@ -135,5 +136,29 @@ export function buildAlertMessage(
     title: `Tes conditions arrivent à ${payload.spotName}`,
     body: `${when} à ${payload.spotName}. ${payload.justification}`,
     emailSubject: `${when} à ${payload.spotName} : tes conditions`,
+  }
+}
+
+// ─── Alerte GRANDE MARÉE sur spot favori (sprint 77) ───────────────────────────
+
+/**
+ * Ce que l'utilisateur lit vraiment. Le mot « coefficient » n'apparaît NULLE PART :
+ * ce projet n'en calcule aucun (cf lib/alerts/types.ts). Les deux seuls chiffres
+ * cités sont le marnage MESURÉ du lendemain et le seuil de façade franchi, tous
+ * deux fournis par l'appelant.
+ *
+ * Exemple : « Marnage prévu 9,4 m demain à Cap Fréhel, au-dessus du seuil de
+ * grande marée de la façade (9 m). »
+ */
+export function buildBigTideMessage(
+  payload: Pick<BigTideAlertPayload, 'spotName' | 'rangeM' | 'thresholdM'>,
+): AlertMessage {
+  const range = frDecimal1(payload.rangeM)
+  const threshold = frDecimal1(payload.thresholdM)
+
+  return {
+    title: `Grande marée demain à ${payload.spotName}`,
+    body: `Marnage prévu ${range} m demain à ${payload.spotName}, au-dessus du seuil de grande marée de la façade (${threshold} m).`,
+    emailSubject: `Grande marée demain à ${payload.spotName} : marnage ${range} m`,
   }
 }

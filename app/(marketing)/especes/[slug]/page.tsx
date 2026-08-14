@@ -256,6 +256,22 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
         </div>
       </section>
 
+      {/* ── Où pêcher (sprint 77 Bloc 9) ────────────────────────────────
+          Remonté depuis la sidebar : sur les pages à intention d'identification
+          (« congre poisson », « mulet poisson »…), le visiteur cherchait le geste
+          suivant bien avant d'atteindre le bas de fiche, où vivait ce bloc jusque-là
+          (invisible en 390 px, sous tout le corps éditorial). Composant INCHANGÉ
+          (`SpeciesTopSpots`, sprint 23/75) : seule sa position bouge. Server
+          Component sous Suspense → streamé dans le HTML servi, jamais monté au clic
+          (cf lib/especes/top-spots.ts : signal réel RPC 049, spots approuvés
+          uniquement depuis la migration 109). Retiré de la sidebar plus bas pour ne
+          pas dupliquer le bloc ni son JSON-LD ItemList. */}
+      <div className="mx-auto max-w-[980px] px-5 pt-8">
+        <Suspense fallback={<SpeciesTopSpotsSkeleton />}>
+          <SpeciesTopSpots dbKey={species.dbKey} label={species.label} speciesSlug={speciesSlug} />
+        </Suspense>
+      </div>
+
       <div className="mx-auto max-w-[980px] px-5 py-10">
         <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-12">
           <div className="min-w-0">
@@ -478,14 +494,8 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
           {/* ── Sidebar ─────────────────────────────────────────────────── */}
           <aside className="mt-10 lg:mt-0">
             <div className="flex flex-col gap-5 lg:sticky lg:top-8">
-              {/* Meilleurs spots pour l'espèce (triés par signal réel — RPC 049) */}
-              <Suspense fallback={<SpeciesTopSpotsSkeleton />}>
-                <SpeciesTopSpots
-                  dbKey={species.dbKey}
-                  label={species.label}
-                  speciesSlug={speciesSlug}
-                />
-              </Suspense>
+              {/* « Où pêcher » remonté en tête de fiche (sprint 77 Bloc 9, cf plus
+                  haut, juste sous le hero) : plus rendu ici pour ne pas le dupliquer. */}
 
               {/* Tes tendances sur cette espèce (moteur perso unifié sprint 22) */}
               <Suspense fallback={<SpeciesPersonalSkeleton />}>

@@ -15,8 +15,6 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ChevronDown,
-  ChevronUp,
   Mail,
   MailCheck,
   KeyRound,
@@ -134,6 +132,31 @@ function SubmitButton({
       ) : (
         label
       )}
+    </Button>
+  );
+}
+
+/**
+ * Bouton du lien magique (sprint 77, Bloc 10). Même gabarit que « Continuer avec
+ * Google » (hauteur, pilule, bordure) pour que les deux chemins se lisent au
+ * même niveau, sans voler la vedette au CTA principal du formulaire.
+ */
+function MagicLinkButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="submit"
+      variant="outline"
+      disabled={pending}
+      aria-busy={pending}
+      className="flex items-center justify-center gap-3 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full"
+    >
+      {pending ? (
+        <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+      ) : (
+        <Mail size={15} aria-hidden="true" />
+      )}
+      {pending ? "Envoi en cours…" : "Recevoir un lien de connexion"}
     </Button>
   );
 }
@@ -271,7 +294,6 @@ export function LoginPageClient({
   // Email saisi sur le formulaire connexion, repris en pré-remplissage du reset
   // (audit 2026-06-11 : l'utilisateur devait retaper son email).
   const [resetPrefill, setResetPrefill] = useState("");
-  const [showMagicLink, setShowMagicLink] = useState(false);
 
   // Erreurs de validation client, par formulaire.
   const [signinErrors, setSigninErrors] = useState<FieldErrors>({});
@@ -419,7 +441,13 @@ export function LoginPageClient({
             relégué SOUS trois champs de saisie. On remet la hiérarchie visuelle
             dans le sens de l'usage constaté. Le gate `!inviteOnly` est INCHANGÉ
             (sprint 54 : l'OAuth ne peut pas porter de code d'invitation).
-            Masqué en mode reset, qui est un sous-flux. */}
+            Masqué en mode reset, qui est un sous-flux.
+
+            Sprint 77, Bloc 10 : le LIEN MAGIQUE sort du repli et se range juste
+            en dessous, au même niveau visuel. Trois chemins de rang égal, dans
+            l'ordre du coût pour l'utilisateur : Google (1 clic), lien magique
+            (1 champ), email + mot de passe (2 champs). Google reste au-dessus
+            sur les deux onglets (décision John, sprint 76). */}
         {!showReset && !inviteOnly && (
           <div className="flex flex-col gap-3 mb-5">
             {oauthError && (
@@ -428,6 +456,9 @@ export function LoginPageClient({
               </p>
             )}
             <form action={signInWithGoogle}>
+              {authCtx.redirect && (
+                <input type="hidden" name="redirect" value={authCtx.redirect} />
+              )}
               <button
                 type="submit"
                 className="flex items-center justify-center gap-3 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full cursor-pointer"
@@ -453,9 +484,48 @@ export function LoginPageClient({
                 Continuer avec Google
               </button>
             </form>
+
+            {/* ── Lien magique : 2e chemin, plein format (sprint 77, Bloc 10) ──
+                Il était fonctionnel mais caché derrière un bouton à déplier, donc
+                invisible. Un seul champ, aucun mot de passe à inventer. */}
+            <form
+              action={magicAction}
+              noValidate
+              onSubmit={gateSubmit(emailOnlySchema, setMagicErrors)}
+              className="flex flex-col gap-2"
+            >
+              {authCtx.redirect && (
+                <input type="hidden" name="redirect" value={authCtx.redirect} />
+              )}
+              <Label htmlFor="magic-email" className="sr-only">
+                Ton email pour recevoir un lien de connexion
+              </Label>
+              <Input
+                id="magic-email"
+                name="email"
+                type="email"
+                placeholder="toi@exemple.fr"
+                autoComplete="email"
+                onBlur={gateBlur(emailOnlySchema, setMagicErrors)}
+                aria-invalid={magicErrors.email ? true : undefined}
+                className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
+                required
+              />
+              <FieldError message={magicErrors.email} />
+              {magicState.error && (
+                <p className="text-[13px] text-coral-500" role="alert">
+                  {magicState.error}
+                </p>
+              )}
+              <MagicLinkButton />
+              <p className="text-[12px] text-ink-500 text-center">
+                Sans mot de passe : tu reçois un lien, tu cliques, tu es dans ton carnet.
+              </p>
+            </form>
+
             <div className="flex items-center gap-3">
               <Separator className="flex-1" />
-              <span className="text-[12px] text-ink-500 shrink-0">ou avec ton email</span>
+              <span className="text-[12px] text-ink-500 shrink-0">ou avec un mot de passe</span>
               <Separator className="flex-1" />
             </div>
           </div>
@@ -705,9 +775,9 @@ export function LoginPageClient({
         </div>
 
         {/* ── Options sociales ──
-            Google est remonté AU-DESSUS du formulaire (sprint 76) : il ne reste
-            ici que le lien magique et Apple. Une seule instance du bouton Google
-            dans le DOM, pour les deux onglets. */}
+            Google et le lien magique sont remontés AU-DESSUS du formulaire
+            (sprints 76 et 77) : il ne reste ici qu'Apple. Une seule instance de
+            chaque bouton dans le DOM, pour les deux onglets. */}
         <div className="flex flex-col gap-3">
           {/* Erreur OAuth quand le bouton Google est masqué (beta INVITE_ONLY). */}
           {oauthError && inviteOnly && (
@@ -715,53 +785,6 @@ export function LoginPageClient({
               La connexion Google a échoué. Réessaie.
             </p>
           )}
-
-          {/* Lien magique (collapsible) */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowMagicLink((v) => !v)}
-              className="flex items-center justify-center gap-2 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full"
-            >
-              <Mail size={15} aria-hidden="true" />
-              Reçois un lien magique
-              {showMagicLink ? (
-                <ChevronUp size={14} />
-              ) : (
-                <ChevronDown size={14} />
-              )}
-            </button>
-
-            {showMagicLink && (
-              <form
-                action={magicAction}
-                noValidate
-                onSubmit={gateSubmit(emailOnlySchema, setMagicErrors)}
-                className="flex flex-col gap-3 mt-3 pt-3 border-t border-ink-100"
-              >
-                <Input
-                  name="email"
-                  type="email"
-                  placeholder="toi@exemple.fr"
-                  autoComplete="email"
-                  onBlur={gateBlur(emailOnlySchema, setMagicErrors)}
-                  aria-invalid={magicErrors.email ? true : undefined}
-                  className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
-                  required
-                />
-                <FieldError message={magicErrors.email} />
-                {magicState.error && (
-                  <p className="text-[13px] text-coral-500" role="alert">
-                    {magicState.error}
-                  </p>
-                )}
-                <SubmitButton
-                  label="M'envoyer le lien"
-                  pendingLabel="Envoi en cours…"
-                />
-              </form>
-            )}
-          </div>
 
           {/* Apple (désactivé) */}
           <button

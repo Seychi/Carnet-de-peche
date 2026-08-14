@@ -85,7 +85,15 @@ const baseCatchObject = catchFieldsNoDefaults.extend({
   // relâchée. NB : le défaut de colonne DB est `false` ; on l'override ici, à dessein.
   released: z.boolean().default(true),
   location_method: catchLocationMethodEnum.default('gps'),
-  privacy: catchPrivacyEnum.default('private'),
+  // Défaut « publique » (sprint 77, Bloc 8, décision John). Mesuré le 13/08 : 7
+  // prises publiques sur 26, donc un fil vide et un produit social sans matière.
+  // La colonne DB a le même défaut depuis la migration 110, mais il était INERTE
+  // (l'app envoie toujours `privacy` explicitement) : le vrai défaut est ici.
+  // Ce que ça n'entame PAS : la position exacte n'est jamais publiée, le
+  // k-anonymat K=3 et le floutage du spot restent inchangés.
+  // ⚠️ Aucune reprise rétroactive : les prises déjà enregistrées ne bougent pas,
+  // et l'import en masse (lib/catches/actions.ts) reste `private` à dessein.
+  privacy: catchPrivacyEnum.default('public'),
   precise_for_friends: z.boolean().default(true),
   reveal_precise_to_public: z.boolean().default(false),
 })

@@ -19,9 +19,20 @@ vi.mock('next/headers', () => ({
 vi.mock('@/lib/analytics/server', () => ({
   captureSignupCompleted: vi.fn(async () => {}),
 }))
+// lib/drafts/replay importe 'server-only' (même raison). Le rejeu des brouillons
+// d'inscription différée (sprint 77, Bloc 7) est asserté ci-dessous : sans
+// brouillon, la destination d'inscription doit rester EXACTEMENT celle d'avant.
+vi.mock('@/lib/drafts/replay', () => ({
+  replayPendingDrafts: vi.fn(async () => ({
+    favorites: 0,
+    catchCreated: false,
+    returnPath: null,
+  })),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { replayPendingDrafts } from '@/lib/drafts/replay'
 import { signUpWithPassword, type LoginState } from '../actions'
 
 const PREV: LoginState = { error: null, success: false, email: '', submittedAt: null }
@@ -162,5 +173,46 @@ describe('signUpWithPassword — sans champ de confirmation (sprint 76, Bloc 3)'
     const f = signupForm()
     f.set('password_confirm', 'autre-chose')
     await expect(signUpWithPassword(PREV, f)).rejects.toThrow('REDIRECT:/onboarding/1')
+  })
+})
+
+// ─── Inscription différée : rejeu des brouillons (sprint 77, Bloc 7) ──────────
+// Ce qui se joue ici : « un brouillon perdu à cette étape est pire que pas de
+// brouillon du tout ». Le rejeu passe AVANT l'onboarding, jamais après.
+
+describe('signUpWithPassword — rejeu des brouillons', () => {
+  it('sans brouillon : destination inchangée (/onboarding/1)', async () => {
+    mockAuthClient({ session: true })
+    await expect(signUpWithPassword(PREV, signupForm())).rejects.toThrow(
+      'REDIRECT:/onboarding/1'
+    )
+    expect(replayPendingDrafts).toHaveBeenCalledTimes(1)
+  })
+
+  it('avec brouillon : renvoie sur la fiche du spot d’où venait le visiteur', async () => {
+    mockAuthClient({ session: true })
+    vi.mocked(replayPendingDrafts).mockResolvedValueOnce({
+      favorites: 1,
+      catchCreated: true,
+      returnPath: '/spots/pointe-du-raz',
+    })
+    await expect(signUpWithPassword(PREV, signupForm())).rejects.toThrow(
+      'REDIRECT:/spots/pointe-du-raz'
+    )
+  })
+
+  it('un rejeu qui échoue ne fait JAMAIS échouer l’inscription', async () => {
+    mockAuthClient({ session: true })
+    vi.mocked(replayPendingDrafts).mockRejectedValueOnce(new Error('boom'))
+    await expect(signUpWithPassword(PREV, signupForm())).rejects.toThrow(
+      'REDIRECT:/onboarding/1'
+    )
+  })
+
+  it('sans session (confirmation email active) : aucun rejeu tenté', async () => {
+    mockAuthClient({ session: false })
+    const res = await signUpWithPassword(PREV, signupForm())
+    expect(res.success).toBe(true)
+    expect(replayPendingDrafts).not.toHaveBeenCalled()
   })
 })

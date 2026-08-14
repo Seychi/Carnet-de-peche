@@ -106,10 +106,13 @@ describe('cron recfishing-reminders — greffon alertes par port', () => {
     // Compteurs à zéro par défaut (aucune alerte revendiquée à tort).
     // `truncated` fait partie du fallback depuis la time-box S72 : l'assertion
     // était restée en arrière (seul test rouge de la suite avant le sprint 74).
+    // Sprint 77 : `bigTideSent` s'ajoute au fallback (alerte grande marée sur
+    // spot favori, comptée à part de `sent` pour rester lisible en supervision).
     expect(body.spotAlerts).toEqual({
       quietHours: false,
       optedIn: 0,
       sent: 0,
+      bigTideSent: 0,
       deduped: 0,
       skipped: 0,
       errors: 0,

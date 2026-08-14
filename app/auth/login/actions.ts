@@ -7,6 +7,22 @@ import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { safeInternalPath } from "@/lib/auth/redirect";
 import { captureSignupCompleted } from "@/lib/analytics/server";
+import { replayPendingDrafts } from "@/lib/drafts/replay";
+
+// Rejeu des brouillons d'inscription différée (sprint 77, Bloc 7). Appelé une
+// fois la session posée, AVANT toute redirection : le favori et la prise mis de
+// côté sans compte deviennent des lignes réelles, et le visiteur repart sur la
+// fiche du spot d'où il venait. Ne lève jamais : une inscription qui a réussi
+// doit réussir, brouillon ou pas.
+async function replayThen(fallback: string): Promise<string> {
+  try {
+    const { returnPath } = await replayPendingDrafts();
+    return returnPath ?? fallback;
+  } catch (err) {
+    console.error("[auth] rejeu des brouillons échoué :", err);
+    return fallback;
+  }
+}
 
 // Détermine la destination post-auth à partir des hidden inputs du formulaire.
 // Priorité : plan payant (→ /tarifs avec sélection) > redirect interne validé
@@ -92,13 +108,23 @@ export async function sendMagicLink(
   const supabase = await createClient();
   const origin = await getOrigin();
 
+  // Sprint 77, Bloc 10 : le lien magique est un vrai chemin d'INSCRIPTION, au
+  // même niveau que Google. Il doit donc porter le contexte de retour comme les
+  // autres (cible validée en chemin interne, anti open-redirect).
+  const next = safeInternalPath(
+    typeof formData.get("redirect") === "string"
+      ? (formData.get("redirect") as string)
+      : null,
+    "/home",
+  );
+
   // En beta (INVITE_ONLY), le lien magique ne CRÉE pas de compte (il ne peut pas
   // porter de code d'invitation) : il reste une CONNEXION pour les comptes existants
   // mais ne contourne plus la beta comme vecteur d'inscription (sprint 54 WS-D).
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/callback?next=/home`,
+      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
       shouldCreateUser: process.env.INVITE_ONLY !== "true",
     },
   });
@@ -177,7 +203,10 @@ export async function signInWithPassword(
     };
   }
 
-  redirect(destinationFrom(formData));
+  // Un visiteur qui avait déjà un compte arrive ici après avoir mis un spot ou
+  // une prise de côté : son brouillon doit être rejoué comme à l'inscription,
+  // sinon il le perd au moment exact où il fait l'effort de se connecter.
+  redirect(await replayThen(destinationFrom(formData)));
 }
 
 export async function signUpWithPassword(
@@ -347,7 +376,13 @@ export async function signUpWithPassword(
   }
 
   if (data.session) {
-    redirect(`/onboarding/1${compQuery}`);
+    // Rejeu AVANT l'onboarding (sprint 77, Bloc 7) : le brouillon devient une
+    // ligne réelle tout de suite, on ne parie pas sur la fin de l'onboarding.
+    // Avec un brouillon → retour sur la fiche du spot d'où venait le visiteur ;
+    // sans brouillon → parcours inchangé (/onboarding/1). L'onboarding reste
+    // obligatoire : le middleware l'impose dès la 1re route app.
+    const destination = await replayThen(`/onboarding/1${compQuery}`);
+    redirect(destination);
   }
 
   return { error: null, success: true, email, submittedAt: Date.now() };
@@ -396,14 +431,22 @@ export async function requestPasswordReset(
   return { error: null, success: true, email, submittedAt: Date.now() };
 }
 
-export async function signInWithGoogle(_formData: FormData): Promise<void> {
+export async function signInWithGoogle(formData: FormData): Promise<void> {
   const supabase = await createClient();
   const origin = await getOrigin();
+
+  // Contexte de retour, comme les autres chemins d'auth (chemin interne validé).
+  const next = safeInternalPath(
+    typeof formData.get("redirect") === "string"
+      ? (formData.get("redirect") as string)
+      : null,
+    "/home",
+  );
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${origin}/auth/callback?next=/home`,
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 

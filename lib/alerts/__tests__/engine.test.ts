@@ -25,6 +25,7 @@ const state = {
   favorites: [] as Row[],
   spotCoords: [] as Row[],
   alertsSent: [] as Row[],
+  bigTideAlertsSent: [] as Row[],
   catchesByUser: {} as Record<string, Row[]>,
   catchesErrorUser: null as string | null,
   tierByUser: {} as Record<string, string>,
@@ -33,6 +34,7 @@ const state = {
 
 const notifInsertSpy = vi.fn()
 const alertsSentInsertSpy = vi.fn()
+const bigTideSentInsertSpy = vi.fn()
 
 function makeAdmin(): SupabaseClient {
   const fromSpy = vi.fn((table: string) => {
@@ -40,6 +42,8 @@ function makeAdmin(): SupabaseClient {
       const b: Record<string, unknown> = {}
       b.select = vi.fn(() => b)
       b.eq = vi.fn(() => b)
+      // Sprint 77 : l'entrée du batch filtre en `.or(alerts_enabled | big_tide_alert_enabled)`.
+      b.or = vi.fn(() => b)
       b.then = (resolve: (v: unknown) => unknown) => resolve({ data: state.settings, error: null })
       return b
     }
@@ -74,6 +78,37 @@ function makeAdmin(): SupabaseClient {
       b.then = (resolve: (v: unknown) => unknown) =>
         resolve({
           data: state.alertsSent.filter((r) => r.window_date === windowDate),
+          error: null,
+        })
+      return b
+    }
+    if (table === 'big_tide_alerts_sent') {
+      // Journal dédié S77. La lecture filtre `.in('window_date', [aujourd'hui, demain])`
+      // puis `.in('user_id', …)` : le mock retient les dates demandées.
+      let windowDates: string[] = []
+      const b: Record<string, unknown> = {}
+      b.select = vi.fn(() => b)
+      b.in = vi.fn((col: string, v: string[]) => {
+        if (col === 'window_date') windowDates = v
+        return b
+      })
+      b.insert = vi.fn((payload: Row) => {
+        bigTideSentInsertSpy(payload)
+        const dup = state.bigTideAlertsSent.some(
+          (r) =>
+            r.user_id === payload.user_id &&
+            r.spot_id === payload.spot_id &&
+            r.window_date === payload.window_date,
+        )
+        if (dup) return Promise.resolve({ error: { code: '23505', message: 'duplicate key' } })
+        state.bigTideAlertsSent.push(payload)
+        return Promise.resolve({ error: null })
+      })
+      b.then = (resolve: (v: unknown) => unknown) =>
+        resolve({
+          data: state.bigTideAlertsSent.filter((r) =>
+            windowDates.includes(r.window_date as string),
+          ),
           error: null,
         })
       return b
@@ -192,6 +227,7 @@ const sendPushMock = vi.fn(
   }),
 )
 const sendEmailMock = vi.fn(async (_payload: unknown) => true)
+const sendBigTideEmailMock = vi.fn(async (_payload: unknown) => true)
 const captureMock = vi.fn((_uid: string, _event: string, _props: Record<string, unknown>) => {})
 
 function deps(overrides: Partial<SpotAlertsDeps> = {}): SpotAlertsDeps {
@@ -201,6 +237,7 @@ function deps(overrides: Partial<SpotAlertsDeps> = {}): SpotAlertsDeps {
     computeWeekly: computeWeeklyMock as unknown as SpotAlertsDeps['computeWeekly'],
     sendPush: sendPushMock as unknown as SpotAlertsDeps['sendPush'],
     sendEmail: sendEmailMock,
+    sendBigTideEmail: sendBigTideEmailMock as unknown as SpotAlertsDeps['sendBigTideEmail'],
     capture: captureMock,
     ...overrides,
   }
@@ -236,6 +273,7 @@ function settingsRow(uid: string, overrides: Row = {}): Row {
     channel_push: true,
     channel_email: true,
     alert_threshold: 70,
+    big_tide_alert_enabled: false,
     ...overrides,
   }
 }
@@ -246,6 +284,7 @@ beforeEach(() => {
   state.favorites = []
   state.spotCoords = []
   state.alertsSent = []
+  state.bigTideAlertsSent = []
   state.catchesByUser = {}
   state.catchesErrorUser = null
   state.tierByUser = {}
@@ -254,6 +293,7 @@ beforeEach(() => {
   weeklyScoreByLat = {}
   sendPushMock.mockResolvedValue({ sent: 1, pruned: 0 })
   sendEmailMock.mockResolvedValue(true)
+  sendBigTideEmailMock.mockResolvedValue(true)
 })
 
 function setupRichLocalUser(uid = 'u1') {

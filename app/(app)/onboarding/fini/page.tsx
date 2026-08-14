@@ -145,6 +145,23 @@ export default async function OnboardingFiniPage() {
         ).data?.map((f) => f.spot_id) ?? []
       : []
 
+  // Le geste unique de sortie (sprint 77, Bloc 8) : « Logue ta première prise »,
+  // pré-rempli avec le spot que le pêcheur vient de mettre en favori (ou celui
+  // rejoué depuis son brouillon d'avant-inscription, cf lib/drafts/replay.ts).
+  // 16 % des comptes loguent une prise, et 13,4 h en moyenne séparent
+  // l'inscription de la première : le bon moment, c'est tout de suite.
+  // Aucune coordonnée n'est lue ici, uniquement un identifiant de spot.
+  const { data: firstFavorite } = await supabase
+    .from('favorite_spots')
+    .select('spot_id')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  const logHref = firstFavorite?.spot_id
+    ? `/carnet/nouvelle?spot_id=${encodeURIComponent(firstFavorite.spot_id)}`
+    : '/carnet/nouvelle'
+
   // Ton prochain créneau (sprint 74, Bloc 2) : solunar GÉNÉRIQUE du secteur, pas
   // un score perso (compte tout neuf, zéro prise à ce stade). Même pipeline
   // caché 1h que le bandeau instruments/carnet, aucun appel réseau en plus.
@@ -310,20 +327,27 @@ export default async function OnboardingFiniPage() {
           </Link>
         </div>
 
-        {/* CTAs */}
+        {/* CTAs (sprint 77, Bloc 8) : UN seul geste en sortie d'onboarding, et
+            c'est le geste qui compte. « Ouvrir mon carnet » passe en second :
+            un carnet vide n'a rien à montrer, une première prise si. */}
         <div className="mt-auto pt-8">
           <Link
-            href="/home"
+            href={logHref}
             className="flex min-h-[52px] w-full items-center justify-center rounded-lg bg-teal-500 text-[15.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 gap-2"
           >
-            Ouvrir mon carnet
+            Logue ta première prise
             <ArrowRight size={16} aria-hidden />
           </Link>
+          <p className="mt-2 text-center text-[12px] text-white/40">
+            {firstFavorite?.spot_id
+              ? 'Le spot que tu viens de mettre en favori est déjà pré-rempli.'
+              : 'Deux minutes, et ton carnet commence à apprendre de toi.'}
+          </p>
           <Link
-            href="/carnet/nouvelle"
+            href="/home"
             className="mt-4 block text-center font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-white/40 transition-colors hover:text-teal-300"
           >
-            LOGUER MA PREMIÈRE PRISE
+            OUVRIR MON CARNET
           </Link>
         </div>
       </div>

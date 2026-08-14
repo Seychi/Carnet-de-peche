@@ -13,6 +13,7 @@ import {
   SIGNUP_WALL_NOTE,
   SIGNUP_WALL_TITLE,
   SIGNUP_WALL_TITLE_SPOT,
+  wallCopyForSurface,
   type SignupWallSurface,
 } from '@/lib/gating/wall'
 
@@ -92,11 +93,23 @@ export function SignupWall({
   const href = buildSignupHref(redirectTo ?? currentPath)
   const dark = tone === 'dark'
 
-  // Sans `spotName`, on retombe EXACTEMENT sur la copie générique (non-régression
-  // des surfaces carte, testée). Un `title` explicite gagne dans les deux cas.
+  // Sprint 77, Bloc 2 et 4 : une surface de COUPURE (spot_tides, spot_score,
+  // spot_catches, pending_favorite, pending_catch) nomme ce qui est derrière
+  // elle. Le mur mesuré à 1,3 % de clic promettait au visiteur ce qu'il venait
+  // de recevoir : cette copie-là est la correction.
+  //
+  // Ordre de priorité, du plus explicite au plus générique :
+  //   1. `title` passé en prop        2. copie de la coupure
+  //   3. copie contextualisée au spot 4. copie générique
+  // Sans surface de coupure ET sans `spotName`, on retombe EXACTEMENT sur la
+  // copie générique (non-régression des surfaces carte, testée).
+  const cutCopy = wallCopyForSurface(surface, spotName)
   const resolvedTitle =
-    title ?? (spotName ? SIGNUP_WALL_TITLE_SPOT(spotName) : SIGNUP_WALL_TITLE)
-  const benefits = spotName ? SIGNUP_WALL_BENEFITS_SPOT : SIGNUP_WALL_BENEFITS
+    title ??
+    cutCopy?.title ??
+    (spotName ? SIGNUP_WALL_TITLE_SPOT(spotName) : SIGNUP_WALL_TITLE)
+  const benefits =
+    cutCopy?.benefits ?? (spotName ? SIGNUP_WALL_BENEFITS_SPOT : SIGNUP_WALL_BENEFITS)
 
   useEffect(() => {
     if (!track) return

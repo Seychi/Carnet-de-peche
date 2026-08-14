@@ -15,7 +15,7 @@ import type { AlertDecisionInput } from '../types'
 function base(overrides: Partial<AlertDecisionInput> = {}): AlertDecisionInput {
   return {
     tier: 'local',
-    settings: { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: 70 },
+    settings: { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: 70, bigTideAlertEnabled: false },
     trends: { hasEnough: true, sampleCount: 7, confidence: 'medium' },
     windowScore: 82,
     windowDate: '2026-07-03',
@@ -43,7 +43,7 @@ describe('shouldSendAlert — tier (Local/Itinérant uniquement)', () => {
 describe('shouldSendAlert — opt-in explicite (défaut OFF)', () => {
   it('REFUSE si alerts_enabled est false', () => {
     const d = shouldSendAlert(
-      base({ settings: { alertsEnabled: false, channelPush: true, channelEmail: true, threshold: 70 } }),
+      base({ settings: { alertsEnabled: false, channelPush: true, channelEmail: true, threshold: 70, bigTideAlertEnabled: false } }),
     )
     expect(d.send).toBe(false)
     expect(d.reason).toBe('opt_in_off')
@@ -112,12 +112,12 @@ describe('shouldSendAlert — seuil (mode perso, bornes exactes)', () => {
     expect(d.reason).toBe('below_threshold')
   })
   it('respecte un seuil personnalisé (90)', () => {
-    const settings = { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: 90 }
+    const settings = { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: 90, bigTideAlertEnabled: false }
     expect(shouldSendAlert(base({ settings, windowScore: 89 })).send).toBe(false)
     expect(shouldSendAlert(base({ settings, windowScore: 90 })).send).toBe(true)
   })
   it('un seuil invalide retombe sur le défaut (70)', () => {
-    const settings = { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: NaN }
+    const settings = { alertsEnabled: true, channelPush: true, channelEmail: true, threshold: NaN, bigTideAlertEnabled: false }
     expect(shouldSendAlert(base({ settings, windowScore: 70 })).send).toBe(true)
     expect(shouldSendAlert(base({ settings, windowScore: 69 })).send).toBe(false)
   })
@@ -177,7 +177,7 @@ describe('shouldSendAlert — cold start (mode générique honnête)', () => {
 describe('shouldSendAlert — canaux', () => {
   it('push et email coupés → on envoie quand même (in-app, canal de base)', () => {
     const d = shouldSendAlert(
-      base({ settings: { alertsEnabled: true, channelPush: false, channelEmail: false, threshold: 70 } }),
+      base({ settings: { alertsEnabled: true, channelPush: false, channelEmail: false, threshold: 70, bigTideAlertEnabled: false } }),
     )
     expect(d.send).toBe(true)
     if (d.send) {
@@ -186,7 +186,7 @@ describe('shouldSendAlert — canaux', () => {
   })
   it('reflète les réglages de canaux dans la décision', () => {
     const d = shouldSendAlert(
-      base({ settings: { alertsEnabled: true, channelPush: true, channelEmail: false, threshold: 70 } }),
+      base({ settings: { alertsEnabled: true, channelPush: true, channelEmail: false, threshold: 70, bigTideAlertEnabled: false } }),
     )
     expect(d.send && d.channels.push).toBe(true)
     expect(d.send && d.channels.email).toBe(false)

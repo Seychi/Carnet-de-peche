@@ -43,4 +43,13 @@ export type EspeceContent = {
   postes: string[]
   /** Questions fréquentes (SEO People Also Ask). */
   faq: { q: string; a: string }[]
+  /**
+   * <title> écrit à la main, prioritaire sur la formule générique de `buildSpeciesTitle`
+   * (sprint 77, Bloc 9). Réservé aux fiches où les requêtes GSC réelles sont dominées par
+   * l'intention d'IDENTIFICATION (« congre poisson », « bluefish », « mulet poisson ») : la
+   * formule « maille + saisons/spots » n'y capte pas le clic, il faut nommer explicitement
+   * l'intention pêche (et, quand elle existe, l'appellation qui fait chercher la fiche).
+   * Reste sous `TITLE_MAX_LENGTH` (vérifié par les tests, pas seulement écrit à la main).
+   */
+  seoTitle?: string
 }

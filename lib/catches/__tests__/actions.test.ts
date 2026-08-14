@@ -150,7 +150,9 @@ describe('createCatch', () => {
     inject(client)
 
     // On omet privacy/precise/reveal/released → le schéma zod réinjecte ses defaults
-    // (released défaut = true depuis le sprint 59 : toggle neutre → relâché).
+    // (released défaut = true depuis le sprint 59 : toggle neutre → relâché ;
+    // privacy défaut = 'public' depuis le sprint 77, Bloc 8, sur le flux UNITAIRE
+    // seulement — l'import en masse reste 'private', cf test bulkCreateCatches).
     const partial = {
       species: 'bar',
       caught_at: '2026-06-20T08:00:00.000Z',
@@ -162,7 +164,7 @@ describe('createCatch', () => {
 
     expect('id' in res).toBe(true)
     const payload = ops[0].payload as Record<string, unknown>
-    expect(payload.privacy).toBe('private')
+    expect(payload.privacy).toBe('public')
     expect(payload.precise_for_friends).toBe(true)
     expect(payload.reveal_precise_to_public).toBe(false)
     expect(payload.released).toBe(true)

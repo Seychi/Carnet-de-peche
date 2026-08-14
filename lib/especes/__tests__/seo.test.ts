@@ -43,6 +43,16 @@ describe('buildSpeciesTitle — les 26 espèces réelles', () => {
     expect(title).toContain('2026')
   })
 
+  it('respecte l’override seoTitle (sprint 77 Bloc 9, fiches à intention identification)', () => {
+    // mulet / tassergal / congre portent un `seoTitle` manuel : la formule générique
+    // (maille + saisons/spots) ne doit JAMAIS reprendre le dessus tant qu'il est présent.
+    for (const slug of ['mulet', 'tassergal', 'congre'] as const) {
+      const content = ESPECES_CONTENT[slug]
+      expect(content.seoTitle).toBeTruthy()
+      expect(buildSpeciesTitle(inputFor(slug))).toBe(content.seoTitle)
+    }
+  })
+
   it('dégrade proprement quand l’espèce n’a aucune maille (aucune valeur inventée)', () => {
     const sansMaille = {
       meta: SPECIES.bar,

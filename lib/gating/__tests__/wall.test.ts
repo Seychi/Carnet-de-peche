@@ -10,6 +10,7 @@ import {
   SIGNUP_WALL_CTA,
   SIGNUP_WALL_NOTE,
   signupWallTitleForFacet,
+  wallCopyForSurface,
 } from '@/lib/gating/wall'
 import type { UserTier } from '@/lib/auth/tier'
 
@@ -116,6 +117,59 @@ describe('copy du mur d’inscription', () => {
   it('ajoute la surface /spots (Bloc 9)', () => {
     expect(SIGNUP_WALL_SURFACES).toContain('spots_list')
   })
+
+  it('ajoute les 3 coupures de fiche et les 2 brouillons (sprint 77)', () => {
+    for (const s of [
+      'spot_tides',
+      'spot_score',
+      'spot_catches',
+      'pending_favorite',
+      'pending_catch',
+    ] as const) {
+      expect(SIGNUP_WALL_SURFACES).toContain(s)
+    }
+  })
+})
+
+describe('copie par coupure (sprint 77, Blocs 2 et 7)', () => {
+  const CUTS = [
+    'spot_tides',
+    'spot_score',
+    'spot_catches',
+    'pending_favorite',
+    'pending_catch',
+  ] as const
+
+  it('donne une copie propre à CHAQUE coupure, jamais le générique', () => {
+    for (const surface of CUTS) {
+      const copy = wallCopyForSurface(surface, 'Pointe de Penvins')
+      expect(copy).toBeDefined()
+      expect(copy!.title).not.toBe(SIGNUP_WALL_TITLE)
+      expect(copy!.benefits).not.toEqual(SIGNUP_WALL_BENEFITS)
+    }
+  })
+
+  it('interpole le nom du spot quand il est connu, et tient sans', () => {
+    expect(wallCopyForSurface('spot_tides', 'Penvins')!.title).toContain('Penvins')
+    expect(wallCopyForSurface('spot_tides')!.title).not.toContain('undefined')
+  })
+
+  it('laisse les surfaces historiques sur leur copie générique', () => {
+    for (const s of ['map_filters', 'banner', 'spot_page', 'spots_list'] as const) {
+      expect(wallCopyForSurface(s, 'Penvins')).toBeUndefined()
+    }
+  })
+
+  it('ne promet jamais de prix ni de coordonnées précises, sans tiret cadratin', () => {
+    for (const surface of CUTS) {
+      const copy = wallCopyForSurface(surface, 'Penvins')!
+      for (const line of [copy.title, ...copy.benefits]) {
+        expect(line).not.toMatch(/—/)
+        expect(line).not.toMatch(/€|euro|abonn/i)
+        expect(line).not.toMatch(/GPS|coordonnée/i)
+      }
+    }
+  })
 })
 
 describe('variante contextualisée « fiche de spot » (sprint 76, Bloc 1)', () => {
@@ -126,8 +180,19 @@ describe('variante contextualisée « fiche de spot » (sprint 76, Bloc 1)', () 
   })
 
   it('parle du spot lu, pas du produit (aucun bénéfice de rétention seul)', () => {
-    expect(SIGNUP_WALL_BENEFITS_SPOT[0]).toMatch(/ce spot/)
-    expect(SIGNUP_WALL_BENEFITS_SPOT[1]).toMatch(/ici/)
+    // Sprint 77 : la copie a changé (« tous les jours » / « en temps réel »
+    // étaient FAUX, un anonyme les avait déjà). Le test vérifie toujours qu'on
+    // parle du spot sous les yeux, mais sur les formulations réelles.
+    expect(SIGNUP_WALL_BENEFITS_SPOT[0]).toMatch(/ici/)
+    expect(SIGNUP_WALL_BENEFITS_SPOT[1]).toMatch(/ce spot/)
+  })
+
+  it('ne décrit aucune capacité déjà donnée à un anonyme (Bloc 4)', () => {
+    // Le mur mesuré à 1,3 % de clic promettait ce que le visiteur venait de
+    // recevoir. Garde-fou : plus une seule mention de « 3 spots par département ».
+    for (const line of [...SIGNUP_WALL_BENEFITS, ...SIGNUP_WALL_BENEFITS_SPOT]) {
+      expect(line).not.toMatch(/3 spots/i)
+    }
   })
 
   it('reste distincte de la copie générique (qui sert les surfaces carte)', () => {

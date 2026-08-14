@@ -12,6 +12,14 @@ import type { EspeceContent } from '../types'
 export const tassergalEspece: EspeceContent = {
   slug: 'tassergal',
 
+  // Sprint 77 Bloc 9 : 548 impressions/sem., 8 clics (CTR 1,5 %). Le tassergal n'a
+  // aucune maille (regulation.minSizeCm est null sur les deux façades) : la formule
+  // générique retombe donc sur « pêche du bord » sans nommer l'espèce, alors que le
+  // synonyme anglophone (« bluefish ») porte une partie réelle du volume de requêtes
+  // d'identification. On le nomme dans le title pour capter ce clic. 50 caractères,
+  // mesuré.
+  seoTitle: 'Tassergal (bluefish) : où le pêcher du bord, spots',
+
   intro: [
     `Le tassergal (le « bluefish » des Américains), c'est la brute du bord : un prédateur en banc, véloce, qui débarque dans une chasse comme un coup de couteau et repart aussi vite. Quand un banc rentre sur ta plage ou ta digue, l'eau bout, les mulets et les sardines giclent en surface, et tout ce qui passe se fait trancher. Aucun autre poisson de nos côtes ne t'offre une attaque aussi brutale sur un leurre de surface.`,
     `Son territoire, c'est d'abord la Méditerranée, où il chasse de mai à octobre le long des digues, des embouchures et des plages profondes. Mais l'été et l'automne, les bancs remontent l'Atlantique : on le prend du bord dans le golfe de Gascogne, des Landes à la Vendée, quand l'eau dépasse les 18-20 °C et que les bancs de fourrage se concentrent près de la côte. C'est une pêche de fenêtre : il faut être là quand le banc est là.`,

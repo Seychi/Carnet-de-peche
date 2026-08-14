@@ -201,6 +201,7 @@ describe('runLifecycleGreffon — résilience', () => {
     const { admin } = makeAdmin({ profiles: { error: { message: 'db down' } } })
     await expect(runLifecycleGreffon(admin, WEDNESDAY, FAR_FUTURE)).resolves.toEqual({
       j1: 0,
+      j2: 0,
       j3: 0,
       weekly: 0,
       failed: 0,

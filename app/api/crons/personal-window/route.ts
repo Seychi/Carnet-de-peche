@@ -242,13 +242,14 @@ export async function GET(request: NextRequest) {
       notified++
     }
 
-    // ─── Greffon LIFECYCLE (sprint 74, PAS de 5e cron) ─────────────────────────
-    // Emails d'activation J+1 / J+3 + hebdo du vendredi. Placé APRÈS la boucle
+    // ─── Greffon LIFECYCLE (sprint 74, étendu S77, PAS de 5e cron) ─────────────
+    // Emails d'activation J+1 / J+2 / J+3 + hebdo du vendredi. Placé APRÈS la boucle
     // legacy (qui n'est donc jamais décalée) et en requêtes groupées : son coût DB
     // ne dépend pas du nombre d'inscrits. Best-effort STRICT et time-boxé : ne
     // renvoie jamais d'exception, s'arrête proprement si le budget est consommé.
     let lifecycle: Awaited<ReturnType<typeof runLifecycleGreffon>> = {
       j1: 0,
+      j2: 0,
       j3: 0,
       weekly: 0,
       failed: 0,

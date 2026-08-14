@@ -37,10 +37,16 @@ export default function UpsellBanner() {
     >
       <div className="mx-auto max-w-2xl px-3 pb-3">
         <div className="bg-navy-900 border-t-2 border-teal-500 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+          {/* ⚠️ Sprint 77, Bloc 4 : ce bandeau ne s'adresse qu'aux comptes
+              GRATUITS, et il leur annonçait « tu vois 3 spots par département ».
+              Depuis la migration 110 c'est FAUX : un compte gratuit voit tous
+              les spots. Ce qui lui manque réellement, c'est la précision des
+              coordonnées, les filtres et les couches. On vend ça, pas autre chose. */}
           <p className="flex-1 text-sm text-white/90 leading-snug">
-            Tu vois <span className="text-white font-semibold">3 spots par département</span>. Passe en{' '}
-            <span className="text-teal-400 font-semibold">Local</span> (4,90 €/mois) pour la carte
-            complète, les filtres et le score.
+            Tu vois tous les spots, en{' '}
+            <span className="text-white font-semibold">position approchée</span>. Passe en{' '}
+            <span className="text-teal-400 font-semibold">Local</span> (4,90 €/mois) pour le GPS
+            précis, les filtres et les couches.
           </p>
           <div className="flex items-center gap-2 shrink-0">
             <Link

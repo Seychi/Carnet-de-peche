@@ -8,6 +8,12 @@ import type { EspeceContent } from "../types"
 export const congreEspece: EspeceContent = {
   slug: "congre",
 
+  // Sprint 77 Bloc 9 : 404 impressions/sem., 6 clics (CTR 1,5 %). Requêtes
+  // d'identification (« congre poisson »). La maille (60 cm) n'est pas ce qui
+  // distingue le congre pour un pêcheur : c'est la pêche de nuit, de force. On
+  // porte cette accroche plutôt que le chiffre réglementaire. 54 caractères, mesuré.
+  seoTitle: "Congre : où le pêcher de nuit du bord, spots et postes",
+
   intro: [
     `Le congre, c'est le poids lourd nocturne du bord : un anguillidé géant à la peau visqueuse et à la mâchoire de tenaille, tapi dans le moindre trou de roche, prêt à plier ta canne en deux dès la nuit tombée. La touche n'a rien de timide, elle part comme un coup de poing, et la première seconde décide de tout : soit tu le décolles de son terrier, soit il s'y enroule et tu peux dire adieu au bas de ligne.`,
     `Ce n'est pas un poisson qu'on cherche, c'est un poisson qu'on attend. Le congre vit caché le jour et sort chasser la nuit le long des enrochements, sous les digues, dans les failles et sur les épaves accessibles du bord. Il fréquente toutes nos côtes rocheuses : la Manche et l'Atlantique de la Bretagne au Pays basque, et toute la Méditerranée, des digues du golfe du Lion aux tombants corses. Partout où il y a du gros caillou, de la profondeur et de l'obscurité, il y a du congre.`,

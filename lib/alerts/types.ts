@@ -25,9 +25,10 @@ export type SpotAlertPayload = {
   justification: string /* phrase FR sans coordonnée */
 }
 
-// ─── Réglages d'alerte (migration 106, workstream B) ──────────────────────────
+// ─── Réglages d'alerte (migration 106, workstream B ; étendu migration 111) ───
 // Mapping DB : alerts_enabled (default false), channel_push (default true),
-// channel_email (default true), alert_threshold smallint (default 70).
+// channel_email (default true), alert_threshold smallint (default 70),
+// big_tide_alert_enabled (default false, sprint 77).
 
 export type AlertSettings = {
   alertsEnabled: boolean
@@ -35,6 +36,12 @@ export type AlertSettings = {
   channelEmail: boolean
   /** Score de fenêtre minimal (0-100) pour déclencher une alerte perso. */
   threshold: number
+  /**
+   * Opt-in DISTINCT (sprint 77) à l'alerte grande marée sur les spots favoris.
+   * Indépendant de `alertsEnabled` : l'alerte perso est payante (Local/Itinérant),
+   * celle-ci est ouverte à tous les tiers car elle ne repose que sur une mesure.
+   */
+  bigTideAlertEnabled: boolean
 }
 
 // ─── Résumé des tendances perso (dérivé de PersonalTendencies, S22) ────────────
@@ -163,4 +170,65 @@ export type AlertMessage = {
   title: string
   body: string
   emailSubject: string
+}
+
+// ─── Alerte GRANDE MARÉE sur spot favori (sprint 77, Bloc 10.2) ───────────────
+//
+// ⚠️ LE COEFFICIENT DE MARÉE N'EXISTE PAS DANS CE PROJET. Le brief parlait de
+// « préviens-moi quand le coefficient dépasse 90 » ; le repo ne calcule aucun
+// coefficient (Open-Meteo ne l'expose pas, `tide_coefficient` est toujours null,
+// re-vérifié au S72). Fabriquer un coef à partir du marnage serait un chiffre
+// inventé, interdit par les invariants du projet.
+//
+// Ce que déclenche RÉELLEMENT cette alerte : le MARNAGE MESURÉ du lendemain
+// (max PM - min BM, dérivé de sea_level_height_msl) comparé au seuil de façade
+// du sprint 49 (Manche > 9 m, Atlantique > 5 m, Méditerranée/Corse jamais). Le
+// payload ne transporte donc que ces deux mètres, et la copie les nomme
+// « marnage », jamais « coefficient ».
+//
+// Différences assumées avec l'alerte par port (S72) :
+//   - PAS de gating de tier : c'est une mesure publique, pas le moat perso ;
+//   - opt-in DÉDIÉ (`big_tide_alert_enabled`), jamais activé par `alerts_enabled` ;
+//   - journal DÉDIÉ (`big_tide_alerts_sent`) : pas de score de fenêtre à écrire
+//     dans `alerts_sent`, et /home ne doit pas rendre un ScoreRing sur du vide ;
+//   - dédup d'ÉPISODE : une grande marée dure 3-4 jours, on alerte le PREMIER
+//     jour et on se tait ensuite (« une seule fois par événement »).
+
+export type BigTideAlertPayload = {
+  userId: string
+  spotId: string
+  spotName: string
+  spotSlug: string
+  /** Jour Paris annoncé (YYYY-MM-DD), toujours le lendemain du calcul. */
+  windowDate: string
+  /** Marnage MESURÉ du jour annoncé, en mètres. Jamais un coefficient. */
+  rangeM: number
+  /** Seuil de grande marée de la façade du spot, en mètres (S49). */
+  thresholdM: number
+}
+
+export type BigTideRefusalReason =
+  | 'opt_in_off' // big_tide_alert_enabled = false (défaut)
+  | 'already_sent' // ligne big_tide_alerts_sent (user, spot, demain)
+  | 'episode_already_alerted' // déjà alerté pour AUJOURD'HUI : même épisode de vives-eaux
+  | 'window_not_tomorrow' // on n'annonce que le lendemain (jour civil Paris)
+  | 'quiet_hours' // envoi prévu entre 21h et 7h Europe/Paris
+  | 'no_big_tide' // marnage sous le seuil, ou façade sans seuil (Méditerranée)
+
+export type BigTideAlertDecision =
+  | { send: false; channels: null; reason: BigTideRefusalReason }
+  | { send: true; channels: AlertChannels; reason: 'ok' }
+
+export type BigTideDecisionInput = {
+  settings: AlertSettings
+  /** Signal de marée MESURÉ du lendemain (cf genericTideSignalForDay). */
+  signal: GenericTideSignal | null
+  /** Jour de la marée annoncée (YYYY-MM-DD Paris). */
+  windowDate: string
+  /** Instant d'envoi prévu (le « maintenant » du cron). */
+  sendAt: Date
+  /** true = une ligne big_tide_alerts_sent (user, spot, windowDate) existe déjà. */
+  alreadySent: boolean
+  /** true = ce couple (user, spot) a déjà été alerté pour la VEILLE du jour annoncé. */
+  episodeAlreadyAlerted: boolean
 }

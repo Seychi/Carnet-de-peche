@@ -10,6 +10,7 @@ import { formatWindowWhen, isParisWeekend } from './dates'
 import { ONCE_SENT_KEY, type LifecycleKind } from './kinds'
 import WelcomeEmail from '@/emails/welcome'
 import FirstWindowEmail from '@/emails/first-window'
+import FirstCatchNudgeEmail from '@/emails/first-catch-nudge'
 import ImportNudgeEmail from '@/emails/import-nudge'
 import WeeklyWindowEmail from '@/emails/weekly-window'
 import type { FishingWindow } from '@/lib/solunar/types'
@@ -208,6 +209,32 @@ export async function sendFirstWindowEmail(
         reasons={parts.reasons}
         favoriteSpotName={favorite?.name ?? null}
         favoriteSpotSlug={favorite?.slug ?? null}
+        unsubToken={r.unsubToken}
+      />
+    ),
+  })
+}
+
+/**
+ * J+2 « logue ta première prise » (sprint 77, Bloc 8.4). Aucun créneau à calculer :
+ * un seul CTA, le formulaire de prise, pré-rempli avec le spot favori si le compte
+ * en a un. Contrairement au J+1, cet email part MÊME sans favori ni créneau : son
+ * objet ne dépend d'aucune donnée externe, donc rien ne peut le rendre malhonnête.
+ */
+export async function sendFirstCatchNudgeEmail(
+  userId: string,
+  favorite: { name: string; id: string } | null,
+): Promise<boolean> {
+  return deliver({
+    userId,
+    kind: 'j2_first_catch',
+    sentKey: ONCE_SENT_KEY,
+    subject: 'Il manque une prise à ton carnet',
+    render: (r) => (
+      <FirstCatchNudgeEmail
+        firstName={r.firstName}
+        favoriteSpotName={favorite?.name ?? null}
+        favoriteSpotId={favorite?.id ?? null}
         unsubToken={r.unsubToken}
       />
     ),

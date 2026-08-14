@@ -12,6 +12,9 @@ export const revalidate = 3600
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
+/** Sprint 77, Bloc 3 : spots visibles par département avant dépliage (anonyme). */
+const LIST_PREVIEW_PER_DEPT = 5
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type SpotRow = {
@@ -212,6 +215,9 @@ export default async function SpotsPage({ searchParams }: Props) {
   // Inscrit gratuit et abonnés → rien ici, l'encart /tarifs de pied de page est
   // inchangé pour tout le monde.
   const showSignupWall = getWallKind(tier) === 'signup'
+  // Sprint 77, Bloc 3 : la liste est une surface de DÉCOUVERTE, elle peut être
+  // réduite pour un anonyme. Un compte gratuit la reçoit dépliée, sans <details>.
+  const collapseList = showSignupWall
   const wallTitle = signupWallTitleForFacet({
     deptPhrase: dept ? departmentArticle(dept, 'de') : null,
     speciesLabel: species ? (SPECIES_LABELS[species] ?? species).toLowerCase() : null,
@@ -354,7 +360,25 @@ export default async function SpotsPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="space-y-14">
-              {grouped.map(([deptCode, deptSpots], groupIndex) => (
+              {grouped.map(([deptCode, deptSpots], groupIndex) => {
+                // ─── Sprint 77, Bloc 3 : un extrait qui reste crawlable ──────
+                // Un anonyme ne voit que les 5 premiers spots du département,
+                // les autres sont repliés dans un <details> NATIF.
+                //
+                // ⚠️ C'est le point entier du bloc : le <details> est du HTML
+                // servi, donc les liens repliés sont DANS le document, Google
+                // les suit, et l'inventaire indexable ne perd pas une ligne.
+                // C'est aussi ce qui distingue ce motif du cloaking : bot et
+                // humain reçoivent exactement le même HTML, le repli est un
+                // comportement de navigateur, pas une branche serveur.
+                // Ne JAMAIS remplacer ça par un montage au clic.
+                const preview = collapseList
+                  ? deptSpots.slice(0, LIST_PREVIEW_PER_DEPT)
+                  : deptSpots
+                const folded = collapseList
+                  ? deptSpots.slice(LIST_PREVIEW_PER_DEPT)
+                  : []
+                return (
                 <div key={deptCode}>
                   <h2 className="font-display text-navy-900 text-xl mb-5">
                     {DEPARTMENT_LABELS[deptCode] ?? deptCode}
@@ -363,7 +387,7 @@ export default async function SpotsPage({ searchParams }: Props) {
                     </span>
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {deptSpots.map((spot, i) => (
+                    {preview.map((spot, i) => (
                       <Fragment key={spot.id}>
                         <SpotCard spot={spot} />
                         {/* Mur d'inscription (Bloc 9) : glissé DANS le premier
@@ -376,7 +400,7 @@ export default async function SpotsPage({ searchParams }: Props) {
                             demi en 390 px, quelle que soit la facette. */}
                         {showSignupWall &&
                           groupIndex === 0 &&
-                          i === Math.min(2, deptSpots.length - 1) && (
+                          i === Math.min(2, preview.length - 1) && (
                             <SignupWall
                               surface="spots_list"
                               title={wallTitle}
@@ -387,8 +411,23 @@ export default async function SpotsPage({ searchParams }: Props) {
                       </Fragment>
                     ))}
                   </div>
+
+                  {folded.length > 0 && (
+                    <details className="mt-4">
+                      <summary className="cursor-pointer select-none rounded-[10px] border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:border-teal-500/40 hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
+                        Voir les {folded.length} autres spots{' '}
+                        {departmentArticle(deptCode, 'de')}
+                      </summary>
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {folded.map((spot) => (
+                          <SpotCard key={spot.id} spot={spot} />
+                        ))}
+                      </div>
+                    </details>
+                  )}
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>

@@ -10,6 +10,13 @@ import type { EspeceContent } from '../types'
 export const muletEspece: EspeceContent = {
   slug: 'mulet',
 
+  // Sprint 77 Bloc 9 : 571 impressions/sem., 3 clics (CTR 0,5 %). Requêtes GSC dominées
+  // par l'identification (« mulet poisson »). La formule générique répond déjà par la
+  // maille dans le title (« Mulet : maille 30 cm ») sans donner de raison de cliquer :
+  // on porte l'intention pêche explicitement, avec l'accroche technique (pain) qui la
+  // distingue d'une simple fiche d'identité. 55 caractères, mesuré.
+  seoTitle: 'Où pêcher le mulet du bord : spots et technique au pain',
+
   intro: [
     `Le mulet, c'est le poisson que tu vois tous les jours et que tu n'arrives jamais à prendre. Des bancs entiers qui patrouillent sous tes pieds dans le port, des lèvres charnues qui gobent en surface… et au moindre faux pas, tout se volatilise. Loin d'être le poisson « facile » qu'on raconte, c'est l'un des plus méfiants du bord, et c'est exactement ce qui en fait une pêche d'orfèvre.`,
     `Sous le nom de mulet se cachent en réalité plusieurs espèces de muges (Mugil spp.), dont le mulet lippu (Chelon labrosus) est le plus courant du bord. Il colonise les eaux saumâtres et tranquilles : bassins de port, estuaires, embouchures, darses, là où l'eau douce rencontre la mer et où les algues tapissent les quais. Omnivore, il broute le film verdâtre des cales, aspire la vase chargée de micro-organismes, et raffole de tout ce qui flotte : d'où la pêche au pain, technique reine pour le faire sortir de sa réserve.`,

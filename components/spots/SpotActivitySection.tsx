@@ -27,9 +27,20 @@ function initials(name: string | null, username: string | null) {
 export async function SpotActivitySection({
   spotId,
   ctaHref,
+  maxRecent = 3,
+  signupHref,
 }: {
   spotId: string
   ctaHref: string
+  /**
+   * Sprint 77, Bloc 2 : « toutes les prises » passe au palier compte gratuit.
+   * Un anonyme en reçoit 2 ; les suivantes sont ABSENTES du DOM, jamais
+   * masquées en CSS. Le compteur agrégé (« X pêcheurs, Y prises ») reste servi
+   * à tout le monde : c'est du contenu frais et unique, et il ne révèle rien.
+   */
+  maxRecent?: number
+  /** Fourni uniquement quand il reste des prises derrière le mur. */
+  signupHref?: string
 }) {
   const supabase = await createClient()
   const { data } = await supabase.rpc('get_spot_activity', { p_spot_id: spotId, p_days: 7 })
@@ -62,7 +73,12 @@ export async function SpotActivitySection({
   }
 
   const fishers = row.fishers_count ?? 0
-  const recent = ((row.recent_catches ?? []) as RecentCatch[]).slice(0, 3)
+  const all = (row.recent_catches ?? []) as RecentCatch[]
+  const recent = all.slice(0, maxRecent)
+  // Ce qui reste derrière le mur. On compte sur le TOTAL réel de la semaine
+  // (`catchesCount`), pas sur la longueur du tableau renvoyé, sinon le chiffre
+  // annoncé serait plus petit que la vérité.
+  const hiddenCount = Math.max(0, catchesCount - recent.length)
 
   return (
     <section className="bg-white rounded-[18px] border border-ink-100 p-5 md:p-7">
@@ -104,6 +120,19 @@ export async function SpotActivitySection({
           </li>
         ))}
       </ul>
+
+      {/* Sprint 77, Bloc 2 : la coupure nomme ce qui est derrière elle plutôt
+          que de servir un CTA générique. Le chiffre est vrai, il vient du
+          compteur agrégé de la semaine. */}
+      {signupHref && hiddenCount > 0 && (
+        <p className="mt-4 pt-4 border-t border-ink-100 text-[14px] text-ink-600">
+          <Link href={signupHref} className="font-semibold text-teal-600 hover:text-teal-700">
+            {hiddenCount} autre{hiddenCount > 1 ? 's' : ''} prise{hiddenCount > 1 ? 's' : ''} déclarée
+            {hiddenCount > 1 ? 's' : ''} ici
+          </Link>{' '}
+          : crée ton carnet pour toutes les voir, c&rsquo;est gratuit.
+        </p>
+      )}
 
       <Link
         href={ctaHref}
