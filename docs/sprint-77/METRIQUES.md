@@ -90,8 +90,31 @@ la simulation. **Critère « > 85 % » : atteint (97,6 % au budget le plus défa
 Sans feature flag, c'est le **seul** moyen de démêler l'effet de ce sprint de celui
 du sprint 76, déployé quelques heures plus tôt.
 
-- **Sprint 76 déployé le** : 2026-08-14 (commit `879c0d8`, mergé sur `main`)
-- **Sprint 77 déployé le** : ⚠️ **à noter par John au moment du merge** (date + heure)
+- **Sprint 76 déployé le** : 2026-08-14 à **08:16** heure de Paris (commit `879c0d8`)
+- **Sprint 77 déployé le** : 2026-08-14 à **20:42** heure de Paris (commit `2f69be1`, déploiement Vercel `dpl_7NCgX5qo…`, région `dub1`)
+
+⚠️ **Les deux sprints ont été déployés le MÊME JOUR, à environ 12 heures d'écart.**
+C'est la limite de lecture à garder en tête : une variation de CTR observée le 15
+ou le 16/08 porte l'effet des deux, pas seulement du 77. Les repères de J+3 et J+7
+doivent être lus en le sachant. Si un doute subsiste à J+7, la procédure de retour
+en arrière ci-dessous permet de retirer les Blocs 2 et 3 (ceux qui touchent le
+référencement) **seuls**, sans défaire le reste, ce qui donne un second point de
+mesure propre.
+
+### Vérification faite juste après le déploiement (2026-08-14, 20:5x)
+
+| Contrôle en production, en visiteur anonyme | Résultat |
+|---|---|
+| 10 routes clés (`/`, `/carte`, `/spots`, `/especes`, `/tarifs`, fiche spot, 2 fiches espèces, `/auth/login`, `/carnet/nouvelle`) | **200** partout |
+| `/spots` : liens `/spots/<slug>` uniques dans le HTML | **416 / 416** |
+| `/spots` : balises `<details>` / URLs JSON-LD | 20 / **416** |
+| Fiche de spot : dates ISO distinctes | **1** *(le jour même)* |
+| Fiche de spot : murs `spot_tides` et `spot_score` | présents |
+| Titres des 3 fiches espèces refaites | en ligne, **55 / 50 / 54 caractères** |
+
+`/carnet/nouvelle` qui répond **200 à un anonyme** est la validation en conditions
+réelles du Bloc 7 : la sortie du groupe `(app)` et la liste blanche du middleware
+fonctionnent en production.
 
 ---
 
