@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnet de Pêche — Analyse de la semaine (6–12 août 2026)</title>
+<style>
+  :root{
+    color-scheme: light;
+    --surface-0:#f4f4f2;
+    --surface-1:#fcfcfb;
+    --line:#e2e1dd;
+    --text-primary:#0b0b0b;
+    --text-secondary:#52514e;
+    --text-muted:#807e78;
+    --s1:#2a78d6;
+    --s2:#eb6834;
+    --s3:#1baf7a;
+    --good:#008300;
+    --warn:#eda100;
+    --crit:#e34948;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: dark;
+      --surface-0:#111110;
+      --surface-1:#1a1a19;
+      --line:#33322f;
+      --text-primary:#ffffff;
+      --text-secondary:#c3c2b7;
+      --text-muted:#94938a;
+      --s1:#3987e5;
+      --s2:#d95926;
+      --s3:#199e70;
+      --good:#4caf50;
+      --warn:#c98500;
+      --crit:#e66767;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:32px 20px 80px;
+    background:var(--surface-0); color:var(--text-primary);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  header.top{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+  h1{font-size:30px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.02em}
+  h2{font-size:21px;margin:44px 0 14px;letter-spacing:-.01em;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:26px 0 8px}
+  p{margin:0 0 12px;color:var(--text-secondary)}
+  p.lead{color:var(--text-primary);font-size:17px}
+  strong{color:var(--text-primary);font-weight:600}
+  .card{background:var(--surface-1);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0}
+  .verdict{border-left:3px solid var(--s1)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+  .tile{background:var(--surface-1);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .tile .k{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .tile .v{font-size:26px;font-weight:650;letter-spacing:-.02em;margin-top:4px;line-height:1.15}
+  .tile .d{font-size:13px;margin-top:2px;color:var(--text-secondary)}
+  .up{color:var(--good);font-weight:600}
+  .down{color:var(--crit);font-weight:600}
+  .flat{color:var(--text-muted);font-weight:600}
+  figure{margin:20px 0;background:var(--surface-1);border:1px solid var(--line);border-radius:14px;padding:18px 20px 12px}
+  figcaption{font-size:13px;color:var(--text-muted);margin-top:8px}
+  .fig-title{font-size:15px;font-weight:600;margin-bottom:2px}
+  .fig-sub{font-size:13px;color:var(--text-secondary);margin-bottom:12px}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--text-secondary);margin-bottom:10px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  ul,ol{margin:0 0 14px;padding-left:20px;color:var(--text-secondary)}
+  li{margin-bottom:7px}
+  li::marker{color:var(--text-muted)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:99px;vertical-align:middle}
+  .p-crit{background:color-mix(in srgb,var(--crit) 16%,transparent);color:var(--crit)}
+  .p-warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+  .p-ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .p-info{background:color-mix(in srgb,var(--s1) 16%,transparent);color:var(--s1)}
+  .action{background:var(--surface-1);border:1px solid var(--line);border-left:3px solid var(--s2);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .action h4{margin:0 0 6px;font-size:15.5px}
+  .action .meta{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:color-mix(in srgb,var(--text-primary) 7%,transparent);padding:1px 5px;border-radius:5px}
+  .tt{position:fixed;pointer-events:none;background:var(--surface-1);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0;transition:opacity .1s;z-index:99;color:var(--text-primary);white-space:nowrap}
+  .foot{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Carnet de Pêche · Semaine du 6 au 12 août 2026</div>
+  <h1>Le trafic a doublé. La conversion, non.</h1>
+  <p class="lead">Analyse croisée Google Search Console + PostHog, plus lecture du code du parcours d'inscription.</p>
+</header>
+
+<div class="card verdict">
+  <p><strong>Le verdict en une phrase :</strong> le SEO fonctionne très bien (impressions ×2,1 en une semaine, ×5 en un mois), mais le mur d'inscription est vu 225 fois pour <strong>3 clics</strong> — soit 1,3 % de clic. Le problème n'est pas le volume de visiteurs, c'est que le mur est mal placé, mal formulé, et qu'il envoie vers un formulaire en 4 champs sur une page intitulée « Connexion ».</p>
+  <p style="margin-bottom:0">Autrement dit : tu n'as pas un problème d'acquisition, tu as un problème de <strong>demande</strong>. Personne ne comprend, sur la fiche de spot, ce qu'un compte lui apporte <em>maintenant</em>.</p>
+</div>
+
+<h2>1. Ce qui s'est passé cette semaine</h2>
+
+<h3>Google Search Console — 6 au 12 août vs 30 juil. au 5 août</h3>
+<div class="tiles">
+  <div class="tile"><div class="k">Impressions</div><div class="v">12 362</div><div class="d"><span class="up">+112 %</span> · 5 827 avant</div></div>
+  <div class="tile"><div class="k">Clics</div><div class="v">691</div><div class="d"><span class="up">+153 %</span> · 273 avant</div></div>
+  <div class="tile"><div class="k">CTR</div><div class="v">5,6 %</div><div class="d"><span class="up">+0,9 pt</span> · 4,7 % avant</div></div>
+  <div class="tile"><div class="k">Position moy.</div><div class="v">7,4</div><div class="d"><span class="flat">stable</span> · 7,3 avant</div></div>
+</div>
+
+<figure>
+  <div class="fig-title">Impressions Google par jour</div>
+  <div class="fig-sub">16 juillet → 12 août 2026 · l'accélération démarre le 1<sup>er</sup> août</div>
+  <div id="chart-impr"></div>
+</figure>
+
+<figure>
+  <div class="fig-title">Clics Google par jour</div>
+  <div class="fig-sub">Même période · les clics suivent, mais moins vite que les impressions</div>
+  <div id="chart-clics"></div>
+</figure>
+
+<h3>PostHog — 7 derniers jours</h3>
+<div class="tiles">
+  <div class="tile"><div class="k">Visiteurs</div><div class="v">204</div><div class="d"><span class="up">+108 %</span></div></div>
+  <div class="tile"><div class="k">Sessions</div><div class="v">322</div><div class="d"><span class="up">+150 %</span></div></div>
+  <div class="tile"><div class="k">Pages vues</div><div class="v">1 100</div><div class="d"><span class="up">+169 %</span></div></div>
+  <div class="tile"><div class="k">Durée / session</div><div class="v">5 min 43</div><div class="d"><span class="down">−50 %</span></div></div>
+  <div class="tile"><div class="k">Comptes créés</div><div class="v">10</div><div class="d">sur 7 jours</div></div>
+  <div class="tile"><div class="k">Sessions 1 page</div><div class="v">54 %</div><div class="d">167 sessions / 308</div></div>
+</div>
+<p>La chute de la durée de session n'est pas une mauvaise nouvelle en soi : elle vient du fait que le nouveau trafic est du SEO froid (une visite = une fiche de spot lue puis départ), là où la semaine d'avant était plus chargée en visiteurs récurrents. Mais elle dit une chose : <strong>plus d'une session sur deux ne voit qu'une seule page.</strong></p>
+
+<h2>2. Le vrai goulot d'étranglement</h2>
+
+<figure>
+  <div class="fig-title">Du visiteur de fiche spot au compte créé</div>
+  <div class="fig-sub">Personnes uniques, 7 derniers jours (PostHog)</div>
+  <div id="chart-funnel"></div>
+  <figcaption>Les 10 comptes créés incluent toutes les sources, pas seulement les fiches de spots — la dernière barre est donc plutôt généreuse.</figcaption>
+</figure>
+
+<div class="tiles">
+  <div class="tile"><div class="k">Murs affichés</div><div class="v">225</div><div class="d">sur 4 surfaces</div></div>
+  <div class="tile"><div class="k">Clics sur le CTA</div><div class="v">3</div><div class="d"><span class="down">1,3 % de clic</span></div></div>
+  <div class="tile"><div class="k">Fiches spots → mur</div><div class="v">42 %</div><div class="d">65 pers. sur 156</div></div>
+  <div class="tile"><div class="k">Onboarding terminé</div><div class="v">100 %</div><div class="d">11 entrées, 11 sorties</div></div>
+</div>
+
+<p><strong>Le point important :</strong> une fois qu'une personne commence l'onboarding, elle le termine — 11 personnes sont entrées sur <code>/onboarding/1</code>, 11 sont arrivées sur <code>/onboarding/fini</code>. Ton produit post-inscription ne perd personne. <strong>Tout se joue avant le clic sur « Créer mon carnet ».</strong></p>
+
+<h3>Le mur, surface par surface</h3>
+<table>
+  <thead><tr><th>Surface</th><th class="num">Affichages</th><th class="num">Personnes</th><th class="num">Clics</th></tr></thead>
+  <tbody>
+    <tr><td><code>spot_page</code> — encart colonne de droite</td><td class="num">97</td><td class="num">56</td><td class="num">0</td></tr>
+    <tr><td><code>map_filters</code> — filtres de la carte</td><td class="num">53</td><td class="num">32</td><td class="num">3</td></tr>
+    <tr><td><code>banner</code> — bandeau bas d'écran</td><td class="num">47</td><td class="num">30</td><td class="num">0</td></tr>
+    <tr><td><code>spot_popup</code> — popup sur la carte</td><td class="num">28</td><td class="num">14</td><td class="num">0</td></tr>
+  </tbody>
+</table>
+<p>Les 3 seuls clics de la semaine viennent de <code>map_filters</code>, c'est-à-dire du seul endroit où le visiteur <em>essayait activement de faire quelque chose</em> et s'est heurté à un blocage. C'est la confirmation la plus nette du diagnostic : <strong>un mur ne convertit que quand il interrompt une intention</strong>, pas quand il décore une colonne.</p>
+
+<h2>3. Pourquoi personne ne s'inscrit — les 6 causes, dans l'ordre</h2>
+
+<h3><span class="pill p-crit">Cause 1</span> &nbsp;Sur la fiche de spot, le CTA principal n'est pas l'inscription</h3>
+<p>Le bouton collant en bas d'écran mobile — le seul CTA impossible à rater — dit <strong>« + Loguer une prise ici »</strong>. Pour quelqu'un qui arrive de Google et qui n'a pas de compte, cette phrase ne veut rien dire : il n'a pas de prise à loguer, il cherche à savoir si ça mord à la Pointe de Penvins. Le mur d'inscription, lui, est dans <code>&lt;aside&gt;</code>, donc en bas de page sur mobile — après les dangers, la météo et les marées.</p>
+
+<h3><span class="pill p-crit">Cause 2</span> &nbsp;Le mur ne s'affiche que si le spot n'a pas de coordonnées précises</h3>
+<p>Dans <code>app/(marketing)/spots/[slug]/page.tsx</code>, le <code>&lt;SignupWall&gt;</code> est rendu dans la branche <code>!spot.is_precise</code>. Sur les fiches où les coordonnées sont servies, le visiteur anonyme n'a <strong>aucun</strong> mur d'inscription dans la colonne. Ça explique l'écart : 156 personnes ont vu une fiche de spot, seules 65 ont vu un mur.</p>
+
+<h3><span class="pill p-warn">Cause 3</span> &nbsp;Le mur promet le mauvais bénéfice</h3>
+<p>La copie actuelle liste : « ton carnet de prises », « les marées de tes spots », « le fil de ton département », « 3 spots par département ». Ce sont des bénéfices <em>de rétention</em>, pas des bénéfices <em>d'acquisition</em>. Le visiteur vient de lire une fiche sur <strong>un</strong> spot ; il se fiche de « ton département ». Ce qu'il veut à cet instant : les coordonnées exactes, ce qui s'y prend en ce moment, et quand y aller.</p>
+<p>Pire, sur la fiche de spot l'intro dit d'abord <em>« Les coordonnées précises sont réservées aux abonnés »</em> — la première information donnée à un visiteur gratuit est ce qu'il <strong>n'aura pas</strong>. Ça tue le clic avant le CTA.</p>
+
+<h3><span class="pill p-warn">Cause 4</span> &nbsp;Le lien d'inscription atterrit sur une page « Connexion »</h3>
+<p><code>/auth/register</code> fait un <code>redirect()</code> serveur vers <code>/auth/login?tab=register</code>. Le visiteur clique « Créer mon carnet » et se retrouve sur une URL qui dit <em>login</em>. Ça se voit dans les chiffres : <strong>28 personnes sur <code>/auth/login</code> cette semaine contre 10 comptes créés.</strong></p>
+<p>Et le formulaire demande <strong>4 champs</strong> : email, mot de passe, confirmation du mot de passe, et un « Code fondateur (optionnel) ». Ce dernier champ, même optionnel, signale « c'est fermé, tu n'es peut-être pas invité » exactement au moment où il faut rassurer.</p>
+
+<h3><span class="pill p-warn">Cause 5</span> &nbsp;Les pages qui explosent en impressions ne sont pas celles qui convertissent</h3>
+<table>
+  <thead><tr><th>Page</th><th class="num">Impr.</th><th class="num">Clics</th><th class="num">CTR</th></tr></thead>
+  <tbody>
+    <tr><td><code>/especes/mulet</code></td><td class="num">571</td><td class="num">3</td><td class="num" style="color:var(--crit)">0,5 %</td></tr>
+    <tr><td><code>/especes/tassergal</code></td><td class="num">548</td><td class="num">8</td><td class="num" style="color:var(--crit)">1,5 %</td></tr>
+    <tr><td><code>/especes/congre</code></td><td class="num">404</td><td class="num">6</td><td class="num" style="color:var(--crit)">1,5 %</td></tr>
+    <tr><td><code>/spots/pointe-du-roselier</code></td><td class="num">12</td><td class="num">7</td><td class="num" style="color:var(--good)">58 %</td></tr>
+    <tr><td><code>/spots/pointe-de-lanveoc</code></td><td class="num">21</td><td class="num">8</td><td class="num" style="color:var(--good)">38 %</td></tr>
+    <tr><td><code>/spots/pointe-de-penvins</code></td><td class="num">97</td><td class="num">19</td><td class="num" style="color:var(--good)">20 %</td></tr>
+  </tbody>
+</table>
+<p>Les fiches espèces rankent sur des requêtes encyclopédiques — <em>congre poisson</em>, <em>bluefish</em>, <em>barracuda méditerranée</em>, <em>banc de mulet</em> — où l'internaute cherche à identifier un poisson, pas à aller pêcher. Elles gonflent les impressions (≈ 1 500 sur la semaine pour 17 clics) et tirent le CTR global vers le bas. Les fiches de spots, elles, tournent entre 10 % et 58 % de CTR : <strong>c'est là qu'est ton produit.</strong></p>
+
+<h3><span class="pill p-info">Cause 6</span> &nbsp;Ta mesure sous-estime le trafic organique</h3>
+<p>Google compte <strong>691 clics</strong> cette semaine ; PostHog n'attribue que <strong>293 pages vues à « Organic Search »</strong>. En parallèle, 53 % du trafic PostHog est classé « Referral » avec pour référent… <code>www.carnet-de-peche.com</code> (461 vues). C'est de l'auto-référencement : l'attribution de session se casse en cours de navigation, et une partie du trafic Google est reclassée en « Referral » ou « Direct » au lieu d'« Organic ». Deux hôtes cohabitent aussi dans les données (<code>www.carnet-de-peche.com</code> et <code>carnet-de-peche.com</code>), ce qui aggrave le phénomène.</p>
+<p>Conséquence : tes taux de conversion réels sont probablement <em>encore plus bas</em> que ce que montre PostHog, puisque le dénominateur est sous-compté.</p>
+
+<h2>4. Les pages non indexées : est-ce normal ?</h2>
+
+<p><strong>Oui, en grande partie — mais il y a un vrai problème dedans.</strong></p>
+
+<p>Ton sitemap déclare aujourd'hui environ <strong>840 URLs</strong> :</p>
+<table>
+  <thead><tr><th>Type</th><th class="num">URLs</th><th>Statut d'indexation attendu</th></tr></thead>
+  <tbody>
+    <tr><td>Fiches de spots approuvées</td><td class="num">416</td><td><span class="pill p-ok">à indexer</span> — ton meilleur contenu</td></tr>
+    <tr><td>Pages programmatiques <code>/peche/…</code></td><td class="num">≈ 337</td><td><span class="pill p-warn">indexation partielle normale</span></td></tr>
+    <tr><td>Fiches espèces <code>/especes/…</code></td><td class="num">30</td><td><span class="pill p-ok">à indexer</span></td></tr>
+    <tr><td>Facettes <code>/spots?dept=</code> et <code>?species=</code></td><td class="num">≈ 40</td><td><span class="pill p-warn">souvent non indexées</span></td></tr>
+    <tr><td>Guides + pages statiques</td><td class="num">18</td><td><span class="pill p-ok">à indexer</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Ce qui est normal</h3>
+<ul>
+  <li><strong>« Explorée, actuellement non indexée » sur les <code>/peche/&lt;espèce&gt;/&lt;technique&gt;/&lt;département&gt;</code>.</strong> 337 pages générées à partir de 6 espèces × 4 techniques × 24 départements : Google en indexe une partie et met le reste en attente tant que le site n'a pas plus d'autorité. C'est le comportement standard sur du programmatique, ce n'est pas une pénalité.</li>
+  <li><strong>« Détectée, actuellement non indexée ».</strong> Ton budget de crawl est celui d'un site de 3 mois. Avec 840 URLs déclarées, la file d'attente est normale.</li>
+  <li><strong>« Page en double / autre page avec balise canonique correcte » sur les facettes <code>?dept=</code>.</strong> Vérifié dans le code : ces pages ont bien un canonical auto-référent correct. Google choisit simplement de n'en indexer qu'une partie. Rien à corriger.</li>
+  <li><strong>« Exclue par la balise noindex »</strong> — c'est <code>/techniques</code>, volontairement en noindex. Normal.</li>
+</ul>
+
+<h3>Ce qui n'est PAS normal <span class="pill p-crit">à corriger</span></h3>
+<p>Ta base contient <strong>4 018 spots en <code>moderation_status = 'pending'</code></strong> pour seulement 416 approuvés. Jusqu'au correctif du 5 août, le sitemap déclarait ces spots en attente alors que la fiche fait un <code>notFound()</code> dessus — soit environ <strong>941 URLs mortes annoncées à Google</strong>. Ces URLs sont aujourd'hui dans ton rapport d'indexation en <em>« Introuvable (404) »</em> ou <em>« Explorée, actuellement non indexée »</em>.</p>
+<p>Le correctif est en place, donc ça va se résorber tout seul — mais ça prend 4 à 8 semaines, et pendant ce temps Google gaspille du budget de crawl sur des 404. C'est très probablement <strong>le gros du « beaucoup de pages non indexées » que tu vois.</strong></p>
+<p>Un point à surveiller aussi : le rapport Sitemaps de GSC ne renvoie aucune donnée via l'API. Vérifie dans l'interface que <code>https://www.carnet-de-peche.com/sitemap.xml</code> est bien soumis sur la propriété <code>sc-domain:carnet-de-peche.com</code> — s'il ne l'est pas, tu perds le levier d'indexation le plus simple.</p>
+
+<h2>5. Audit GSC complet — les anomalies</h2>
+<p>Passage en revue de toutes les dimensions disponibles : hôtes, protocoles, appareils, pays, types de recherche, résultats enrichis, répertoires, et les balises <code>canonical</code> / <code>meta robots</code> / <code>title</code> réellement servies sur les 40 pages les plus vues.</p>
+
+<h3>D'abord, ce qui est sain <span class="pill p-ok">rien à faire</span></h3>
+<ul>
+  <li><strong>Toutes les balises canonical sont correctes et auto-référentes</strong> sur les 40 pages testées. Aucune canonisation croisée, aucune erreur.</li>
+  <li><strong>Aucune balise <code>noindex</code> parasite.</strong> Le champ meta robots est vide partout où il doit l'être.</li>
+  <li><strong>Un seul hôte côté Google</strong> : <code>www.carnet-de-peche.com</code> en https. Pas de duplication www / apex dans l'index — la confusion vue dans PostHog est un problème de mesure, pas de SEO.</li>
+  <li><strong>87 % du trafic vient de France</strong>, en recherche Web. Aucun trafic bot ou artificiel détectable.</li>
+</ul>
+
+<h3><span class="pill p-crit">Anomalie 1</span> &nbsp;Faute de français dans le titre et le H1 de 125 pages</h3>
+<p>Dans <code>lib/seo/programmatic.ts</code> ligne 290 et 293, le titre est construit avec un article masculin en dur :</p>
+<p style="margin-left:16px"><code>return `Pêche du ${species.toLowerCase()} ${technique} …`</code></p>
+<p>Résultat, visible en ce moment dans les SERP :</p>
+<table>
+  <thead><tr><th>Page</th><th>Titre servi</th><th class="num">Impr.</th><th class="num">Clics</th></tr></thead>
+  <tbody>
+    <tr><td><code>/peche/dorade-royale/surfcasting/manche</code></td><td>« Pêche <span style="color:var(--crit);font-weight:600">du</span> dorade royale au surfcasting… »</td><td class="num">75</td><td class="num">0</td></tr>
+    <tr><td><code>/peche/dorade-royale/surfcasting/morbihan</code></td><td>« Pêche <span style="color:var(--crit);font-weight:600">du</span> dorade royale au surfcasting… »</td><td class="num">99</td><td class="num">6</td></tr>
+  </tbody>
+</table>
+<p>Le plus rageant : l'objet <code>SPECIES</code> contient déjà le champ <code>articleDe</code> juste au-dessus, correctement renseigné (<code>'de la '</code> pour la dorade royale, <code>"de l'"</code> pour l'orphie). Il n'est simplement pas utilisé ici. Le même soin a été mis dans la table <code>DEPT_PREPOSITIONS</code> pour les départements, mais pas pour l'espèce.</p>
+<p><strong>Portée :</strong> dorade royale (3 techniques × 25) + orphie (2 techniques × 25) = <strong>125 pages sur 337, soit 37 % du programmatique</strong>. Et comme <code>programmaticTitle()</code> sert aussi au H1 (ligne 146 de <code>app/(marketing)/peche/[...slug]/page.tsx</code>), la faute est dans le titre Google <em>et</em> sur la page. Pour l'orphie ça donne « Pêche du orphie ».</p>
+<p><strong>Correctif : une ligne.</strong> Remplacer <code>Pêche du ${species.toLowerCase()}</code> par <code>Pêche ${SPECIES[p.species].articleDe}${SPECIES[p.species].labelLower}</code>.</p>
+
+<h3><span class="pill p-crit">Anomalie 2</span> &nbsp;<code>/especes</code> consomme 22 % des impressions pour 4 % des clics</h3>
+<table>
+  <thead><tr><th>Répertoire</th><th class="num">Impr.</th><th class="num">Part impr.</th><th class="num">Clics</th><th class="num">CTR</th><th class="num">Position</th></tr></thead>
+  <tbody>
+    <tr><td><code>/spots</code></td><td class="num">7 488</td><td class="num">61 %</td><td class="num">554</td><td class="num" style="color:var(--good)">7,4 %</td><td class="num">7,2</td></tr>
+    <tr><td><code>/especes</code></td><td class="num">2 771</td><td class="num">22 %</td><td class="num">29</td><td class="num" style="color:var(--crit)">1,05 %</td><td class="num">9,2</td></tr>
+    <tr><td><code>/peche</code></td><td class="num">1 695</td><td class="num">14 %</td><td class="num">74</td><td class="num">4,4 %</td><td class="num">7,2</td></tr>
+    <tr><td>Racine + statiques</td><td class="num">583</td><td class="num">5 %</td><td class="num">37</td><td class="num">6,4 %</td><td class="num">7,6</td></tr>
+    <tr><td><code>/guides</code></td><td class="num">207</td><td class="num">2 %</td><td class="num">6</td><td class="num">2,9 %</td><td class="num">9,1</td></tr>
+  </tbody>
+</table>
+<p>Et le pire est sur tes espèces cœur de produit : <strong><code>/especes/bar</code> fait 89 impressions et 0 clic</strong>, <code>/especes/sar</code> 71 impressions et 0 clic, <code>/especes/liche</code> 63 et 0. Zéro clic sur une page qui parle du bar, sur un site de pêche au bar — c'est le signal le plus net de tout l'audit : ces pages ressortent sur des requêtes qui ne sont pas les tiennes.</p>
+<p>C'est aussi l'explication mécanique de la baisse du CTR global : <code>/spots</code> tourne à 7,4 %, mais <code>/especes</code> dilue l'ensemble à 5,6 %.</p>
+
+<h3><span class="pill p-warn">Anomalie 3</span> &nbsp;Aucun résultat enrichi, et pas de fil d'Ariane là où il compte</h3>
+<p>Sur 28 jours, la dimension « apparence dans les résultats de recherche » ne remonte <strong>qu'une seule ligne</strong> : PRODUCT_SNIPPETS, 1 impression. Autrement dit, tes pages sortent en résultat bleu classique, jamais enrichi.</p>
+<p>En regardant le code, la cause est claire pour la partie qui compte : le <code>BreadcrumbList</code> est présent sur <code>/especes</code>, <code>/guides</code>, <code>/peche</code> et <code>/declarer-ses-prises</code>… mais <strong>absent de <code>app/(marketing)/spots/[slug]/page.tsx</code></strong>, qui fait 80 % de tes clics. Cette page n'émet qu'un schéma <code>Place</code>, qui n'ouvre droit à aucun affichage enrichi.</p>
+<p>Un fil d'Ariane <em>Accueil › Spots › Morbihan › Pointe de Penvins</em> sous le résultat gagne typiquement 1 à 3 points de CTR, et sur 7 488 impressions hebdomadaires c'est 75 à 220 clics de plus par semaine. À vérifier en parallèle dans l'onglet <em>Améliorations</em> de GSC, que l'API n'expose pas.</p>
+
+<h3><span class="pill p-warn">Anomalie 4</span> &nbsp;Les titres des fiches de spots sont tronqués par Google</h3>
+<table>
+  <thead><tr><th>Titre servi</th><th class="num">Car.</th></tr></thead>
+  <tbody>
+    <tr><td>Pêche à Sausset-les-Pins — digues du port (13) — Dorade royale, Sar, Bar · Carnet de Pêche</td><td class="num" style="color:var(--crit)">90</td></tr>
+    <tr><td>Pêche à Gravelines — Petit-Fort-Philippe (59) — Bar, Maquereau, Seiche · Carnet de Pêche</td><td class="num" style="color:var(--crit)">88</td></tr>
+    <tr><td>Pêche à Dieppe — jetées de l'avant-port (76) — Bar, Maquereau, Orphie · Carnet de Pêche</td><td class="num" style="color:var(--crit)">87</td></tr>
+    <tr><td>Pêche à Pointe de Penvins (56) — Bar, Dorade royale, Sar · Carnet de Pêche</td><td class="num" style="color:var(--warn)">74</td></tr>
+  </tbody>
+</table>
+<p>Google coupe autour de 60 caractères. Sur ces titres, la liste d'espèces — la partie qui déclenche le clic — passe à la trappe, et le suffixe de marque aussi. À noter aussi : ces titres contiennent <strong>deux tirets cadratins</strong>, alors que la règle du projet n'en tolère qu'un comme séparateur de <code>&lt;title&gt;</code>.</p>
+<p>Format proposé, sous 60 caractères : <code>Pêche à {lieu} ({dép.}) : bar, dorade, sar</code>.</p>
+
+<h3><span class="pill p-warn">Anomalie 5</span> &nbsp;Un écart de 4,4 positions entre mobile et desktop</h3>
+<table>
+  <thead><tr><th>Appareil</th><th class="num">Impr.</th><th class="num">Clics</th><th class="num">CTR</th><th class="num">Position</th></tr></thead>
+  <tbody>
+    <tr><td>Mobile</td><td class="num">10 081</td><td class="num">585</td><td class="num">5,8 %</td><td class="num" style="color:var(--good)">6,9</td></tr>
+    <tr><td>Desktop</td><td class="num">2 144</td><td class="num">99</td><td class="num">4,6 %</td><td class="num" style="color:var(--crit)">11,3</td></tr>
+    <tr><td>Tablette</td><td class="num">137</td><td class="num">7</td><td class="num">5,1 %</td><td class="num">6,1</td></tr>
+  </tbody>
+</table>
+<p>82 % de ton trafic est mobile, et c'est là que tu es le mieux classé — tant mieux, c'est ce que visait le sprint 75. Mais 11,3 en desktop contre 6,9 en mobile, c'est un écart large. Deux hypothèses à départager : soit les SERP desktop sont simplement plus concurrentielles sur ces requêtes, soit il y a un souci de rendu ou de performance desktop. À croiser avec les Core Web Vitals desktop dans GSC.</p>
+
+<h3><span class="pill p-info">Anomalie 6</span> &nbsp;Les guides sont invisibles dans Google</h3>
+<p><strong>207 impressions sur 7 jours pour 7 guides publiés</strong>, position moyenne 9,1, 6 clics. Or <code>/guides/peche-au-bar-au-leurre</code> est la 4<sup>e</sup> page la plus consultée du site dans PostHog (19 visiteurs) — ce trafic vient donc du maillage interne, pas de la recherche. Tes guides sont lus quand on les trouve, mais Google ne les propose quasiment jamais. C'est du contenu déjà produit qui ne travaille pas.</p>
+
+<h3><span class="pill p-info">Anomalie 7</span> &nbsp;Trois fiches de spots à CTR anormalement bas</h3>
+<table>
+  <thead><tr><th>Page</th><th class="num">Impr.</th><th class="num">Clics</th><th class="num">CTR</th></tr></thead>
+  <tbody>
+    <tr><td><code>/spots/quai-victoria-portsall</code></td><td class="num">149</td><td class="num">1</td><td class="num" style="color:var(--crit)">0,7 %</td></tr>
+    <tr><td><code>/spots/pointe-de-kastel-koz-beuzec</code></td><td class="num">109</td><td class="num">1</td><td class="num" style="color:var(--crit)">0,9 %</td></tr>
+    <tr><td><code>/spots/pointe-de-beg-an-fry-guimaec</code></td><td class="num">79</td><td class="num">1</td><td class="num" style="color:var(--crit)">1,3 %</td></tr>
+  </tbody>
+</table>
+<p>Contre 7,4 % de moyenne sur le répertoire, et jusqu'à 58 % sur les meilleures. Ces trois-là ressortent probablement sur des requêtes de lieu (tourisme, port, commune) où ta fiche n'est pas ce que l'internaute cherche. Sans gravité, mais ça signale que le titre ne colle pas à l'intention.</p>
+
+<h2>6. Plan d'action</h2>
+<p class="lead">Par ordre d'impact attendu sur le nombre d'inscriptions. Les trois premières actions touchent toutes le même endroit : la fiche de spot, qui est ta porte d'entrée SEO.</p>
+
+<div class="action">
+  <h4>1. Remplacer le CTA collant mobile de la fiche de spot</h4>
+  <div class="meta">Impact : très élevé · Effort : 1 h · Fichier : <code>app/(marketing)/spots/[slug]/page.tsx</code></div>
+  <p style="margin-bottom:0">Pour un visiteur non connecté, remplacer « + Loguer une prise ici » par un CTA d'inscription contextualisé au spot : <strong>« Voir les conditions à {nom du spot} — gratuit »</strong>. Garder « + Loguer une prise ici » uniquement pour les connectés. C'est le seul élément d'interface que 100 % des visiteurs mobiles voient, et il pointe aujourd'hui dans le vide.</p>
+</div>
+
+<div class="action">
+  <h4>2. Afficher le mur d'inscription sur toutes les fiches, pas seulement les imprécises</h4>
+  <div class="meta">Impact : élevé · Effort : 30 min · Même fichier</div>
+  <p style="margin-bottom:0">Sortir le <code>&lt;SignupWall surface="spot_page"&gt;</code> de la branche <code>!spot.is_precise</code> et le rendre pour tout visiteur anonyme, plus haut dans la page (après le bloc conditions, avant les dangers). Ça devrait faire passer la couverture de 42 % à ~95 % des visiteurs de fiches.</p>
+</div>
+
+<div class="action">
+  <h4>3. Réécrire la copie du mur autour du spot consulté</h4>
+  <div class="meta">Impact : élevé · Effort : 1 h · Fichier : <code>lib/gating/wall.ts</code></div>
+  <p>Ne jamais ouvrir sur ce que le visiteur n'aura pas. Supprimer l'intro « Les coordonnées précises sont réservées aux abonnés » de la fiche de spot.</p>
+  <p style="margin-bottom:0">Titre proposé : <strong>« Suis {nom du spot} — c'est gratuit »</strong>. Bénéfices proposés, dans cet ordre : « Les marées et la météo de ce spot, tous les jours » · « Les prises déclarées ici, en temps réel » · « Ton carnet de prises, illimité ». Puis la réassurance : « Sans carte bancaire, en 30 secondes ».</p>
+</div>
+
+<div class="action">
+  <h4>4. Faire de <code>/auth/register</code> une vraie page d'inscription</h4>
+  <div class="meta">Impact : élevé · Effort : 2–3 h · Fichiers : <code>app/auth/register/page.tsx</code>, <code>app/auth/login/login-client.tsx</code></div>
+  <ul style="margin-bottom:0">
+    <li>Servir le formulaire d'inscription directement sur <code>/auth/register</code> au lieu de rediriger vers <code>/auth/login?tab=register</code>. L'URL fait partie du message.</li>
+    <li><strong>Supprimer le champ « Confirme le mot de passe »</strong> — un champ mot de passe avec bouton « afficher » suffit, et c'est le standard depuis longtemps.</li>
+    <li><strong>Masquer le champ « Code fondateur »</strong> derrière un lien discret « J'ai un code fondateur ». Il ne doit pas être visible par défaut.</li>
+    <li>Vérifier que <code>INVITE_ONLY</code> est bien à <code>false</code> en production : s'il est à <code>true</code>, le bouton « Continuer avec Google » est masqué et le code d'invitation devient <em>obligatoire</em>. Ce serait à lui seul l'explication de tout.</li>
+    <li>Le formulaire passe de 4 champs à 2 champs + Google. C'est typiquement +30 à +50 % de complétion.</li>
+  </ul>
+</div>
+
+<div class="action">
+  <h4>5. Déclencher un mur sur intention, pas sur position</h4>
+  <div class="meta">Impact : moyen-élevé · Effort : 2 h</div>
+  <p style="margin-bottom:0">Les 3 seuls clics de la semaine viennent des filtres de la carte, c'est-à-dire d'une intention interrompue. Répliquer ce schéma sur la fiche de spot : mettre les prises récentes et le détail des marées derrière un flou cliquable, avec « Voir les 12 prises déclarées ici » en libellé. Le visiteur voit qu'il y a quelque chose, et le clic devient une demande, pas une interruption.</p>
+</div>
+
+<div class="action">
+  <h4>6. Corriger l'attribution PostHog</h4>
+  <div class="meta">Impact : moyen (mesure) · Effort : 1 h</div>
+  <p style="margin-bottom:0">Forcer une redirection 301 unique de <code>carnet-de-peche.com</code> vers <code>www.carnet-de-peche.com</code> (les deux hôtes apparaissent dans les données), et vérifier la config <code>cross_subdomain_cookie</code> / <code>persistence</code> de PostHog. Tant que 53 % du trafic est attribué à un auto-référent, tu ne peux pas mesurer l'effet des actions 1 à 5.</p>
+</div>
+
+<div class="action">
+  <h4>7. Corriger l'article des titres programmatiques <span class="pill p-crit">bug</span></h4>
+  <div class="meta">Impact : moyen · Effort : 10 min · Fichier : <code>lib/seo/programmatic.ts</code> l. 290 et 293</div>
+  <p style="margin-bottom:0">Utiliser <code>SPECIES[p.species].articleDe</code> au lieu de <code>« du »</code> en dur. Corrige 125 pages d'un coup, dans le titre Google comme dans le H1. C'est le correctif au meilleur rapport effort / crédibilité du lot : « Pêche du dorade royale » sur un site de pêche, c'est le genre de détail qui coûte un clic.</p>
+</div>
+
+<div class="action">
+  <h4>8. Ajouter un fil d'Ariane sur les fiches de spots</h4>
+  <div class="meta">Impact : élevé (SEO) · Effort : 45 min · Fichier : <code>app/(marketing)/spots/[slug]/page.tsx</code></div>
+  <p style="margin-bottom:0">Ajouter un <code>BreadcrumbList</code> JSON-LD (<em>Accueil › Spots › {département} › {spot}</em>) à côté du schéma <code>Place</code> existant. Le composant existe déjà sur <code>/especes</code> et <code>/guides</code>, il suffit de le reprendre. Sur 7 488 impressions hebdo, +1 à +3 pts de CTR = 75 à 220 clics de plus par semaine, sans écrire une ligne de contenu.</p>
+</div>
+
+<div class="action">
+  <h4>9. Raccourcir les titres des fiches de spots sous 60 caractères</h4>
+  <div class="meta">Impact : moyen · Effort : 30 min · Même fichier, <code>generateMetadata</code></div>
+  <p style="margin-bottom:0">Passer de <code>Pêche à {lieu} — {précision} ({dép}) — {3 espèces} · Carnet de Pêche</code> à <code>Pêche à {lieu} ({dép}) : {2 espèces}</code>. Supprimer le double tiret cadratin au passage. Les fiches convertissent déjà très bien avec un titre tronqué — avec un titre lisible en entier, mieux encore.</p>
+</div>
+
+<div class="action">
+  <h4>10. Rediriger l'intention des fiches espèces</h4>
+  <div class="meta">Impact : moyen · Effort : 2 h · Gain SEO à 4–6 semaines</div>
+  <p style="margin-bottom:0">Les pages <code>/especes/*</code> reçoivent des requêtes d'identification. Plutôt que de les couper, ajouter en haut de chaque fiche un bloc <strong>« Où pêcher le {espèce} près de chez toi »</strong> listant 5 spots réels avec lien. Ça convertit une audience encyclopédique en visiteurs de fiches — et les fiches, elles, convertissent.</p>
+</div>
+
+<div class="action">
+  <h4>11. Nettoyer l'indexation</h4>
+  <div class="meta">Impact : faible-moyen · Effort : 1 h</div>
+  <ul style="margin-bottom:0">
+    <li>Vérifier la soumission du sitemap dans GSC (aucune donnée ne remonte via l'API).</li>
+    <li>Traiter le backlog de modération : 4 018 spots en attente pour 416 approuvés. Chaque spot approuvé est une page qui convertit à 10–58 % de CTR — c'est le levier de croissance le plus mécanique que tu aies.</li>
+    <li>Ne pas demander de réindexation manuelle des anciennes 404 : laisser Google les purger.</li>
+  </ul>
+</div>
+
+<h2>7. Ce qu'il faut regarder la semaine prochaine</h2>
+<ul>
+  <li><strong>Taux de clic du mur</strong> (<code>signup_wall_clicked</code> / <code>signup_wall_viewed</code>) : 1,3 % aujourd'hui. Cible réaliste après les actions 1–3 : <strong>6 à 10 %</strong>.</li>
+  <li><strong>Couverture du mur</strong> (personnes ayant vu un mur / visiteurs de fiches spots) : 42 % aujourd'hui, cible <strong>&gt; 90 %</strong> après l'action 2.</li>
+  <li><strong>Taux de complétion du formulaire</strong> (comptes créés / visiteurs de <code>/auth/*</code>) : ≈ 28 % aujourd'hui (10 sur 36), cible <strong>&gt; 50 %</strong> après l'action 4.</li>
+  <li><strong>Comptes créés / semaine</strong> : 10 aujourd'hui. Avec le trafic actuel maintenu et ces taux, la cible est <strong>25 à 40</strong>.</li>
+</ul>
+
+<div class="foot">
+  Sources : Google Search Console (<code>sc-domain:carnet-de-peche.com</code>, via Supermetrics) · PostHog projet « Default project » (208730) · lecture du dépôt <code>Carnet-de-peche</code> · base Supabase <code>glgciwwnpmgifyhbvxsw</code>.<br>
+  Note : les données du 13 août sont partielles et exclues des comparaisons. Le projet PostHog est en UTC, tes heures sont en UTC+2 — un décalage d'une ou deux inscriptions en bord de période est normal.
+</div>
+
+</div>
+
+<div class="tt" id="tt"></div>
+
+<script>
+(function(){
+  const tt = document.getElementById('tt');
+  function showTT(e, html){ tt.innerHTML = html; tt.style.opacity = 1; moveTT(e); }
+  function moveTT(e){ tt.style.left = Math.min(e.clientX + 14, window.innerWidth - tt.offsetWidth - 10) + 'px'; tt.style.top = (e.clientY - tt.offsetHeight - 12) + 'px'; }
+  function hideTT(){ tt.style.opacity = 0; }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(n, attrs){ const x = document.createElementNS(NS, n); for (const k in attrs) x.setAttribute(k, attrs[k]); return x; }
+
+  const data = [
+    ['16 juil.',332,19],['17 juil.',382,30],['18 juil.',413,33],['19 juil.',441,42],
+    ['20 juil.',375,26],['21 juil.',410,25],['22 juil.',427,35],['23 juil.',373,19],
+    ['24 juil.',335,21],['25 juil.',360,20],['26 juil.',423,20],['27 juil.',458,20],
+    ['28 juil.',513,23],['29 juil.',534,29],['30 juil.',625,28],['31 juil.',606,30],
+    ['1 août',739,47],['2 août',1029,49],['3 août',961,44],['4 août',932,38],
+    ['5 août',935,37],['6 août',1110,65],['7 août',1442,101],['8 août',1646,92],
+    ['9 août',2034,101],['10 août',1923,115],['11 août',2188,115],['12 août',2019,102]
+  ];
+
+  function bars(mountId, idx, color, label, fmt){
+    const W = 860, H = 200, PL = 46, PR = 8, PT = 12, PB = 34;
+    const iw = W - PL - PR, ih = H - PT - PB;
+    const max = Math.max(...data.map(d => d[idx]));
+    const raw = max / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || mag * 10;
+    const top = step * 4;
+    const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': label});
+
+    for (let i = 0; i <= 4; i++){
+      const v = step * i, y = PT + ih - (v / top) * ih;
+      svg.appendChild(el('line', {x1: PL, x2: W - PR, y1: y, y2: y, stroke: 'var(--line)', 'stroke-width': 1}));
+      const t = el('text', {x: PL - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'var(--text-muted)'});
+      t.textContent = v.toLocaleString('fr-FR'); svg.appendChild(t);
+    }
+
+    const bw = iw / data.length;
+    data.forEach((d, i) => {
+      const h = (d[idx] / top) * ih;
+      const x = PL + i * bw + 2, y = PT + ih - h;
+      const r = el('rect', {x: x, y: y, width: Math.max(bw - 4, 2), height: Math.max(h, 1), rx: 4, fill: color});
+      r.style.cursor = 'pointer';
+      r.addEventListener('mouseenter', e => showTT(e, `<strong>${d[0]}</strong><br>${fmt} : ${d[idx].toLocaleString('fr-FR')}`));
+      r.addEventListener('mousemove', moveTT);
+      r.addEventListener('mouseleave', hideTT);
+      svg.appendChild(r);
+    });
+
+    [0, 7, 14, 16, 21, 27].forEach(i => {
+      const t = el('text', {x: PL + i * bw + bw / 2, y: H - 12, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--text-muted)'});
+      t.textContent = data[i][0]; svg.appendChild(t);
+    });
+
+    document.getElementById(mountId).appendChild(svg);
+  }
+
+  bars('chart-impr', 1, 'var(--s1)', 'Impressions Google par jour', 'Impressions');
+  bars('chart-clics', 2, 'var(--s2)', 'Clics Google par jour', 'Clics');
+
+  (function funnel(){
+    const steps = [
+      ['Ont vu une fiche de spot', 156, 'var(--s1)', ''],
+      ['Ont vu un mur d’inscription', 65, 'var(--s1)', '42 % de l’étape précédente'],
+      ['Ont cliqué sur le CTA du mur', 3, 'var(--s2)', '4,6 % de l’étape précédente'],
+      ['Ont créé un compte', 10, 'var(--s3)', 'toutes sources confondues']
+    ];
+    const W = 860, rowH = 54, PT = 8, PL = 250, PR = 70;
+    const H = PT + steps.length * rowH;
+    const iw = W - PL - PR, max = steps[0][1];
+    const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Entonnoir de conversion'});
+
+    steps.forEach((s, i) => {
+      const y = PT + i * rowH;
+      const w = Math.max((s[1] / max) * iw, 3);
+
+      const lab = el('text', {x: PL - 14, y: y + 20, 'text-anchor': 'end', 'font-size': 13.5, fill: 'var(--text-primary)', 'font-weight': 500});
+      lab.textContent = s[0]; svg.appendChild(lab);
+      if (s[3]){
+        const sub = el('text', {x: PL - 14, y: y + 36, 'text-anchor': 'end', 'font-size': 11.5, fill: 'var(--text-muted)'});
+        sub.textContent = s[3]; svg.appendChild(sub);
+      }
+
+      svg.appendChild(el('rect', {x: PL, y: y + 6, width: iw, height: 26, rx: 4, fill: 'var(--line)', opacity: .45}));
+      const r = el('rect', {x: PL, y: y + 6, width: w, height: 26, rx: 4, fill: s[2]});
+      r.style.cursor = 'pointer';
+      r.addEventListener('mouseenter', e => showTT(e, `<strong>${s[0]}</strong><br>${s[1]} personnes`));
+      r.addEventListener('mousemove', moveTT);
+      r.addEventListener('mouseleave', hideTT);
+      svg.appendChild(r);
+
+      const v = el('text', {x: PL + Math.max(w, 3) + 10, y: y + 24, 'font-size': 14, fill: 'var(--text-primary)', 'font-weight': 650});
+      v.textContent = s[1]; svg.appendChild(v);
+    });
+
+    document.getElementById('chart-funnel').appendChild(svg);
+  })();
+})();
+</script>
+</body>
+</html>

@@ -8,13 +8,13 @@
 
 On finit un département avant d'attaquer le suivant, pour remplir la carte par zones denses. **Objectif par département : ~100 fiches publiées et complètes** (espèces, difficulté, dangers, accès, description). Ordre INTERNE au département = **par notoriété** (pointes/caps/digues/môles/estacades/phares → plages et anses → estuaires/passes/cales → micro-toponymes en dernier), pas alphabétique : c'est ce qui remplit la carte utilement. Détail : `PLAYBOOK.md` §9.
 
-**Ordre des départements** : **29 ✅ bouclé (94 fiches après dépublication des 7 fausses coordonnées)** → **56 Morbihan (84/100, DÉBLOQUÉ : le ré-import est inséré, 191 plages disponibles)** → puis les 22 autres, cf le **plan de couverture complète** ci-dessous.
+**Ordre des départements** : **29 ✅ bouclé (94 fiches après dépublication des 7 fausses coordonnées)** → **56 ✅ BOUCLÉ le 2026-08-10 (105 fiches, cible 100 dépassée au lot 14)** → **22 Côtes-d'Armor 🟠 OUVERT le 2026-08-10 (lot 15, 33 fiches / 100)** → puis les 21 autres, cf le **plan de couverture complète** ci-dessous.
 
 🟢 **LE RÉ-IMPORT EST INSÉRÉ (2026-08-08, vérifié SQL live).** 3 400 lignes créées le 08/08, dernière à 16h11 UTC, **sur les 24 départements** et pas seulement sur les deux fichiers connus. Le backlog passe de **624 à 4 069 pending**, la base de 1 160 à 4 605 spots. **Plus aucun département n'a un backlog nul** : 85, 06, 2A et 2B sont débloqués. Le **niveau 2 du playbook §9.1** (plages et grandes anses nommées), jamais traité sur aucun département, est ouvert : le 56 compte désormais **191 spots de structure `plage`**.
 
 🔴 **Le ré-import n'avait jamais eu sa passe de relecture en base : elle est faite, elle trouve 5 familles d'anomalies. Détail et verdicts proposés : `lots/lot-13-audit-reimport.md`. En attente d'arbitrage John, rien n'est écrit.**
 1. **35 spots du Marais poitevin rattachés au 85** (eau douce, 40-60 km de la mer, longitude jusqu'à -0,612) : hors périmètre v1.
-2. **13 spots rattachés au 22 mais situés en 35** (Rance et pays malouin : digue de Rochebonne à Saint-Malo, pointes de la Vicomté et de la Briantais, cales de Dinan et Taden). ⚠️ **À trancher AVANT d'ouvrir le 22**, qui est le prochain département de la vague 1.
+2. ~~**13 spots rattachés au 22 mais situés en 35**~~ → **RE-MESURÉ AU LOT 15 (2026-08-10) : ils sont 26, en trois familles.** 19 clairement en **35** (Dinard, Saint-Lunaire, Saint-Briac, Saint-Malo, Pleurtuit, La Richardais), 2 en **eau douce** (cales de Dinan et Taden, amont de l'écluse du Châtelier), 5 dans la **zone frontière du Frémur** que la coordonnée seule ne tranche pas. Tous laissés `pending`, aucun curé. Tableau nominatif et proposition de correction : `lots/lot-15-22.md` §1.1. **`department` ne s'écrit que sur GO de John.**
 3. **9 spots en Italie rattachés au 06** (Vintimille, Grimaldi : « Spiaggia di Capo Mortola », « Punta Garavano »…).
 4. **3 spots de la réserve de Scandola rattachés au 2A** alors qu'ils sont en 2B (Osani), et réglementés.
 5. **49 noms de quais d'exploitation** (« Quai de Normandie » terminal ferry, « Quai n°1 », « Quai nul », « Slipway »…) : prolongement des décisions 14 et 27.
@@ -41,9 +41,9 @@ Périmètre = `COASTAL_DEPARTMENTS` (`lib/geo/departments.ts`) : 24 département
 
 | Vague | Dépt | Publiés | Backlog | Cible | Ré-import | Statut |
 |---|---|---|---|---|---|---|
-| 1 | **29** Finistère | 94 | 645 | 100 | ✅ inséré | ✅ **fini** (94, cf ⚠️ fiches dépubliées) |
-| 1 | **56** Morbihan | **84** | **374** | 100 | ✅ inséré | 🟢 **DÉBLOQUÉ, département en cours** (191 plages, niveau 2 ouvert) |
-| 1 | 22 Côtes-d'Armor | 8 | 276 | 100 | ✅ inséré | ⬜ **suivant** ⚠️ 13 spots en 35 à trancher d'abord |
+| 1 | **29** Finistère | 94 | 638 | 100 | ✅ inséré | ✅ **fini** (94, cf ⚠️ fiches dépubliées) |
+| 1 | **56** Morbihan | **105** | **343** | 100 | ✅ inséré | ✅ **FINI le 2026-08-10** (105/100, lot 14 = niveau 2 plages) |
+| 1 | 22 Côtes-d'Armor | **33** | **245** | 100 | ✅ inséré | 🟠 **DÉPARTEMENT EN COURS** (lot 15 publié) · 26 spots situés en 35 ou en eau douce, exclus et en attente de GO |
 | 1 | 50 Manche | 8 | 165 | 100 | ✅ inséré | ⬜ |
 | 1 | 35 Ille-et-Vilaine | 5 | 100 | 40 | ✅ inséré | ⬜ |
 | 1 | 14 Calvados | 4 | 63 | 60 | ✅ inséré | ⬜ |
@@ -66,7 +66,7 @@ Périmètre = `COASTAL_DEPARTMENTS` (`lib/geo/departments.ts`) : 24 département
 | 4 | **2A** Corse-du-Sud | 9 | **375** | 60 | ✅ inséré | ⬜ ⚠️ 3 spots de Scandola (2B) à retirer |
 | 4 | **2B** Haute-Corse | 9 | **153** | 60 | ✅ inséré | ⬜ |
 
-**Total au 2026-08-08 : 370 fiches publiées (206 curées + 162 importées + 2 communautaires) · 4 069 en backlog · 156 rejetées · 4 605 spots en base · cible ≈ 1 475 fiches.**
+**Total au 2026-08-10 (SQL live, post-lot 15) : 416 fiches publiées (206 curées + 208 importées + 2 communautaires) · 4 018 en backlog · 171 rejetées · 4 605 spots en base · cible ≈ 1 475 fiches.** Deux départements sur 24 sont finis (29 et 56) et le 22 est ouvert à 33/100, soit **232 fiches sur les 1 475 visées**.
 
 Le backlog n'est plus la contrainte : il est passé de 624 à 4 069, soit **2,7 fois la cible totale**. La contrainte devient le **débit de curation** (20 spots/jour) et la **qualité du tri** : avec 4 069 candidats pour 1 105 fiches à écrire, on peut se permettre d'être exigeant et de ne garder que les postes réels et documentables. À 20 spots/jour et ~75 % de publication, l'horizon reste de **4 à 5 mois**.
 
@@ -131,8 +131,8 @@ pnpm tsx scripts/import-osm-spots.ts --dept=29 --out=supabase/seed-spots-import-
 | # | Dépt | Spots | Lots (~20/lot) | Publiés | Rejetés (édito) | Statut |
 |---|---|---|---|---|---|---|
 | 1 | 29 Finistère | 112 | — | 83 | 13 | ⚠️ **94 approved** (101 moins les 7 fiches curées dépubliées) |
-| 2 | 56 Morbihan | **15** | 0 restant | **79** | **14** | 🟠 lots 6, 7, 9, 10, 11 et 12 publiés (2 retirés à l'audit géo) · **84 approved sur ~100** · **plus aucun lot possible sans le ré-import** |
-| 3 | 22 Côtes-d'Armor | 78 | ~4 | 0 | 0 | ⬜ **prochain département si le ré-import du 56 n'est pas inséré** |
+| 2 | 56 Morbihan | 343 | — | **100** | **37** | ✅ **FINI (105 approved dont 5 curés)** · lots 6, 7, 9, 10, 11, 12 et **14** publiés |
+| 3 | 22 Côtes-d'Armor | 245 | ~4 restants | **25** | **6** | 🟠 **département en cours (33 approved dont 8 curés)** · lot **15** publié |
 | 4 | 17 Charente-Maritime | 53 | ~3 | 0 | 0 | ⬜ |
 | 5 | 44 Loire-Atlantique | 37 | ~2 | 0 | 0 | ⬜ |
 | 6 | 50 Manche | 54 | ~3 | 0 | 0 | ⬜ |
@@ -148,8 +148,19 @@ pnpm tsx scripts/import-osm-spots.ts --dept=29 --out=supabase/seed-spots-import-
 | 16 | 66 Pyrénées-Or. (+11) | 28 | ~1 | 0 | 0 | ⬜ |
 | 17 | 83 Var | 19 | 1 | 0 | 0 | ⬜ |
 
-**Backlog : 624 pending · publiés (édito) : 162 · rejetés : 156.**
+**Backlog : 4 018 pending · publiés (édito) : 208 · rejetés : 171.** Vérifié en SQL live le **2026-08-10 après le lot 15** : **416 spots approved au total** · **105 approved sur le 56** (cible atteinte) · **33 approved sur le 22** · **0 slug `-osmNNNN` publié** · 0 slug dupliqué · **0 fiche importée incomplète** · **0 espèce hors référentiel** · **0 hazard hors vocabulaire** · **0 technique hors vocabulaire** · **0 tiret cadratin sur les importés publiés** · 0 `verified`/`verification_level` posé à tort. Aucun DDL aux lots 14 et 15.
+
+<details><summary>Chiffres du 2026-08-10 (post-lot 14), conservés</summary>
+
+**Backlog : 4 040 pending · publiés (édito) : 183 · rejetés : 164.** **391 spots approved au total** · **105 approved sur le 56** (cible atteinte) · 0 slug `-osmNNNN` publié · 0 slug dupliqué · 0 fiche importée incomplète · 0 espèce hors référentiel · 0 hazard hors vocabulaire · 0 tiret cadratin · 0 `verified`/`verification_level` posé à tort. Aucun DDL au lot 14.
+
+</details>
+
+<details><summary>Chiffres du 2026-08-07 (post-lot 12), conservés</summary>
+
 Vérifié en SQL live le 2026-08-07 **après le lot 12** : **370 spots approved au total** (206 curés + 162 importés + 2 communautaires) · **94 approved sur le 29** · **84 approved sur le 56** · 624 pending · **0 coordonnée arrondie encore publiée** · 0 slug dupliqué · **0 slug `-osmNNNN` publié** · 0 `verified`/`verification_level` posé à tort · 0 fiche importée incomplète · **0 espèce hors référentiel** · **0 hazard hors vocabulaire** · **0 tiret cadratin sur les 942 importés**. Aucun DDL aux lots 5 à 12.
+
+</details>
 
 🟠 **Deux dettes relevées au lot 10, hors périmètre de la curation** (détail : `lots/lot-10-56.md` §8) :
 1. **104 des 215 fiches `curated` ont un tiret cadratin dans leur prose** (`description`/`access_notes`), et 113 dans leur `name`. Le tiret du nom suit le patron « Commune — poste » et relève de l'exception « libellés data » (CLAUDE.md §6) ; celui de la prose, non. Dette antérieure au chantier, sur du contenu publié.
@@ -205,6 +216,8 @@ Deux sessions ont préparé un lot 3 en parallèle sans se voir. La session Cowo
 | 2026-08-08 | 13 (audit du ré-import massif) | 4 069 analysées | 0 / 0 / 0 / 0 · **rien écrit en base** | Audit, en attente d'arbitrage | `lots/lot-13-audit-reimport.md` |
 | 2026-08-08→09 | **Ré-import des 24 départements** | 4 976 candidats relus, **3 445 insérés** | — · **0 publication, tout en `pending`** | Autonome | `lots/reimport-*.md` (8 fichiers) |
 | 2026-08-09 | **Audit géo du 29 rejoué (clôture lot 8)** | 94 fiches publiées + 48 plages importées | **0 dépublication** | Audit | en tête de ce fichier |
+| 2026-08-10 | **14 (56, niveau 2 : les plages nommées) → BOUCLE LE 56** | 29 | **21 / 0 / 6 / 2** (+6 laissés `pending` avec raison) | Mode délégué, publié | `lots/lot-14-56.md` |
+| 2026-08-10 | **15 (22, OUVERTURE du département : niveaux 1 et 2)** | 37 | **25 / 0 / 2 / 4** (+6 laissés `pending` avec raison) | Mode délégué, publié | `lots/lot-15-22.md` |
 
 ## Décisions tranchées (lot 5)
 
@@ -259,16 +272,37 @@ Deux sessions ont préparé un lot 3 en parallèle sans se voir. La session Cowo
 34. **Sur un littoral de calanques, OSM cartographie l'anse ET la pointe qui la borde.** Dans le 13, la majorité des 23 écartés sont des paires « Calanque de X » / « Pointe de X » distantes de 47 à 65 m, fusionnées par le filtre. Voulu (un seul poste par lieu réel), mais **à savoir au curage** : le spot conservé porte parfois le nom de la pointe alors que le pêcheur cherchera la calanque.
 35. ⚠️ **Ce que la relecture de cette campagne a laissé passer, et que l'audit du lot 13 a rattrapé.** La relecture par fichier a retiré une cinquantaine de non-postes (marinas, passerelles ferry, SNSM, sentiers, mairie, détroit du Pas-de-Calais, un point aberrant à 25 km dans les terres) et un lac d'eau douce, mais elle a **manqué trois familles**, toutes détectées ensuite par l'audit transverse : les **35 embarcadères du Marais poitevin** (85), les **9 spots italiens** (06) et les **49 quais d'exploitation**. Leçon : *une relecture fichier par fichier voit les anomalies unitaires, pas les familles géographiques.* Un audit transverse en SQL après insertion n'est pas redondant avec la relecture, il attrape une autre classe d'erreurs. Les verdicts de ces trois familles restent en attente d'arbitrage John (§ audit en tête de fichier).
 
+## Décisions tranchées (lot 14)
+
+36. ★ **Ouvrir le niveau 2 (plages nommées) AVANT les micro-toponymes, sur tous les départements.** Le lot 14 sort **21 fiches full et 0 light** sur 29 spots traités, le meilleur ratio de tout le chantier. La raison est structurelle : offices de tourisme, guides locaux et forums de pêche parlent tous des plages nommées, presque jamais des rochers. Le niveau 4 du playbook §9.1 produit du `light` parce que la matière n'existe pas, pas parce que le tri est mauvais. Le trou signalé au lot 5 (décision 11) est refermé par le ré-import.
+37. ★ **Sur un toponyme générique, le voisinage en base tranche plus vite que le web.** Une seule requête listant les spots dans un rayon de 1,4 km a localisé six candidats homonymes : « Grande Plage » ×2 (Carnac, confirmé par Beaumer et pointe Churchill ; Damgan, par Saint-Guérin), « Port Blanc » ×2 (Saint-Pierre-Quiberon ; Hœdic, confirmé par Kastel a Plouz et Port de l'Église), « La Grande Plage » ×2 (Quiberon ; Penthièvre). **À lancer en premier, avant toute recherche web, dès qu'un nom ne porte pas sa commune.** Corollaire de la décision 24 : sur un nom générique, l'homonymie est la règle, jamais l'exception, et le slug part toujours suffixé par la commune.
+38. **Une « basse » n'est pas un poste de bord.** « Basse Suscinio » est un haut-fond au large, à 4,4 km du trait de côte publié le plus proche. Le vocabulaire maritime (`basse`, `roche`, `plateau` suivis d'un nom) désigne des dangers de navigation, pas des postes accessibles à pied. Rejet, comme les pontons (14) et les quais d'exploitation (27).
+39. ★ **La copy s'écrit accentuée dès le premier UPDATE.** Les 6 premières fiches du lot sont parties désaccentuées (« kilometre », « extremite ») par prudence mal placée sur l'encodage du connecteur SQL, et ont dû être réécrites. Le connecteur passe les accents et les emojis sans difficulté. Une copy désaccentuée en base est un défaut de qualité visible par l'utilisateur, pas un détail technique : en cas de doute, relire une fiche existante avant d'écrire, pas après.
+
+## Décisions tranchées (lot 15)
+
+40. ★ **Une falaise haute est un signal de rejet, pas une difficulté 5.** Trois pointes du lot 15 (pointe de Plouha 104 m, Minard 70 m, Bilfot) sont des sommets de falaise dont aucune source ne documente une descente à l'eau. Publier « difficulté 5 » sur un belvédère enverrait des gens chercher un accès qui n'existe pas. La bonne réponse est `pending` avec la raison, **et la recherche du vrai poste voisin au niveau de la mer** (ici Port Lazo, Gwin Zégal, Bréhec). Généralisation de la décision 7.
+41. ★ **Le chiffre d'un audit transverse est un ordre de grandeur, pas un inventaire.** L'audit du lot 13 annonçait 13 spots du 22 situés en 35 ; la requête au moment d'ouvrir le département en trouve **26**, en trois familles au statut différent (35 avéré, eau douce, zone frontière indécidable). Re-mesurer coûte une requête et évite de curer sous le mauvais code département.
+42. **Un guide de pêche local qui publie ses coins vaut mieux que dix pages d'office de tourisme.** Les deux articles de `guidedepechebretagne.fr` (Pêche Évasion, Erquy) ont documenté **7 fiches** du lot 15 avec de la matière utilisable : espèce, saison, technique, et le point précis de la plage qui marche. **À chercher en tout début de département** : « guide de pêche en mer [secteur] coins du bord ».
+43. **Un phare posé sur une roche ou une île isolée au large n'est pas un poste.** Quatre rejets d'un coup au lot 15 (Triagoz, Sept-Îles, Grand Léjon, Ost-Pic). Prolonge la décision 38 au vocabulaire des feux de navigation : `phare de [roche]` sans continuité terrestre = rejet, à distinguer des phares de digue ou de pointe qui sont, eux, d'excellents postes (Petite Muette, Pointe à l'Aigle, Mean Ruz, tous publiés au même lot).
+
 ---
 
-**Prochaine étape — lot 14 éditorial, le 56 au niveau 2 (plages nommées).** Le ré-import est terminé sur les 24 départements, l'audit géo du 29 est clos sans dépublication, le blocage est levé : **191 plages** attendent dans le Morbihan. Il manque **16 fiches** au 56 pour atteindre sa cible de 100.
+**Prochaine étape — poursuivre le 22 Côtes-d'Armor** (245 pending, **33 publiés**, cible 100, soit ~4 lots).
 
-⚠️ **Avant le prochain lot éditorial, un arbitrage John reste ouvert** sur les 5 familles d'anomalies du lot 13 (Marais poitevin en 85, spots italiens en 06, quais d'exploitation, Scandola en 2A, eau douce). Elles sont toutes en `pending`, donc invisibles des utilisateurs et sans urgence, mais elles pollueront la sélection des départements concernés (85, 06, 22, 2A) tant qu'elles ne sont pas tranchées. Le 56, prochain département, n'est pas concerné.
+**Ce qui reste à traiter dans le 22, dans l'ordre :**
 
-Le travail de préparation du lot est déjà fait et conservé dans `lots/lot-13-audit-reimport.md` §5 : sélection par notoriété, contrôle de proximité passé (3 merges identifiés : Locmaria, Kervoyal, Saint-Colomban), 2 doublons internes repérés (Donnant ×2, Kerhilio/Kerhillio). **Le run suivant reprend directement à la recherche web**, sans refaire les contrôles SQL.
+1. **Finir le niveau 1** : pointes du Goëlo et du Trégor encore non traitées (Guilben, Berjul, Kerlite, Castel Erek, Servel, Château à Plougrescant côté Perros), digues et môles des ports (Binic, Paimpol, Saint-Quay, Tréguier), estacades.
+2. **Niveau 2, les plages nommées** (décision 36) : le 22 en a un gros gisement encore intact, notamment Trégastel, Trévou-Tréguignec, Louannec, Bréhat, Étables, Binic, Sables-d'Or, Saint-Jacut, Lancieux.
+3. **Chercher les postes de bas de falaise** que le lot 15 a laissés ouverts : **Port Lazo** (au pied de Bilfot et Minard), Gwin Zégal, Port Moguer.
+4. **Estuaires du Trieux et du Jaudy, cales** → micro-toponymes en dernier.
 
-Candidats retenus, par grappe : Lorient-Ploemeur-Larmor (Kerguelen, Kerpape, anse du Stole, Pérello, Côte Rouge, la Falaise à Guidel) · Groix (Port Mélite) · Erdeven-Plouharnel-Carnac-Trinité (Kerhillio, Sainte-Barbe, Grande Plage de Carnac, anse du Pô, Kervillen, Kerbihan) · Belle-Île (Donnant, Herlin, Grands Sables) · Rhuys-Damgan-Pénestin (Suscinio, Penvins, Grande Plage de Damgan, Bétahon, Mine d'Or).
+**Trois arbitrages John ouverts sur le 22** (rien n'est écrit sans GO) :
 
-**Puis le 22 Côtes-d'Armor** (276 pending, 8 publiés, cible 100), ⚠️ **une fois tranchés ses 13 spots situés en Ille-et-Vilaine** (§ audit ci-dessus, point 2).
+- Les **26 spots situés en 35 ou en eau douce** (`lots/lot-15-22.md` §1.1) : 19 à passer en `department='35'`, 2 à rejeter (Dinan, Taden), 5 à vérifier sur la limite du Frémur.
+- Les **quais d'exploitation** du 22, laissés `pending` (décisions 14/27/38).
+- **Pors Kamor**, à 173 m du phare de Mean Ruz publié : merge probable, à trancher au prochain lot.
 
-Deux dossiers du 29 restent ouverts et sont à reprendre plus tard : la **pointe des Espagnols** (à la réouverture du site) et le doublet **Bouillennou / Bouillenou**.
+⚠️ **L'arbitrage John sur les 5 familles d'anomalies du lot 13 reste ouvert** (Marais poitevin en 85, spots italiens en 06, quais d'exploitation, Scandola en 2A, eau douce). Elles sont toutes en `pending`, donc invisibles des utilisateurs et sans urgence.
+
+Deux dossiers du 29 restent ouverts et sont à reprendre plus tard : la **pointe des Espagnols** (à la réouverture du site) et le doublet **Bouillennou / Bouillenou**. Six spots du 56 restent `pending` avec leur raison (`lots/lot-14-56.md` §4), dont la grappe **Île-aux-Moines** et le cordon de **Penthièvre**, à traiter d'un bloc si le 56 est rouvert.
