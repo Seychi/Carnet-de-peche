@@ -8,9 +8,11 @@ import { analytics } from '@/lib/analytics'
 import {
   buildSignupHref,
   SIGNUP_WALL_BENEFITS,
+  SIGNUP_WALL_BENEFITS_SPOT,
   SIGNUP_WALL_CTA,
   SIGNUP_WALL_NOTE,
   SIGNUP_WALL_TITLE,
+  SIGNUP_WALL_TITLE_SPOT,
   type SignupWallSurface,
 } from '@/lib/gating/wall'
 
@@ -55,6 +57,12 @@ type SignupWallProps = {
   redirectTo?: string
   /** Titre (défaut : « Crée ton carnet, c'est gratuit »). */
   title?: string
+  /**
+   * Nom du spot lu (sprint 76, Bloc 1). Fourni → titre et bénéfices parlent DU
+   * SPOT au lieu du produit. Absent → copie générique, DOM strictement inchangé.
+   * `title` explicite reste prioritaire sur la variante contextualisée.
+   */
+  spotName?: string
   /** Ligne de contexte propre à la surface, affichée sous le titre. */
   intro?: string
   /** Version resserrée (petits panneaux) : pas de liste d'avantages. */
@@ -72,7 +80,8 @@ type SignupWallProps = {
 export function SignupWall({
   surface,
   redirectTo,
-  title = SIGNUP_WALL_TITLE,
+  title,
+  spotName,
   intro,
   compact = false,
   tone = 'light',
@@ -82,6 +91,12 @@ export function SignupWall({
   const currentPath = useCurrentPath()
   const href = buildSignupHref(redirectTo ?? currentPath)
   const dark = tone === 'dark'
+
+  // Sans `spotName`, on retombe EXACTEMENT sur la copie générique (non-régression
+  // des surfaces carte, testée). Un `title` explicite gagne dans les deux cas.
+  const resolvedTitle =
+    title ?? (spotName ? SIGNUP_WALL_TITLE_SPOT(spotName) : SIGNUP_WALL_TITLE)
+  const benefits = spotName ? SIGNUP_WALL_BENEFITS_SPOT : SIGNUP_WALL_BENEFITS
 
   useEffect(() => {
     if (!track) return
@@ -104,7 +119,7 @@ export function SignupWall({
           dark ? 'text-white' : 'text-ink-900',
         ].join(' ')}
       >
-        {title}
+        {resolvedTitle}
       </p>
 
       {intro && (
@@ -120,7 +135,7 @@ export function SignupWall({
 
       {!compact && (
         <ul className="mt-2.5 flex flex-col gap-1.5">
-          {SIGNUP_WALL_BENEFITS.map((benefit) => (
+          {benefits.map((benefit) => (
             <li
               key={benefit}
               className={[

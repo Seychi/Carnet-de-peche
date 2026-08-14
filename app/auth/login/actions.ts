@@ -186,7 +186,6 @@ export async function signUpWithPassword(
 ): Promise<LoginState> {
   const emailRaw = formData.get("email");
   const passwordRaw = formData.get("password");
-  const confirmRaw = formData.get("password_confirm");
 
   const emailParsed = emailSchema.safeParse(emailRaw);
   if (!emailParsed.success) {
@@ -210,14 +209,10 @@ export async function signUpWithPassword(
     };
   }
 
-  if (String(passwordRaw) !== String(confirmRaw)) {
-    return {
-      error: "Les mots de passe ne correspondent pas.",
-      success: false,
-      email,
-      submittedAt: null,
-    };
-  }
+  // Sprint 76, Bloc 3 : plus de champ « Confirme le mot de passe » (4 champs → 2).
+  // La sécurité ne bouge pas : la règle de mot de passe (8 caractères dont 1 chiffre)
+  // est vérifiée juste au-dessus, côté SERVEUR, et l'utilisateur peut relire sa
+  // saisie via le bouton d'affichage de `PasswordInput`.
 
   // Code fondateur (sprint 68) : lu SYSTÉMATIQUEMENT et OPTIONNEL — il n'est
   // plus un gate mais un comp (abonnement Local offert via redeem_comp_code,

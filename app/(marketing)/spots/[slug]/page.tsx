@@ -7,6 +7,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
+import { buildSignupHref } from '@/lib/gating/wall'
+import type { NearbySpot } from '@/lib/spots/nearby'
+import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
+import { NearbySpotsSection, type NearbyEntry } from '@/components/spots/NearbySpotsSection'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
 import { SignupWall } from '@/components/map/SignupBanner'
@@ -29,6 +33,8 @@ import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS, HAZARDS_LABELS } from '@/lib/labels'
 import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
+import { buildSpotTitle } from '@/lib/seo/spot-title'
+import { buildSpotJsonLd } from '@/lib/seo/spot-jsonld'
 import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -113,6 +119,60 @@ async function fetchCatchCount(spotId: string): Promise<number> {
   return count ?? 0
 }
 
+// ─── Maillage spot → spot (sprint 76, Bloc 10) ───────────────────────────────
+
+/**
+ * Spots proches, via la RPC `nearby_spots` (SECURITY DEFINER, migration 004/024).
+ * Elle filtre `moderation_status='approved'` + la visibilité, et ne renvoie
+ * AUCUNE coordonnée : la `distance_m` d'un non-abonné est calculée depuis le
+ * centroïde de `geom_public`, jamais depuis `geom`.
+ *
+ * ⚠️ Elle se termine par `where tier in ('local','itinerant') or rn <= 3` : un
+ * visiteur ANONYME (donc tout le trafic SEO) en reçoit au maximum 3, quel que
+ * soit le rayon. Le repli départemental ci-dessous n'est donc pas l'exception
+ * mais le cas courant.
+ */
+async function fetchNearbySpots(
+  lat: number,
+  lng: number,
+  excludeId: string,
+): Promise<NearbySpot[]> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc('nearby_spots', {
+    lat,
+    lng,
+    radius_km: NEARBY_RADIUS_KM,
+  })
+  return ((data ?? []) as NearbySpot[]).filter((s) => s.id !== excludeId)
+}
+
+/**
+ * Repli : autres spots du même département. Passe par la RLS (`spots_select_visible`
+ * impose `moderation_status='approved' AND visibility='public'` à `anon`), donc
+ * aucun lien mort possible. `geom` n'est pas lisible par `anon` et n'est pas
+ * demandé ici : le SELECT ne porte que des colonnes publiques.
+ */
+async function fetchDepartmentSpots(
+  department: string,
+  excludeId: string,
+): Promise<{ id: string; slug: string; name: string; species: string[] }[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('spots')
+    .select('id, slug, name, species')
+    .eq('visibility', 'public')
+    .eq('moderation_status', 'approved')
+    .eq('department', department)
+    .neq('id', excludeId)
+    .order('name', { ascending: true })
+    .limit(NEARBY_MAX + 6)
+  return (data ?? []) as { id: string; slug: string; name: string; species: string[] }[]
+}
+
+/** Jamais plus de 50 km : au-delà, « spots à proximité » devient un mensonge. */
+const NEARBY_RADIUS_KM = 40
+const NEARBY_MAX = 6
+
 // ─── SEO ──────────────────────────────────────────────────────────────────────
 
 export const revalidate = 1800
@@ -127,11 +187,16 @@ export async function generateMetadata(
   if (!spot) return { title: 'Spot introuvable — Carnet de Pêche' }
 
   const structureLabel = (spot.structure && STRUCTURE_LABELS[spot.structure]) ?? 'Spot'
-  const topSpecies = spot.species.slice(0, 3).map((s) => SPECIES_LABELS[s] ?? s).join(', ')
+  const speciesLabels = spot.species.map((s) => SPECIES_LABELS[s] ?? s)
+  const topSpecies = speciesLabels.slice(0, 3).join(', ')
   const deptKey = String(spot.department).trim()
   const canonicalUrl = `${BASE_URL}/spots/${spot.slug}`
 
-  const title = `Pêche à ${spot.name} (${deptKey}) — ${topSpecies} · Carnet de Pêche`
+  // Sprint 76, Bloc 5 : les titres servis faisaient 66 à 90 caractères (Google
+  // coupe vers 60) et cumulaient DEUX tirets cadratins, celui du gabarit et
+  // celui déjà présent dans `spot.name`. Gabarit + dégradation dans lib/seo/spot-title,
+  // testés sur les 416 spots réels. La description, l'OG et le Twitter card ne bougent pas.
+  const title = buildSpotTitle(spot.name, deptKey, speciesLabels)
   const description = `${structureLabel} pour pêcher ${topSpecies} ${departmentArticle(deptKey, 'dans')}. Conditions, marées et techniques recommandées.`.slice(0, 158)
   const ogDescription = spot.description
     ? `${spot.description.slice(0, 150)}${spot.description.length > 150 ? '…' : ''}`
@@ -374,6 +439,39 @@ export default async function SpotPage({
     fetchViewerFavorite(spot.id, user?.id).catch(() => false),
   ])
 
+  const deptKey = String(spot.department).trim()
+
+  // Bloc 10 : maillage horizontal. 2e vague de requêtes (elles ont besoin de
+  // spot.lat/lng, inconnus avant getSpotBySlug), mais les deux partent EN
+  // PARALLÈLE l'une de l'autre. Toute erreur dégrade en silence : cette section
+  // ne doit jamais casser la page qui fait 80 % des clics Google.
+  const [nearbyRaw, deptSpots] = await Promise.all([
+    fetchNearbySpots(spot.lat, spot.lng, spot.id).catch(() => []),
+    fetchDepartmentSpots(deptKey, spot.id).catch(() => []),
+  ])
+
+  // Les spots proches d'abord (avec leur distance), complétés par le département
+  // jusqu'à 6. `nearby_spots` plafonne à 3 pour un anonyme : le repli est la norme.
+  const nearbySlugs = new Set(nearbyRaw.map((s) => s.slug))
+  const nearbyEntries: NearbyEntry[] = [
+    ...nearbyRaw.slice(0, NEARBY_MAX).map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      species: s.species ?? [],
+      distanceM: s.distance_m,
+    })),
+    ...deptSpots
+      .filter((s) => !nearbySlugs.has(s.slug))
+      .map((s) => ({ slug: s.slug, name: s.name, species: s.species ?? [] })),
+  ].slice(0, NEARBY_MAX)
+
+  // Libellé honnête : « à moins de X km » seulement si la section est vraiment
+  // faite de spots proches ; sinon on annonce le département.
+  const nearbyTitle =
+    nearbyEntries.filter((e) => e.distanceM != null).length >= 3
+      ? `Autres spots à moins de ${NEARBY_RADIUS_KM} km`
+      : `Autres spots ${departmentArticle(deptKey, 'dans')}`
+
   // Guides liés au spot : espèces du spot d'abord, multi-espèces ensuite.
   const spotSpeciesLabels = new Set(
     spot.species.map((s) => SPECIES_LABELS[s] ?? s),
@@ -393,8 +491,6 @@ export default async function SpotPage({
   const personalTendencies = user
     ? await getPersonalTendencies({ spotId: spot.id }).catch(() => null)
     : null
-
-  const deptKey = String(spot.department).trim()
 
   // Offset de calibration marée du port de référence du spot (sprint 38) : les
   // heures de PM/BM du calendrier 7j doivent être calées sur le SHOM comme la
@@ -440,23 +536,28 @@ export default async function SpotPage({
 
   const structureLabel = STRUCTURE_LABELS[spot.structure ?? ''] ?? spot.structure ?? ''
 
-  // JSON-LD Place — tous les spots non-privés, coords toujours à 2dp (fuzzy safe pour le markup public)
-  const jsonLd = spot.visibility !== 'private' ? {
-    '@context': 'https://schema.org',
-    '@type': 'Place',
-    name: spot.name,
-    description: spot.description ?? undefined,
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: Math.round(spot.lat * 100) / 100,
-      longitude: Math.round(spot.lng * 100) / 100,
-    },
-    address: {
-      '@type': 'PostalAddress',
-      addressRegion: spot.region,
-      addressCountry: 'FR',
-    },
-  } : null
+  // JSON-LD — tous les spots non-privés.
+  //
+  // 1. Place : INCHANGÉ (sprint 76). Coords toujours arrondies à 2 décimales
+  //    (~1 km), et servies depuis `spot.lat/lng` qui sortent de get_spot_by_slug,
+  //    donc DÉJÀ gatées au tier : pour un anonyme c'est le centroïde de
+  //    `geom_public`, jamais `geom`. Aucune coordonnée ajoutée ici.
+  // 2. BreadcrumbList : ajouté au Bloc 4. Sur 28 jours, GSC ne remonte qu'UNE
+  //    impression de résultat enrichi, et la fiche de spot (80 % des clics)
+  //    n'émettait qu'un `Place`, non éligible à l'affichage enrichi. Même format
+  //    que /especes/[slug] : un TABLEAU d'objets, pas un @graph.
+  const jsonLd = spot.visibility !== 'private'
+    ? buildSpotJsonLd({
+        name: spot.name,
+        slug: spot.slug,
+        description: spot.description,
+        lat: spot.lat,
+        lng: spot.lng,
+        region: spot.region,
+        deptKey,
+        deptLabel: DEPARTMENT_LABELS[deptKey] ?? deptKey,
+      })
+    : null
 
   return (
     <div className="bg-sand-50 min-h-screen pb-20 md:pb-0">
@@ -664,6 +765,27 @@ export default async function SpotPage({
               />
             )}
 
+            {/* ── Mur d'inscription, DANS LE FLUX MOBILE (sprint 76, Bloc 2) ──
+                Il vivait uniquement dans l'<aside>, donc tout en bas sur mobile,
+                après les dangers, la météo et les marées, alors que 82 % du
+                trafic est mobile. Ici il tombe juste après les conditions et
+                les marées, c'est-à-dire après la valeur et avant le décrochage.
+
+                C'est CETTE instance qui porte l'event `signup_wall_viewed` :
+                elle est montée quel que soit le viewport (le `lg:hidden` ne
+                masque qu'en CSS, l'effet de montage part quand même), donc on
+                compte exactement UNE vue de mur par vue de page. L'instance de
+                la sidebar est en `track={false}` pour ne pas doubler le
+                dénominateur du taux de clic. */}
+            {showSignupWall && (
+              <SignupWall
+                surface="spot_page"
+                spotName={spot.name}
+                redirectTo={`/spots/${slug}`}
+                className="lg:hidden p-5"
+              />
+            )}
+
             {/* Signal social 7 jours (masqué si aucune activité) */}
             <SpotActivitySection spotId={spot.id} ctaHref={ctaHref} />
 
@@ -689,6 +811,15 @@ export default async function SpotPage({
                 <p className="text-ink-700 leading-relaxed">{spot.access_notes}</p>
               </section>
             )}
+
+            {/* Autres spots (sprint 76, Bloc 10 — maillage horizontal).
+                Rendu CÔTÉ SERVEUR, dans le HTML servi : un bloc de maillage
+                interne monté au clic n'a aucune valeur pour le crawl. */}
+            <NearbySpotsSection
+              fromSlug={spot.slug}
+              title={nearbyTitle}
+              entries={nearbyEntries}
+            />
 
             {/* Guides liés (sprint 10 Bloc 5 — maillage interne) */}
             {relatedGuideLinks.length > 0 && (
@@ -909,8 +1040,13 @@ export default async function SpotPage({
               </div>
             )}
 
-            {/* GPS / upsell */}
-            {spot.is_precise ? (
+            {/* ── GPS / mur / upsell ──────────────────────────────────────
+                Sprint 76, Bloc 2 : le mur d'inscription était rendu DANS la
+                branche `!spot.is_precise`, comme ALTERNATIVE aux coordonnées.
+                Il devient un bloc FRÈRE : le visiteur sans compte le voit quelle
+                que soit la précision servie. La branche coordonnées et l'upsell
+                abonnement des inscrits gratuits ne changent pas d'un octet. */}
+            {spot.is_precise && (
               <div className="bg-teal-50 border border-teal-100 rounded-[18px] p-6">
                 <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-2">
                   GPS précis disponible
@@ -928,30 +1064,39 @@ export default async function SpotPage({
                   Ouvrir dans Maps
                 </a>
               </div>
-            ) : (
-              showSignupWall ? (
-                <SignupWall
-                  surface="spot_page"
-                  tone="dark"
-                  redirectTo={`/spots/${slug}`}
-                  intro="Les coordonnées précises sont réservées aux abonnés. Ton carnet, les marées de ce spot et le fil de ton département, eux, sont gratuits."
-                  className="p-6"
-                />
-              ) : (
-                <div className="bg-navy-900 rounded-[18px] p-6 text-center">
-                  <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
-                  <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
-                  <p className="text-white/60 text-xs mb-5 leading-snug">
-                    Score d&apos;activité, GPS exact, filtres avancés.
-                  </p>
-                  <Link
-                    href="/tarifs"
-                    className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
-                  >
-                    Voir les formules
-                  </Link>
-                </div>
-              )
+            )}
+
+            {/* Mur d'inscription, version sidebar (desktop). `track={false}` :
+                l'instance de la colonne principale porte déjà l'event, sinon une
+                seule vue de page en émettrait deux et le taux de clic serait
+                mécaniquement divisé par deux. */}
+            {showSignupWall && (
+              <SignupWall
+                surface="spot_page"
+                spotName={spot.name}
+                tone="dark"
+                track={false}
+                redirectTo={`/spots/${slug}`}
+                className="hidden lg:block p-6"
+              />
+            )}
+
+            {/* Upsell abonnement : réservé aux INSCRITS gratuits sans coordonnée
+                précise. Comportement inchangé (règle sprint 75). */}
+            {!showSignupWall && !spot.is_precise && (
+              <div className="bg-navy-900 rounded-[18px] p-6 text-center">
+                <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
+                <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
+                <p className="text-white/60 text-xs mb-5 leading-snug">
+                  Score d&apos;activité, GPS exact, filtres avancés.
+                </p>
+                <Link
+                  href="/tarifs"
+                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
+                >
+                  Voir les formules
+                </Link>
+              </div>
             )}
 
             {/* CTA desktop */}
@@ -965,14 +1110,23 @@ export default async function SpotPage({
         </div>
       </div>
 
-      {/* ── CTA collant mobile ──────────────────────────────────────────── */}
+      {/* ── CTA collant mobile ────────────────────────────────────────────
+          Sprint 76, Bloc 2 : c'est le seul élément que 100 % des visiteurs
+          mobiles voient. Pour un visiteur SANS COMPTE venu de Google,
+          « + Loguer une prise ici » ne veut rien dire : il n'a ni compte ni
+          prise. On lui propose ce qu'il est venu chercher. Connecté :
+          strictement inchangé. */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-sand-200 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-        <Link
-          href={ctaHref}
-          className="flex items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold rounded-xl transition-colors text-sm"
-        >
-          + Loguer une prise ici
-        </Link>
+        {showSignupWall ? (
+          <SpotSignupCta href={buildSignupHref(`/spots/${slug}`)} spotName={spot.name} />
+        ) : (
+          <Link
+            href={ctaHref}
+            className="flex items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold rounded-xl transition-colors text-sm"
+          >
+            + Loguer une prise ici
+          </Link>
+        )}
       </div>
     </div>
   )

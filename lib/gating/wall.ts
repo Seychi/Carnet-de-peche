@@ -49,6 +49,10 @@ export const SIGNUP_WALL_SURFACES = [
   'banner',
   'spot_popup',
   'spot_page',
+  // Sprint 76, Bloc 9 : /spots (2e page la plus vue, 1re source de sortie) n'avait
+  // AUCUNE surface de conversion. AJOUT seulement : renommer une entrée casserait
+  // le suivi du funnel ouvert au sprint 75.
+  'spots_list',
 ] as const
 
 export type SignupWallSurface = (typeof SIGNUP_WALL_SURFACES)[number]
@@ -69,7 +73,48 @@ export const SIGNUP_WALL_BENEFITS: readonly string[] = [
 ]
 
 /** Rassurance affichée sous le CTA : vraie (l'inscription ne demande pas de CB). */
-export const SIGNUP_WALL_NOTE = 'Sans carte bancaire.'
+export const SIGNUP_WALL_NOTE = 'Sans carte bancaire, en 30 secondes.'
+
+// ─── Variante CONTEXTUALISÉE « fiche de spot » (sprint 76, Bloc 1) ───────────
+// La copie générique ci-dessus liste des bénéfices de RÉTENTION à quelqu'un qui
+// vient de lire la fiche d'UN spot et qui n'a encore rien à loguer. Mesuré sur la
+// semaine du 6 au 12 août : 225 murs affichés, 3 clics (1,3 %). La variante parle
+// du spot que le visiteur a sous les yeux.
+//
+// ⚠️ La générique reste la source des surfaces carte : ne pas la supprimer.
+
+/** Titre contextualisé au spot lu. Aucune promesse de coordonnée précise. */
+export const SIGNUP_WALL_TITLE_SPOT = (spotName: string): string =>
+  `Suis ${spotName}, c'est gratuit`
+
+/**
+ * Bénéfices contextualisés : uniquement ce que le compte GRATUIT donne vraiment
+ * sur cette fiche (les coordonnées précises restent abonnés, cf CLAUDE.md §8).
+ */
+export const SIGNUP_WALL_BENEFITS_SPOT: readonly string[] = [
+  'Les marées et la météo de ce spot, tous les jours',
+  'Les prises déclarées ici, en temps réel',
+  'Ton carnet de prises, illimité',
+]
+
+/**
+ * Titre du mur sur la LISTE de spots (sprint 76, Bloc 9), contextualisé à la
+ * facette lue. Prend des libellés DÉJÀ formatés (« du Morbihan », « dorade
+ * royale ») pour garder ce module sans dépendance de données.
+ * Renvoie `undefined` hors facette → le mur reprend son titre générique.
+ */
+export function signupWallTitleForFacet(opts: {
+  deptPhrase?: string | null
+  speciesLabel?: string | null
+}): string | undefined {
+  const { deptPhrase, speciesLabel } = opts
+  if (speciesLabel && deptPhrase) {
+    return `Suis les spots à ${speciesLabel} ${deptPhrase}, c'est gratuit`
+  }
+  if (speciesLabel) return `Suis les spots à ${speciesLabel}, c'est gratuit`
+  if (deptPhrase) return `Suis les spots ${deptPhrase}, c'est gratuit`
+  return undefined
+}
 
 /**
  * Lien d'inscription qui ramène le visiteur EXACTEMENT où il était.

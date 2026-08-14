@@ -284,13 +284,45 @@ export function programmaticUrl(p: ProgrammaticPage): string {
   return p.deptCode ? `${base}/${DEPARTMENT_SLUGS[p.deptCode]}` : base
 }
 
+/** Longueur au-delà de laquelle Google tronque le titre dans le SERP (sprint 76). */
+export const SERP_TITLE_MAX = 60
+
+/**
+ * Titre d'une page programmatique.
+ *
+ * Sprint 76, Bloc 6 — deux défauts corrigés ici :
+ *  1. L'article était masculin EN DUR (`Pêche du ${species}`) alors que le
+ *     référentiel porte déjà `articleDe`. Google servait « Pêche du dorade
+ *     royale au surfcasting dans la Manche » sur 125 pages sur 337.
+ *  2. Mesuré le 2026-08-14 : 13 pages dépassaient DÉJÀ 60 caractères avant
+ *     toute correction (jusqu'à 67), et l'accord féminin en ajoute 3 (23 pages,
+ *     jusqu'à 70). Google coupe autour de 60, et ce qui saute en premier est
+ *     le département, c'est-à-dire précisément le mot cherché.
+ *
+ * D'où une dégradation en 3 temps, jamais une troncature au milieu d'un mot.
+ * Chaque forme garde espèce + technique + département : les titres restent
+ * UNIQUES page à page (pas de doublon de <title>, qui coûterait plus cher que
+ * la troncature qu'on évite).
+ */
 export function programmaticTitle(p: ProgrammaticPage): string {
-  const species = SPECIES[p.species].label
+  const meta = SPECIES[p.species]
   const technique = TECHNIQUES[p.technique].withArticle
-  if (!p.deptCode) return `Pêche du ${species.toLowerCase()} ${technique} en France`
+  const subject = `${meta.articleDe}${meta.labelLower}`
+  if (!p.deptCode) return `Pêche ${subject} ${technique} en France`
   const dept = DEPARTMENT_LABELS[p.deptCode] ?? p.deptCode
-  // « dans le Finistère », « dans les Landes », « en Vendée »…
-  return `Pêche du ${species.toLowerCase()} ${technique} ${deptPreposition(p.deptCode)}${dept}`
+
+  // 1. Forme naturelle : « dans le Finistère », « dans les Landes », « en Vendée »…
+  const natural = `Pêche ${subject} ${technique} ${deptPreposition(p.deptCode)}${dept}`
+  if (natural.length <= SERP_TITLE_MAX) return natural
+
+  // 2. La préposition longue (« dans les ») cède la place aux deux-points.
+  const colon = `Pêche ${subject} ${technique} : ${dept}`
+  if (colon.length <= SERP_TITLE_MAX) return colon
+
+  // 3. Dernier recours (4 pages : dorade royale des Pyrénées) : on lâche le mot
+  // « Pêche », qui reste porté par le H1 et la description, jamais l'espèce,
+  // la technique ni le département.
+  return `${meta.label} ${technique} : ${dept}`
 }
 
 /** Préposition française correcte par département — table explicite, pas d'heuristique. */

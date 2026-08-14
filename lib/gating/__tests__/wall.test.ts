@@ -4,9 +4,12 @@ import {
   buildSignupHref,
   SIGNUP_WALL_SURFACES,
   SIGNUP_WALL_TITLE,
+  SIGNUP_WALL_TITLE_SPOT,
   SIGNUP_WALL_BENEFITS,
+  SIGNUP_WALL_BENEFITS_SPOT,
   SIGNUP_WALL_CTA,
   SIGNUP_WALL_NOTE,
+  signupWallTitleForFacet,
 } from '@/lib/gating/wall'
 import type { UserTier } from '@/lib/auth/tier'
 
@@ -63,7 +66,16 @@ describe('buildSignupHref — retour exact au point de départ', () => {
 })
 
 describe('copy du mur d’inscription', () => {
-  const copy = [SIGNUP_WALL_TITLE, SIGNUP_WALL_CTA, SIGNUP_WALL_NOTE, ...SIGNUP_WALL_BENEFITS]
+  // Sprint 76 : la variante contextualisée « fiche de spot » est soumise aux
+  // MÊMES règles que la générique (zéro prix, zéro tiret cadratin).
+  const copy = [
+    SIGNUP_WALL_TITLE,
+    SIGNUP_WALL_CTA,
+    SIGNUP_WALL_NOTE,
+    ...SIGNUP_WALL_BENEFITS,
+    SIGNUP_WALL_TITLE_SPOT('Pointe de Penvins'),
+    ...SIGNUP_WALL_BENEFITS_SPOT,
+  ]
 
   it('ne mentionne jamais de prix', () => {
     for (const s of copy) {
@@ -77,7 +89,87 @@ describe('copy du mur d’inscription', () => {
     }
   })
 
+  it('ne promet JAMAIS les coordonnées précises (elles restent abonnés)', () => {
+    for (const s of copy) {
+      expect(s).not.toMatch(/coordonn|gps|précis/i)
+    }
+  })
+
   it('expose des identifiants de surface uniques', () => {
     expect(new Set(SIGNUP_WALL_SURFACES).size).toBe(SIGNUP_WALL_SURFACES.length)
+  })
+
+  it('garde les surfaces du sprint 75 (le renommage casserait le funnel)', () => {
+    for (const s of [
+      'map_filters',
+      'map_layers',
+      'nearby',
+      'score',
+      'banner',
+      'spot_popup',
+      'spot_page',
+    ] as const) {
+      expect(SIGNUP_WALL_SURFACES).toContain(s)
+    }
+  })
+
+  it('ajoute la surface /spots (Bloc 9)', () => {
+    expect(SIGNUP_WALL_SURFACES).toContain('spots_list')
+  })
+})
+
+describe('variante contextualisée « fiche de spot » (sprint 76, Bloc 1)', () => {
+  it('interpole le nom du spot dans le titre', () => {
+    expect(SIGNUP_WALL_TITLE_SPOT('Pointe de Penvins')).toBe(
+      "Suis Pointe de Penvins, c'est gratuit",
+    )
+  })
+
+  it('parle du spot lu, pas du produit (aucun bénéfice de rétention seul)', () => {
+    expect(SIGNUP_WALL_BENEFITS_SPOT[0]).toMatch(/ce spot/)
+    expect(SIGNUP_WALL_BENEFITS_SPOT[1]).toMatch(/ici/)
+  })
+
+  it('reste distincte de la copie générique (qui sert les surfaces carte)', () => {
+    expect(SIGNUP_WALL_BENEFITS_SPOT).not.toEqual(SIGNUP_WALL_BENEFITS)
+    expect(SIGNUP_WALL_TITLE_SPOT('X')).not.toBe(SIGNUP_WALL_TITLE)
+  })
+})
+
+describe('signupWallTitleForFacet — mur de /spots (sprint 76, Bloc 9)', () => {
+  it('reprend le libellé du département', () => {
+    expect(signupWallTitleForFacet({ deptPhrase: 'du Morbihan' })).toBe(
+      "Suis les spots du Morbihan, c'est gratuit",
+    )
+  })
+
+  it('reprend le libellé de l’espèce', () => {
+    expect(signupWallTitleForFacet({ speciesLabel: 'bar' })).toBe(
+      "Suis les spots à bar, c'est gratuit",
+    )
+  })
+
+  it('combine espèce et département', () => {
+    expect(
+      signupWallTitleForFacet({ deptPhrase: 'du Morbihan', speciesLabel: 'dorade royale' }),
+    ).toBe("Suis les spots à dorade royale du Morbihan, c'est gratuit")
+  })
+
+  it('hors facette → undefined (le mur reprend son titre générique)', () => {
+    expect(signupWallTitleForFacet({})).toBeUndefined()
+    expect(signupWallTitleForFacet({ deptPhrase: null, speciesLabel: null })).toBeUndefined()
+  })
+
+  it('n’utilise aucun tiret cadratin et ne parle jamais de prix', () => {
+    const titles = [
+      signupWallTitleForFacet({ deptPhrase: 'des Landes' }),
+      signupWallTitleForFacet({ speciesLabel: 'sar' }),
+      signupWallTitleForFacet({ deptPhrase: "de l'Hérault", speciesLabel: 'orphie' }),
+    ]
+    for (const t of titles) {
+      expect(t).toBeTypeOf('string')
+      expect(t).not.toContain('—')
+      expect(t).not.toMatch(/€|euro|abonn/i)
+    }
   })
 })

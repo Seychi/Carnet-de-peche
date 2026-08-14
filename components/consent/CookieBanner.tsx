@@ -5,6 +5,7 @@ import Link from 'next/link'
 import posthog from 'posthog-js'
 import { Cookie, Check, X } from 'lucide-react'
 import { readConsent, writeConsent } from '@/lib/consent'
+import { readEntryAttribution } from '@/lib/analytics/attribution'
 
 /**
  * Bandeau de consentement analytics (RGPD, sprint 26 / D-F1).
@@ -34,7 +35,21 @@ export function CookieBanner() {
   function accept() {
     writeConsent('granted')
     try {
-      if (posthog.__loaded) posthog.opt_in_capturing()
+      if (posthog.__loaded) {
+        posthog.opt_in_capturing()
+        // Sprint 76, Bloc 7 : la page SUR LAQUELLE le visiteur consent n'était
+        // jamais comptée. `PageViewTracker` avait déjà joué son effet pour
+        // cette route (en pure perte, capture opt-out), et ses dépendances
+        // [pathname, searchParams] ne bougent pas du fait du consentement : il
+        // ne se rejoue pas. On perdait donc systématiquement le pageview
+        // d'ENTRÉE, le seul qui porte le referrer de Google, d'où 42 % de trafic
+        // classé en auto-référencement. On l'émet ici, avec la source d'entrée
+        // mémorisée au chargement (aucune émission n'a eu lieu avant ce clic).
+        posthog.capture('$pageview', {
+          $current_url: window.location.href,
+          ...readEntryAttribution(),
+        })
+      }
     } catch {
       /* no-op : ne jamais casser sur l'analytics */
     }

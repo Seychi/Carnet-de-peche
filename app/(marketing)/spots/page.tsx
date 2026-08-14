@@ -1,6 +1,10 @@
+import { Fragment } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { getUserTier } from '@/lib/auth/tier'
+import { getWallKind, signupWallTitleForFacet } from '@/lib/gating/wall'
+import { SignupWall } from '@/components/map/SignupBanner'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS, departmentArticle } from '@/lib/geo/departments'
 
@@ -191,10 +195,32 @@ function SpotCard({ spot }: { spot: SpotRow }) {
 
 export default async function SpotsPage({ searchParams }: Props) {
   const { dept, species } = await searchParams
-  const [spots, facets] = await Promise.all([
+  // Sprint 76, Bloc 9 : cette page est la 2e la plus vue du site et sa 1re source
+  // de SORTIE, sans aucune surface de conversion. Le tier part en PARALLÈLE des
+  // deux requêtes existantes (aucune requête séquentielle ajoutée).
+  //
+  // Note ISR : `revalidate = 3600` est déjà inerte ici, le <Header/> du layout
+  // marketing appelle `auth.getUser()` et rend donc toutes ces routes dynamiques.
+  // Lire le tier ne coûte pas le cache, il était déjà perdu.
+  const [spots, facets, tier] = await Promise.all([
     fetchPublicSpots(dept, species),
     fetchSpotFacets(),
+    getUserTier(),
   ])
+
+  // Règle unique du sprint 75 : anonyme → mur d'INSCRIPTION (gratuit, zéro prix).
+  // Inscrit gratuit et abonnés → rien ici, l'encart /tarifs de pied de page est
+  // inchangé pour tout le monde.
+  const showSignupWall = getWallKind(tier) === 'signup'
+  const wallTitle = signupWallTitleForFacet({
+    deptPhrase: dept ? departmentArticle(dept, 'de') : null,
+    speciesLabel: species ? (SPECIES_LABELS[species] ?? species).toLowerCase() : null,
+  })
+  const wallQuery = new URLSearchParams({
+    ...(dept ? { dept } : {}),
+    ...(species ? { species } : {}),
+  }).toString()
+  const wallRedirectTo = wallQuery ? `/spots?${wallQuery}` : '/spots'
 
   if (spots.length > 500) {
     console.warn(
@@ -328,7 +354,7 @@ export default async function SpotsPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="space-y-14">
-              {grouped.map(([deptCode, deptSpots]) => (
+              {grouped.map(([deptCode, deptSpots], groupIndex) => (
                 <div key={deptCode}>
                   <h2 className="font-display text-navy-900 text-xl mb-5">
                     {DEPARTMENT_LABELS[deptCode] ?? deptCode}
@@ -337,8 +363,28 @@ export default async function SpotsPage({ searchParams }: Props) {
                     </span>
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {deptSpots.map((spot) => (
-                      <SpotCard key={spot.id} spot={spot} />
+                    {deptSpots.map((spot, i) => (
+                      <Fragment key={spot.id}>
+                        <SpotCard spot={spot} />
+                        {/* Mur d'inscription (Bloc 9) : glissé DANS le premier
+                            groupe après 3 cartes, sur toute la largeur de la
+                            grille. Le brief disait « après le premier groupe de
+                            département » : sur `?dept=56` ce groupe fait 105
+                            spots, le mur serait tombé aussi bas qu'un pied de
+                            page (exactement ce que le brief voulait éviter).
+                            Après 3 cartes, il est atteint dans le 1er écran et
+                            demi en 390 px, quelle que soit la facette. */}
+                        {showSignupWall &&
+                          groupIndex === 0 &&
+                          i === Math.min(2, deptSpots.length - 1) && (
+                            <SignupWall
+                              surface="spots_list"
+                              title={wallTitle}
+                              redirectTo={wallRedirectTo}
+                              className="sm:col-span-2 lg:col-span-3"
+                            />
+                          )}
+                      </Fragment>
                     ))}
                   </div>
                 </div>

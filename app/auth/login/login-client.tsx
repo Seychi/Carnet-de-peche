@@ -10,6 +10,7 @@ import {
   type SetStateAction,
 } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Eye,
   EyeOff,
@@ -35,6 +36,7 @@ import {
   zodToFieldErrors,
   type FieldErrors,
 } from "@/lib/auth/schema";
+import type { AuthContext } from "@/lib/auth/auth-context";
 import {
   sendMagicLink,
   signInWithPassword,
@@ -236,16 +238,36 @@ function SentScreen({
 
 // ─── Page principale ───────────────────────────────────────────────────────────
 
-export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
-  const [tab, setTab] = useState<Tab>("signin");
+export function LoginPageClient({
+  inviteOnly,
+  initialTab = "signin",
+  initialCtx,
+}: {
+  inviteOnly: boolean;
+  /** Sprint 76, Bloc 3 : /auth/register ouvre directement sur l'inscription. */
+  initialTab?: Tab;
+  /**
+   * Contexte DÉJÀ normalisé côté serveur (plan / interval / redirect validé par
+   * `safeInternalPath`). Fourni → il fait foi et l'URL n'est plus relue : c'est
+   * le seul moyen de conserver le correctif BUG-10 sur /auth/register, dont la
+   * cible de retour arrive en `?next=` et non en `?redirect=`.
+   */
+  initialCtx?: AuthContext;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  // La page /auth/register ne sert QUE l'inscription : y réécrire l'URL vers
+  // /auth/login ferait mentir la barre d'adresse (le défaut même que ce bloc corrige).
+  const onRegisterPage = pathname === "/auth/register";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [showReset, setShowReset] = useState(false);
   // Contexte porté par l'URL (?redirect / ?plan / ?interval) — embarqué en
   // hidden inputs car les Server Actions n'ont pas accès à l'URL d'origine.
-  const [authCtx, setAuthCtx] = useState<{
-    redirect?: string;
-    plan?: string;
-    interval?: string;
-  }>({});
+  const [authCtx, setAuthCtx] = useState<AuthContext>(initialCtx ?? {});
+  // Champ « Code fondateur » replié par défaut (Bloc 3) : il signalait « c'est
+  // fermé » au moment exact où il faut rassurer. En beta INVITE_ONLY il reste
+  // déplié ET obligatoire, comme avant.
+  const [showInviteCode, setShowInviteCode] = useState(inviteOnly);
   // Email saisi sur le formulaire connexion, repris en pré-remplissage du reset
   // (audit 2026-06-11 : l'utilisateur devait retaper son email).
   const [resetPrefill, setResetPrefill] = useState("");
@@ -275,10 +297,13 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
   const [magicState, magicAction] = useActionState(sendMagicLink, initialState);
 
   // Initialise le tab + le contexte d'auth depuis l'URL.
+  // Court-circuité quand le serveur a déjà normalisé le contexte (/auth/register) :
+  // relire l'URL ici ÉCRASERAIT le `redirect` dérivé de `?next=` et reperdrait BUG-10.
   useEffect(() => {
+    if (initialCtx) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("tab") === "register") setTab("signup");
-    const ctx: { redirect?: string; plan?: string; interval?: string } = {};
+    const ctx: AuthContext = {};
     const r = params.get("redirect");
     if (r && r.startsWith("/") && !r.startsWith("//")) ctx.redirect = r;
     const p = params.get("plan");
@@ -286,7 +311,7 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
     const i = params.get("interval");
     if (i === "monthly" || i === "annual") ctx.interval = i;
     setAuthCtx(ctx);
-  }, []);
+  }, [initialCtx]);
 
   // Détecte les succès qui ouvrent l'écran "email envoyé"
   useEffect(() => {
@@ -311,12 +336,36 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
     if (params.get("error") === "oauth") setOauthError(true);
   }, []);
 
+  /** Query du contexte d'auth, pour ne rien perdre en changeant de page. */
+  function ctxQuery(extra?: Record<string, string>): string {
+    const params = new URLSearchParams({ ...extra });
+    if (authCtx.redirect) params.set("redirect", authCtx.redirect);
+    if (authCtx.plan) params.set("plan", authCtx.plan);
+    if (authCtx.interval) params.set("interval", authCtx.interval);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  }
+
   // Sélectionne un tab ET garde l'URL en phase (sans recharger la page) : on évite
   // que /auth/login?tab=register reste affiché alors que le tab "Connexion" est actif.
   function selectTab(t: Tab) {
-    setTab(t);
     setShowReset(false);
-    const url = t === "signup" ? "/auth/login?tab=register" : "/auth/login";
+    if (onRegisterPage) {
+      // Depuis /auth/register, aller à la connexion est une VRAIE navigation
+      // (le contexte plan/interval/redirect est reporté en query), sinon l'URL
+      // dirait « register » en affichant un formulaire de connexion.
+      if (t === "signin") {
+        router.push(`/auth/login${ctxQuery()}`);
+        return;
+      }
+      setTab("signup");
+      return;
+    }
+    setTab(t);
+    const url =
+      t === "signup"
+        ? `/auth/login${ctxQuery({ tab: "register" })}`
+        : `/auth/login${ctxQuery()}`;
     window.history.replaceState(null, "", url);
   }
 
@@ -364,6 +413,53 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
             </button>
           ))}
         </div>
+
+        {/* ── Google, AU-DESSUS du formulaire (sprint 76, Bloc 3) ──
+            Google pèse 33 % des inscriptions depuis le 09/08 alors qu'il était
+            relégué SOUS trois champs de saisie. On remet la hiérarchie visuelle
+            dans le sens de l'usage constaté. Le gate `!inviteOnly` est INCHANGÉ
+            (sprint 54 : l'OAuth ne peut pas porter de code d'invitation).
+            Masqué en mode reset, qui est un sous-flux. */}
+        {!showReset && !inviteOnly && (
+          <div className="flex flex-col gap-3 mb-5">
+            {oauthError && (
+              <p className="text-[13px] text-coral-500 text-center" role="alert">
+                La connexion Google a échoué. Réessaie.
+              </p>
+            )}
+            <form action={signInWithGoogle}>
+              <button
+                type="submit"
+                className="flex items-center justify-center gap-3 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full cursor-pointer"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                Continuer avec Google
+              </button>
+            </form>
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-[12px] text-ink-500 shrink-0">ou avec ton email</span>
+              <Separator className="flex-1" />
+            </div>
+          </div>
+        )}
 
         {/* ── Mode reset ── */}
         {showReset ? (
@@ -557,41 +653,38 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
                 </p>
               )}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label
-                htmlFor="signup-confirm"
-                className="text-[14px] font-semibold text-ink-900"
-              >
-                Confirme le mot de passe
-              </Label>
-              <PasswordInput
-                id="signup-confirm"
-                name="password_confirm"
-                autoComplete="new-password"
-                onBlur={gateBlur(signupSchema, setSignupErrors)}
-                invalid={!!signupErrors.password_confirm}
-              />
-              <FieldError message={signupErrors.password_confirm} />
-            </div>
             {/* Code fondateur (sprint 68) : optionnel, il OFFRE l'abonnement
                 Local (comp via redeem_comp_code). Le serveur ne l'exige que si
-                INVITE_ONLY=true (gate historique, off) : le libellé suit. */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="signup-invite" className="text-[14px] font-semibold text-ink-900">
-                {inviteOnly ? "Code fondateur" : "Code fondateur (optionnel)"}
-              </Label>
-              <Input
-                id="signup-invite"
-                name="invite_code"
-                type="text"
-                autoComplete="off"
-                placeholder="Ex. FDR-XXXX-XXXX"
-                className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
-              />
-              <p className="text-[12px] text-ink-500">
-                Il active l&rsquo;abonnement Local offert sur ton compte.
-              </p>
-            </div>
+                INVITE_ONLY=true (gate historique, off) : le libellé suit.
+                Sprint 76 : replié derrière un lien hors beta, pour ne pas
+                signaler « c'est fermé » à un visiteur venu de Google. */}
+            {showInviteCode ? (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="signup-invite" className="text-[14px] font-semibold text-ink-900">
+                  {inviteOnly ? "Code fondateur" : "Code fondateur (optionnel)"}
+                </Label>
+                <Input
+                  id="signup-invite"
+                  name="invite_code"
+                  type="text"
+                  autoComplete="off"
+                  placeholder="Ex. FDR-XXXX-XXXX"
+                  required={inviteOnly}
+                  className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
+                />
+                <p className="text-[12px] text-ink-500">
+                  Il active l&rsquo;abonnement Local offert sur ton compte.
+                </p>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowInviteCode(true)}
+                className="self-start text-[13px] text-teal-700 font-medium hover:underline transition-colors"
+              >
+                J&rsquo;ai un code fondateur
+              </button>
+            )}
             {signupState.error && (
               <p className="text-[13px] text-coral-500 -mt-2" role="alert">
                 {signupState.error}
@@ -611,45 +704,16 @@ export function LoginPageClient({ inviteOnly }: { inviteOnly: boolean }) {
           <Separator className="flex-1" />
         </div>
 
-        {/* ── Options sociales ── */}
+        {/* ── Options sociales ──
+            Google est remonté AU-DESSUS du formulaire (sprint 76) : il ne reste
+            ici que le lien magique et Apple. Une seule instance du bouton Google
+            dans le DOM, pour les deux onglets. */}
         <div className="flex flex-col gap-3">
-          {/* Erreur OAuth */}
-          {oauthError && (
+          {/* Erreur OAuth quand le bouton Google est masqué (beta INVITE_ONLY). */}
+          {oauthError && inviteOnly && (
             <p className="text-[13px] text-coral-500 text-center" role="alert">
               La connexion Google a échoué. Réessaie.
             </p>
-          )}
-
-          {/* Google — masqué en beta (INVITE_ONLY) : l'OAuth n'a pas d'endroit pour
-              saisir un code d'invitation, le pont email/mot de passe reste le seul
-              chemin d'inscription tant que la beta fondateurs est fermée (sprint 54). */}
-          {!inviteOnly && (
-          <form action={signInWithGoogle}>
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-3 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full cursor-pointer"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Continuer avec Google
-            </button>
-          </form>
           )}
 
           {/* Lien magique (collapsible) */}
