@@ -107,6 +107,10 @@ function firstFitting(candidates: string[], max: number): string {
  *            « Barracuda : pêche du bord, saisons, techniques et spots » (pas de maille).
  */
 export function buildSpeciesTitle({ meta, content }: SpeciesSeoInput): string {
+  // Sprint 77, Bloc 9 : override manuel pour les fiches à intention d'identification
+  // (cf `EspeceContent.seoTitle`). La formule ci-dessous reste la valeur par défaut
+  // des 23 autres espèces.
+  if (content.seoTitle) return content.seoTitle
   const maille = formatMailleShort(content.regulation.minSizeCm)
   const answer = maille ? `maille ${maille}` : 'pêche du bord'
   // L'année n'a de sens qu'accolée à un chiffre réglementaire (« maille du maigre 2026 »).

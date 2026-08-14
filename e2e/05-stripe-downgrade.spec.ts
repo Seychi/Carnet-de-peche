@@ -7,7 +7,8 @@ import { createHmac } from "node:crypto";
  * On teste la chaîne complète : webhook customer.subscription.deleted signé →
  * handler handleSubscriptionDeleted → subscriptions.status=canceled/plan=discovery
  * → RPC current_tier repasse 'discovery' → la carte RE-VERROUILLE (paywall
- * « 3 spots par département », filtres verrouillés).
+ * « position approchée », filtres verrouillés). Sprint 77 : le bandeau ne parle
+ * plus de « 3 spots par département », un compte gratuit voit tous les spots.
  *
  * Round-trip self-contained sur un compte DÉDIÉ (test_downgrade_29, seed_e2e.sql) :
  *   discovery → (created trialing) local → (deleted) discovery.
@@ -23,7 +24,7 @@ import { createHmac } from "node:crypto";
 const EMAIL = "test_downgrade_29@carnet.test";
 const PASSWORD = "test-carnet-2026";
 const USER_ID = "d0000000-0000-0000-0000-000000000002";
-const PAYWALL = "3 spots par département";
+const PAYWALL = "position approchée";
 
 /** Signature Stripe v1 (HMAC-SHA256 sur `${timestamp}.${payload}`). */
 function stripeSignature(payload: string, secret: string): string {

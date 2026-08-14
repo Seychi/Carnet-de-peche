@@ -21,10 +21,16 @@ const plans = {
     monthly: 0,
     annual: 0,
     annualTotal: 0,
+    // Sprint 77, Bloc 4 : cette colonne décrivait ce qu'un visiteur SANS compte
+    // recevait déjà (« 3 spots populaires par département »), donc elle ne
+    // vendait rien. Depuis la migration 110, le compte gratuit ouvre vraiment la
+    // carte entière ; seules les coordonnées précises restent payantes.
     features: [
       { text: 'Carnet de pêche illimité avec photos', strong: true },
-      { text: '3 spots populaires par département (coords floutées de plusieurs centaines de mètres)' },
-      { text: 'Marées + météo pour ta ville' },
+      { text: 'Tous les spots de France sur la carte (coords floutées de plusieurs centaines de mètres)', strong: true },
+      { text: '7 jours de marées, météo et meilleurs moments sur chaque spot' },
+      { text: 'Toutes les prises déclarées sur chaque spot' },
+      { text: 'Tes spots en favoris, avec alerte quand les conditions y tournent bien' },
       { text: 'Tous les guides éditoriaux' },
       { text: 'Fil régional complet : poste, commente, like, suis' },
       { text: 'Apps iOS / Android en préparation' },
@@ -37,13 +43,19 @@ const plans = {
     annual: 4.08,
     annualTotal: 49,
     badge: 'Le plus populaire',
+    // Sprint 77, Bloc 4 : deux lignes sont tombées parce qu'elles ne décrivent
+    // plus un avantage payant. « Carte complète de ton département » : un compte
+    // gratuit voit désormais tous les spots (migration 110), la différence est
+    // la PRÉCISION, pas la présence. « Score d'activité 0-100 par spot » : le
+    // score de la fiche passe au palier gratuit (matrice du sprint 77).
+    // ⚠️ À trancher par John : faut-il remettre un avantage de score côté Local
+    // (par exemple le score sur les marqueurs de la carte) ?
     features: [
-      { text: 'Carte complète de ton département', strong: true },
+      { text: 'Coordonnées GPS précises de tous les spots', strong: true },
       { text: 'Alerté la veille quand TES conditions arrivent sur TON spot favori', strong: true },
       { text: 'Alertes créneaux optimaux et grandes marées' },
-      { text: 'Coordonnées GPS précises de tous les spots' },
-      { text: "Score d'activité 0-100 par spot" },
       { text: 'Filtres espèces, techniques, marées' },
+      { text: 'Couches avancées de la carte' },
       { text: 'Notifications likes, commentaires, follows' },
       { text: 'Photos HD illimitées' },
     ],

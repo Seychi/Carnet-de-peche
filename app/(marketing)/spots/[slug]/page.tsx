@@ -8,6 +8,7 @@ import { fr } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import { buildSignupHref } from '@/lib/gating/wall'
+import { getUserTier } from '@/lib/auth/tier'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
 import { NearbySpotsSection, type NearbyEntry } from '@/components/spots/NearbySpotsSection'
@@ -127,10 +128,11 @@ async function fetchCatchCount(spotId: string): Promise<number> {
  * AUCUNE coordonnée : la `distance_m` d'un non-abonné est calculée depuis le
  * centroïde de `geom_public`, jamais depuis `geom`.
  *
- * ⚠️ Elle se termine par `where tier in ('local','itinerant') or rn <= 3` : un
- * visiteur ANONYME (donc tout le trafic SEO) en reçoit au maximum 3, quel que
- * soit le rayon. Le repli départemental ci-dessous n'est donc pas l'exception
- * mais le cas courant.
+ * ⚠️ Depuis la migration 110 (sprint 77) elle se termine par
+ * `where tier <> 'anonymous' or rn <= 3` : seul un visiteur ANONYME reste
+ * plafonné à 3 voisins, quel que soit le rayon. Comme l'anonyme porte tout le
+ * trafic SEO, le repli départemental ci-dessous reste le cas courant sur les
+ * pages indexées. Un compte gratuit, lui, reçoit désormais de vrais voisins.
  */
 async function fetchNearbySpots(
   lat: number,
@@ -152,9 +154,25 @@ async function fetchNearbySpots(
  * aucun lien mort possible. `geom` n'est pas lisible par `anon` et n'est pas
  * demandé ici : le SELECT ne porte que des colonnes publiques.
  */
+/**
+ * Hash déterministe (FNV-1a 32 bits) d'un slug. Stable entre deux rendus et
+ * entre deux machines : c'est ce qui permet de faire varier le maillage SANS
+ * rendre la page non déterministe (un tirage aléatoire produirait un HTML
+ * différent à chaque revalidation, et Google verrait des liens qui dansent).
+ */
+function slugHash(slug: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < slug.length; i++) {
+    h ^= slug.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) >>> 0
+  }
+  return h >>> 0
+}
+
 async function fetchDepartmentSpots(
   department: string,
   excludeId: string,
+  originSlug: string,
 ): Promise<{ id: string; slug: string; name: string; species: string[] }[]> {
   const supabase = await createClient()
   const { data } = await supabase
@@ -165,8 +183,25 @@ async function fetchDepartmentSpots(
     .eq('department', department)
     .neq('id', excludeId)
     .order('name', { ascending: true })
-    .limit(NEARBY_MAX + 6)
-  return (data ?? []) as { id: string; slug: string; name: string; species: string[] }[]
+  const rows = (data ?? []) as { id: string; slug: string; name: string; species: string[] }[]
+
+  // ─── Sprint 77, Bloc 5 tâche 2 : sortir le maillage de l'alphabet ──────────
+  // Avant : `.order('name').limit(12)`. Tous les spots d'un département
+  // pointaient donc vers les MÊMES voisins, ceux qui commencent par un A, et
+  // seuls 217 des 416 spots (52 %) recevaient un lien entrant. Constaté en
+  // direct sur Penvins, qui proposait Hoëdic et Belle-Île en remplissage.
+  //
+  // Après : la liste, toujours triée par nom (donc stable), est tournée d'un
+  // décalage dérivé du hash du spot d'ORIGINE. Chaque fiche part donc d'un
+  // endroit différent de l'alphabet, la couverture se répartit sur tout le
+  // département, et le résultat reste parfaitement déterministe.
+  //
+  // Aucune migration : la donnée nécessaire était déjà là. Le `limit` SQL est
+  // retiré parce qu'il tronquait AVANT la rotation, ce qui l'aurait annulée ;
+  // un département plafonne à ~100 lignes de 4 colonnes courtes.
+  if (rows.length === 0) return rows
+  const offset = slugHash(originSlug) % rows.length
+  return [...rows.slice(offset), ...rows.slice(0, offset)].slice(0, NEARBY_MAX + 6)
 }
 
 /** Jamais plus de 50 km : au-delà, « spots à proximité » devient un mensonge. */
@@ -447,7 +482,7 @@ export default async function SpotPage({
   // ne doit jamais casser la page qui fait 80 % des clics Google.
   const [nearbyRaw, deptSpots] = await Promise.all([
     fetchNearbySpots(spot.lat, spot.lng, spot.id).catch(() => []),
-    fetchDepartmentSpots(deptKey, spot.id).catch(() => []),
+    fetchDepartmentSpots(deptKey, spot.id, spot.slug).catch(() => []),
   ])
 
   // Les spots proches d'abord (avec leur distance), complétés par le département
@@ -524,6 +559,46 @@ export default async function SpotPage({
       }
     }
   }
+
+  // ─── Sprint 77, Bloc 2 : la fiche sert TROIS profondeurs, pas deux ──────────
+  // Avant ce sprint, anonyme et compte gratuit recevaient exactement les mêmes
+  // données : créer un compte ne débloquait RIEN ici, et les murs promettaient au
+  // visiteur ce qu'il venait de recevoir (mur mesuré à 1,3 % de clic).
+  //
+  // ⚠️ RÈGLE QUI PRIME SUR TOUT : ce qu'un anonyme ne voit pas est ABSENT DU DOM,
+  // jamais masqué en CSS ni retiré par JS. C'est la raison pour laquelle les
+  // données sont tranchées ICI, avant d'être passées en props : `weekly` et
+  // `tidesByDate` alimentent des composants CLIENT, donc tout ce qu'on leur passe
+  // finit sérialisé dans le payload RSC du HTML servi, « masqué » ou pas. Un
+  // simple `showWeek={false}` en aval aurait laissé les 7 jours dans la page.
+  //
+  // ⚠️ Le SOCLE reste servi à tout le monde, et c'est ce qui rend la coupure sûre
+  // pour le référencement : description, espèces, dangers, accès, marée du jour,
+  // score du jour, spots proches, BreadcrumbList. Le titre, le canonical et le
+  // JSON-LD sont identiques aux trois paliers — aucun n'est calculé à partir du
+  // palier (ils sont produits par `generateMetadata`, qui ne le lit pas). Bot et
+  // humain reçoivent le même HTML : aucune branche sur le `user-agent`, jamais.
+  //
+  // ℹ️ Le palier vient de `getUserTier()` (RPC `current_tier`), pas de `!user` :
+  // la page a désormais trois états. `showSignupWall` reste équivalent à
+  // `isAnonymous` et n'est pas renommé pour ne pas brasser tout le fichier.
+  const tier = await getUserTier()
+  const isAnonymous = tier === 'anonymous'
+  const canSeeWeek = !isAnonymous
+
+  const weeklyForView = canSeeWeek ? weekly : weekly.slice(0, 1)
+  // Les tables annexes sont réduites aux dates réellement rendues, sinon les
+  // jours 2 à 7 repartiraient dans le payload par la bande.
+  const viewDates = new Set(weeklyForView.map((d) => d.date))
+  const pick = <T,>(src: Record<string, T>): Record<string, T> =>
+    canSeeWeek
+      ? src
+      : Object.fromEntries(Object.entries(src).filter(([date]) => viewDates.has(date)))
+  const weatherCodesForView = pick(weatherCodes)
+  const tidesByDateForView = pick(tidesByDate)
+
+  /** Anonyme : les 2 dernières prises. Compte gratuit et plus : toutes. */
+  const catchesForView = isAnonymous ? catches.slice(0, 2) : catches
 
   const ctaHref = user
     ? `/carnet/nouvelle?spot_id=${spot.id}`
@@ -736,13 +811,30 @@ export default async function SpotPage({
               )}
             </div>
 
-            {/* Meilleurs moments */}
-            {weekly.length > 0 && (
+            {/* Meilleurs moments — Sprint 77, Bloc 2.
+                Anonyme : le score DU JOUR seul, qui reste indexable (contenu
+                frais et unique, c'est la condition qui rend la coupure sûre).
+                Compte gratuit et plus : la frise 7 jours.
+                Les données sont déjà tranchées en amont : ce qui n'est pas
+                autorisé n'entre jamais dans le payload RSC. */}
+            {weeklyForView.length > 0 && (
               <SpotBestMomentsSection
-                weekly={weekly}
+                weekly={weeklyForView}
                 spotName={spot.name}
-                weatherCodes={weatherCodes}
-                tidesByDate={tidesByDate}
+                weatherCodes={weatherCodesForView}
+                tidesByDate={tidesByDateForView}
+                showWeek={canSeeWeek}
+              />
+            )}
+
+            {isAnonymous && weeklyForView.length > 0 && (
+              <SignupWall
+                surface="spot_score"
+                spotName={spot.name}
+                redirectTo={`/spots/${slug}`}
+                compact
+                className="mt-4 p-5"
+                track={false}
               />
             )}
 
@@ -753,15 +845,30 @@ export default async function SpotPage({
               </section>
             )}
 
-            {/* Conditions */}
+            {/* Conditions — Sprint 77, Bloc 2.
+                La marée et la météo DU JOUR (`conditions`) restent servies à
+                tout le monde : c'est du socle SEO. Seule la bande 7 jours
+                (`forecastWeek`) passe au palier compte gratuit, et elle est
+                retirée à la source, pas masquée. */}
             {conditions && (
               <SpotConditionsSection
                 spotName={spot.name}
                 lat={spot.lat}
                 lng={spot.lng}
                 conditions={conditions}
-                forecastWeek={forecastWeek}
+                forecastWeek={canSeeWeek ? forecastWeek : undefined}
                 department={deptKey}
+              />
+            )}
+
+            {isAnonymous && conditions && (
+              <SignupWall
+                surface="spot_tides"
+                spotName={spot.name}
+                redirectTo={`/spots/${slug}`}
+                compact
+                className="mt-4 p-5"
+                track={false}
               />
             )}
 
@@ -786,15 +893,34 @@ export default async function SpotPage({
               />
             )}
 
-            {/* Signal social 7 jours (masqué si aucune activité) */}
-            <SpotActivitySection spotId={spot.id} ctaHref={ctaHref} />
+            {/* Signal social 7 jours (masqué si aucune activité).
+                Sprint 77, Bloc 2 : anonyme → les 2 dernières, puis une ligne
+                « N autres prises déclarées ici » qui ouvre le mur. Le compteur
+                agrégé reste public, le k-anonymat K=3 est inchangé. */}
+            <SpotActivitySection
+              spotId={spot.id}
+              ctaHref={ctaHref}
+              maxRecent={isAnonymous ? 2 : 3}
+              signupHref={isAnonymous ? buildSignupHref(`/spots/${slug}`) : undefined}
+            />
 
-            {/* Prises récentes (historique complet) */}
+            {/* Prises récentes (historique complet, tronqué pour un anonyme) */}
             <RecentCatchesSection
-              catches={catches}
+              catches={catchesForView}
               totalCount={catchCount}
               ctaHref={ctaHref}
             />
+
+            {isAnonymous && catches.length > catchesForView.length && (
+              <SignupWall
+                surface="spot_catches"
+                spotName={spot.name}
+                redirectTo={`/spots/${slug}`}
+                compact
+                className="mt-4 p-5"
+                track={false}
+              />
+            )}
 
             {/* Description */}
             {spot.description && (

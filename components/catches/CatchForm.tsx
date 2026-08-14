@@ -21,6 +21,8 @@ import { CityAutocomplete } from '@/components/catches/CityAutocomplete'
 import { GearPicker } from '@/components/catches/GearPicker'
 import { geocodeMunicipality } from '@/lib/geo/geocode'
 import { analytics } from '@/lib/analytics'
+import { writePendingCatch } from '@/lib/drafts/client'
+import { SignupWall } from '@/components/map/SignupBanner'
 import type { CatchRow } from '@/lib/catches/queries'
 import type { GearItem, GearKind } from '@/app/actions/gear'
 
@@ -70,6 +72,10 @@ const SUBMIT_LABELS_EDIT: Record<SubmitPhase, string> = {
   saving: 'Sauvegarde…',
   conditions: 'Conditions en cours…',
 }
+
+// Visiteur sans compte (sprint 77, Bloc 7) : le bouton dit « brouillon », jamais
+// « enregistrer ». Rien n'est en base tant que le carnet n'existe pas.
+const SUBMIT_LABELS_DRAFT = 'Garder ma prise en brouillon'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -153,7 +159,18 @@ function parseOutingContext(params: URLSearchParams): OutingContext | null {
 }
 
 type CatchFormProps = (
-  | { mode: 'create'; spotContext?: SpotContext }
+  | {
+      mode: 'create'
+      spotContext?: SpotContext
+      /**
+       * Inscription différée (sprint 77, Bloc 7) : le visiteur n'a PAS de compte.
+       * Le formulaire se remplit normalement, mais « Loguer » écrit un brouillon
+       * en cookie au lieu d'appeler le serveur, et ouvre le mur `pending_catch`.
+       * ⚠️ Exige un `spotContext` : le brouillon ne transporte aucune coordonnée,
+       * c'est le spot qui porte le lieu.
+       */
+      anonymousDraft?: boolean
+    }
   | {
       mode: 'edit'
       catchId: string
@@ -184,6 +201,9 @@ export function CatchForm(props: CatchFormProps) {
   const existingPhotoUrl = props.mode === 'edit' ? props.existingPhotoUrl : null
   const spotContext = props.mode === 'create' ? props.spotContext : undefined
   const gearItems = props.gearItems ?? []
+  // Brouillon anonyme (sprint 77, Bloc 7) : jamais en édition, jamais sans spot.
+  const anonymousDraft =
+    props.mode === 'create' && props.anonymousDraft === true && !!props.spotContext
 
   // Contexte « loguer à plusieurs » (sprint 50) : pré-remplissage SANS FK ni coord.
   // Ignoré en édition et quand un spot pilote déjà le flow (le spot prime). La prise
@@ -208,6 +228,13 @@ export function CatchForm(props: CatchFormProps) {
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>('idle')
   const submittedRef = useRef(false)
   const lastFieldRef = useRef('')
+
+  // Inscription différée (sprint 77, Bloc 7) : le brouillon d'un visiteur sans
+  // compte est écrit en cookie, et le mur `pending_catch` s'ouvre sous le
+  // formulaire. Rien n'est enregistré tant qu'il n'a pas créé son carnet.
+  // 'failed' = cookie refusé (navigateur restrictif) : on le DIT, on ne laisse
+  // jamais croire que la saisie est gardée quelque part.
+  const [draftState, setDraftState] = useState<'idle' | 'saved' | 'failed'>('idle')
 
   // Célébration (Sprint 61) : record / nouvelle espèce / badge tombé au log. On garde
   // la destination en attente pour naviguer À LA FERMETURE de l'overlay (pas avant).
@@ -265,7 +292,12 @@ export function CatchForm(props: CatchFormProps) {
         latitude: spotContext?.lat ?? draft?.latitude,
         longitude: spotContext?.lng ?? draft?.longitude,
         location_label: spotContext?.name ?? draft?.location_label,
-        privacy: draft?.privacy ?? 'private',
+        // Sprint 77, Bloc 8 : la prise part PUBLIQUE par défaut (le fil n'avait
+        // que 7 prises publiques sur 26). Le choix reste montré à l'écran, sans
+        // menu à ouvrir, et le coin du pêcheur reste protégé (position exacte
+        // jamais publiée, k-anon K=3, spot flouté). Chemin CRÉATION uniquement :
+        // l'édition (rowToDefaults) garde la valeur déjà enregistrée.
+        privacy: draft?.privacy ?? 'public',
         precise_for_friends: draft?.precise_for_friends ?? true,
         reveal_precise_to_public: draft?.reveal_precise_to_public ?? false,
         // Espèce : pré-remplie depuis la sortie si fournie, sinon depuis le brouillon.
@@ -299,7 +331,7 @@ export function CatchForm(props: CatchFormProps) {
   const watchedGearId = watch('gear_id')
   const watchedSizeCm = watch('size_cm')
   const watchedNotes = watch('notes') ?? ''
-  const watchedPrivacy = watch('privacy') ?? 'private'
+  const watchedPrivacy = watch('privacy') ?? 'public'
   const watchedLat = watch('latitude')
   const watchedLng = watch('longitude')
   const watchedLabel = watch('location_label') ?? ''
@@ -452,6 +484,33 @@ export function CatchForm(props: CatchFormProps) {
   }
 
   const onSubmit: SubmitHandler<CreateCatchInput> = async (data) => {
+    // ── Visiteur sans compte (sprint 77, Bloc 7) ────────────────────────────
+    // On ne demande le compte QU'ICI, une fois la saisie faite. Le brouillon
+    // part en cookie (aucune requête, aucune ligne en base) et le mur s'ouvre.
+    if (anonymousDraft && spotContext) {
+      const written = writePendingCatch({
+        spot_id: spotContext.id,
+        spot_slug: spotContext.slug,
+        species: data.species,
+        technique: data.technique,
+        size_cm: data.size_cm,
+        weight_kg: data.weight_kg,
+        caught_at: data.caught_at,
+        released: data.released ?? true,
+        privacy: data.privacy ?? 'public',
+      })
+      submittedRef.current = true
+      analytics.pendingCatchStarted({ species: data.species, technique: data.technique })
+      setDraftState(written ? 'saved' : 'failed')
+      // Le mur est en bas du formulaire : on l'amène sous les yeux.
+      requestAnimationFrame(() => {
+        document
+          .getElementById('catch-pending-wall')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+      return
+    }
+
     // Mesure cochée sans photo (ni nouvelle ni existante) : bloque AVANT
     // l'upload, message doux sous la section mesure (sprint 69).
     if (data.is_measured && !photoFile && !data.photo_path) {
@@ -699,13 +758,17 @@ export function CatchForm(props: CatchFormProps) {
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => router.replace('/carnet/nouvelle')}
-            className="shrink-0 text-[12px] text-teal-600 underline underline-offset-2 hover:text-teal-800 whitespace-nowrap"
-          >
-            Changer de spot
-          </button>
+          {/* Sans compte, le spot est le seul lieu possible (le brouillon ne
+              transporte aucune coordonnée) : pas de « changer de spot ». */}
+          {!anonymousDraft && (
+            <button
+              type="button"
+              onClick={() => router.replace('/carnet/nouvelle')}
+              className="shrink-0 text-[12px] text-teal-600 underline underline-offset-2 hover:text-teal-800 whitespace-nowrap"
+            >
+              Changer de spot
+            </button>
+          )}
         </div>
       )}
 
@@ -805,8 +868,10 @@ export function CatchForm(props: CatchFormProps) {
 
           {/* ── Aide à la mesure honnête (WS-D sprint 39, durci sprint 69) ──
               « Mesurée », JAMAIS « vérifiée » : la vérif IA arrive sur mobile.
-              Case + longueur réelle + objet de référence + PHOTO obligatoire. */}
-          <div className="mt-5 border-t border-sand-200 pt-4">
+              Case + longueur réelle + objet de référence + PHOTO obligatoire.
+              Masquée en brouillon anonyme : sans photo, la mesure serait refusée
+              au moment du rejeu, et le brouillon serait perdu à l'arrivée. */}
+          <div className={`mt-5 border-t border-sand-200 pt-4${anonymousDraft ? ' hidden' : ''}`}>
             <Controller
               name="is_measured"
               control={control}
@@ -1221,59 +1286,82 @@ export function CatchForm(props: CatchFormProps) {
         />
       </Card>
 
-      {/* ── Section 6 : Photo ── */}
-      <Card>
-        <SectionTitle>Photo</SectionTitle>
-        <PhotoInput
-          onChange={(f) => {
-            setPhotoFile(f)
-            if (f) setMeasuredPhotoError(null)
-          }}
-          className="mt-3"
-          initialUrl={isEdit ? existingPhotoUrl : null}
-        />
-      </Card>
+      {/* ── Section 6 : Photo ──
+          Masquée en brouillon anonyme : une photo ne tient pas dans un cookie.
+          On le dit franchement plutôt que de la laisser se perdre en silence. */}
+      {anonymousDraft ? (
+        <Card>
+          <SectionTitle>Photo</SectionTitle>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-500">
+            La photo s&rsquo;ajoute une fois ton carnet créé : elle ne tient pas dans un brouillon.
+            Tu pourras la mettre juste après, sur la prise.
+          </p>
+        </Card>
+      ) : (
+        <Card>
+          <SectionTitle>Photo</SectionTitle>
+          <PhotoInput
+            onChange={(f) => {
+              setPhotoFile(f)
+              if (f) setMeasuredPhotoError(null)
+            }}
+            className="mt-3"
+            initialUrl={isEdit ? existingPhotoUrl : null}
+          />
+        </Card>
+      )}
 
       {/* ── Section 7 : Notes & Confidentialité ── */}
       <Card>
-        <SectionTitle>Notes & Confidentialité</SectionTitle>
+        <SectionTitle>{anonymousDraft ? 'Confidentialité' : 'Notes & Confidentialité'}</SectionTitle>
 
-        <div className="mt-3">
-          <div className="flex justify-between items-baseline mb-1.5">
-            <label htmlFor="notes" className="text-[13px] text-ink-600">Notes</label>
-            <span
-              className={`text-[11px] ${watchedNotes.length > 900 ? 'text-amber-600 font-medium' : 'text-slate-400'}`}
-            >
-              {watchedNotes.length}/1000
-            </span>
+        {/* Notes : masquées en brouillon anonyme (le cookie ne transporte aucun
+            texte libre, et perdre une note à l'inscription serait pire que de ne
+            pas la proposer). Elles reviennent dès que le carnet existe. */}
+        {!anonymousDraft && (
+          <div className="mt-3">
+            <div className="flex justify-between items-baseline mb-1.5">
+              <label htmlFor="notes" className="text-[13px] text-ink-600">Notes</label>
+              <span
+                className={`text-[11px] ${watchedNotes.length > 900 ? 'text-amber-600 font-medium' : 'text-slate-400'}`}
+              >
+                {watchedNotes.length}/1000
+              </span>
+            </div>
+            <textarea
+              id="notes"
+              {...register('notes')}
+              {...trackFocus('notes')}
+              placeholder="Vent, technique de récupération, ambiance du spot…"
+              rows={3}
+              maxLength={1000}
+              className="w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 resize-none placeholder:text-slate-400"
+            />
           </div>
-          <textarea
-            id="notes"
-            {...register('notes')}
-            {...trackFocus('notes')}
-            placeholder="Vent, technique de récupération, ambiance du spot…"
-            rows={3}
-            maxLength={1000}
-            className="w-full border border-sand-200 rounded-[10px] px-3 py-2.5 text-[14px] outline-none focus:border-teal-500 resize-none placeholder:text-slate-400"
-          />
-        </div>
+        )}
 
+        {/* ── Visibilité de la prise (sprint 77, Bloc 8) ──
+            Trois options À L'ÉCRAN, publique en tête et présélectionnée : jamais
+            un menu à ouvrir, jamais un réglage enterré. Le rappel de protection
+            sous les boutons est VRAI et vérifiable (cf CLAUDE.md §8 et migration
+            040 pour le k-anonymat) : c'est ce qui rend le public acceptable. */}
         <div className="mt-4">
-          <label className="text-[13px] text-ink-600">Confidentialité</label>
+          <label className="text-[13px] text-ink-600">Qui voit cette prise</label>
           <Controller
             name="privacy"
             control={control}
             render={({ field }) => (
               <div className="mt-2 flex rounded-[10px] border border-sand-200 overflow-hidden">
                 {[
-                  { val: 'private', label: 'Privée' },
-                  { val: 'friends', label: 'Abonnés' },
                   { val: 'public', label: 'Publique' },
+                  { val: 'friends', label: 'Abonnés' },
+                  { val: 'private', label: 'Privée' },
                 ].map((opt, i) => (
                   <button
                     key={opt.val}
                     type="button"
                     onClick={() => { field.onChange(opt.val); field.onBlur() }}
+                    aria-pressed={field.value === opt.val}
                     className={`flex-1 py-2.5 text-[13px] font-medium transition-colors ${
                       i > 0 ? 'border-l border-sand-200' : ''
                     } ${
@@ -1293,8 +1381,16 @@ export function CatchForm(props: CatchFormProps) {
             {watchedPrivacy === 'friends' &&
               'Visible par tes abonnés avec coords précises (si activé).'}
             {watchedPrivacy === 'public' &&
-              'Visible par la communauté avec coords floutées de plusieurs centaines de mètres.'}
+              'Visible par la communauté, sans ta position exacte.'}
           </p>
+          <div className="mt-2.5 rounded-[10px] border border-sand-200 bg-slate-50 px-3 py-2.5">
+            <p className="text-[12px] leading-relaxed text-ink-600">
+              <span className="font-semibold text-ink-700">Ton coin reste ton coin.</span> Une prise
+              publique ne publie jamais ta position exacte : le point est décalé de plusieurs
+              centaines de mètres, et il faut au moins 3 pêcheurs différents sur une zone pour
+              qu&rsquo;elle apparaisse sur la carte de chaleur.
+            </p>
+          </div>
         </div>
 
         <div className="mt-4 space-y-3 pt-3 border-t border-sand-200">
@@ -1332,6 +1428,33 @@ export function CatchForm(props: CatchFormProps) {
         </div>
       </Card>
 
+      {/* ── Mur d'inscription différée (sprint 77, Bloc 7) ──
+          Il n'arrive PAS avant le geste, mais après : la saisie est faite, le
+          brouillon est posé, et on nomme ce qui est sur le point d'être perdu.
+          Copie de perte : `wallCopyForSurface('pending_catch')`. */}
+      {anonymousDraft && spotContext && (
+        <div id="catch-pending-wall" className="scroll-mt-20">
+          {draftState === 'idle' ? (
+            <p className="rounded-[14px] border border-sand-200 bg-slate-50 px-4 py-3 text-[12.5px] leading-relaxed text-ink-500">
+              Remplis ta prise, on te demandera le compte à la fin. Rien n&rsquo;est enregistré tant
+              que ton carnet n&rsquo;existe pas.
+            </p>
+          ) : (
+            <SignupWall
+              surface="pending_catch"
+              spotName={spotContext.name}
+              redirectTo={`/spots/${spotContext.slug}`}
+              tone="dark"
+              intro={
+                draftState === 'saved'
+                  ? 'Ta saisie est gardée en brouillon sur cet appareil. Elle n’est pas encore enregistrée.'
+                  : 'Ton navigateur refuse de garder le brouillon : crée ton carnet maintenant, sans quitter cette page, pour ne rien perdre.'
+              }
+            />
+          )}
+        </div>
+      )}
+
       {/* ── Footer sticky ── */}
       <div
         className="fixed bottom-0 inset-x-0 z-50 bg-ink-900 border-t border-white/10 px-4 py-3"
@@ -1352,7 +1475,13 @@ export function CatchForm(props: CatchFormProps) {
           className="w-full py-4 rounded-[14px] bg-teal-500 text-navy-950 font-bold text-[16px] transition-colors hover:bg-teal-300 disabled:opacity-60 flex items-center justify-center gap-2"
         >
           {submitPhase !== 'idle' && <Loader2 size={18} className="animate-spin" />}
-          {isEdit ? SUBMIT_LABELS_EDIT[submitPhase] : SUBMIT_LABELS[submitPhase]}
+          {anonymousDraft
+            ? draftState === 'idle'
+              ? SUBMIT_LABELS_DRAFT
+              : 'Mettre à jour mon brouillon'
+            : isEdit
+              ? SUBMIT_LABELS_EDIT[submitPhase]
+              : SUBMIT_LABELS[submitPhase]}
         </button>
       </div>
 

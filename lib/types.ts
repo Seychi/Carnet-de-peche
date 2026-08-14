@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           alert_threshold: number
           alerts_enabled: boolean
+          big_tide_alert_enabled: boolean
           channel_email: boolean
           channel_push: boolean
           updated_at: string
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           alert_threshold?: number
           alerts_enabled?: boolean
+          big_tide_alert_enabled?: boolean
           channel_email?: boolean
           channel_push?: boolean
           updated_at?: string
@@ -34,6 +36,7 @@ export type Database = {
         Update: {
           alert_threshold?: number
           alerts_enabled?: boolean
+          big_tide_alert_enabled?: boolean
           channel_email?: boolean
           channel_push?: boolean
           updated_at?: string
@@ -76,6 +79,48 @@ export type Database = {
           },
           {
             foreignKeyName: "alerts_sent_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots_for_viewer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      big_tide_alerts_sent: {
+        Row: {
+          range_m: number
+          sent_at: string
+          spot_id: string
+          threshold_m: number
+          user_id: string
+          window_date: string
+        }
+        Insert: {
+          range_m: number
+          sent_at?: string
+          spot_id: string
+          threshold_m: number
+          user_id: string
+          window_date: string
+        }
+        Update: {
+          range_m?: number
+          sent_at?: string
+          spot_id?: string
+          threshold_m?: number
+          user_id?: string
+          window_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "big_tide_alerts_sent_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "big_tide_alerts_sent_spot_id_fkey"
             columns: ["spot_id"]
             isOneToOne: false
             referencedRelation: "spots_for_viewer"

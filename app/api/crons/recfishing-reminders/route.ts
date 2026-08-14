@@ -86,10 +86,14 @@ export async function GET(request: NextRequest) {
     // (07:00 UTC) calcule AUJOURD'HUI : mauvais créneau, on n'y touche pas.
     // BEST-EFFORT STRICT (modèle bloc co-pêchage) : un échec ici ne casse jamais les
     // blocs précédents ni la réponse.
+    // Sprint 77 : le même run sert aussi l'alerte GRANDE MARÉE sur spot favori
+    // (opt-in dédié, tous tiers), en seconde passe et sous le même budget de
+    // 1 alerte / utilisateur / jour. Rien à câbler ici : c'est le même greffon.
     let spotAlerts: SpotAlertsRunResult = {
       quietHours: false,
       optedIn: 0,
       sent: 0,
+      bigTideSent: 0,
       deduped: 0,
       skipped: 0,
       truncated: 0,

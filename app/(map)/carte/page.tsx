@@ -68,7 +68,14 @@ async function fetchSpots(
 
   const spots = data.map(toSpotMarker)
 
-  if (tier === 'anonymous' || tier === 'discovery') {
+  // ⚠️ Sprint 77, Bloc 1 : ce plafond applicatif (double sécurité posée au
+  // sprint 11.6, en complément du cap SQL) incluait `discovery`. La migration 110
+  // ouvre la carte au compte gratuit côté base, mais SANS cette ligne le gain
+  // serait resté invisible : la page aurait retranché à 3 ce que la RPC venait
+  // de renvoyer en entier. C'est LE changement de tête du sprint, il se jouait ici
+  // autant que dans le SQL.
+  // Seul l'anonyme reste plafonné, exactement comme la clause SQL correspondante.
+  if (tier === 'anonymous') {
     return limitSpotsPerDept(spots, 3)
   }
   return spots

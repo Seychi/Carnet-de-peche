@@ -18,6 +18,14 @@ type SpotBestMomentsSectionProps = {
   spotName: string
   weatherCodes?: Record<string, number>
   tidesByDate?: Record<string, { high?: string; low?: string }>
+  /**
+   * Sprint 77, Bloc 2 : la frise 7 jours passe au palier compte gratuit.
+   * `false` (anonyme) ne rend QUE le détail du jour, et la frise est alors
+   * absente du DOM, jamais masquée en CSS. Le score du jour, lui, reste servi
+   * à tout le monde : c'est un contenu frais et unique, et c'est ce qui rend
+   * cette coupure sûre pour le référencement.
+   */
+  showWeek?: boolean
 }
 
 export function SpotBestMomentsSection({
@@ -25,9 +33,14 @@ export function SpotBestMomentsSection({
   spotName,
   weatherCodes,
   tidesByDate,
+  showWeek = true,
 }: SpotBestMomentsSectionProps) {
   const [selectedDate, setSelectedDate] = useState(weekly[0]?.date ?? '')
-  const selectedDaily = weekly.find(d => d.date === selectedDate) ?? weekly[0]
+  // Sans la frise, aucun moyen de changer de jour : on force le jour même plutôt
+  // que de laisser un état sélectionné inaccessible.
+  const selectedDaily = showWeek
+    ? (weekly.find(d => d.date === selectedDate) ?? weekly[0])
+    : weekly[0]
 
   if (!selectedDaily) return null
 
@@ -41,14 +54,16 @@ export function SpotBestMomentsSection({
         <HowItWorksDialog />
       </div>
 
-      {/* Calendrier 7 jours */}
-      <WeeklyCalendar
-        weekly={weekly}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        weatherCodes={weatherCodes}
-        tidesByDate={tidesByDate}
-      />
+      {/* Calendrier 7 jours — palier compte gratuit (absent du DOM en anonyme) */}
+      {showWeek && (
+        <WeeklyCalendar
+          weekly={weekly}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          weatherCodes={weatherCodes}
+          tidesByDate={tidesByDate}
+        />
+      )}
 
       {/* Détail du jour sélectionné */}
       <DayBestMoments daily={selectedDaily} showMoonInfo />

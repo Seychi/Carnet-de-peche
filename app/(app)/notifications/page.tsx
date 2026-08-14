@@ -12,6 +12,7 @@ import { MarkAllRead } from './MarkAllRead'
 import { PushSettingsToggle } from '@/components/notifications/PushSettingsToggle'
 import { NotificationTypeToggles } from '@/components/notifications/NotificationTypeToggles'
 import { WeeklyEmailToggle } from '@/components/notifications/WeeklyEmailToggle'
+import { BigTideAlertToggle } from '@/components/notifications/BigTideAlertToggle'
 import {
   AlertSettingsPanel,
   type WatchedFavorite,
@@ -73,8 +74,10 @@ function describe(n: AppNotification): { icon: typeof Bell; label: string } {
       return { icon: Trophy, label: `${who} t’a dépassé dans un classement 🎣` }
     case 'season_recap':
       return { icon: Medal, label: 'Résultats de fin de saison 🎣' }
+    // Un seul type pour deux alertes (fenêtre perso S72, grande marée S77) : le
+    // libellé reste neutre, le detail chiffré vit dans preview_text.
     case 'spot_alert':
-      return { icon: BellRing, label: 'Fenêtre à venir sur un de tes spots favoris 🎣' }
+      return { icon: BellRing, label: 'Alerte sur un de tes spots favoris 🎣' }
     default:
       return { icon: Bell, label: `${who} a interagi avec toi` }
   }
@@ -106,7 +109,9 @@ export default async function NotificationsPage() {
   const [{ data: alertRow }, { data: favoriteRows }, { data: profileRow }] = await Promise.all([
     supabase
       .from('alert_settings')
-      .select('alerts_enabled, channel_push, channel_email, alert_threshold')
+      .select(
+        'alerts_enabled, channel_push, channel_email, alert_threshold, big_tide_alert_enabled',
+      )
       .eq('user_id', user.id)
       .maybeSingle(),
     supabase
@@ -317,6 +322,17 @@ export default async function NotificationsPage() {
             spam, désinscription en un clic.
           </p>
           <WeeklyEmailToggle initial={profileRow?.weekly_window_optin ?? false} />
+        </div>
+
+        {/* Alerte grande marée (sprint 77) : GRATUITE, tous tiers, opt-in dédié.
+            Placée AVANT le panneau d'alertes payantes ci-dessous pour qu'un compte
+            Découverte trouve d'abord ce à quoi il a droit. Le déclencheur est un
+            marnage MESURÉ, jamais un coefficient (le projet n'en calcule aucun). */}
+        <div className="mt-4 rounded-[14px] border border-sand-200 bg-white px-4 py-4">
+          <BigTideAlertToggle
+            initial={alertRow?.big_tide_alert_enabled ?? false}
+            favoritesCount={(favoriteRows ?? []).length}
+          />
         </div>
 
         {/* Alertes par port (sprint 72) : opt-in Local/Itinérant. Pour Découverte,

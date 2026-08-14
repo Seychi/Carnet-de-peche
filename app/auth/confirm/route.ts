@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeInternalPath } from "@/lib/auth/redirect";
+import { replayPendingDrafts } from "@/lib/drafts/replay";
 
 // Vérification des liens reçus PAR EMAIL (reset mot de passe, confirmation
 // d'inscription, magic link…) via `token_hash` + `verifyOtp`.
@@ -32,9 +33,26 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
 
     if (!error) {
+      // Rejeu des brouillons d'inscription différée (sprint 77, Bloc 7) : ce
+      // chemin sert la confirmation d'inscription et le lien magique en
+      // token_hash. Un reset de mot de passe n'a normalement aucun brouillon en
+      // attente ; s'il en a un, c'est qu'il vient de le poser, et le rejouer est
+      // exactement ce qu'il veut. Ne lève jamais.
+      // ⚠️ JAMAIS sur un `recovery` : le visiteur DOIT atterrir sur la page de
+      // saisie du nouveau mot de passe. Son brouillon n'est pas purgé, il sera
+      // rejoué à la prochaine authentification réelle.
+      let destination = next;
+      if (type !== "recovery") {
+        try {
+          const { returnPath } = await replayPendingDrafts();
+          if (returnPath) destination = returnPath;
+        } catch (err) {
+          console.error("[auth/confirm] rejeu des brouillons échoué :", err);
+        }
+      }
       // La session de récupération est désormais posée en cookie → la page
       // /auth/reset-password peut appeler updateUser({ password }) directement.
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
 
     console.error("[auth/confirm]", error.message);

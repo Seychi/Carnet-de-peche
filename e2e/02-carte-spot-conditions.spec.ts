@@ -16,7 +16,7 @@ test.use({ storageState: storageFor(ACCOUNTS.local29) });
 test("connexion → carte → fiche spot → conditions visibles", async ({ page }) => {
   // --- Carte : un tier local ne voit PAS le paywall discovery -------------
   await page.goto("/carte");
-  await expect(page.getByText("3 spots par département")).toHaveCount(0);
+  await expect(page.getByText("position approchée")).toHaveCount(0);
 
   // --- Fiche spot (SSR, seed.sql) ------------------------------------------
   await page.goto("/spots/pointe-du-raz");

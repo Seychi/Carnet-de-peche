@@ -86,6 +86,20 @@ export const analytics = {
   spotToSpotClicked(props: { from_slug: string; to_slug: string }): void {
     capture('spot_to_spot_clicked', props)
   },
+  // ── Inscription différée (sprint 77, Bloc 7) ────────────────────────────────
+  // On mesure le GESTE d'un visiteur sans compte, puis sa transformation en
+  // ligne réelle au rejeu (`pending_replayed`, émis côté serveur). Zéro PII :
+  // uniquement des compteurs et une surface. Le slug du spot n'est pas envoyé,
+  // un spot mis de côté est une information de pêcheur.
+  /** Un visiteur anonyme met un spot de côté. `count` = total en brouillon. */
+  pendingFavoriteCreated(props: { count: number }): void {
+    capture('pending_favorite_created', props)
+  },
+  /** Un visiteur anonyme a rempli une prise et l'a gardée en brouillon. */
+  pendingCatchStarted(props: { species: string; technique: string }): void {
+    capture('pending_catch_started', props)
+  },
+
   /** Clic sur un CTA de la home (conversion funnel). `cta` = identifiant du bouton. */
   homeCtaClicked(props: { cta: string }): void {
     capture('home_cta_clicked', props)

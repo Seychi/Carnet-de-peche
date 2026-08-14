@@ -45,9 +45,14 @@ export async function GET(request: NextRequest) {
   }
 
   // Garde de tier serveur (double sécurité avec le plafond SQL de la migration 029) :
-  // anon = 3 max, discovery = 5 max, local/itinerant = tout (la RPC limite déjà à 100).
+  // anon = 3 max, tout compte = tout (la RPC limite déjà à 100).
+  //
+  // ⚠️ Sprint 77, Bloc 1 : `discovery` était plafonné à 5 ici. La migration 110
+  // lui ouvre `nearby_spots` côté base ; ce cap applicatif l'aurait retranché
+  // juste après. Il suit désormais la même règle que la clause SQL : seul
+  // l'anonyme est plafonné. La précision des coordonnées, elle, ne bouge pas.
   const tier = await getUserTier()
-  const cap = tier === 'local' || tier === 'itinerant' ? 100 : tier === 'discovery' ? 5 : 3
+  const cap = tier === 'anonymous' ? 3 : 100
 
   return NextResponse.json(((data ?? []) as NearbySpot[]).slice(0, cap))
 }

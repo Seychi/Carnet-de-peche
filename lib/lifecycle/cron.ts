@@ -1,11 +1,16 @@
 import 'server-only'
 import type { createAdminClient } from '@/lib/supabase/admin'
 import { isExactlyDaysAfterInParis, isParisFriday, parisIsoWeekKey } from './dates'
-import { journalRowKey } from './kinds'
+import { J1_WINDOW_DAYS, J2_FIRST_CATCH_DAYS, J3_IMPORT_DAYS, journalRowKey } from './kinds'
 import { selectLifecycleTargets, type LifecycleProfile } from './targeting'
-import { sendFirstWindowEmail, sendImportNudgeEmail, sendWeeklyWindowEmail } from './send'
+import {
+  sendFirstCatchNudgeEmail,
+  sendFirstWindowEmail,
+  sendImportNudgeEmail,
+  sendWeeklyWindowEmail,
+} from './send'
 
-// ─── Greffon LIFECYCLE du cron `personal-window` (sprint 74) ──────────────────
+// ─── Greffon LIFECYCLE du cron `personal-window` (sprint 74, étendu S77) ──────
 //
 // PAS de 5e cron (contrainte du plan Hobby, répétée S40 → S72) : ce greffon vit
 // dans le cron quotidien de 07:00 UTC, soit ~09:00 Paris. Bonne heure d'envoi
@@ -14,7 +19,13 @@ import { sendFirstWindowEmail, sendImportNudgeEmail, sendWeeklyWindowEmail } fro
 // TOUT est en requêtes GROUPÉES (exigence du brief : pas de N+1). Le coût DB du
 // greffon est de 4 requêtes fixes, quel que soit le nombre d'inscrits :
 //   1) profils onboardés  2) prises des candidats  3) journal des candidats
-//   4) spots favoris des cibles J+1
+//   4) spots favoris des cibles J+1 et J+2
+//
+// ⚠️ CADENCE (sprint 77) : la relance J+2 ajoutée ici porte à TROIS le nombre de
+// relances consécutives visant un compte à zéro prise (J+1, J+2, J+3), en plus du
+// welcome de J+0. Les offsets vivent dans ./kinds pour que desserrer la séquence
+// reste une décision produit à une ligne. Aucune de ces relances ne part à un
+// compte qui a déjà logué : c'est le gate d'honnêteté de selectLifecycleTargets.
 // Les envois eux-mêmes sont séquentiels et fail-soft, sous time-box.
 //
 // La sélection est déléguée à `selectLifecycleTargets` (pur, testé sans DB) :
@@ -24,6 +35,8 @@ type Admin = ReturnType<typeof createAdminClient>
 
 export type LifecycleGreffonResult = {
   j1: number
+  /** Relance J+2 « logue ta première prise » (sprint 77, Bloc 8.4). */
+  j2: number
   j3: number
   weekly: number
   /** Cibles retenues mais non envoyées (échec d'envoi, opt-out, créneau indisponible). */
@@ -32,7 +45,14 @@ export type LifecycleGreffonResult = {
   timedOut: boolean
 }
 
-const EMPTY: LifecycleGreffonResult = { j1: 0, j3: 0, weekly: 0, failed: 0, timedOut: false }
+const EMPTY: LifecycleGreffonResult = {
+  j1: 0,
+  j2: 0,
+  j3: 0,
+  weekly: 0,
+  failed: 0,
+  timedOut: false,
+}
 
 /**
  * Envoie les emails de cycle de vie dus aujourd'hui.
@@ -80,7 +100,14 @@ export async function runLifecycleGreffon(
       if (!p.onboardedAt || !p.dept) return false
       const at = new Date(p.onboardedAt)
       if (Number.isNaN(at.getTime())) return false
-      return isExactlyDaysAfterInParis(now, at, 1) || isExactlyDaysAfterInParis(now, at, 3)
+      // Offsets centralisés dans ./kinds (cadence = décision produit, cf le bloc
+      // ⚠️ CADENCE de ce fichier) : le pré-filtre doit rester aligné sur eux,
+      // sinon une cible serait éliminée AVANT selectLifecycleTargets.
+      return (
+        isExactlyDaysAfterInParis(now, at, J1_WINDOW_DAYS) ||
+        isExactlyDaysAfterInParis(now, at, J2_FIRST_CATCH_DAYS) ||
+        isExactlyDaysAfterInParis(now, at, J3_IMPORT_DAYS)
+      )
     })
     const weeklyCandidates = friday
       ? profiles.filter((p) => p.weeklyWindowOptin && p.dept)
@@ -125,14 +152,16 @@ export async function runLifecycleGreffon(
 
     const targets = selectLifecycleTargets(profiles, hasCatch, alreadySent, now)
 
-    // 5) Spot favori des cibles J+1 (pour nommer le spot dans l'email). Groupé,
-    //    et sans coordonnée : on ne sort que name + slug.
-    const favoriteByUser = new Map<string, { name: string; slug: string }>()
-    if (targets.j1.length > 0) {
+    // 5) Spot favori des cibles J+1 et J+2 (pour nommer le spot dans l'email et,
+    //    au J+2, pré-remplir /carnet/nouvelle?spot_id=…). Groupé, et sans
+    //    coordonnée : on ne sort que id + name + slug.
+    const favoriteByUser = new Map<string, { id: string; name: string; slug: string }>()
+    const favoriteTargets = Array.from(new Set([...targets.j1, ...targets.j2]))
+    if (favoriteTargets.length > 0) {
       const { data: favRows } = await admin
         .from('favorite_spots')
-        .select('user_id, spots(name, slug)')
-        .in('user_id', targets.j1)
+        .select('user_id, spot_id, spots(name, slug)')
+        .in('user_id', favoriteTargets)
         .order('created_at', { ascending: true })
       for (const row of favRows ?? []) {
         const userId = row.user_id as string
@@ -143,13 +172,24 @@ export async function runLifecycleGreffon(
         const spot = Array.isArray(embed) ? embed[0] : embed
         const named = spot as { name?: string; slug?: string } | null
         if (named?.name && named.slug) {
-          favoriteByUser.set(userId, { name: named.name, slug: named.slug })
+          favoriteByUser.set(userId, {
+            id: row.spot_id as string,
+            name: named.name,
+            slug: named.slug,
+          })
         }
       }
     }
 
     const deptById = new Map(profiles.map((p) => [p.id, p.dept]))
-    const result: LifecycleGreffonResult = { j1: 0, j3: 0, weekly: 0, failed: 0, timedOut: false }
+    const result: LifecycleGreffonResult = {
+      j1: 0,
+      j2: 0,
+      j3: 0,
+      weekly: 0,
+      failed: 0,
+      timedOut: false,
+    }
 
     // 6) Envois. Chaque utilisateur est isolé : un échec n'arrête ni la boucle ni
     //    le cron. Les fonctions d'envoi ne throw déjà pas, le try/catch couvre le
@@ -165,6 +205,11 @@ export async function runLifecycleGreffon(
             now,
           ),
         bump: () => result.j1++,
+      })),
+      ...targets.j2.map((userId) => ({
+        userId,
+        run: () => sendFirstCatchNudgeEmail(userId, favoriteByUser.get(userId) ?? null),
+        bump: () => result.j2++,
       })),
       ...targets.j3.map((userId) => ({
         userId,
@@ -182,7 +227,8 @@ export async function runLifecycleGreffon(
       if (Date.now() > deadlineMs) {
         result.timedOut = true
         console.warn('[cron lifecycle] time-box atteinte, reste reporté', {
-          restants: jobs.length - (result.j1 + result.j3 + result.weekly + result.failed),
+          restants:
+            jobs.length - (result.j1 + result.j2 + result.j3 + result.weekly + result.failed),
         })
         break
       }

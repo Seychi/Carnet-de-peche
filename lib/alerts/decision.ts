@@ -23,6 +23,8 @@ import {
 import type {
   AlertDecision,
   AlertDecisionInput,
+  BigTideAlertDecision,
+  BigTideDecisionInput,
   GenericTideSignal,
   SpotAlertPayload,
 } from './types'
@@ -115,6 +117,65 @@ export function shouldSendAlert(input: AlertDecisionInput): AlertDecision {
     return refuse('cold_start_without_big_tide')
   }
   return { send: true, kind: 'generique', channels, reason: 'ok' }
+}
+
+// ─── Décision d'une alerte GRANDE MARÉE sur spot favori (sprint 77) ────────────
+// PURE elle aussi. Volontairement SÉPARÉE de shouldSendAlert : les deux alertes
+// n'ont ni le même déclencheur, ni le même public, ni le même journal.
+//
+// Règles encodées (ordre des checks = ordre de refus, testé) :
+//  1. Opt-in explicite DÉDIÉ (big_tide_alert_enabled, défaut false). `alertsEnabled`
+//     ne l'active PAS : accepter l'alerte perso payante n'est pas consentir à
+//     celle-ci, et inversement.
+//  2. Dédup dure : ligne big_tide_alerts_sent (user, spot, windowDate).
+//  3. Dédup d'ÉPISODE : déjà alerté pour la veille du jour annoncé sur ce spot.
+//     Une grande marée court sur 3-4 jours ; le brief exige « une seule fois par
+//     événement », donc on n'alerte que le PREMIER jour au-dessus du seuil.
+//  4. Jour annoncé = le LENDEMAIN (jour civil Paris), comme les alertes S72.
+//  5. Quiet hours 21h-7h Europe/Paris.
+//  6. Le marnage MESURÉ doit dépasser le seuil de façade (genericSignalQualifies,
+//     partagé avec le mode générique S72 : une seule définition de « grande marée »).
+//     Aucun coefficient n'est calculé nulle part : cf lib/alerts/types.ts.
+//
+// AUCUN GATE DE TIER : contrairement à shouldSendAlert, un compte Découverte y a
+// droit. Le bénéfice payant reste la personnalisation, pas la mesure.
+
+export function shouldSendBigTideAlert(input: BigTideDecisionInput): BigTideAlertDecision {
+  const refuse = (
+    reason: Extract<BigTideAlertDecision, { send: false }>['reason'],
+  ): BigTideAlertDecision => ({ send: false, channels: null, reason })
+
+  if (!input.settings.bigTideAlertEnabled) return refuse('opt_in_off')
+  if (input.alreadySent) return refuse('already_sent')
+  if (input.episodeAlreadyAlerted) return refuse('episode_already_alerted')
+  if (input.windowDate !== tomorrowParisDateKey(input.sendAt)) return refuse('window_not_tomorrow')
+  if (isQuietHoursParis(input.sendAt)) return refuse('quiet_hours')
+  if (!genericSignalQualifies(input.signal)) return refuse('no_big_tide')
+
+  return {
+    send: true,
+    channels: {
+      inApp: true,
+      push: input.settings.channelPush,
+      email: input.settings.channelEmail,
+    },
+    reason: 'ok',
+  }
+}
+
+/**
+ * Le plus fort marnage parmi des candidats (un par spot favori qualifiant).
+ * Départage : marnage le plus haut, puis premier arrivé (ordre stable). Sert le
+ * budget « 1 alerte / user / jour », partagé avec l'alerte perso S72.
+ */
+export function pickBestBigTideCandidate<T extends { rangeM: number }>(
+  candidates: T[],
+): T | null {
+  let best: T | null = null
+  for (const c of candidates) {
+    if (best === null || c.rangeM > best.rangeM) best = c
+  }
+  return best
 }
 
 // ─── Budget « 1 alerte / user / jour » ─────────────────────────────────────────
