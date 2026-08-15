@@ -104,3 +104,73 @@ with c as (select id from auth.users where created_at >= now() - interval '60 da
      p as (select user_id from catches group by user_id)
 select count(*) comptes, count(p.user_id) ont_logue from c left join p on p.user_id=c.id;
 ```
+
+---
+
+## 5. Statistiques d'exploration Google (Bloc 0, relevé John du 2026-08-15)
+
+Export GSC sur **64 jours (11/06 → 13/08)**, soit AVANT la publication du lot 1 et
+avant le 308 de l'apex.
+
+### ★★★ Il n'y a AUCUN 503. La prémisse du brief est fausse.
+
+| Réponse servie à Googlebot | Part |
+|---|---|
+| **OK (200)** | **98,22 %** |
+| Introuvable (404) | 1,46 % |
+| Déplacement permanent (301) | 0,26 % |
+| Déplacement temporaire (302) | 0,07 % |
+| **5xx (dont 503)** | **0,00 %** |
+
+Le brief ouvre sur « des **503 servis aux crawlers** » et en fait le garde-fou qui
+interdit toute publication (« ne pas publier une seule fiche avant que le taux de
+503 soit connu »). **Sur 7 339 demandes d'exploration en 64 jours, Google n'a reçu
+aucune erreur serveur.** Le constat venait de l'audit du 2026-07-02 (Vercel
+Challenge sur les prefetches RSC) et n'est plus d'actualité.
+
+⚠️ Conséquence : la décision de John de publier sans attendre était **la bonne**, et
+pour une raison que ni lui ni moi ne connaissions au moment de la prendre.
+
+### ★★★ Le vrai plafond n'est pas l'erreur, c'est le débit de découverte
+
+| Mesure | Valeur |
+|---|---|
+| Demandes d'exploration | 115/jour sur 64 j · **90/jour sur 30 j** · 124/jour sur 14 j |
+| Objectif **Actualisation** | 88,96 % |
+| Objectif **Découverte** | **11,04 %**, soit **~10 demandes par jour** |
+| Part HTML des demandes | 23,55 % *(JavaScript : 30,89 %)* |
+| Temps de réponse moyen pondéré (30 j) | **1 247 ms**, 10 jours au-dessus de 1 000 ms, pic à 2 754 ms |
+
+Google ne consacre que **10 requêtes par jour à découvrir des URLs nouvelles**. À ce
+rythme :
+
+| À publier | Jours de découverte |
+|---|---|
+| Lot 1 (191 fiches) | **~19 jours** |
+| Les 2 905 éligibles | **~293 jours, soit près de 10 mois** |
+
+⚠️ **Le critère d'acceptation du brief « premier lot indexé à plus de 70 % à J+14 »
+n'est pas atteignable** à ce débit : 191 pages demandent ~19 jours rien que pour
+être explorées une première fois. Ne pas conclure à l'échec du gabarit sur ce
+chiffre à J+14 : ce serait juger le contenu sur une contrainte de crawl.
+
+### Ce sur quoi agir, par ordre d'effet
+
+1. **Le temps de réponse.** 1 247 ms de moyenne pondérée : Google module son débit
+   dessus. C'est le premier levier, et c'est ce que le passage en Pro plus
+   l'allègement de `/spots` (1,42 Mo) viennent servir. Le vrai argument pour Pro
+   n'était donc pas les 503, c'est celui-là.
+2. **Le 308 de l'apex, déjà fait.** L'apex captait **405 demandes sur 7 339, soit
+   5,5 % du budget d'exploration**, pour servir un doublon de chaque page. Gain
+   immédiat et gratuit.
+3. **Le poids du JavaScript.** 30,89 % des demandes vont à du JS, contre 23,55 % à
+   du HTML. Moins d'un quart du budget sert les pages elles-mêmes.
+4. **Les 404.** 1,46 % (~107 demandes). À regarder dans `Pages → Non indexée →
+   Introuvable` : probablement des URLs de spots retirés ou des liens périmés.
+
+### Ce que ça change pour la cadence des lots
+
+Publier le lot 2 à J+7 mettrait 200 pages de plus dans une file déjà longue de
+19 jours. **Le rythme de publication devrait suivre le débit de découverte, pas le
+calendrier** : un lot toutes les 3 semaines colle mieux à la réalité mesurée qu'un
+lot par semaine, tant que le temps de réponse n'a pas baissé.
