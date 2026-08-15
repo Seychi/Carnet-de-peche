@@ -236,6 +236,9 @@ export function CatchForm(props: CatchFormProps) {
     setMaxCaughtAtLocal(isoToLocal(new Date().toISOString()))
   }, [])
   const submittedRef = useRef(false)
+  // Sprint 81, Bloc 4 : l'abandon ne se compte qu'une fois, même si la page
+  // passe cachée plusieurs fois avant de partir pour de bon.
+  const abandonSentRef = useRef(false)
   const lastFieldRef = useRef('')
 
   // Inscription différée (sprint 77, Bloc 7) : le brouillon d'un visiteur sans
@@ -440,16 +443,46 @@ export function CatchForm(props: CatchFormProps) {
   }, [watch, isEdit])
 
   // Analytics (création uniquement)
+  //
+  // ⚠️ SPRINT 81, Bloc 4 — reste du S79. Sur 90 jours, `catch_log_abandoned`
+  // n'apparaissait **qu'en Desktop**. La cause n'était pas une propriété perdue :
+  // l'événement ne partait tout simplement JAMAIS sur mobile.
+  //
+  // `beforeunload` n'est pas déclenché par Safari iOS quand on quitte une page :
+  // Apple ne l'a jamais honoré pour la sortie, la page part en bfcache. Il est
+  // tout aussi peu fiable sur Chrome Android. Sur un site dont 82 % du trafic est
+  // mobile, l'événement mesurait donc l'abandon des 18 % restants, et on lisait
+  // « 0 abandon mobile » comme un fait produit alors que c'était un trou de mesure.
+  //
+  // Les deux signaux fiables sont `visibilitychange` → `hidden` (l'écran passe à
+  // autre chose : onglet, application, verrouillage) et `pagehide` (navigation
+  // réelle, fermeture, entrée en bfcache). On écoute les deux et on DÉDUPLIQUE :
+  // une page peut passer cachée plusieurs fois, l'abandon ne se compte qu'une.
+  //
+  // ⚠️ Contrepartie assumée : un pêcheur qui bascule sur une autre application
+  // puis revient finir sa saisie est compté comme un abandon. C'est un léger
+  // sur-comptage, à préférer très largement au zéro absolu d'aujourd'hui, et il
+  // se lit tel quel dans le tableau de bord (l'événement de complétion, lui,
+  // reste émis à l'enregistrement).
   useEffect(() => {
     if (isEdit) return
     analytics.catchLogStarted({ source: 'web' })
-    function handleBeforeUnload() {
-      if (!submittedRef.current) {
-        analytics.catchLogAbandoned({ lastFieldFocused: lastFieldRef.current })
-      }
+
+    function reportAbandon() {
+      if (submittedRef.current || abandonSentRef.current) return
+      abandonSentRef.current = true
+      analytics.catchLogAbandoned({ lastFieldFocused: lastFieldRef.current })
     }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    function handleVisibility() {
+      if (document.visibilityState === 'hidden') reportAbandon()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    window.addEventListener('pagehide', reportAbandon)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      window.removeEventListener('pagehide', reportAbandon)
+    }
   }, [isEdit])
 
   const trackFocus = (fieldName: string) => ({

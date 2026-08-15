@@ -175,6 +175,56 @@ demande un composant client. Elle ne se recouvre pas non plus, elle occupe juste
 
 ---
 
+## Bloc 4 — `catch_log_abandoned` sur mobile ✅ (le reste du S79)
+
+Sur 90 jours, l'événement n'apparaissait **qu'en Desktop**. Le brief posait deux hypothèses
+(« soit il ne se déclenche pas sur mobile, soit il perd sa propriété »). C'est la première, et
+la cause est nette.
+
+Il était accroché à **`beforeunload`**, que **Safari iOS ne déclenche pas** quand on quitte une
+page : Apple ne l'a jamais honoré pour la sortie, la page part en bfcache. Chrome Android
+l'honore mal. Sur un site dont **82 % du trafic est mobile**, l'événement mesurait donc
+l'abandon des 18 % restants, et on lisait « 0 abandon mobile » comme un fait produit alors que
+c'était un trou de mesure.
+
+**Correctif** : `visibilitychange` → `hidden` (onglet, application, verrouillage) **et**
+`pagehide` (navigation réelle, fermeture, entrée en bfcache), avec **déduplication** — une page
+peut passer cachée plusieurs fois, l'abandon ne se compte qu'une.
+
+⚠️ **Contrepartie assumée, à connaître avant de lire le chiffre** : quelqu'un qui bascule sur
+une autre application puis revient finir sa saisie est compté comme un abandon. C'est un léger
+sur-comptage, très préférable au zéro absolu d'aujourd'hui, mais il faut le savoir en lisant le
+tableau de bord. `$device_type` est ajouté automatiquement par le SDK : la propriété n'a jamais
+été le problème.
+
+5 tests ajoutés (`components/catches/__tests__/catch-log-abandoned.test.ts`), dont un qui
+échoue si `beforeunload` revient.
+
+⚠️ **Non fait dans ce bloc** : le tableau de bord PostHog lui-même (tâches 1 à 3) et
+`docs/sprint-81/METRIQUES.md` (tâche 5). Voir ci-dessous.
+
+---
+
+## ⛔ Le connecteur PostHog est déconnecté
+
+`mcp__claude_ai_PostHog__exec` renvoie **« MCP server not connected »**. Tout ce qui se mesure
+en dépend :
+
+- **Bloc 3** — la re-mesure de l'auto-référencement. ★ J'ai quand même établi le fait qui
+  manquait : le correctif du S76 est en production depuis le **14/08 08h09**
+  (commit `87fd730`, merge `879c0d8`). La fenêtre de l'audit (16/07 → 14/08) lui est donc
+  **antérieure**, exactement comme le §3a du brief l'annonçait : les 44,9 % mesurent le
+  comportement d'AVANT et ne disent rien du correctif. ⚠️ La fenêtre postérieure disponible
+  fait aujourd'hui **~31 heures** : même avec le connecteur, il aurait fallu s'abstenir de
+  conclure.
+- **Bloc 4**, tâches 1 à 3 — création du tableau de bord.
+- **Bloc 5** — les LCP p75 viennent des Web Vitals PostHog.
+
+**Pour débloquer** : reconnecter le connecteur PostHog depuis tes réglages de connecteurs
+claude.ai (je ne peux pas lancer l'authentification depuis une session non interactive).
+
+---
+
 ## Ce qui n'est PAS fait, et pourquoi
 
 Je me suis arrêté sur une **limite de session** (celle qui avait déjà tué quatre agents
@@ -185,8 +235,8 @@ proprement sur un état vert et commité.
 |---|---|---|
 | **0** | Partiel | Preuve mécanique du S80 non re-rejouée en prod ; relevés PostHog et captures « avant » non faits. Le relevé J+14 du S79 **ne peut pas** être fait : fenêtre < 1 h |
 | **2** — bas d'écran | ✅ **Fait, réécrit** | Le bandeau reste (décision John). Voir la section dédiée plus haut |
-| **3** — auto-référencement | **Non fait** | Commence par une re-mesure PostHog. Le §3a du brief prédit qu'il se clôt en une heure |
-| **4** — tableau de bord + `catch_log_abandoned` | **Non fait** | Le `catch_log_abandoned` mobile traîne depuis le S79 |
+| **3** — auto-référencement | **Partiel** | ✅ Date de prod du correctif S76 établie (14/08 08h09), prémisse du brief confirmée. ❌ Re-mesure : connecteur PostHog déconnecté, et fenêtre de ~31 h de toute façon trop courte |
+| **4** — tableau de bord | **Partiel** | ✅ `catch_log_abandoned` corrigé (voir plus haut). ❌ Tableau de bord + `METRIQUES.md` : connecteur PostHog déconnecté |
 | **5** — les trois LCP | **Non fait** | ⚠️ Sa base doit être relevée **AVANT** que le drapeau du Bloc 1 s'allume, sinon l'avant et l'après ne seront pas comparables (la population mesurée change) |
 
 ---
