@@ -18,7 +18,7 @@ import { useMagnetic } from '@/components/marketing/motion'
 import { motionReduced, isCoarsePointer } from '@/components/marketing/motion/config'
 import { trendLabel } from '@/lib/conditions/tide'
 import type { HeroSnapshot, HomeCounts } from '@/lib/marketing/home-data'
-import { SPOTS_CURATED_FLOOR } from '@/lib/marketing/stats'
+import { SPOTS_PUBLISHED_FLOOR, SPOTS_COUNTER_LABEL } from '@/lib/marketing/stats'
 import { LiveClock } from './LiveClock'
 
 // Carte MapLibre du hero (~150 KB maplibre-gl) en lazy → HORS First Load JS de la
@@ -252,7 +252,7 @@ export function Hero({
           {v.showStats && (
             <div data-hero-line className="mt-12 flex flex-wrap gap-9">
               <Stat value={counts.species} label="espèces de chez nous" />
-              <Stat value={counts.spots ?? SPOTS_CURATED_FLOOR} label="spots curés &amp; vérifiés" />
+              <Stat value={counts.spots ?? SPOTS_PUBLISHED_FLOOR} label={SPOTS_COUNTER_LABEL} />
               <Stat value={100} suffix="%" label="fil communautaire gratuit" />
             </div>
           )}

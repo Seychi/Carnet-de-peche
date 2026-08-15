@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Fil régional · Carnet de Pêche',
   description:
-    "Le fil des pêcheurs à la canne du bord de ton département : prises récentes, conditions du jour, échanges entre passionnés, sans donner tes coins secrets. Crée ton compte pour rejoindre le fil de ta côte.",
+    'Le fil des pêcheurs à la canne du bord de ton département : prises récentes, conditions du jour, échanges entre passionnés. Gratuit, sans coin secret.',
   alternates: { canonical: '/fil' },
   openGraph: {
     title: 'Le fil des pêcheurs de ton département',

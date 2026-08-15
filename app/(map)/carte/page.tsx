@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Carte des spots de pêche — Carnet de Pêche',
   description:
-    'Carte interactive des spots de pêche à la canne du bord en France. Filtre par espèce et technique, marées et météo en temps réel. Logue tes prises pour affiner les scores.',
+    'Carte des spots de pêche à la canne du bord en France. Marées et météo en temps réel, filtres par espèce et technique, score par créneau.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/carte' },
 }
 

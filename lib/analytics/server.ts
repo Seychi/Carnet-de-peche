@@ -15,9 +15,28 @@
 //    instrumentation ne doit JAMAIS bloquer ni faire échouer le flux appelant
 //    (une inscription qui réussit doit réussir, PostHog up ou down).
 import 'server-only'
+import { headers } from 'next/headers'
+import { devicePropsFromUserAgent } from './user-agent'
 
 // Borne dure de l'appel réseau : au pire, l'inscription attend 1,5 s de plus.
 const CAPTURE_TIMEOUT_MS = 1500
+
+/**
+ * Sprint 79, Bloc 0 — les événements serveur partaient sans `$device_type`, donc
+ * aucun funnel filtré « Mobile » ne pouvait se terminer. On joint la famille
+ * d'appareil, lue sur le User-Agent de la requête en cours.
+ *
+ * Ne throw jamais : hors contexte de requête, `headers()` lève, et un événement
+ * sans propriété d'appareil vaut mieux qu'un flux appelant cassé.
+ */
+async function deviceProperties(): Promise<Record<string, unknown>> {
+  try {
+    const store = await headers()
+    return devicePropsFromUserAgent(store.get('user-agent')) ?? {}
+  } catch {
+    return {}
+  }
+}
 
 /**
  * Capture un événement PostHog côté serveur, rattaché à `distinctId`
@@ -44,7 +63,9 @@ export async function captureServerEvent(
         api_key: apiKey,
         event,
         distinct_id: distinctId,
-        properties: properties ?? {},
+        // Appareil D'ABORD : un appelant qui passerait explicitement `$device_type`
+        // reste prioritaire sur la valeur dérivée.
+        properties: { ...(await deviceProperties()), ...(properties ?? {}) },
         timestamp: new Date().toISOString(),
       }),
       signal: AbortSignal.timeout(CAPTURE_TIMEOUT_MS),

@@ -3,7 +3,7 @@ import { SmoothScroll } from '@/components/marketing/motion'
 import { Hero } from '@/components/marketing/home-v3/Hero'
 import { HomeSections } from '@/components/marketing/home-v3/HomeSections'
 import { getHomeData, getHomeMapSpots, getMedMapView } from '@/lib/marketing/home-data'
-import { SPOTS_CURATED_LABEL } from '@/lib/marketing/stats'
+import { SPOTS_PUBLISHED_LABEL } from '@/lib/marketing/stats'
 
 const SITE_URL = 'https://www.carnet-de-peche.com'
 
@@ -15,9 +15,8 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Carnet de Pêche — Sache quand et où ça va mordre',
   description:
-    'Le carnet de pêche numérique et le réseau social des pêcheurs à la canne du bord en France. ' +
-    `Marées réelles, ${SPOTS_CURATED_LABEL} et vérifiés, 26 espèces sourcées, fil régional 100 % gratuit. ` +
-    'Logue tes prises : le carnet apprend tes patterns et te dit quand et où sortir.',
+    'Le carnet de pêche numérique des pêcheurs à la canne du bord en France. ' +
+    `Marées réelles, ${SPOTS_PUBLISHED_LABEL}, 26 espèces sourcées, fil régional gratuit.`,
   alternates: { canonical: SITE_URL },
   openGraph: {
     type: 'website',

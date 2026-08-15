@@ -423,3 +423,28 @@
 [data-consent-pending] .sticky-bottom-bar {
   bottom: calc(var(--consent-banner-height, 0px) + 0.75rem);
 }
+
+/* ------------------------------------------------------------
+   Sprint 79, Bloc 1 — la même collision, sur /carte cette fois.
+
+   Le correctif ci-dessus n'avait jamais été appliqué à la carte. Mesuré le
+   15/08 en 390 x 664, sans cookie de consentement : bandeau de consentement
+   z-60 de 484 a 652, barre d'inscription z-40 de 514 a 664, soit 138 px de
+   recouvrement sur 150. `elementFromPoint()` au centre de « Créer mon carnet »
+   renvoyait le bandeau. Le CTA qui porte 44 % des murs d'inscription mobiles
+   du site était INATTEIGNABLE pour tout visiteur n'ayant pas encore répondu,
+   c'est-a-dire tout nouveau venu.
+
+   Deuxieme etage du meme probleme : la colonne de boutons flottants de la
+   carte (geoloc, spots proches) est en z-50, donc PAR-DESSUS la barre. On ne
+   se dispute pas le z-index (passer la barre au-dessus du bandeau rendrait le
+   refus des cookies inaccessible) : on EMPILE. Le bandeau est au sol, la barre
+   s'adosse au bandeau, la colonne s'adosse a la barre. Chaque etage publie sa
+   hauteur reelle mesuree, jamais un decalage en dur.
+   ------------------------------------------------------------ */
+.map-fab-stack {
+  bottom: calc(
+    1.5rem + env(safe-area-inset-bottom, 0px) + var(--consent-banner-height, 0px) +
+      var(--map-bottom-bar-height, 0px)
+  );
+}

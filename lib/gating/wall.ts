@@ -62,6 +62,11 @@ export const SIGNUP_WALL_SURFACES = [
   // mais APRÈS, au moment de sauvegarder ce que le visiteur vient de faire.
   'pending_favorite',
   'pending_catch',
+  // Sprint 79, Bloc 5 : bas de /spots. Cette place servait un upsell abonnement
+  // à des visiteurs SANS COMPTE (« Local à partir de 4,90 €/mois »). Un anonyme
+  // n'a rien à acheter : il voit désormais le mur d'inscription, et cette surface
+  // distincte dit si ce bas de page convertit mieux que le mur de la liste.
+  'spots_index_footer',
 ] as const
 
 export type SignupWallSurface = (typeof SIGNUP_WALL_SURFACES)[number]

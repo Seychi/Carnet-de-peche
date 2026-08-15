@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { MapPin, Loader2, Fish, Search, ChevronDown, Users, Trophy, Sparkles, Award, Target } from 'lucide-react'
 
-import { createCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
+import { createCatchSchema, formCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
 import { CelebrationOverlay, type CelebrationMoment } from '@/components/gamification/CelebrationOverlay'
 import type { CatchCelebration } from '@/lib/gamification/celebration'
@@ -330,7 +330,13 @@ export function CatchForm(props: CatchFormProps) {
     getValues,
     formState: { errors },
   } = useForm<CreateCatchInput>({
-    resolver: zodResolver(isEdit ? catchBaseSchema : createCatchSchema) as Resolver<CreateCatchInput>,
+    // Sprint 79, Bloc 4 : le BROUILLON anonyme ne valide que l'espèce et le lieu
+    // (`createCatchSchema`, technique optionnelle). Un compte, lui, garde le
+    // formulaire complet et ses validations (`formCatchSchema` exige la
+    // technique) : on assouplit le brouillon, pas la donnée finale.
+    resolver: zodResolver(
+      isEdit ? catchBaseSchema : anonymousDraft ? createCatchSchema : formCatchSchema,
+    ) as Resolver<CreateCatchInput>,
     mode: 'onTouched',
     defaultValues,
   })
@@ -1008,7 +1014,9 @@ export function CatchForm(props: CatchFormProps) {
 
       {/* ── Section 3 : Technique ── */}
       <Card id="catch-section-technique">
-        <SectionTitle required>Technique</SectionTitle>
+        {/* Facultative au stade brouillon (sprint 79, Bloc 4) : l'astérisque
+            annoncerait une obligation que le résolveur n'applique plus. */}
+        <SectionTitle required={!anonymousDraft}>Technique</SectionTitle>
         <Controller
           name="technique"
           control={control}

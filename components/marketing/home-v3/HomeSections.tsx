@@ -18,7 +18,7 @@ import type {
   MedMapView,
 } from '@/lib/marketing/home-data'
 import type { SpotMarker } from '@/lib/map/utils'
-import { SPOTS_CURATED_FLOOR } from '@/lib/marketing/stats'
+import { SPOTS_PUBLISHED_FLOOR, SPOTS_COUNTER_LABEL } from '@/lib/marketing/stats'
 import { HomeMapSection } from './HomeMapSection'
 import { TrackedCta } from './TrackedCta'
 import { MedMapBackdrop } from './MedMapBackdrop'
@@ -74,7 +74,7 @@ export function HomeSections({
 function TrustStrip({ counts }: { counts: HomeCounts }) {
   const items = [
     { value: counts.departments ?? 24, label: 'départements côtiers' },
-    { value: counts.spots ?? SPOTS_CURATED_FLOOR, label: 'spots curés & vérifiés' },
+    { value: counts.spots ?? SPOTS_PUBLISHED_FLOOR, label: SPOTS_COUNTER_LABEL },
     { value: counts.species, label: 'fiches espèces sourcées' },
   ]
   return (
@@ -192,7 +192,7 @@ function CommunitySection({ activity, counts }: { activity: HomeActivity; counts
     { title: 'Le fil de ta côte', body: filBody },
     {
       title: 'Des fiches d’instrument',
-      body: `${counts.species} espèces à fond : tailles légales sourcées et datées, saisons par façade. Plus ${counts.spots ?? SPOTS_CURATED_FLOOR} fiches spots avec marées et bathymétrie.`,
+      body: `${counts.species} espèces à fond : tailles légales sourcées et datées, saisons par façade. Plus ${counts.spots ?? SPOTS_PUBLISHED_FLOOR} fiches spots avec marées et bathymétrie.`,
     },
   ]
 

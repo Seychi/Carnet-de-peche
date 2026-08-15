@@ -685,23 +685,24 @@ export default function MapShell({
           <SpotPopup spot={activeSpot} onClose={() => setActiveSpot(null)} userTier={userTier} />
         )}
 
-        {/* Bandeau CTA anonymes */}
-        {isAnonymous && !activeSpot && (
-          <div className="absolute bottom-0 left-0 right-0 z-10 p-3 pointer-events-none">
-            <div className="max-w-lg mx-auto bg-navy-900/95 backdrop-blur-sm text-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3 shadow-lg pointer-events-auto">
-              <p className="text-sm leading-snug">
-                <span className="font-semibold">3 spots gratuits par département.</span>{' '}
-                <span className="text-white/70">Crée ton carnet pour débloquer la carte complète.</span>
-              </p>
-              <Link
-                href="/auth/login?tab=register"
-                className="shrink-0 px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-navy-950 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
-              >
-                C&apos;est gratuit
-              </Link>
-            </div>
-          </div>
-        )}
+        {/* ⚠️ SPRINT 79, Bloc 2 — un SECOND bandeau anonyme vivait ici (z-10,
+            « 3 spots gratuits par département », CTA « C'est gratuit »). Il
+            faisait doublon avec SignupBanner (z-40), qui s'affiche au MÊME
+            moment et au MÊME endroit pour exactement le même public.
+
+            Mesuré le 15/08 en 390 x 664 : son CTA occupait [255, 586, 107x32] et
+            `elementFromPoint()` en son centre renvoyait SignupBanner. Il était
+            donc invisible ET inatteignable, avec ou sans consentement. Il
+            pointait par-dessus le marché vers `/auth/login?tab=register`, soit
+            une page dont le H1 est « Connexion à ton carnet » : une promesse de
+            gratuité qui menait à un formulaire de connexion. C'est une lecture
+            possible de `/auth/login` en 2e page d'entrée mobile du site.
+
+            Il n'émettait aucun événement d'analytics : sa suppression ne fait
+            rien perdre au funnel. SignupBanner porte la même intention avec la
+            bonne copie, le bon href (`buildSignupHref`, donc
+            `/auth/register?redirect=…`), `signup_wall_viewed`/`clicked`, et une
+            fermeture qui tient 7 jours (ce bandeau-ci réapparaissait après). */}
 
         {/* Bandeau upsell — inscrits gratuits UNIQUEMENT (le seul public à qui
             on parle d'abonnement). */}
@@ -722,10 +723,14 @@ export default function MapShell({
       </div>{/* end zone principale */}
 
       {/* ── FAB stack — mobile uniquement (md:hidden) ──────────────── */}
-      {/* bottom calc() intègre la safe area iOS pour rester au-dessus de la home bar */}
+      {/* `map-fab-stack` (app/globals.css) porte le `bottom` : safe area iOS +
+          hauteur du bandeau de consentement + hauteur de la barre du bas. La
+          colonne s'EMPILE au-dessus au lieu de recouvrir (sprint 79, Bloc 1).
+          ⚠️ Ne pas remettre de `bottom` en style inline : il gagnerait sur la
+          classe et rétablirait le recouvrement. */}
       <div
-        className="md:hidden fixed z-50 flex flex-col gap-3"
-        style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))', right: '1rem' }}
+        className="map-fab-stack md:hidden fixed z-50 flex flex-col gap-3"
+        style={{ right: '1rem' }}
       >
         <button
           onClick={handleGeolocate}

@@ -1231,8 +1231,12 @@ export default async function SpotPage({
               <div className="bg-navy-900 rounded-[18px] p-6 text-center">
                 <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
                 <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
+                {/* Sprint 79, Bloc 5 : le score sort des arguments de vente. Il
+                    n'est plus gaté nulle part depuis le sprint 78 (décision John
+                    du 15/08 : il reste gratuit, assumé). Le vendre revenait à
+                    faire payer une chose déjà donnée. */}
                 <p className="text-white/60 text-xs mb-5 leading-snug">
-                  Score d&apos;activité, GPS exact, filtres avancés.
+                  GPS exact, filtres avancés, couches de carte.
                 </p>
                 <Link
                   href="/tarifs"

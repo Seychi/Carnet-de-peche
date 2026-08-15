@@ -27,7 +27,7 @@ export const analytics = {
   catchLogStarted(props: { source: 'web' | 'mobile' }): void {
     capture('catch_log_started', props)
   },
-  catchLogCompleted(props: { species: string; technique: string; hasPhoto: boolean }): void {
+  catchLogCompleted(props: { species: string; technique?: string; hasPhoto: boolean }): void {
     capture('catch_log_completed', props)
   },
   catchLogAbandoned(props: { lastFieldFocused: string }): void {
@@ -96,7 +96,8 @@ export const analytics = {
     capture('pending_favorite_created', props)
   },
   /** Un visiteur anonyme a rempli une prise et l'a gardée en brouillon. */
-  pendingCatchStarted(props: { species: string; technique: string }): void {
+  // Sprint 79, Bloc 4 : la technique est facultative au stade brouillon.
+  pendingCatchStarted(props: { species: string; technique?: string }): void {
     capture('pending_catch_started', props)
   },
 

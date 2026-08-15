@@ -168,8 +168,10 @@ export function GuideLayout({
                 <Bathy density={2} opacity={0.3} />
                 <div className="relative">
                   <p className="text-white font-semibold text-sm mb-2">Trouve les spots près de chez toi</p>
+                  {/* Sprint 79, Bloc 5 : le score n'est plus un argument payant
+                      (il est gratuit depuis le sprint 78). */}
                   <p className="text-white/60 text-xs mb-4">
-                    Carte intelligente, score d&apos;activité, filtres espèces.
+                    Carte complète, GPS précis, filtres espèces.
                   </p>
                   <Link
                     href="/tarifs"

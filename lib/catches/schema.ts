@@ -55,7 +55,14 @@ const catchFieldsNoDefaults = z.object({
     .optional(),
   reference_object: z.string().trim().max(120).optional(),
   is_measured: z.boolean().optional(),
-  technique: catchTechniqueEnum,
+  // ⚠️ SPRINT 79, Bloc 4 — la technique passe OPTIONNELLE au niveau schéma, pour
+  // s'aligner sur la base (`catches.technique` est nullable). Ce n'est PAS un
+  // assouplissement du formulaire d'un compte : `CatchForm` continue de l'exiger
+  // via son propre résolveur (cf `draftCatchSchema` et le `*` à l'écran). Ce que
+  // ça débloque, c'est le REJEU d'un brouillon anonyme : le brouillon ne demande
+  // plus que l'espèce, et `createCatch` doit pouvoir écrire la prise sans
+  // INVENTER une technique que le visiteur n'a jamais donnée.
+  technique: catchTechniqueEnum.optional(),
   lure_brand: z.string().max(60).optional(),
   lure_model: z.string().max(100).optional(),
   bait_type: z.string().max(60).optional(),
@@ -125,7 +132,24 @@ function refineMeasured(
 // Schéma de base exporté pour le form en mode édition (pas de validation lat/lng requise)
 export const catchBaseSchema = baseCatchObject.superRefine(refineMeasured)
 
-export const createCatchSchema = baseCatchObject.superRefine((data, ctx) => {
+/**
+ * Schéma du FORMULAIRE pour un compte : identique à `createCatchSchema`, plus
+ * l'exigence de technique. Le formulaire reste strict (sprint 79, Bloc 4,
+ * garde-fou : on assouplit le brouillon, pas la donnée finale d'un compte).
+ */
+export const formCatchSchema = baseCatchObject.superRefine((data, ctx) => {
+  refineCreate(data, ctx)
+  if (!data.technique) {
+    ctx.addIssue({ code: 'custom', message: 'Choisis une technique de pêche', path: ['technique'] })
+  }
+})
+
+export const createCatchSchema = baseCatchObject.superRefine(refineCreate)
+
+function refineCreate(
+  data: z.infer<typeof baseCatchObject>,
+  ctx: z.RefinementCtx,
+) {
   refineMeasured(data, ctx)
   if (data.location_method === 'gps' || data.location_method === 'manual') {
     if (data.latitude === undefined) {
@@ -151,7 +175,20 @@ export const createCatchSchema = baseCatchObject.superRefine((data, ctx) => {
       path: ['spot_id'],
     })
   }
-})
+}
+
+// Le BROUILLON anonyme valide avec `createCatchSchema` (donc sans technique).
+//
+// Mesuré en production le 15/08 : choisir « Bar » puis cliquer « Garder ma prise
+// en brouillon » n'écrivait RIEN, parce que la technique était requise. On
+// demandait sa technique de pêche à un inconnu arrivé de Google 40 secondes plus
+// tôt, pour enregistrer un brouillon. 9 `catch_log_started` sur mobile en
+// 90 jours, 0 compte au bout.
+//
+// Au stade brouillon, seuls comptent l'espèce et le lieu, et le lieu est déjà
+// porté par le spot d'où le visiteur vient. Tout le reste (technique, leurre,
+// taille, poids, remise à l'eau) se demande APRÈS la création du compte, sur la
+// prise réelle, où `formCatchSchema` reste strict.
 
 // ─── Couverture géographique ─────────────────────────────────────────────────
 

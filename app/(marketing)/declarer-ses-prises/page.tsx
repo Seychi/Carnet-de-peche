@@ -63,7 +63,7 @@ const FAQ: { q: string; a: string }[] = [
 export const metadata: Metadata = {
   title: 'Déclaration des prises en mer : RecFishing 2026',
   description:
-    'Depuis 2026, certaines espèces (bar, lieu jaune, maquereau) se déclarent sous 24 h via l’appli RecFishing, même relâchées. Ce qu’il faut déclarer, et comment le carnet te le rappelle.',
+    'Depuis 2026, bar, lieu jaune et maquereau se déclarent sous 24 h via RecFishing, même relâchés. Ce qu’il faut déclarer, et comment on te le rappelle.',
   alternates: { canonical: CANONICAL },
   openGraph: {
     title: 'Déclarer ses prises en mer : l’obligation RecFishing 2026',

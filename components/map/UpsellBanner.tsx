@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
+import { useBottomBarHeight } from '@/components/map/useBottomBarHeight'
 
 const COOKIE_NAME = 'upsell-dismissed-at'
 const DISMISS_DURATION_DAYS = 7
@@ -12,6 +13,7 @@ const SURFACE = 'map_banner'
 export default function UpsellBanner() {
   const [visible, setVisible] = useState(true)
   const [entered, setEntered] = useState(false)
+  const barRef = useBottomBarHeight<HTMLDivElement>(visible)
 
   useEffect(() => {
     const timer = setTimeout(() => setEntered(true), 60)
@@ -29,8 +31,10 @@ export default function UpsellBanner() {
 
   return (
     <div
+      ref={barRef}
       className={[
-        'fixed bottom-0 left-0 right-0 z-40',
+        // `sticky-bottom-bar` : sprint 79, Bloc 1 (cf app/globals.css).
+        'sticky-bottom-bar fixed bottom-0 left-0 right-0 z-40',
         'transition-transform duration-300 ease-out',
         entered ? 'translate-y-0' : 'translate-y-full',
       ].join(' ')}

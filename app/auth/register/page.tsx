@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Créer ton carnet de pêche, gratuit",
   description:
     "Crée ton carnet de pêche en 30 secondes, sans carte bancaire. Logue tes prises, suis les marées et la météo de tes spots.",
+  // Sprint 79, Bloc 6 : les variantes `?redirect=…` / `?plan=…` sont autant d'URL
+  // distinctes pour un moteur. On les rabat sur la page nue.
+  alternates: { canonical: "https://www.carnet-de-peche.com/auth/register" },
 };
 
 /**

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
+import { useBottomBarHeight } from '@/components/map/useBottomBarHeight'
 import {
   buildSignupHref,
   SIGNUP_WALL_BENEFITS,
@@ -202,6 +203,7 @@ export default function SignupBanner() {
   const [entered, setEntered] = useState(false)
   const currentPath = useCurrentPath()
   const href = buildSignupHref(currentPath)
+  const barRef = useBottomBarHeight<HTMLDivElement>(visible)
 
   useEffect(() => {
     if (isBannerDismissed()) return
@@ -225,13 +227,19 @@ export default function SignupBanner() {
 
   return (
     <div
+      ref={barRef}
       className={[
-        'fixed bottom-0 left-0 right-0 z-40',
+        // `sticky-bottom-bar` : sprint 79, Bloc 1. La barre s'adosse au bandeau
+        // de consentement au lieu de disparaître dessous (cf app/globals.css).
+        'sticky-bottom-bar fixed bottom-0 left-0 right-0 z-40',
         'transition-transform duration-300 ease-out',
         entered ? 'translate-y-0' : 'translate-y-full',
       ].join(' ')}
     >
-      <div className="mx-auto max-w-2xl pb-3 pl-3 pr-[4.75rem] md:pr-3">
+      {/* La réserve de 4,75rem à droite (place laissée aux boutons flottants de
+          la carte) n'a plus lieu d'être : depuis le sprint 79 la colonne s'empile
+          AU-DESSUS de la barre. Le CTA récupère toute la largeur. */}
+      <div className="mx-auto max-w-2xl px-3 pb-3">
         <div className="relative flex flex-col gap-2.5 rounded-2xl border-t-2 border-teal-500 bg-navy-900 px-4 py-3 shadow-xl sm:flex-row sm:items-center sm:gap-3">
           <p className="flex-1 pr-6 text-sm leading-snug text-white/85 sm:pr-0">
             <span className="font-semibold text-white">{SIGNUP_WALL_TITLE}.</span>{' '}

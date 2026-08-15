@@ -14,9 +14,9 @@ import { MarketingCTA } from '@/components/marketing/MarketingCTA'
 export const revalidate = 86400
 
 export const metadata: Metadata = {
-  title: 'Les espèces de la canne du bord : bar, dorade, lieu jaune… · Carnet de Pêche',
+  title: 'Espèces de la pêche du bord : bar, dorade, lieu jaune',
   description:
-    'Bar, dorade royale, lieu jaune, maquereau, sar, orphie : fiches complètes pour la pêche du bord. Tailles légales vérifiées, saisons par façade, techniques et postes.',
+    'Bar, dorade, lieu jaune, maquereau, sar, orphie : fiches pour la pêche du bord. Tailles légales vérifiées, saisons par façade, postes et techniques.',
   alternates: { canonical: 'https://www.carnet-de-peche.com/especes' },
 }
 

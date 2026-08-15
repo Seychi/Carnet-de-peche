@@ -1,20 +1,35 @@
 import { describe, expect, it } from 'vitest'
-import { SPOTS_CURATED_FLOOR, SPOTS_CURATED_LABEL } from '../stats'
+import {
+  SPOTS_PUBLISHED_FLOOR,
+  SPOTS_PUBLISHED_LABEL,
+  SPOTS_COUNTER_LABEL,
+} from '../stats'
 
-// Contrat partagé (sprint 70, Bloc A) : la copy statique « spots curés » de la home,
-// des tarifs et de la carte pointe sur ces constantes. Plancher honnête (215 curés
-// en DB au 2026-07-02) qui ne se périme pas à chaque lot de curation.
+// Contrat partagé : la copy statique de la home, des tarifs et de la carte pointe
+// sur ces constantes.
+//
+// ⚠️ Sprint 79, Bloc 6 (décision John du 15/08) : 607 spots publiés en base, dont
+// 416 seulement relus par un humain. Le mot « vérifiés » n'est donc plus tenable
+// sur le total, et il sort de la copy de vitrine. C'est CE test qui garde la
+// promesse alignée sur la base.
 describe('lib/marketing/stats — chiffres marketing partagés', () => {
-  it('expose le plancher stable de spots curés', () => {
-    expect(SPOTS_CURATED_FLOOR).toBe(200)
-    expect(SPOTS_CURATED_LABEL).toBe('200+ spots curés')
+  it('expose le plancher stable de spots publiés', () => {
+    expect(SPOTS_PUBLISHED_FLOOR).toBe(600)
+    expect(SPOTS_PUBLISHED_LABEL).toBe('600+ spots de pêche')
   })
 
   it('garde le libellé cohérent avec le plancher (pas de dérive copy/chiffre)', () => {
-    expect(SPOTS_CURATED_LABEL.startsWith(`${SPOTS_CURATED_FLOOR}+`)).toBe(true)
+    expect(SPOTS_PUBLISHED_LABEL.startsWith(`${SPOTS_PUBLISHED_FLOOR}+`)).toBe(true)
   })
 
-  it('reste honnête : le plancher ne dépasse pas le compte réel vérifié (215 au 2026-07-02)', () => {
-    expect(SPOTS_CURATED_FLOOR).toBeLessThanOrEqual(215)
+  it('reste honnête : le plancher ne dépasse pas le compte réel publié (607 au 15/08)', () => {
+    expect(SPOTS_PUBLISHED_FLOOR).toBeLessThanOrEqual(607)
+  })
+
+  it('ne promet ni « curé » ni « vérifié » : 191 des 607 n\'ont eu aucune relecture', () => {
+    for (const label of [SPOTS_PUBLISHED_LABEL, SPOTS_COUNTER_LABEL]) {
+      expect(label).not.toMatch(/cur[ée]/i)
+      expect(label).not.toMatch(/vérifi/i)
+    }
   })
 })

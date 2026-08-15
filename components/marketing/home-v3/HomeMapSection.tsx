@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import type { SpotMarker } from '@/lib/map/utils'
 import type { MapViewProps } from '@/components/map/MapView'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
-import { SPOTS_CURATED_LABEL } from '@/lib/marketing/stats'
+import { SPOTS_PUBLISHED_LABEL } from '@/lib/marketing/stats'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -104,7 +104,7 @@ export function HomeMapSection({ spots }: { spots: SpotMarker[] }) {
             Une carte marine, pas un plan de ville.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-ink-600">
-            {SPOTS_CURATED_LABEL} et vérifiés. Coords floutées en gratuit, précises pour les abonnés.
+            {SPOTS_PUBLISHED_LABEL}. Coords floutées en gratuit, précises pour les abonnés.
             Scoring 0-100, bathymétrie, courbes de marée. Tu vois le vrai produit, pas une
             promesse.
           </p>

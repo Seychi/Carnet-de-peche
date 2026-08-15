@@ -477,22 +477,45 @@ export default async function SpotsPage({ searchParams }: Props) {
         </div>
       </section>
 
-      {/* ── Upsell ──────────────────────────────────────────────────────── */}
+      {/* ── Bas de page : mur d'inscription OU upsell, jamais les deux ─────
+          ⚠️ SPRINT 79, Bloc 5. Cette section vendait « Abonnement Local à partir
+          de 4,90 €/mois » à TOUT LE MONDE, visiteurs sans compte compris. C'était
+          la seule surface du site à le faire (vérifié le 15/08 en anonyme sur
+          /carte, /spots, /spots/[slug] et /especes/bar : ici et nulle part
+          ailleurs). 158 `paywall_viewed` sur mobile en 90 jours, pour 4 abonnés
+          payants au total : un visiteur sur deux qui rencontrait un mur
+          rencontrait un mur PAYANT, avant même d'avoir un compte.
+
+          Un anonyme n'a rien à acheter, il a un carnet gratuit à créer. Un
+          inscrit gratuit, lui, garde l'upsell : c'est lui la cible.
+
+          ⚠️ Le titre et la meta description de /spots ne bougent pas : le témoin
+          de sortie du sprint (CTR Google de /spots, 7,2 %) se joue là, pas ici. */}
       <section className="bg-white py-12 border-t border-ink-100">
         <div className="max-w-[760px] mx-auto px-6 text-center">
-          <h2 className="font-display text-navy-900 text-2xl mb-3">
-            Accède aux coordonnées précises
-          </h2>
-          <p className="text-ink-500 mb-6 text-sm leading-relaxed max-w-md mx-auto">
-            GPS exact, score d&apos;activité et données de marée sur chaque spot.
-            Abonnement Local à partir de 4,90 €/mois.
-          </p>
-          <Link
-            href="/tarifs"
-            className="inline-block px-8 py-3 bg-navy-900 hover:bg-navy-800 text-white font-semibold rounded-[12px] transition-colors text-sm"
-          >
-            Voir les formules
-          </Link>
+          {showSignupWall ? (
+            <SignupWall
+              surface="spots_index_footer"
+              intro="Tes spots de côté, tes prises loguées, les marées de chacun d'eux."
+              className="mx-auto max-w-md text-left"
+            />
+          ) : (
+            <>
+              <h2 className="font-display text-navy-900 text-2xl mb-3">
+                Accède aux coordonnées précises
+              </h2>
+              <p className="text-ink-500 mb-6 text-sm leading-relaxed max-w-md mx-auto">
+                GPS exact et données de marée sur chaque spot. Abonnement Local à partir de
+                4,90 €/mois.
+              </p>
+              <Link
+                href="/tarifs"
+                className="inline-block px-8 py-3 bg-navy-900 hover:bg-navy-800 text-white font-semibold rounded-[12px] transition-colors text-sm"
+              >
+                Voir les formules
+              </Link>
+            </>
+          )}
         </div>
       </section>
     </div>

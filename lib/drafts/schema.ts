@@ -79,7 +79,10 @@ export const pendingCatchSchema = z.object({
   spot_id: z.string().uuid(),
   spot_slug: spotSlugSchema.optional(),
   species: catchSpeciesEnum,
-  technique: catchTechniqueEnum,
+  // Sprint 79, Bloc 4 : optionnelle. Le brouillon ne demande que l'espèce ; la
+  // technique se renseigne après la création du compte, sur la prise réelle.
+  // `catches.technique` est nullable en base, le rejeu écrit donc sans inventer.
+  technique: catchTechniqueEnum.optional(),
   size_cm: z.number().min(10).max(200).optional(),
   weight_kg: z.number().min(0.05).max(30).optional(),
   caught_at: z
