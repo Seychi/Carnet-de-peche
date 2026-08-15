@@ -205,7 +205,62 @@ tableau de bord. `$device_type` est ajouté automatiquement par le SDK : la prop
 
 ---
 
-## ⛔ Le connecteur PostHog est déconnecté
+## Bloc 3 — L'auto-référencement : mesuré, et le bloc NE se ferme PAS
+
+Le connecteur PostHog a été rebranché en fin de session. Relevés faits, requêtes consignées
+dans `docs/sprint-81/METRIQUES.md`.
+
+**Date de mise en production du correctif S76** : commit `87fd730` le 14/08 04h44, merge
+`879c0d8` à **08h09 (06h09 UTC)**. La fenêtre de l'audit (16/07 → 14/08) lui est donc bien
+antérieure : **le §3a du brief est confirmé**, les 44,9 % mesuraient le comportement d'AVANT.
+
+### Re-mesure sur les deux fenêtres
+
+| Fenêtre | Pages vues mobiles | Auto-référencées | Taux |
+|---|---|---|---|
+| **Avant** (16/07 → 14/08 06h09 UTC) | 1 260 | 569 | **45,2 %** |
+| **Après** (14/08 06h09 → 15/08 17h) | 183 | 56 | **30,6 %** |
+
+Le 45,2 % reproduit le 44,9 % de l'audit : la coupure de fenêtre est juste. Le correctif a
+gagné **14,6 points**. La cible étant **< 10 %**, **le bloc ne se ferme pas** — c'est l'inverse
+du pari du brief (« le résultat le plus probable, et ce serait une bonne nouvelle »).
+
+### ★ Mais le chiffre de 30,6 % mélange deux choses différentes
+
+L'audit comme la roadmap comptent **toutes** les pages vues. Or `$referring_domain` reflète
+`document.referrer` **au moment de la capture** : pour une navigation interne avec chargement
+complet, il vaut notre propre domaine **par construction**. Ce n'est pas un défaut.
+
+Décomposition des 56 auto-référencements :
+
+| Position dans la session | Pages vues | Lecture |
+|---|---|---|
+| **En cours de session** | **45** (80 %) | Comportement NORMAL, rien à corriger |
+| **Premier événement de la session** | **11** (20 %) | **Le vrai défaut** : une entrée attribuée à nous-mêmes |
+
+**Le témoin honnête est donc la part des ENTRÉES de session auto-référencées :**
+
+> **11 sur 79 entrées de session mobiles, soit 13,9 %.**
+
+Cible < 10 %. On en est proche, sans y être. ⚠️ **n = 79 sur ~1,5 jour** : c'est mince, et le
+chiffre bougera. Ne pas le traiter comme définitif.
+
+### Ce que ça dit de l'hypothèse du brief
+
+L'hypothèse (l'attribution d'entrée est rattachée au premier `$pageview` d'un CHARGEMENT via
+`firstCaptureDone` en `useRef`, pas au premier d'une SESSION, or PostHog fait tourner la
+session sur ~30 min d'inactivité) est **cohérente avec ces 11 entrées** : ce sont bien des
+premiers événements de session portant notre domaine.
+
+**Correctif restant, non fait** : dans `PostHogProvider.tsx`, remplacer le `useRef` booléen par
+une comparaison sur l'identifiant de session courant. `sessionStorage` conserve déjà
+l'attribution (`cdp-entry-attribution`), il n'y a **rien de plus à stocker**, seulement une
+condition à changer. ⚠️ Cela touche l'API `posthog.get_session_id()` : à vérifier dans le SDK
+installé avant d'écrire, comme pour le Bloc 1.
+
+---
+
+## ⛔ Ce qui restait bloqué par le connecteur PostHog
 
 `mcp__claude_ai_PostHog__exec` renvoie **« MCP server not connected »**. Tout ce qui se mesure
 en dépend :
@@ -235,7 +290,7 @@ proprement sur un état vert et commité.
 |---|---|---|
 | **0** | Partiel | Preuve mécanique du S80 non re-rejouée en prod ; relevés PostHog et captures « avant » non faits. Le relevé J+14 du S79 **ne peut pas** être fait : fenêtre < 1 h |
 | **2** — bas d'écran | ✅ **Fait, réécrit** | Le bandeau reste (décision John). Voir la section dédiée plus haut |
-| **3** — auto-référencement | **Partiel** | ✅ Date de prod du correctif S76 établie (14/08 08h09), prémisse du brief confirmée. ❌ Re-mesure : connecteur PostHog déconnecté, et fenêtre de ~31 h de toute façon trop courte |
+| **3** — auto-référencement | **Mesuré, non clos** | ✅ Re-mesure faite : 45,2 % → 30,6 %, et **13,9 % sur le vrai témoin** (entrées de session). Cible < 10 % non atteinte. ❌ Correctif de l'attribution par session : non écrit |
 | **4** — tableau de bord | **Partiel** | ✅ `catch_log_abandoned` corrigé (voir plus haut). ❌ Tableau de bord + `METRIQUES.md` : connecteur PostHog déconnecté |
 | **5** — les trois LCP | **Non fait** | ⚠️ Sa base doit être relevée **AVANT** que le drapeau du Bloc 1 s'allume, sinon l'avant et l'après ne seront pas comparables (la population mesurée change) |
 
