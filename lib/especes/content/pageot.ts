@@ -9,6 +9,11 @@ import type { EspeceContent } from "../types"
 export const pageotEspece: EspeceContent = {
   slug: "pageot",
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 261 impressions / 2 clics / 0,77 %.
+  // 52 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Pageot : où le pêcher du bord en Méditerranée, spots',
+
   intro: [
     `Le pageot commun, c'est le petit sparidé rose argenté qui peuple le sable, le gravier et les bordures de coralligène, un poisson de fond, fin et bagarreur pour sa taille, qu'on prend du bord dès qu'on pose un appât naturel posé sur le substrat. Reflets cuivrés sur le dos, ventre nacré, une touche discrète mais une fois ferré il tire droit et nerveux. C'est un poisson de patience : tu le cherches au fond, pas en surface.`,
     `Attention à ne pas le confondre : on parle ici du PAGEOT COMMUN (Pagellus erythrinus), ni de la dorade rose / pageot rose (Pagellus bogaraveo), bien plus grosse et soumise à marquage, ni du pageot acarne (Pagellus acarne), reconnaissable à sa tache noire à l'aisselle de la pectorale. Le pageot commun reste modeste (20 à 30 cm du bord en moyenne), mais il compense par le nombre et par une chair excellente.`,

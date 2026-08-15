@@ -12,6 +12,11 @@ import type { EspeceContent } from '../types'
 export const barracudaEspece: EspeceContent = {
   slug: 'barracuda',
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 230 impressions / 1 clic / 0,43 %. Requête d'identification pure : on bascule sur l'intention pêche.
+  // 55 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Barracuda en Méditerranée : où le pêcher du bord, spots',
+
   intro: [
     `Le barracuda (la bécune, comme on dit sur la côte) c'est le prédateur effilé qui patrouille les digues et les ports de Méditerranée. Un fuseau d'argent posté en chasse sous les lampadaires, une attaque foudroyante sur ton minnow à trois mètres du bord, et un premier rush qui te scie le poignet : du bord, peu de poissons offrent une touche aussi violente.`,
     `Tu le croises le long des grandes digues portuaires, dans les ports eux-mêmes, sur les secs rocheux à portée de lancer et aux embouchures où défilent les mulets. C'est un poisson de bordure et de surface : il chasse l'aube, le crépuscule et surtout la nuit, quand il se rapproche du bord pour cueillir les petits poissons attirés par la lumière. En plein été, sous un soleil de plomb et sur mer d'huile, il devient méfiant et difficile à leurrer ; c'est fin d'été, en automne et même en plein hiver que les plus belles bécunes se prennent.`,

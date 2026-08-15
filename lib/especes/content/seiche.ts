@@ -10,6 +10,11 @@ import type { EspeceContent } from "../types"
 export const seicheEspece: EspeceContent = {
   slug: "seiche",
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 630 impressions / 17 clics / 2,70 %. Meilleur CTR du lot : on nomme la technique qui le porte.
+  // 50 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Seiche : où la pêcher du bord à la turlutte, spots',
+
   intro: [
     `La seiche, c'est le céphalopode qui a fait basculer la pêche du bord vers l'eging. Ni un poisson, ni un calmar : un mollusque trapu, l'os dans le dos, dix bras dont deux tentacules-fouets qu'elle déploie en un éclair pour gober ta turlutte. Du bord, c'est une cible accessible, gourmande et étonnamment combative, elle tire par à-coups, se cale au fond, projette son encre, et te résiste jusqu'au dernier mètre.`,
     `Tu la trouves là où il y a du sable propre, des herbiers de zostères et des bordures de roche : ports, digues, plages abritées, pointes rocheuses. Sur la Manche et l'Atlantique, c'est LE rendez-vous du printemps, quand les seiches quittent le large et remontent côtières pour pondre sur les herbiers : pic net de mars à mai. En Méditerranée, le même phénomène se produit un peu plus tôt, de février à avril, avec des poissons souvent calés au pied des digues et le long des herbiers de posidonie.`,

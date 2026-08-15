@@ -8,6 +8,11 @@ import type { EspeceContent } from '../types'
 export const sarEspece: EspeceContent = {
   slug: 'sar',
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 296 impressions / 3 clics / 1,01 %. Le terrain dit au pêcheur méditerranéen que la page connaît son sujet.
+  // 49 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Sar : où le pêcher du bord dans les roches, spots',
+
   intro: [
     `Le sar commun, c'est le sparidé du ressac : trapu, méfiant, collé aux rochers battus là où la dorade ne s'aventure pas. Touche sèche comme un coup de marteau, départ droit dans la caille. Du bord, c'est un des combats les plus francs de nos côtes.`,
     `Tu le trouves dans moins de 5 m d'eau, parfois dans 50 cm de mousse, toujours au contact du dur. En Méditerranée, c'est LE poisson des digues, des jetées et des calanques : présent à l'année, avec un pic net en automne-hiver dès que la mer se forme. Sur l'Atlantique, il occupe la façade sud (du Pays basque aux pertuis charentais, en passant par les épis landais et les enrochements portuaires de la Gironde), grosso modo d'avril à novembre.`,

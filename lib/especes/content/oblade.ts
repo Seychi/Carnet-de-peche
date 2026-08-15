@@ -11,6 +11,11 @@ import type { EspeceContent } from "../types"
 export const obladeEspece: EspeceContent = {
   slug: "oblade",
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 906 impressions / 7 clics / 0,77 %. Deuxième gisement du répertoire et l'un des pires CTR : la façade est l'accroche.
+  // 52 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Oblade : où la pêcher du bord en Méditerranée, spots',
+
   intro: [
     `L'oblade, c'est le sparidé méditerranéen qu'on confond souvent avec un sar de loin, jusqu'à ce qu'on voie la grosse tache noire cerclée de blanc à la base de la queue. C'est sa carte d'identité : aucun autre poisson de nos digues ne porte ce point d'encre. Corps ovale, dos gris-bleu, flancs argentés rayés de fines lignes sombres : élégante, vive, et bien plus joueuse que sa réputation ne le laisse croire.`,
     `Contrairement au sar collé au caillou ou à la dorade qui fouille le fond, l'oblade vit entre deux eaux. Elle patrouille en petits bancs le long des roches et au-dessus des herbiers de posidonie, dans les trois à six premiers mètres, souvent à portée de lancer des jetées, des pointes et des sorties de port. C'est un poisson de Méditerranée : présente du Roussillon à la Corse, à l'année, elle est en revanche quasi absente de l'Atlantique : inutile de la chercher au-delà du golfe de Gascogne.`,

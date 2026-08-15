@@ -11,6 +11,11 @@ import type { EspeceContent } from "../types"
 export const maigreEspece: EspeceContent = {
   slug: "maigre",
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 1 212 impressions / 19 clics / 1,57 %. La formule générique menait avec la maille sans donner de raison de cliquer.
+  // 55 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Maigre : où le pêcher du bord, spots, saisons et maille',
+
   intro: [
     `Le maigre, c'est le poisson de cauchemar des bredouilles et le rêve de toute une vie de pêcheur du bord. Gros sciaenidé argenté qui dépasse facilement le mètre, il remonte les grands estuaires de la façade atlantique (la Gironde en tête) et patrouille les vastes étendues de sable des baies ouvertes. Tu peux pêcher dix ans sans en voir un, puis sentir un soir une traction sourde qui te scie les bras : à ce moment-là, plus rien d'autre ne compte.`,
     `Ce qui le rend reconnaissable entre tous, c'est sa grogne. Le maigre fait vibrer sa vessie natatoire et émet un grognement caverneux qu'on entend depuis le bord les soirs calmes, surtout pendant la fraie. Les anciens repéraient les bancs à l'oreille bien avant les sondeurs. Du bord, on vise des sujets de 50 à 80 cm, mais un « gros » de plus d'un mètre pour 15 kg et plus reste à portée de canne dans les bonnes conditions. C'est rare, c'est lourd, ça se mérite.`,

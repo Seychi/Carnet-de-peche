@@ -36,11 +36,24 @@ describe('buildSpeciesTitle — les 26 espèces réelles', () => {
   })
 
   it('porte l’intention pêche et la donnée actionnable, jamais une définition', () => {
-    const title = buildSpeciesTitle(inputFor('maigre'))
-    // La requête réellement observée est « maille du maigre 2026 ».
-    expect(title).toContain('maille')
-    expect(title).toMatch(/\d+/)
-    expect(title).toContain('2026')
+    // ⚠️ Sprint 78 : ce test portait sur `maigre` seul, qui a depuis reçu un
+    // override éditorial. Il vise désormais TOUTES les espèces restées sur la
+    // formule générique et pourvues d'une maille, ce qui le rend à la fois
+    // indépendant des overrides et plus strict qu'avant.
+    // (Le millésime « 2026 » n'est pas émis pour toutes les espèces : il dépend
+    // de la réglementation portée par la fiche, donc il n'est pas asserté ici.)
+    const generiquesAvecMaille = SLUGS.filter(
+      (s) =>
+        ESPECES_CONTENT[s] &&
+        !ESPECES_CONTENT[s].seoTitle &&
+        ESPECES_CONTENT[s].regulation?.minSizeCm?.['manche-atlantique'],
+    )
+    expect(generiquesAvecMaille.length, 'la formule générique doit rester exercée').toBeGreaterThan(0)
+    for (const slug of generiquesAvecMaille) {
+      const title = buildSpeciesTitle(inputFor(slug))
+      expect(title, slug).toContain('maille')
+      expect(title, slug).toMatch(/\d+/)
+    }
   })
 
   it('respecte l’override seoTitle (sprint 77 Bloc 9, fiches à intention identification)', () => {
@@ -54,10 +67,14 @@ describe('buildSpeciesTitle — les 26 espèces réelles', () => {
   })
 
   it('dégrade proprement quand l’espèce n’a aucune maille (aucune valeur inventée)', () => {
+    // ⚠️ Sprint 78 : `bar` a reçu un override éditorial (0,34 % de clic mesuré,
+    // le pire du répertoire). On retire donc `seoTitle` ici pour que le test
+    // continue de porter sur le REPLI de la formule générique, son objet réel.
     const sansMaille = {
       meta: SPECIES.bar,
       content: {
         ...ESPECES_CONTENT.bar,
+        seoTitle: undefined,
         regulation: {
           ...ESPECES_CONTENT.bar.regulation,
           minSizeCm: { 'manche-atlantique': null, mediterranee: null },

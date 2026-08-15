@@ -8,6 +8,11 @@ import type { EspeceContent } from '../types'
 export const barEspece: EspeceContent = {
   slug: 'bar',
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 293 impressions pour 1 clic, soit 0,34 %, le pire du répertoire, à la position 10. L'ancien titre menait sur la maille sans porter la pêche.
+  // 54 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Pêche du bar du bord : spots, saisons et taille légale',
+
   intro: [
     `Le bar est LE poisson du bord en France : présent de Dunkerque à Menton, il chasse dans 50 cm d'eau comme le long des digues. Assez accessible pour ton premier poisson au leurre, assez malin pour t'obséder vingt ans. C'est lui qui remplit les carnets des pêcheurs du bord.`,
     `Quatre techniques le prennent du bord, et aucune autre de nos espèces n'offre ça : leurre souple raclé sur une pointe battue, arénicole posée dans une baïne à 2 h du matin, lançon vivant dérivé dans la veine de courant, crevette sous un flotteur le long d'un quai. Un 45 cm te semblera énorme la première année ; un 70 cm+ reste un événement qu'on raconte encore dix ans après. En Méditerranée on l'appelle loup, même poisson, mais éduqué par l'eau claire et la pression de pêche.`,

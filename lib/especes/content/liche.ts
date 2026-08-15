@@ -12,6 +12,11 @@ import type { EspeceContent } from '../types'
 export const licheEspece: EspeceContent = {
   slug: 'liche',
 
+  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
+  // Relevé GSC 90 j au 2026-08-15 : 403 impressions / 11 clics / 2,73 %. Même logique que la seiche, avec la technique qui la distingue.
+  // 45 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
+  seoTitle: 'Liche : où la pêcher du bord au leurre, spots',
+
   intro: [
     `La liche amie, c'est le poids lourd des carangidés méditerranéens : un poisson large, puissant, taillé pour la course, qui chasse en surface à portée de lancer. Une explosion sur ton popper à dix mètres du bord suivie d'un départ qui fait hurler le frein. Du bord, peu d'espèces offrent une sensation aussi brutale. Les beaux sujets dépassent le mètre et pèsent plus de dix kilos.`,
     `Tu la trouves là où le fourrage s'accumule : abords des digues, plages avec un peu de fond, embouchures et sorties de canaux où défilent les mulets, sa proie de prédilection. Le delta du Rhône, vers Port-Saint-Louis, est réputé le meilleur secteur de France pour elle. C'est un poisson chaud : les premières liches arrivent près du bord en avril-mai, le pic se situe de l'été à l'automne, et elles décrochent vers le large quand l'eau refroidit. En Manche et en Atlantique, elle est absente du bord, inutile de l'y chercher.`,
