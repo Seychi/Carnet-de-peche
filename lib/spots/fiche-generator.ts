@@ -1,5 +1,5 @@
 import { facadeOf, type Facade } from '@/lib/seo/programmatic'
-import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
+import { departmentArticle } from '@/lib/geo/departments'
 
 /**
  * Générateur de fiche pour les spots en attente de curation (sprint 78, Bloc 2).
@@ -89,13 +89,18 @@ const TECHNIQUES_BY_POST: Record<SpotStructure, string[]> = {
   estuaire: ['leurres', 'surfcasting'],
 }
 
+// ⚠️ Ces clés DOIVENT exister dans `HAZARDS_LABELS` (lib/labels.ts), sinon la
+// fiche affiche la valeur brute à l'écran (« Courant fort » au lieu de
+// « Courants forts »). Le fichier de libellés porte déjà l'avertissement, pour
+// un bug identique rencontré sur les lots de curation précédents. Vérifié clé
+// par clé au sprint 78 : trois des clés d'origine n'existaient pas.
 const HAZARDS_BY_POST: Record<SpotStructure, string[]> = {
-  plage: ['maree_montante'],
-  pointe_rocheuse: ['rochers_glissants', 'vagues_scelerates', 'maree_montante'],
+  plage: ['maree_montante_rapide', 'baignade_dangereuse'],
+  pointe_rocheuse: ['rochers_glissants', 'vagues_scelerates', 'maree_montante_rapide'],
   digue: ['rochers_glissants', 'vagues_scelerates'],
   cale: ['rochers_glissants'],
-  passe: ['courant_fort', 'maree_montante'],
-  estuaire: ['courant_fort', 'vase'],
+  passe: ['courants_forts', 'maree_montante_rapide'],
+  estuaire: ['courants_forts', 'isolement'],
 }
 
 /** Comment on nomme le poste dans une phrase, avec son article. */
@@ -147,6 +152,41 @@ const TIDE_SENTENCE: Record<Facade, string> = {
     'Sur cette façade, le marnage est négligeable : ce n’est pas la marée qui commande mais le vent, l’état de la mer et la lumière. Un coup de vent de terre qui couche la houle vaut mieux qu’un horaire théorique.',
 }
 
+/**
+ * Un nom d'étiquette OSM n'est pas un nom de spot.
+ *
+ * ⚠️ Trouvé sur le lot 1 (sprint 78) : « Accès plage », « Mise à l'eau »,
+ * « mise à l'eau plaisance » avaient été publiés. Une page intitulée
+ * « Accès plage » ne veut rien dire pour un pêcheur, ne se partage pas, et ne
+ * peut pas ranker sur autre chose que du bruit. Pire, plusieurs points OSM
+ * portent le MÊME libellé générique à des kilomètres d'écart : ils produisent
+ * alors un contenu stritement identique, donc de la cannibalisation.
+ *
+ * Un nom qualifié passe (« Mise à l'Eau du Vidourle » désigne un lieu précis).
+ */
+const GENERIC_NAMES = new Set([
+  'acces plage', 'acces a la plage', 'mise a l eau', 'mise a l eau plaisance',
+  'plage', 'cale', 'port', 'quai', 'digue', 'jetee', 'parking', 'ponton',
+  'acces mer', 'acces', 'slipway', 'cale de mise a l eau',
+])
+
+/** Normalise pour comparer : sans accents, sans ponctuation, en minuscules. */
+function normalizeName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/['’]/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+export function isGenericName(name: string): boolean {
+  const n = normalizeName(name)
+  if (n.length < 4) return true
+  return GENERIC_NAMES.has(n)
+}
+
 export function isKnownStructure(s: string | null | undefined): s is SpotStructure {
   return !!s && s in POST_PHRASE
 }
@@ -169,7 +209,6 @@ export function generateFiche(input: PendingSpotInput): GeneratedFiche | null {
   const post = input.structure
   const dept = String(input.department).trim()
   const facade = facadeOf(dept)
-  const deptLabel = DEPARTMENT_LABELS[dept] ?? dept
   const deptPhrase = departmentArticle(dept, 'dans')
   const species = SPECIES_BY_POST[post][facade]
 
@@ -180,10 +219,16 @@ export function generateFiche(input: PendingSpotInput): GeneratedFiche | null {
   // texte ne puisse s'appliquer TEL QUEL à un autre spot, et le nom + le
   // département + la façade l'assurent.
   const description = [
-    `${input.name} est ${POST_PHRASE[post]} ${deptPhrase} (${deptLabel}), sur la façade ${facadeLabel(facade)}.`,
+    // ⚠️ Pas de « (Bouches-du-Rhône) » après « dans les Bouches-du-Rhône » :
+    // `departmentArticle` porte DÉJÀ le nom du département. La parenthèse le
+    // répétait mot pour mot, ce qui signale une phrase fabriquée à la machine.
+    `${input.name} est ${POST_PHRASE[post]} ${deptPhrase}, sur la façade ${facadeLabel(facade)}.`,
     POST_READING[post],
     TIDE_SENTENCE[facade],
-    `Ce poste se prête à ${listFr(species.map(speciesLabel))}. Ce sont les espèces que ce type de poste peut donner sur cette façade, pas un relevé de prises : aucune prise n’a encore été déclarée ici.`,
+    // ⚠️ Les espèces sont listées au NOMINATIF (« le sar, l'oblade »), pas avec
+    // une préposition : « se prête à » + « au sar » donnait « se prête à au sar ».
+    // Le nominatif évite tout accord de préposition, quelle que soit l'espèce.
+    `Espèces que ce type de poste peut donner sur cette façade : ${listFr(species.map(speciesLabel))}. Ce n’est pas un relevé de prises : aucune prise n’a encore été déclarée ici.`,
     'Les horaires de marée, la météo et les meilleurs créneaux de la semaine sont calculés pour cette position, et se mettent à jour tous les jours.',
   ].join(' ')
 
@@ -207,28 +252,33 @@ function listFr(items: string[]): string {
   return `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`
 }
 
+/**
+ * Espèces au NOMINATIF, avec leur article. Volontairement pas de préposition :
+ * elle dépendrait de la phrase d'accueil et c'est ce qui produisait
+ * « se prête à au sar ». Ici, la liste se lit seule.
+ */
 const SPECIES_LABEL_FR: Record<string, string> = {
-  bar: 'au bar',
-  dorade_royale: 'à la dorade royale',
-  lieu_jaune: 'au lieu jaune',
-  maquereau: 'au maquereau',
-  sar: 'au sar',
-  orphie: 'à l’orphie',
-  sole: 'à la sole',
-  marbre: 'au marbré',
-  oblade: 'à l’oblade',
-  pageot: 'au pageot',
-  vieille: 'à la vieille',
-  congre: 'au congre',
-  mulet: 'au mulet',
-  seiche: 'à la seiche',
-  maigre: 'au maigre',
-  liche: 'à la liche',
-  barracuda: 'au barracuda',
+  bar: 'le bar',
+  dorade_royale: 'la dorade royale',
+  lieu_jaune: 'le lieu jaune',
+  maquereau: 'le maquereau',
+  sar: 'le sar',
+  orphie: 'l’orphie',
+  sole: 'la sole',
+  marbre: 'le marbré',
+  oblade: 'l’oblade',
+  pageot: 'le pageot',
+  vieille: 'la vieille',
+  congre: 'le congre',
+  mulet: 'le mulet',
+  seiche: 'la seiche',
+  maigre: 'le maigre',
+  liche: 'la liche',
+  barracuda: 'le barracuda',
 }
 
 function speciesLabel(key: string): string {
-  return SPECIES_LABEL_FR[key] ?? `au ${key.replace(/_/g, ' ')}`
+  return SPECIES_LABEL_FR[key] ?? key.replace(/_/g, ' ')
 }
 
 // ─── Porte de qualité ────────────────────────────────────────────────────────
@@ -239,6 +289,7 @@ export type GateFailure =
   | 'moins_de_2_especes'
   | 'description_trop_courte'
   | 'doublon_150m'
+  | 'nom_generique'
 
 export type GateResult =
   | { pass: true; fiche: GeneratedFiche }
@@ -260,6 +311,7 @@ export function qualityGate(
 ): GateResult {
   const reasons: GateFailure[] = []
   if (!isKnownStructure(input.structure)) reasons.push('poste_non_identifie')
+  if (isGenericName(input.name)) reasons.push('nom_generique')
   if (!hasPlausibleCoords(input.lat, input.lng)) reasons.push('coordonnees_invalides')
   if (opts?.hasDuplicateWithin150m) reasons.push('doublon_150m')
 

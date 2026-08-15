@@ -229,9 +229,66 @@ vent, l'état de la mer et la lumière. Testé dans les deux sens.
 **1 080 fiches éligibles en Méditerranée pour 80 publiées.** Le Var seul vaut plus
 qu'un lot entier.
 
-### Ce que je n'ai PAS fait, et pourquoi
+### ★ Lot 1 PUBLIÉ (décision John du 15/08)
 
-- **Aucune publication**, aucun lot. Gaté sur ton Bloc 0.
+John a tranché : on publie sans attendre le passage en Vercel Pro, qui suivra dans
+quelques jours. Le garde-fou du brief (« ne pas publier avant de connaître le taux
+de 503 ») est donc **levé sur sa décision**, prise en connaissance du risque.
+Cadence retenue : lots de 200, Méditerranée d'abord. Seuil de doublon : **500 m**.
+
+**Lot `S78-MED-01`, publié le 2026-08-15 :**
+
+| Contrôle | Résultat |
+|---|---|
+| Fiches publiées | **191** |
+| Descriptions distinctes | **191 / 191** (zéro doublon de contenu) |
+| Longueur | 761 à 883 caractères (seuil : 400) |
+| Champs manquants | **0** |
+| **Fiches curées historiques touchées** | **0** (les 416 sont intactes) |
+| Total approuvé | 416 → **607** |
+| **Part Méditerranée** | **19 % → 44,6 %** (cible du Bloc 3 : > 35 %, **atteinte dès le lot 1**) |
+
+Dépublication d'un lot, en une requête :
+
+```sql
+update public.spots set moderation_status='pending' where generation_batch='S78-MED-01';
+```
+
+### ★★ Deux défauts de qualité trouvés APRÈS publication, et corrigés
+
+Le lot est parti à 200 fiches. Le contrôle post-publication en a retiré **9** :
+
+1. **6 fiches portaient une étiquette OSM, pas un nom** : « Accès plage »,
+   « Mise à l'eau », « mise à l'eau plaisance ». Une page intitulée « Accès plage »
+   ne veut rien dire pour un pêcheur et ne peut ranker que sur du bruit. Pire,
+   plusieurs points OSM distants de plusieurs kilomètres portent le même libellé
+   générique et produisaient donc un contenu **strictement identique**.
+2. **3 paires de vraies homonymes** (« Le Clapotis », « Le Petit Travers »,
+   « Plage de la Vieille Nouvelle ») produisaient deux fiches jumelles qui se
+   cannibalisent. Un exemplaire de chaque paire a été dépublié.
+
+**La porte de qualité a été durcie en conséquence** (`nom_generique`), avec des
+tests qui refusent les libellés génériques mais acceptent un nom qualifié comme
+« Mise à l'Eau du Vidourle ». Le lot 2 ne peut plus reproduire ça.
+
+⚠️ **Leçon** : mes tests d'origine cherchaient des mensonges (« cette fiche
+affirme-t-elle quelque chose de faux ? ») et pas de la **lisibilité**. Deux autres
+défauts du même genre étaient passés au travers avant publication et n'ont été vus
+qu'en lisant la sortie réelle : « dans les Bouches-du-Rhône (Bouches-du-Rhône) » et
+« se prête à au sar ». Sur 2 900 pages, une tournure bancale répétée est le signal
+le plus clair possible que le contenu est fabriqué. Des tests de lisibilité ont été
+ajoutés.
+
+⚠️ **Troisième défaut, attrapé juste avant l'écriture** : trois de mes clés de
+dangers (`maree_montante`, `courant_fort`, `vase`) **n'existaient pas** dans
+`HAZARDS_LABELS`. Les 200 fiches auraient affiché la clé brute à l'écran. Un test
+vérifie désormais que **toute** clé produite (danger, technique, espèce) a un
+libellé.
+
+### Ce qui reste
+
+- **Lots 2 et suivants** : ~2 700 fiches éligibles restantes, à publier après
+  7 jours d'observation, en réutilisant la même requête (consignée ci-dessus).
 - **Pas de relecture humaine des 20 fiches** tirées au hasard : c'est un critère
   d'acceptation qui demande un humain, pas moi. Le générateur est prêt à produire
   l'échantillon quand tu veux.

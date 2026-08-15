@@ -70,8 +70,11 @@ describe('honnêteté du texte — l’invariant du bloc', () => {
   })
 
   it('qualifie les espèces comme PLAUSIBLES, pas comme présentes', () => {
-    expect(fiche.description).toMatch(/se prête à/)
+    // La formulation dit ce que le poste PEUT donner, jamais ce qu'il donne.
+    expect(fiche.description).toMatch(/peut donner sur cette façade/)
     expect(fiche.description).toMatch(/pas un relevé de prises/)
+    // Et surtout, jamais l'affirmation inverse.
+    expect(fiche.description).not.toMatch(/espèces présentes|on y trouve/i)
   })
 
   it('n’emploie pas de tiret cadratin (CLAUDE.md §6)', () => {
@@ -137,5 +140,80 @@ describe('helpers', () => {
     expect(hasPlausibleCoords(50.9, 1.85)).toBe(true) // Calais
     expect(hasPlausibleCoords(48.85, 2.35)).toBe(true) // Paris (hors mer, mais la porte marée tranchera)
     expect(hasPlausibleCoords(NaN, 2)).toBe(false)
+  })
+})
+
+// ── Lisibilité : ce que 2 900 pages ne pardonnent pas ────────────────────────
+// Ces trois défauts étaient présents dans la première version et n'avaient PAS
+// été attrapés, parce que les tests cherchaient des mensonges et pas des phrases
+// mal fichues. Sur un site entier, une tournure bancale répétée 2 900 fois est
+// le signal le plus clair possible que le contenu est fabriqué.
+describe('lisibilité du français produit', () => {
+  const echantillons = [
+    generateFiche(penvins)!,
+    generateFiche(marseille)!,
+    generateFiche({ ...penvins, structure: 'cale' })!,
+    generateFiche({ ...marseille, structure: 'digue' })!,
+    generateFiche({ ...penvins, structure: 'passe' })!,
+    generateFiche({ ...marseille, structure: 'estuaire' })!,
+  ]
+
+  it('aucune préposition doublée (« à au », « à à », « de de »)', () => {
+    for (const f of echantillons) {
+      expect(f.description).not.toMatch(/\b(à à|à au|à aux|de de|du du|de le\b)/)
+    }
+  })
+
+  it('ne répète pas le département juste après lui-même', () => {
+    // « dans les Bouches-du-Rhône (Bouches-du-Rhône) » : le défaut d'origine.
+    for (const f of echantillons) {
+      expect(f.description).not.toMatch(/(\b[A-ZÀ-Ý][\wÀ-ÿ'’-]+(?:-[\wÀ-ÿ'’]+)*)\s*\(\1\)/)
+    }
+  })
+
+  it('n’enchaîne pas deux espaces ni un espace avant une ponctuation simple', () => {
+    for (const f of echantillons) {
+      expect(f.description).not.toMatch(/ {2}/)
+      expect(f.description).not.toMatch(/\s[,.]/)
+    }
+  })
+
+  it('liste les espèces au nominatif, jamais avec une préposition collée', () => {
+    for (const f of echantillons) {
+      expect(f.description).toMatch(/Espèces que ce type de poste peut donner sur cette façade : /)
+    }
+  })
+})
+
+// ★ Ce test aurait évité de publier 200 fiches affichant « courant_fort » brut.
+describe('les clés produites existent dans les référentiels d’affichage', () => {
+  it('tous les dangers ont un libellé', async () => {
+    const { HAZARDS_LABELS, TECHNIQUE_LABELS, SPECIES_LABELS } = await import('@/lib/labels')
+    const posts = ['plage', 'pointe_rocheuse', 'cale', 'digue', 'passe', 'estuaire'] as const
+    for (const p of posts) {
+      for (const dept of ['56 ', '13 ']) {
+        const f = generateFiche({ name: 'X', department: dept, structure: p, lat: 45, lng: 0 })!
+        for (const h of f.hazards) expect(HAZARDS_LABELS[h], `danger « ${h} »`).toBeDefined()
+        for (const t of f.techniques) expect(TECHNIQUE_LABELS[t], `technique « ${t} »`).toBeDefined()
+        for (const sp of f.species) expect(SPECIES_LABELS[sp], `espèce « ${sp} »`).toBeDefined()
+      }
+    }
+  })
+})
+
+// ★ Défaut réel du lot 1 : « Accès plage » et « Mise à l'eau » avaient été publiés.
+describe('un nom d’étiquette OSM n’est pas un nom de spot', () => {
+  it('REFUSE les libellés génériques', () => {
+    for (const nom of ['Accès plage', 'Acces Plage', "Mise à l'eau", "mise à l'eau plaisance", 'Plage', 'Cale', 'Port']) {
+      const r = qualityGate({ ...marseille, name: nom })
+      expect(r.pass, nom).toBe(false)
+      if (!r.pass) expect(r.reasons).toContain('nom_generique')
+    }
+  })
+
+  it('ACCEPTE un nom qualifié, même s’il commence par un mot générique', () => {
+    for (const nom of ["Mise à l'Eau du Vidourle", 'Plage des Catalans', 'Port de Sanary']) {
+      expect(qualityGate({ ...marseille, name: nom }).pass, nom).toBe(true)
+    }
   })
 })
