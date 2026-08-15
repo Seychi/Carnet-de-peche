@@ -33,10 +33,10 @@ export type SpotMarker = {
   // Qualité du MEILLEUR moment du jour (dérivée de spot_scores.day_score, pas de
   // current_score qui est ~toujours 0 — cf fetchFreshScores). Couleur du marker.
   // undefined si pas encore de score (cron pas passé / spot récent) → gris neutre.
-  currentQuality?: QualityLevel
+  dayQuality?: QualityLevel
   // Score numérique 0-100 du meilleur moment du jour (spot_scores.day_score),
   // affiché dans le panneau spot. undefined si pas encore scoré.
-  currentScore?: number
+  dayScore?: number
 }
 
 // Couleur de marker par qualité (markers carte + légende + cercles flous).
@@ -78,7 +78,7 @@ export function createFuzzyCircle(
   }
   return {
     type: 'Feature',
-    properties: { spotId: spot.id, quality: spot.currentQuality ?? '' },
+    properties: { spotId: spot.id, quality: spot.dayQuality ?? '' },
     geometry: { type: 'Polygon', coordinates: [coords] },
   }
 }

@@ -163,7 +163,7 @@ export default async function CartePage({
   const scores = await fetchFreshScores(spotsRaw.map((s) => s.id))
   const spots = spotsRaw.map((s) => {
     const sc = scores.get(s.id)
-    return { ...s, currentQuality: sc?.quality, currentScore: sc?.score }
+    return { ...s, dayQuality: sc?.quality, dayScore: sc?.score }
   })
 
   // Départements disponibles pour le sélecteur itinérant

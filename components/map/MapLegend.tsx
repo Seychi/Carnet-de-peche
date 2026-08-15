@@ -15,8 +15,23 @@ const ITEMS: { quality: QualityLevel; label: string }[] = [
 export default function MapLegend({ availableSources = [] }: { availableSources?: string[] }) {
   return (
     <div className="hidden md:flex absolute bottom-4 left-4 z-20 flex-col gap-1.5 px-3 py-2 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-ink-200 text-xs text-ink-600">
-      {/* Qualité (cividis colorblind-safe) */}
+      {/* Qualité (cividis colorblind-safe)
+
+          ⚠️ AUDIT DU 15/08, P0-1 — cette échelle décrit la qualité du MEILLEUR
+          MOMENT DU JOUR (`spot_scores.day_score`), pas la condition à l'instant
+          présent. Elle ne le disait pas, d'où le constat « la carte annonce très
+          bon sur un spot que le site juge faible » : la comparaison portait sur
+          `current_quality`, une colonne que l'application n'affiche NULLE PART.
+
+          ⚠️ Ne PAS « corriger » en basculant la couleur sur `current_quality` :
+          ce serait annuler le commit `24d4ef4` du 23/06 (« fin du 0/100
+          partout »). `current_score` est la note de la fenêtre active à l'instant
+          où le cron tourne, 05:00 UTC, heure à laquelle presque aucun spot n'a de
+          créneau actif : il vaut ~toujours 0. */}
       <div className="flex items-center gap-3">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-400">
+          Qualité du jour
+        </span>
         {ITEMS.map(({ quality, label }) => (
           <span key={quality} className="flex items-center gap-1.5 whitespace-nowrap">
             <span

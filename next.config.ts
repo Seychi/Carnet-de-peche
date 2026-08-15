@@ -164,6 +164,24 @@ const cspDirectives: Array<[string, string[]]> = [
 const csp = cspDirectives.map(([name, values]) => `${name} ${values.join(" ")}`).join("; ");
 
 const nextConfig: NextConfig = {
+  // ── Skew Protection (audit du 15/08, P0-3) ──────────────────────────────────
+  // Les assets `_next/static/...` ne portaient aucun `?dpl=` : un visiteur qui
+  // avait la page ouverte PENDANT un déploiement voyait ses requêtes RSC échouer,
+  // parce qu'elles allaient chercher des chunks de la version précédente. Mesuré
+  // le 15/08 : 5 déploiements dans la journée, et un **503 capturé** sur
+  // `/spots/bec-de-sormiou-osm747711726?_rsc=…` à 13h43. La frontière d'erreur
+  // `app/(map)/error.js` se déclenche alors, ce qui donne exactement le symptôme
+  // signalé : « la carte se reset et plus aucun spot n'apparaît ».
+  //
+  // ⚠️ L'audit cite `experimental.useDeploymentId` : cette clé N'EXISTE PAS en
+  // Next 15.5 (vérifié dans `config-shared.d.ts`, `tsc` la refuse). La bonne clé
+  // est `deploymentId` au premier niveau, alimentée par la variable que Vercel
+  // injecte quand Skew Protection est active.
+  //
+  // ⚠️ Ne suffit PAS seule : il faut AUSSI cocher Skew Protection côté Vercel
+  // (Settings → Advanced). Sans elle, `VERCEL_DEPLOYMENT_ID` est absente, la clé
+  // vaut `undefined` et le comportement est strictement celui d'aujourd'hui.
+  deploymentId: process.env.VERCEL_DEPLOYMENT_ID,
   // Limite de body des Server Actions (sprint 20). Défaut Next = 1 Mo : un WebP de
   // prise pouvait le dépasser → « Body exceeded 1 MB limit » (500 framework AVANT
   // que l'action ne s'exécute). On porte à 2 Mo pour : (1) de la marge sur l'overhead

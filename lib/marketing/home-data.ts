@@ -138,7 +138,7 @@ export const getHomeMapSpots = unstable_cache(
     }
     return spots.map((s) => {
       const ds = scoreById.get(s.id)
-      return ds != null ? { ...s, currentScore: ds, currentQuality: qualityFromScore(ds) } : s
+      return ds != null ? { ...s, dayScore: ds, dayQuality: qualityFromScore(ds) } : s
     })
   },
   ['home-map-spots-v1'],

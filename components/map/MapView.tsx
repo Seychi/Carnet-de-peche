@@ -138,11 +138,11 @@ function createPinElement(spot: SpotMarker): HTMLElement {
 
   // Couleur de base selon la qualité — mémorisée pour la restaurer après un
   // highlight nearby (cf. dataset.qcolor dans l'effet nearby).
-  const color = markerColorForQuality(spot.currentQuality)
+  const color = markerColorForQuality(spot.dayQuality)
   wrapper.dataset.qcolor = color
 
   // Ring "exceptionnelle" : pulse permanent (uniquement les meilleurs spots)
-  if (spot.currentQuality === 'exceptionnelle') {
+  if (spot.dayQuality === 'exceptionnelle') {
     const exc = document.createElement('div')
     exc.className = 'marker-exceptional-ring'
     wrapper.appendChild(exc)
@@ -277,7 +277,7 @@ function buildClusterData(spots: SpotMarker[]) {
       type: 'Feature' as const,
       geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] as [number, number] },
       // ⟢ MERGE C2 : `source` ajouté aux properties (transparent pour C1/heatmap).
-      properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.currentQuality ?? '', source: s.source },
+      properties: { spotId: s.id, isPrecise: s.isPrecise, name: s.name, quality: s.dayQuality ?? '', source: s.source },
     })),
   }
 }

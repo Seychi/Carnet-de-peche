@@ -344,11 +344,11 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           )}
 
           <div className="flex items-center gap-2">
-            <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Score</p>
-            {spot.currentScore != null ? (
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-400">Score du jour</p>
+            {spot.dayScore != null ? (
               <span className="px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-ink-100">
                 <b className="font-semibold text-ink-900">
-                  {spot.currentScore}
+                  {spot.dayScore}
                 </b>
                 <span className="text-ink-400"> / 100</span>
               </span>
