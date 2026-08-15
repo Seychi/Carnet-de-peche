@@ -20,7 +20,7 @@ import { TagData } from '@/components/ui-v2/tag-data'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { SpeciesScore, SpeciesScoreSkeleton } from '@/components/especes/species-score'
-import { SpeciesTopSpots, SpeciesTopSpotsSkeleton } from '@/components/especes/species-top-spots'
+import { SpeciesTopSpots } from '@/components/especes/species-top-spots'
 import { SpeciesPersonal, SpeciesPersonalSkeleton } from '@/components/especes/species-personal'
 import { SpeciesSeasonNow } from '@/components/especes/species-season-now'
 import { SpeciesAnswer } from '@/components/especes/species-answer'
@@ -266,10 +266,23 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
           (cf lib/especes/top-spots.ts : signal réel RPC 049, spots approuvés
           uniquement depuis la migration 109). Retiré de la sidebar plus bas pour ne
           pas dupliquer le bloc ni son JSON-LD ItemList. */}
+      {/* ⚠️ SPRINT 78 — LE `<Suspense>` A ÉTÉ RETIRÉ ICI, ET C'EST LE POINT.
+          Déplacer le JSX au sprint 77 n'a pas suffi : mesuré sur la PRODUCTION le
+          15/08, « OÙ PÊCHER BAR » se trouvait à l'offset 160169 du HTML servi,
+          quand la FAQ était à 44207 et « Autres espèces » à 46790. Le bloc restait
+          donc le DERNIER du document, c'est-à-dire exactement ce que le sprint 77
+          voulait corriger, et l'audit du 14/08 l'avait vu.
+          Cause : une frontière Suspense émet son contenu à la FIN du flux, et c'est
+          le client qui le remet en place. L'humain voyait le bloc au bon endroit,
+          le document servi non.
+          Or cette page est ENTIÈREMENT STATIQUE (`generateStaticParams` +
+          `revalidate = 86400` + `dynamicParams = false`) : le HTML est produit une
+          fois puis servi 24 h. Le Suspense n'achetait aucune latence, il ne coûtait
+          que l'ordre du document. On rend donc le composant en ligne.
+          Même famille de piège que le sprint 77 : ce que le serveur ÉMET compte
+          plus que ce que le JSX suggère. */}
       <div className="mx-auto max-w-[980px] px-5 pt-8">
-        <Suspense fallback={<SpeciesTopSpotsSkeleton />}>
-          <SpeciesTopSpots dbKey={species.dbKey} label={species.label} speciesSlug={speciesSlug} />
-        </Suspense>
+        <SpeciesTopSpots dbKey={species.dbKey} label={species.label} speciesSlug={speciesSlug} />
       </div>
 
       <div className="mx-auto max-w-[980px] px-5 py-10">
