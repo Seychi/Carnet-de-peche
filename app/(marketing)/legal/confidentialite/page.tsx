@@ -1,6 +1,13 @@
 import type { Metadata } from 'next'
 import { LegalLayout } from '@/components/layout/LegalLayout'
 
+// Sprint 81, Bloc 1 : la page décrit le dispositif RÉELLEMENT déployé. Lu au
+// rendu, sur la même variable que `PostHogProvider` : page et comportement
+// basculent ensemble, il n'y a pas d'instant où l'une ment sur l'autre.
+const ANALYTICS_COOKIELESS =
+  process.env.NEXT_PUBLIC_ANALYTICS_COOKIELESS === '1' ||
+  process.env.NEXT_PUBLIC_ANALYTICS_COOKIELESS === 'true'
+
 export const metadata: Metadata = {
   title: 'Politique de confidentialité — Carnet de Pêche',
   description: 'Comment Carnet de Pêche collecte, utilise et protège tes données personnelles, conformément au RGPD et à la loi Informatique et Libertés.',
@@ -231,6 +238,9 @@ export default function ConfidentialitePage() {
           <tr><td>Préférences (filtres carte…)</td><td>Strictement nécessaire</td><td>Mémoriser tes choix d’interface</td><td>Session</td></tr>
           <tr><td><code>cdp-analytics-consent</code></td><td>Strictement nécessaire</td><td>Mémoriser ton choix d’accepter ou refuser la mesure d’audience</td><td>6 mois</td></tr>
           <tr><td><code>ph_*</code> (PostHog)</td><td>Mesure d’audience</td><td>Mesurer l’usage du site de façon anonymisée (base légale : consentement)</td><td>13 mois max</td></tr>
+          {ANALYTICS_COOKIELESS && (
+            <tr><td><em>aucun</em></td><td>Mesure d’audience sans cookie</td><td>Sans consentement : rien n’est écrit dans ton navigateur, l’identifiant est calculé côté serveur et change chaque jour</td><td>Sans objet</td></tr>
+          )}
         </tbody>
       </table>
       <p>
@@ -244,6 +254,23 @@ export default function ConfidentialitePage() {
         navigateur (le bandeau réapparaîtra) ou en nous écrivant. Aucun cookie publicitaire tiers
         n’est jamais déposé.
       </p>
+      {/* ⚠️ SPRINT 81, Bloc 1 — ce paragraphe est gaté sur LE MÊME drapeau que le
+          comportement qu'il décrit. C'est la seule façon que la page reste exacte :
+          elle change au moment exact où le dispositif change, jamais avant, jamais
+          après. Drapeau éteint (état par défaut) ⇒ ce paragraphe n'existe pas, et
+          le texte ci-dessus reste vrai au mot près. */}
+      {ANALYTICS_COOKIELESS && (
+        <p>
+          <strong>Mesure d’audience sans cookie.</strong> Si tu refuses, ou tant que tu n’as pas
+          tranché, on mesure l’audience du site <strong>sans déposer aucun cookie</strong> et sans
+          rien écrire dans ton navigateur : ni cookie, ni stockage local, ni stockage de session.
+          Ton identifiant de mesure est un <strong>calcul non réversible</strong> effectué sur les
+          serveurs de PostHog en Europe, qui change <strong>tous les jours</strong> et ne permet
+          donc pas de te suivre d’un jour à l’autre, ni d’un site à l’autre. Aucune fiche personne
+          n’est créée. Si tu acceptes, la mesure devient nominative au sens technique (un
+          identifiant stable est déposé), ce qui nous permet de relier tes visites à ton carnet.
+        </p>
+      )}
 
       <h2 id="modification">11. Modification de la politique</h2>
       <p>

@@ -26,6 +26,23 @@ import { readEntryAttribution, rememberEntryAttribution } from '@/lib/analytics/
  * donc le comportement réseau vis-à-vis du consentement est inchangé.
  * Détail et preuve : docs/sprint-76/research/attribution.md
  */
+/**
+ * Comptage SANS COOKIE pour les visiteurs non consentants (sprint 81, Bloc 1).
+ *
+ * ⚠️ DERRIÈRE UN DRAPEAU, à dessein. `NEXT_PUBLIC_ANALYTICS_COOKIELESS` absent ou
+ * `'0'` ⇒ comportement STRICTEMENT identique à avant le sprint. Le bloc touche à
+ * la conformité : il se code sans attendre l'avis juridique, il ne s'allume que
+ * sur décision de John.
+ *
+ * Pourquoi ça existe : 427 visiteurs vus dans PostHog sur 30 jours contre ~1 495
+ * clics Google. On pilote une roadmap de conversion sur ~29 % du réel, et sur la
+ * fraction la plus patiente du public, celle qui a cliqué « Accepter ».
+ */
+export function cookielessEnabled(): boolean {
+  const flag = process.env.NEXT_PUBLIC_ANALYTICS_COOKIELESS
+  return flag === '1' || flag === 'true'
+}
+
 function ensurePostHogInit(): boolean {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
   if (!key) return false
@@ -41,6 +58,24 @@ function ensurePostHogInit(): boolean {
     // Désactivé : on fait de la mesure d'audience, pas du session replay.
     disable_session_recording: true,
     autocapture: false,
+    // ⚠️ SPRINT 81, Bloc 1 — vérifié dans le SDK INSTALLÉ, pas de mémoire :
+    // `cookieless_mode?: 'always' | 'on_reject'` est déclaré dans
+    // `@posthog/types@1.391.0` (`posthog-config.d.ts:1589`) et présent dans le
+    // bundle de `posthog-js@1.393.0`. Aucune montée de version nécessaire.
+    //
+    // Pourquoi `'on_reject'` et pas `'always'` : `'always'` couperait les cookies
+    // pour TOUT LE MONDE, y compris ceux qui ont accepté, et on perdrait le
+    // funnel identifié qui est la seule chose que la roadmap sait lire de bout
+    // en bout. `'on_reject'` garde le comportement actuel pour qui accepte.
+    //
+    // ★ La question décisive du brief (« `on_reject` couvre-t-il celui qui n'a
+    // PAS ENCORE répondu, ou seulement celui qui a refusé ? ») est tranchée par
+    // la doc de `is_capturing()` dans le SDK installé : la capture sans cookie
+    // s'applique si l'utilisateur « has opted out **or been defaulted to
+    // opt-out** ». Or `opt_out_capturing_by_default: true` met précisément le
+    // visiteur qui n'a pas répondu dans cet état. Les deux cas sont donc
+    // couverts, et `lib/consent.ts` n'a pas besoin de changer.
+    ...(cookielessEnabled() ? { cookieless_mode: 'on_reject' as const } : {}),
   })
 
   // Si l'utilisateur a déjà consenti lors d'une visite précédente, on réactive.
