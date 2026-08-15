@@ -1,13 +1,13 @@
 # Sprint 81 — RECAP (PARTIEL)
 ## La mesure honnête
 
-> **Statut au 2026-08-15, 15h10** : Blocs 0 (partiel), **1 (code complet, drapeau ÉTEINT)** et
-> **6 (clos avec preuve)** faits. **Blocs 2, 3, 4, 5 NON FAITS.** Voir « Ce qui n'est pas fait »
+> **Statut au 2026-08-15, 15h40** : Blocs 0 (partiel), **1 (code complet, drapeau ÉTEINT)**,
+> **2 (réécrit par décision John, fait)** et **6 (clos avec preuve)** faits. **Blocs 3, 4, 5 NON FAITS.** Voir « Ce qui n'est pas fait »
 > en bas, c'est la partie la plus importante de ce document.
 >
 > ⚠️ Ligne **datée**. La vérité est HEAD de `main` et la prod, jamais cette phrase.
 >
-> **Aucune migration.** Aucune RPC, aucune policy. **1328 tests verts** (109 fichiers),
+> **Aucune migration.** Aucune RPC, aucune policy. **1332 tests verts** (109 fichiers),
 > build OK, `tsc` OK, `next lint` OK, lint de copie OK.
 
 ---
@@ -117,6 +117,64 @@ anticipé le cas au §3a. Compter avant d'écrire a évité une écriture en pro
 
 ---
 
+## Bloc 2 — RÉÉCRIT par décision John : le bandeau RESTE ✅
+
+⚠️ **Décision John du 15/08, en cours de sprint : on garde le bandeau de consentement.**
+Le Bloc 2 tel qu'il était écrit (« le bandeau qui disparaît ») est donc **annulé**, et avec
+lui sa dépendance dure au Bloc 1 : garder le bandeau ne fait courir aucun risque à la mesure.
+
+### Ce que la mesure a montré, et qui reformule la demande
+
+Mesuré en **production** le 15/08 en 390 × 664, sans cookie :
+
+| Élément | Position | Hauteur |
+|---|---|---|
+| Colonne de boutons flottants | 175 → 299 | 124 px |
+| Barre « Crée ton carnet » | 311 → 461 | 150 px |
+| Bandeau de consentement | 461 → 652 | **191 px** |
+
+**Aucun chevauchement entre aucun des trois** : le mécanisme d'empilement du sprint 79 tient en
+production. La demande « qu'il ne recouvre pas les autres trucs » était donc **déjà satisfaite**.
+
+Le vrai défaut est ailleurs : les trois occupaient ensemble **489 px sur 664, soit 74 % de
+l'écran**, pour **175 px de carte**. Rien n'était caché, il n'y avait plus de place. Et le
+bandeau est passé de 168 à **191 px** parce que le S80 a agrandi ses boutons à 44 px (le brief
+prévenait : « re-mesurer, ne pas recopier 168 »).
+
+### Ce qui a été fait : une sollicitation à la fois
+
+`lib/hooks/useConsentBannerVisible.ts` (nouveau) observe `data-consent-pending` sur `<html>` en
+`MutationObserver`. `SignupBanner` et `UpsellBanner` ne se montent pas tant que le bandeau de
+consentement est à l'écran, et réapparaissent dès la réponse.
+
+★ **On DÉMONTE, on ne masque pas.** Un `display:none` aurait laissé le composant monté, donc
+`signup_wall_viewed` serait parti pour une barre que personne ne voit : le témoin du sprint 79
+aurait gonflé **dans le sens flatteur**. C'est aussi pour ça qu'on observe l'attribut posé par
+`CookieBanner` plutôt que de relire le cookie : l'attribut dit « le bandeau est **vraiment** à
+l'écran », le cookie dirait seulement « pas de réponse ».
+
+### Prouvé sur le build local, 390 × 664
+
+| | Avant réponse | Après « Accepter » |
+|---|---|---|
+| Barre d'inscription | **non montée** | 514 → 664 (revient) |
+| Bandeau de consentement | 461 → 652 | absent |
+| **Carte libre** | **325 px** *(était 175)* | 366 px |
+
+**+150 px rendus à la carte, soit +86 % d'écran utile** pendant la phase de consentement.
+Capture : `docs/sprint-81/apres-carte-une-barre-a-la-fois.png`.
+
+★ **Effet de bord heureux** : la réserve écrite au RECAP du S80 (Bloc 3, « avec le bandeau ET la
+barre, le sud-est passe derrière ») **tombe**. Les marqueurs Méditerranée et Atlantique sont
+enfin lisibles dès le premier écran, ce qui était l'objectif du Bloc 3 du S80.
+
+⚠️ **Non fait** : la barre collante des fiches de spot (`/spots/[slug]`) porte aussi
+`.sticky-bottom-bar` mais son conteneur est rendu côté serveur ; lui appliquer la même règle
+demande un composant client. Elle ne se recouvre pas non plus, elle occupe juste sa place.
+4 tests ajoutés à `components/map/__tests__/bottom-stack.test.ts` (12 au total).
+
+---
+
 ## Ce qui n'est PAS fait, et pourquoi
 
 Je me suis arrêté sur une **limite de session** (celle qui avait déjà tué quatre agents
@@ -126,7 +184,7 @@ proprement sur un état vert et commité.
 | Bloc | État | Note |
 |---|---|---|
 | **0** | Partiel | Preuve mécanique du S80 non re-rejouée en prod ; relevés PostHog et captures « avant » non faits. Le relevé J+14 du S79 **ne peut pas** être fait : fenêtre < 1 h |
-| **2** — bandeau qui disparaît | **Non fait** | Dépendance dure au Bloc 1. Il ne **doit pas** être fait tant que le drapeau du Bloc 1 n'est pas allumé et vérifié : un bandeau retiré sans comptage sans cookie, c'est la mesure qui passe de 29 % à **0 %** |
+| **2** — bas d'écran | ✅ **Fait, réécrit** | Le bandeau reste (décision John). Voir la section dédiée plus haut |
 | **3** — auto-référencement | **Non fait** | Commence par une re-mesure PostHog. Le §3a du brief prédit qu'il se clôt en une heure |
 | **4** — tableau de bord + `catch_log_abandoned` | **Non fait** | Le `catch_log_abandoned` mobile traîne depuis le S79 |
 | **5** — les trois LCP | **Non fait** | ⚠️ Sa base doit être relevée **AVANT** que le drapeau du Bloc 1 s'allume, sinon l'avant et l'après ne seront pas comparables (la population mesurée change) |

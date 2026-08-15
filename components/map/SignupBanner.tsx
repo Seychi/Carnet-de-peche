@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
 import { useBottomBarHeight } from '@/components/map/useBottomBarHeight'
+import { useConsentBannerVisible } from '@/lib/hooks/useConsentBannerVisible'
 import {
   buildSignupHref,
   SIGNUP_WALL_BENEFITS,
@@ -200,10 +201,15 @@ export function SignupWall({
 
 export default function SignupBanner() {
   const [visible, setVisible] = useState(false)
+  // Sprint 81, Bloc 2 : une sollicitation a la fois. Tant que le bandeau de
+  // consentement est a l'ecran, cette barre ne se monte pas -- donc elle n'emet
+  // pas non plus `signup_wall_viewed` pour une impression que personne n'a vue.
+  const consentBannerVisible = useConsentBannerVisible()
   const [entered, setEntered] = useState(false)
   const currentPath = useCurrentPath()
   const href = buildSignupHref(currentPath)
-  const barRef = useBottomBarHeight<HTMLDivElement>(visible)
+  const shown = visible && !consentBannerVisible
+  const barRef = useBottomBarHeight<HTMLDivElement>(shown)
 
   useEffect(() => {
     if (isBannerDismissed()) return
@@ -211,11 +217,11 @@ export default function SignupBanner() {
   }, [])
 
   useEffect(() => {
-    if (!visible) return
+    if (!shown) return
     analytics.signupWallViewed({ surface: BANNER_SURFACE })
     const timer = setTimeout(() => setEntered(true), 60)
     return () => clearTimeout(timer)
-  }, [visible])
+  }, [shown])
 
   function handleDismiss() {
     const maxAge = DISMISS_DURATION_DAYS * 24 * 60 * 60
@@ -223,7 +229,7 @@ export default function SignupBanner() {
     setVisible(false)
   }
 
-  if (!visible) return null
+  if (!shown) return null
 
   return (
     <div

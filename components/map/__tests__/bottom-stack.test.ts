@@ -56,6 +56,36 @@ describe('bas de carte : on empile, on ne se dispute pas le z-index', () => {
     expect(source).toContain('ref={barRef}')
   })
 
+  // ── Sprint 81, Bloc 2 (décision John du 15/08) ────────────────────────────
+  // Le bandeau de consentement RESTE, mais on n'empile plus deux sollicitations.
+  // Mesuré en production le 15/08 en 390 × 664 : FAB 124 px + barre 150 px +
+  // bandeau 191 px = 489 px sur 664, soit 74 % de l'écran, pour 175 px de carte.
+  // Rien ne se recouvrait (le sprint 79 tient), il n'y avait plus de place.
+  it.each([
+    ['SignupBanner', SIGNUP],
+    ['UpsellBanner', UPSELL],
+  ])('%s ne se monte pas tant que le bandeau de consentement est à l\'écran', (_name, source) => {
+    expect(source).toContain('useConsentBannerVisible')
+    expect(source).toContain('const shown = visible && !consentBannerVisible')
+    // ⚠️ On DÉMONTE, on ne masque pas : un composant masqué en CSS resterait
+    // monté et enverrait quand même son événement « vu », ce qui gonflerait le
+    // témoin du sprint 79 dans le sens flatteur.
+    expect(source).toContain('if (!shown) return null')
+  })
+
+  it.each([
+    ['SignupBanner', SIGNUP, 'signupWallViewed'],
+    ['UpsellBanner', UPSELL, 'paywallViewed'],
+  ])(
+    "%s n'émet son événement « vu » que s'il est réellement affiché",
+    (_name, source, event) => {
+      // L'effet qui émet doit être gardé par `shown`, pas par `visible`.
+      const effect = source.slice(source.indexOf(`analytics.${event}`) - 400)
+      expect(effect).toContain('if (!shown) return')
+      expect(source).toMatch(/\}, \[shown\]\)/)
+    },
+  )
+
   it('la colonne de FAB porte la classe et ne fixe aucun bottom en style inline', () => {
     expect(MAPSHELL).toContain('map-fab-stack')
 

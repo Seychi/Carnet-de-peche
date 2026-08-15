@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
 import { useBottomBarHeight } from '@/components/map/useBottomBarHeight'
+import { useConsentBannerVisible } from '@/lib/hooks/useConsentBannerVisible'
 
 const COOKIE_NAME = 'upsell-dismissed-at'
 const DISMISS_DURATION_DAYS = 7
@@ -13,13 +14,17 @@ const SURFACE = 'map_banner'
 export default function UpsellBanner() {
   const [visible, setVisible] = useState(true)
   const [entered, setEntered] = useState(false)
-  const barRef = useBottomBarHeight<HTMLDivElement>(visible)
+  // Sprint 81, Bloc 2 : une sollicitation a la fois (cf SignupBanner).
+  const consentBannerVisible = useConsentBannerVisible()
+  const shown = visible && !consentBannerVisible
+  const barRef = useBottomBarHeight<HTMLDivElement>(shown)
 
   useEffect(() => {
+    if (!shown) return
     const timer = setTimeout(() => setEntered(true), 60)
     analytics.paywallViewed({ surface: SURFACE })
     return () => clearTimeout(timer)
-  }, [])
+  }, [shown])
 
   function handleDismiss() {
     const maxAge = DISMISS_DURATION_DAYS * 24 * 60 * 60
@@ -27,7 +32,7 @@ export default function UpsellBanner() {
     setVisible(false)
   }
 
-  if (!visible) return null
+  if (!shown) return null
 
   return (
     <div
