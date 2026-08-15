@@ -86,6 +86,27 @@ export function createFuzzyCircle(
 export const COASTAL_DEFAULT_CENTER: [number, number] = [-2.5, 47.0]
 export const COASTAL_DEFAULT_ZOOM = 6
 
+/**
+ * Cadre par défaut de `/carte` : les DEUX façades dans le même écran.
+ *
+ * ⚠️ SPRINT 80, Bloc 3. `COASTAL_DEFAULT_CENTER` vaut `[-2.5, 47.0]`, au large de
+ * la Vendée. En portrait 390 × 664 au zoom 6, le cadre visible est haut et
+ * étroit : il montre Brest, Nantes et La Rochelle, et laisse la Méditerranée
+ * (longitudes 3 à 9, latitudes 41 à 43,5) **hors champ**. Le sprint 78 a fait
+ * passer la Méditerranée de 19 % à 44,6 % de l'inventaire publié : à l'écran,
+ * ces 191 fiches n'existaient pas. Un pêcheur varois ouvrait un site breton.
+ *
+ * On donne des BORNES plutôt qu'un centre et un zoom, précisément parce que le
+ * zoom qui cadre bien en portrait ne cadre pas en paysage : `fitBounds` dérive
+ * le zoom du ratio réel du conteneur, ce qu'une valeur en dur ne peut pas faire.
+ *
+ * Sud-ouest → nord-est, Corse comprise (elle porte 311 spots éligibles).
+ */
+export const COASTAL_DEFAULT_BOUNDS: [[number, number], [number, number]] = [
+  [-5.2, 41.3],
+  [9.6, 51.1],
+]
+
 // Limite le tableau de spots à `max` par département (tri stable, conserve l'ordre d'entrée).
 export function limitSpotsPerDept(spots: SpotMarker[], max: number): SpotMarker[] {
   const counts: Record<string, number> = {}

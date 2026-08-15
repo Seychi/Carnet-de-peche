@@ -77,7 +77,7 @@ function HowItWorksDialog() {
   return (
     <Dialog>
       <DialogTrigger
-        className="flex items-center gap-1.5 text-[12px] text-ink-500 hover:text-teal-700 transition-colors shrink-0 bg-transparent border-0 cursor-pointer p-0"
+        className="-m-2 flex size-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 border-0 bg-transparent p-2 text-[12px] text-ink-500 transition-colors hover:text-teal-700 sm:m-0 sm:size-auto sm:p-0"
         aria-label="Comment le score est calculé"
       >
         <Info size={14} />

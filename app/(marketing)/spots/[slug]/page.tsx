@@ -13,6 +13,7 @@ import type { NearbySpot } from '@/lib/spots/nearby'
 import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
 import { NearbySpotsSection, type NearbyEntry } from '@/components/spots/NearbySpotsSection'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
+import SpotTodayBand from '@/components/spots/SpotTodayBand'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
 import { SignupWall } from '@/components/map/SignupBanner'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
@@ -597,6 +598,27 @@ export default async function SpotPage({
   const weatherCodesForView = pick(weatherCodes)
   const tidesByDateForView = pick(tidesByDate)
 
+  // ── Bande « conditions du jour » du premier écran (sprint 80, Bloc 1) ──────
+  // Tout vient de données DÉJÀ chargées : `weekly` (calculé ligne ~521) et
+  // `conditions` (chargé dans le Promise.all d'entrée). Aucune requête ajoutée.
+  // Le score du jour est celui que la page sert déjà à un anonyme (`weeklyForView`
+  // est tronqué à 1 jour pour lui) : le gating reste à UN seul endroit.
+  const todayForecast = weeklyForView[0] ?? null
+
+  // ⚠️ Méditerranée : pas d'argument de marée. Le marnage y est de quelques
+  // centimètres, annoncer une pleine mer y serait un faux repère. Même règle que
+  // le générateur de fiches du S78 et que l'encart de la ligne ~1135.
+  const heroTide = (() => {
+    if (isLowTidalRangeDepartment(deptKey)) return null
+    const extrema = conditions?.tide?.extrema ?? []
+    if (extrema.length === 0) return null
+    // Le prochain extremum à venir ; à défaut (fin de journée), le dernier connu.
+    const nowHour = new Date().getHours()
+    const next = extrema.find((e) => e.hour >= nowHour) ?? extrema[extrema.length - 1]
+    const points = conditions?.tide?.points ?? []
+    return { label: calibratedExtremumLabel(points, next.hour), kind: next.type }
+  })()
+
   /** Anonyme : les 2 dernières prises. Compte gratuit et plus : toutes. */
   const catchesForView = isAnonymous ? catches.slice(0, 2) : catches
 
@@ -662,10 +684,14 @@ export default async function SpotPage({
       )}
 
       {/* ── Hero navy-950 + isobathes (DA v2, réf spot.html) ─────────────── */}
-      <section className="relative overflow-hidden bg-navy-950 pt-8 pb-14 md:pt-10 md:pb-16">
+      {/* Sprint 80, Bloc 1 : hauteur du hero resserrée sur MOBILE uniquement
+          (les valeurs `md:` ne bougent pas), pour que la bande de conditions
+          passe au-dessus de la pliure en 390 × 664. On rend la même chose, plus
+          serré : aucun contenu retiré. */}
+      <section className="relative overflow-hidden bg-navy-950 pt-5 pb-8 md:pt-10 md:pb-16">
         <Bathy opacity={0.35} />
         <div className="relative max-w-[1280px] mx-auto px-4 md:px-6">
-          <nav className="mb-6 flex flex-wrap items-center gap-2" aria-label="Fil d'ariane">
+          <nav className="mb-4 flex flex-wrap items-center gap-2 md:mb-6" aria-label="Fil d'ariane">
             <Link
               href="/spots"
               className="flex items-center gap-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.08em] text-teal-300 transition-colors hover:text-white"
@@ -681,7 +707,7 @@ export default async function SpotPage({
             </TagData>
           </nav>
 
-          <div className="mb-3 flex flex-wrap items-start gap-2">
+          <div className="mb-2.5 flex flex-wrap items-start gap-2 md:mb-3">
             {/* Provenance (C2) : « Vérifié » réservé aux curés ; communautaire /
                 importé portent leur propre badge (label + couleur distincte).
                 Le badge ✓ = coordonnée vérifiée à la main (sprint 37). Niveau gradué
@@ -729,7 +755,25 @@ export default async function SpotPage({
               className="-mt-1"
             />
           </div>
-          <TagData className="mb-5 block text-white/45">
+          {/* ⚠️ SPRINT 80, Bloc 1 — la réponse d'abord, la limitation ensuite.
+              Cette bande monte juste sous le <h1>, AVANT « zone approchée » et
+              les étoiles de difficulté. On menait avec une limitation : « ZONE
+              APPROCHÉE » était la première information de contenu que lisait un
+              visiteur venu demander si ça mord. Elle reste sur la page, elle
+              descend d'un cran.
+
+              Zéro requête ajoutée : `conditions` et `todayForecast` sont déjà
+              chargés plus haut pour les sections du bas de page. */}
+          <SpotTodayBand
+            tide={heroTide}
+            waveHeightM={conditions?.waves?.height_m ?? null}
+            windSpeedKmh={conditions?.weather?.wind_speed_kmh ?? null}
+            windDirectionDeg={conditions?.weather?.wind_direction_deg ?? null}
+            dayScore={todayForecast?.dayScore ?? null}
+            dayQuality={todayForecast?.dayQuality ?? null}
+          />
+
+          <TagData className="mb-3 block text-white/45 md:mb-5">
             {spot.is_precise
               ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
               : `ZONE APPROCHÉE · ${structureLabel.toUpperCase() || 'SPOT'}`}
@@ -737,7 +781,7 @@ export default async function SpotPage({
 
           <div className="flex flex-wrap items-center gap-2">
             {structureLabel && (
-              <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/60">
+              <span className="flex min-h-11 items-center rounded-full bg-white/10 px-3.5 text-sm text-white/60">
                 {structureLabel}
               </span>
             )}
@@ -749,12 +793,12 @@ export default async function SpotPage({
                 <Link
                   key={s}
                   href={`/especes/${sl}`}
-                  className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300 transition-colors hover:bg-teal-500/20"
+                  className="flex min-h-11 items-center rounded-full bg-teal-500/10 px-3.5 text-sm text-teal-300 transition-colors hover:bg-teal-500/20"
                 >
                   {label}
                 </Link>
               ) : (
-                <span key={s} className="rounded-full bg-teal-500/10 px-3 py-1.5 text-sm text-teal-300">
+                <span key={s} className="flex min-h-11 items-center rounded-full bg-teal-500/10 px-3.5 text-sm text-teal-300">
                   {label}
                 </span>
               )

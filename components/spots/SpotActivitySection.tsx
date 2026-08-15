@@ -64,7 +64,9 @@ export async function SpotActivitySection({
         </p>
         <Link
           href={ctaHref}
-          className="mt-4 inline-block text-[13px] font-semibold text-teal-600 hover:text-teal-700"
+          // Sprint 80, Bloc 5 : mesuré 124 x 20 le 15/08, porté à 44 px de
+          // surface tactile sans rien changer au visuel.
+          className="mt-2 inline-flex min-h-11 items-center text-[13px] font-semibold text-teal-600 hover:text-teal-700"
         >
           Logue ta prise ici →
         </Link>

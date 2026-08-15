@@ -70,24 +70,32 @@ describe('buildSpotJsonLd — Place + BreadcrumbList (sprint 76, Bloc 4)', () =>
   })
 })
 
-describe('spotCtaLabel — CTA collant mobile (sprint 76, Bloc 2)', () => {
+// ⚠️ Sprint 80, Bloc 6 : le libellé ne dit plus « Voir les conditions ». Elles
+// sont déjà sur la page, gratuitement, et le Bloc 1 vient de les remonter dans le
+// premier écran : promettre d'aller les voir en échange d'une inscription était
+// devenu faux. Ces tests verrouillent la nouvelle promesse et la coupe de nom.
+describe('spotCtaLabel — CTA collant mobile (sprint 76, Bloc 2 ; libellé S80)', () => {
   it('parle du spot, pas du carnet', () => {
     expect(spotCtaLabel('Pointe de Penvins')).toBe(
-      'Voir les conditions à Pointe de Penvins, gratuit',
+      "Suis Pointe de Penvins, c'est gratuit",
     )
+  })
+
+  it('ne promet plus un contenu déjà donné gratuitement sur la page', () => {
+    expect(spotCtaLabel('Pointe de Penvins')).not.toMatch(/voir les conditions/i)
   })
 
   it('réduit le nom à la commune avant de mesurer', () => {
     expect(spotCtaLabel('Sausset-les-Pins — digues du port')).toBe(
-      'Voir les conditions à Sausset-les-Pins, gratuit',
+      "Suis Sausset-les-Pins, c'est gratuit",
     )
   })
 
   it('ne coupe jamais au milieu d’un mot', () => {
     const label = spotCtaLabel('Plage de la Grande Conche de Royan')
-    expect(label.startsWith('Voir les conditions à ')).toBe(true)
-    expect(label.endsWith(', gratuit')).toBe(true)
-    const name = label.slice('Voir les conditions à '.length, -', gratuit'.length)
+    expect(label.startsWith('Suis ')).toBe(true)
+    expect(label.endsWith(", c'est gratuit")).toBe(true)
+    const name = label.slice('Suis '.length, -", c'est gratuit".length)
     expect(name.length).toBeLessThanOrEqual(22)
     // La coupe tombe sur une frontière de mot du nom d'origine.
     expect('Plage de la Grande Conche de Royan'.startsWith(name)).toBe(true)

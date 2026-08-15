@@ -79,13 +79,18 @@ export async function SpeciesTopSpots({
             <TagData className="mb-1.5 block text-ink-400">
               {DEPARTMENT_LABELS[dept]?.toUpperCase() ?? dept}
             </TagData>
-            <ul className="flex flex-col gap-2.5">
+            <ul className="flex flex-col gap-0.5">
               {list.map((s) => (
                 <li key={s.slug}>
                   <SpeciesSpotLink
                     species={speciesSlug}
                     spotSlug={s.slug}
-                    className="group flex items-center gap-2.5"
+                    // Sprint 80, Bloc 5 : cible tactile portée à 44 px de haut. Mesurée à
+                    // 293 x 37 le 15/08, sur la liste que le sprint 78 venait de
+                    // remonter en tête de page POUR qu'elle serve. Le `-mx-2 px-2`
+                    // élargit aussi la zone au-delà du texte, sans rien changer au
+                    // rendu : c'est la surface qui grandit, pas le visuel.
+                    className="group -mx-2 flex min-h-11 items-center gap-2.5 rounded-lg px-2 transition-colors hover:bg-sand-50"
                   >
                     <MapPin size={14} className="shrink-0 text-teal-600" />
                     <span className="min-w-0 flex-1">
@@ -112,7 +117,7 @@ export async function SpeciesTopSpots({
       {total > spots.length && (
         <Link
           href={`/spots?species=${dbKey}`}
-          className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-teal-700 hover:text-teal-900"
+          className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold text-teal-700 hover:text-teal-900"
         >
           Voir les {total} spots à {label.toLowerCase()}
           <ArrowRight size={13} aria-hidden />

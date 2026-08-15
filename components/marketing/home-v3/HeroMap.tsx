@@ -31,6 +31,9 @@ export function HeroMap({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
+  // Lus au moment du `load`, jamais en dépendance d'effet (cf. plus bas).
+  const spotsRef = useRef(spots)
+  spotsRef.current = spots
   const [ready, setReady] = useState(false)
   const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY
 
@@ -65,8 +68,15 @@ export function HeroMap({
           container,
           style: `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${maptilerKey}`,
           center: [center.lng, center.lat],
-          zoom: 7.4, // plus large → davantage de spots de la façade à l'écran (hero « rempli »)
-          pitch: 40,
+          // ⚠️ SPRINT 80, Bloc 4 — cadrage mesuré le 15/08 : avec `pitch: 40` et
+          // `zoom: 7.4`, la moitié haute de l'écran regarde très loin « devant »
+          // la caméra, et `bearing: -18` oriente ce devant vers le nord-nord-ouest.
+          // Depuis un spot breton, ça tombe sur les Cornouailles : la home d'un
+          // site de pêche française affichait « Truro » puis « Exeter » en fond.
+          // Moins d'inclinaison et un cran de zoom en plus gardent le cadre sur la
+          // façade française, quelle que soit la région de `hero.position`.
+          zoom: 8.2,
+          pitch: 22,
           bearing: -18,
           interactive: false,
           attributionControl: false,
@@ -100,7 +110,7 @@ export function HeroMap({
           type: 'geojson',
           data: {
             type: 'FeatureCollection',
-            features: spots.map((s) => ({
+            features: spotsRef.current.map((s) => ({
               type: 'Feature' as const,
               geometry: {
                 type: 'Point' as const,
@@ -167,7 +177,14 @@ export function HeroMap({
       mapRef.current?.remove()
       mapRef.current = null
     }
-  }, [center.lat, center.lng, maptilerKey, spots])
+    // ⚠️ SPRINT 80, Bloc 4 — `spots` est un TABLEAU : il change d'identité à
+    // chaque rendu du parent, même à contenu égal. L'effet se rejouait donc, et
+    // son nettoyage appelait `map.remove()` PENDANT que le style, le sprite et
+    // les tuiles étaient en vol. C'est la signature exacte des trois
+    // `net::ERR_ABORTED` mesurés le 15/08 sur `api.maptiler.com`. On ne dépend
+    // plus que de primitives stables ; les spots sont lus dans une ref, donc
+    // toujours à jour au moment du `load` sans provoquer de remontage.
+  }, [center.lat, center.lng, maptilerKey])
 
   return (
     <div

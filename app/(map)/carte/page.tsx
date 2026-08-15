@@ -5,7 +5,7 @@ import MapShell from '@/components/map/MapShell'
 import { getUserTier } from '@/lib/auth/tier'
 import { getWallKind } from '@/lib/gating/wall'
 import type { UserTier } from '@/lib/auth/tier'
-import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
+import { toSpotMarker, limitSpotsPerDept, COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM, COASTAL_DEFAULT_BOUNDS } from '@/lib/map/utils'
 import type { SpotMarker } from '@/lib/map/utils'
 import { getCenterForDepartment } from '@/lib/geo/department-centroids'
 import { parseFiltersFromSearchParams } from '@/lib/spots/filter-url.server'
@@ -140,6 +140,16 @@ export default async function CartePage({
   const initialZoom: number =
     tier !== 'anonymous' && homeDept ? 9 : COASTAL_DEFAULT_ZOOM
 
+  // ⚠️ Sprint 80, Bloc 3 : sans département connu, on cadre par des BORNES, pas
+  // par un centre et un zoom. Le zoom 6 sur [-2.5, 47.0] laissait la Méditerranée
+  // hors champ en portrait 390 x 664, alors qu'elle pèse 44,6 % de l'inventaire
+  // publié depuis le sprint 78. `fitBounds` dérive le zoom du ratio réel du
+  // conteneur : le portrait et le paysage sont cadrés chacun correctement, ce
+  // qu'une valeur en dur ne peut pas faire.
+  // Un département détecté ou filtré garde la priorité (comportement inchangé).
+  const initialBounds =
+    tier !== 'anonymous' && homeDept ? undefined : COASTAL_DEFAULT_BOUNDS
+
   // Filtres initiaux depuis l'URL
   const params = await searchParams
   const urlFilters = parseFiltersFromSearchParams(params)
@@ -190,6 +200,7 @@ export default async function CartePage({
         userTier={tier}
         initialCenter={initialCenter}
         initialZoom={initialZoom}
+        initialBounds={initialBounds}
         showUpsell={showUpsell}
         showSignupBanner={showSignupBanner}
         initialFilters={initialFilters}

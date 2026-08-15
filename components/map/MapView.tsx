@@ -50,6 +50,12 @@ type MapViewProps = {
   nearbySpotIds?: Set<string>
   initialCenter?: [number, number]
   initialZoom?: number
+  /**
+   * Cadre initial (sud-ouest, nord-est). Prioritaire sur `initialCenter`/
+   * `initialZoom` : MapLibre dérive alors le zoom du RATIO RÉEL du conteneur,
+   * ce qu'une valeur en dur ne sait pas faire (sprint 80, Bloc 3).
+   */
+  initialBounds?: [[number, number], [number, number]]
   onMarkerClick?: (spot: SpotMarker) => void
   onMapReady?: (map: MapLibreMap) => void
   className?: string
@@ -416,6 +422,7 @@ export default function MapView({
   nearbySpotIds,
   initialCenter = FRANCE_CENTER,
   initialZoom = 6,
+  initialBounds,
   onMarkerClick,
   onMapReady,
   className,
@@ -536,8 +543,14 @@ export default function MapView({
         map = new maplibre.Map({
           container: containerRef.current,
           style: styleUrl,
-          center: initialCenter,
-          zoom: initialZoom,
+          // Sprint 80, Bloc 3 : des bornes cadrent les deux façades quel que
+          // soit le ratio du viewport ; le couple centre/zoom reste le défaut.
+          ...(initialBounds
+            ? {
+                bounds: initialBounds,
+                fitBoundsOptions: { padding: { top: 24, bottom: 168, left: 16, right: 16 } },
+              }
+            : { center: initialCenter, zoom: initialZoom }),
           attributionControl: {},
           interactive,
           cooperativeGestures,

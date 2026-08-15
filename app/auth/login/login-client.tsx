@@ -193,7 +193,7 @@ function PasswordInput({
         tabIndex={-1}
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 hover:text-ink-700 transition-colors"
+        className="absolute right-1 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-ink-500 transition-colors hover:text-ink-700"
       >
         {show ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
@@ -439,7 +439,7 @@ export function LoginPageClient({
               key={t}
               type="button"
               onClick={() => selectTab(t)}
-              className={`flex-1 py-2 rounded-[9px] text-[14px] font-semibold transition-colors ${
+              className={`flex-1 min-h-11 rounded-[9px] text-[14px] font-semibold transition-colors ${
                 tab === t
                   ? "bg-white text-navy-900 shadow-sm"
                   : "text-ink-500 hover:text-ink-700"

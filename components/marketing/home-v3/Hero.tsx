@@ -220,7 +220,7 @@ export function Hero({
       />
 
       {/* ── Contenu ── */}
-      <div className="relative z-[2] mx-auto grid w-full max-w-[1180px] grid-cols-1 items-center gap-12 px-6 py-24 lg:grid-cols-[1.06fr_.94fr] lg:gap-14">
+      <div className="relative z-[2] mx-auto grid w-full max-w-[1180px] grid-cols-1 items-center gap-8 px-6 py-10 sm:gap-12 sm:py-24 lg:grid-cols-[1.06fr_.94fr] lg:gap-14">
         <div>
           <p
             data-hero-line
@@ -232,14 +232,14 @@ export function Hero({
               « où » quasi invisible). Le titre dépend de la façade (cf HERO_VARIANTS). */}
           <h1
             data-hero-line
-            className="mt-5 font-display text-[clamp(40px,6.4vw,74px)] font-semibold leading-[1.03] tracking-[-0.025em] text-white"
+            className="mt-3 font-display text-[32px] font-semibold leading-[1.06] tracking-[-0.025em] text-white sm:mt-5 sm:text-[clamp(40px,6.4vw,74px)] sm:leading-[1.03]"
           >
             {v.title}
           </h1>
-          <p data-hero-line className="mt-6 max-w-[520px] text-[19px] leading-relaxed text-white/75">
+          <p data-hero-line className="mt-3.5 max-w-[520px] text-[15.5px] leading-snug text-white/75 sm:mt-6 sm:text-[19px] sm:leading-relaxed">
             {v.subhead}
           </p>
-          <div data-hero-line className="mt-8 flex flex-wrap gap-3.5">
+          <div data-hero-line className="mt-5 flex flex-wrap gap-3.5 sm:mt-8">
             <HeroPrimaryCta
               className={BTN_ACCENT}
               registerLabel={REGISTER_CTA_LABEL}
@@ -250,7 +250,7 @@ export function Hero({
             </Link>
           </div>
           {v.showStats && (
-            <div data-hero-line className="mt-12 flex flex-wrap gap-9">
+            <div data-hero-line className="mt-6 flex flex-wrap gap-x-7 gap-y-3 sm:mt-12 sm:gap-9">
               <Stat value={counts.species} label="espèces de chez nous" />
               <Stat value={counts.spots ?? SPOTS_PUBLISHED_FLOOR} label={SPOTS_COUNTER_LABEL} />
               <Stat value={100} suffix="%" label="fil communautaire gratuit" />

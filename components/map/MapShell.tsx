@@ -92,6 +92,8 @@ type MapShellProps = {
   userTier: UserTier
   initialCenter?: [number, number]
   initialZoom?: number
+  /** Cadre initial, quand aucun département n'est détecté (sprint 80, Bloc 3). */
+  initialBounds?: [[number, number], [number, number]]
   showUpsell?: boolean
   /**
    * Bandeau d'INSCRIPTION pour les visiteurs sans compte (sprint 75, Bloc 1).
@@ -185,6 +187,7 @@ export default function MapShell({
   userTier,
   initialCenter,
   initialZoom,
+  initialBounds,
   showUpsell = false,
   showSignupBanner = false,
   initialFilters = {},
@@ -465,7 +468,7 @@ export default function MapShell({
         <button
           onClick={openSheet}
           aria-label="Ouvrir les filtres"
-          className="relative p-2 -mr-2 rounded-xl text-ink-700 hover:bg-ink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+          className="relative flex size-11 items-center justify-center -mr-2 rounded-xl text-ink-700 hover:bg-ink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
         >
           <SlidersHorizontal size={20} />
           {activeCount > 0 && (
@@ -545,6 +548,7 @@ export default function MapShell({
             nearbySpotIds={nearbySpotIds}
             initialCenter={initialCenter ?? COASTAL_DEFAULT_CENTER}
             initialZoom={initialZoom ?? COASTAL_DEFAULT_ZOOM}
+            initialBounds={initialBounds}
             className="w-full h-full"
             onMarkerClick={setActiveSpot}
             onMapReady={(map) => {

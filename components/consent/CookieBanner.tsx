@@ -121,7 +121,7 @@ export function CookieBanner() {
         Europe) pour l&apos;améliorer. Tu peux refuser sans rien perdre.{' '}
         <Link
           href="/legal/confidentialite"
-          className="underline underline-offset-2 hover:text-white"
+          className="inline-block py-2 underline underline-offset-2 hover:text-white"
         >
           En savoir plus
         </Link>
@@ -131,7 +131,7 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={decline}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
           <X size={15} aria-hidden="true" />
           Refuser
@@ -139,7 +139,7 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={accept}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-teal-500 px-3.5 py-2 text-[13px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-teal-500 px-3.5 py-2 text-[13px] font-semibold text-navy-950 transition-colors hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
         >
           <Check size={15} aria-hidden="true" />
           Accepter
