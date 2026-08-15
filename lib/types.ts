@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       alert_settings: {
@@ -365,6 +390,30 @@ export type Database = {
             referencedColumns: ["code"]
           },
         ]
+      }
+      email_suppressions: {
+        Row: {
+          detail: string | null
+          email: string
+          reason: string
+          suppressed_at: string
+          user_id: string | null
+        }
+        Insert: {
+          detail?: string | null
+          email: string
+          reason: string
+          suppressed_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          detail?: string | null
+          email?: string
+          reason?: string
+          suppressed_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       favorite_spots: {
         Row: {
@@ -3485,6 +3534,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

@@ -20,10 +20,20 @@ vi.mock('@/lib/supabase/service-role', () => ({
   }),
 }))
 
+// Sprint 78 : la liste de suppression est une unité à part (elle a ses propres
+// tests). On la mocke ici, sinon elle réutiliserait le `maybeSingle` ci-dessus,
+// qui est configuré pour renvoyer un PROFIL : toute adresse passerait alors pour
+// supprimée et ces tests deviendraient faux pour une mauvaise raison.
+const { isEmailSuppressedMock } = vi.hoisted(() => ({
+  isEmailSuppressedMock: vi.fn(async () => false),
+}))
+vi.mock('@/lib/email/suppression', () => ({ isEmailSuppressed: isEmailSuppressedMock }))
+
 import { getEmailRecipient } from '@/lib/email/recipient'
 
 beforeEach(() => {
   vi.clearAllMocks()
+  isEmailSuppressedMock.mockResolvedValue(false)
   getUserByIdMock.mockResolvedValue({
     data: { user: { email: 'julien@test.fr' } },
     error: null,
@@ -64,5 +74,15 @@ describe('getEmailRecipient — distinction transactionnel / marketing', () => {
     getUserByIdMock.mockResolvedValue({ data: { user: null }, error: { message: 'not found' } })
     const r = await getEmailRecipient('user-x')
     expect(r).toBeNull()
+  })
+  // Sprint 78 : la garde de rebond s'applique à TOUS les envois, transactionnels
+  // compris. L'enjeu n'est pas le consentement (un rebond n'est pas un choix de
+  // l'utilisateur) mais la réputation du domaine : continuer d'écrire à une boîte
+  // morte dégrade la délivrabilité de tous les autres emails.
+  it("renvoie null si l'adresse est sur la liste de suppression", async () => {
+    isEmailSuppressedMock.mockResolvedValue(true)
+    expect(await getEmailRecipient('user-1')).toBeNull()
+    // Et même en transactionnel, qui ne regarde pourtant aucun consentement.
+    expect(await getEmailRecipient('user-1', { marketing: false })).toBeNull()
   })
 })

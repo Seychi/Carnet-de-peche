@@ -37,6 +37,12 @@ const envSchema = z
 
     // Emails transactionnels (sprint 11 Bloc C) — requis en prod
     RESEND_API_KEY: isProd ? z.string().startsWith("re_") : z.string().optional(),
+    // Webhook Resend (sprint 78) — alimente la liste de suppression sur rebond
+    // dur ou plainte. VOLONTAIREMENT optionnel même en prod : l'endpoint doit
+    // pouvoir être déployé AVANT d'être déclaré côté Resend. Sans secret, la
+    // route répond 500 et rien d'autre ne casse. À rendre requis une fois le
+    // webhook branché (cf docs/sprint-78/RECAP.md, reste manuel John).
+    RESEND_WEBHOOK_SECRET: z.string().optional(),
     // Monitoring (sprint 11 Bloc D) — requis en prod (DSN public, pas un secret)
     NEXT_PUBLIC_SENTRY_DSN: isProd ? z.string().url() : z.string().optional(),
 
@@ -106,6 +112,7 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   VAPID_SUBJECT: process.env.VAPID_SUBJECT,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
   NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,

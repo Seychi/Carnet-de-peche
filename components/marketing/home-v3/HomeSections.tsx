@@ -252,16 +252,25 @@ function SpeciesMarquee() {
 // ── 04 — Tarifs (HOME_TIERS réels + copy features statique) ──────────────────────
 // Les features sont de la copy marketing (pas de la donnée) ; les MONTANTS viennent
 // de HOME_TIERS (source = lib/stripe/pricing).
+// ⚠️ SPRINT 78 (§2.3 de l'audit du 14/08) : ces listes vendaient encore la
+// matrice d'AVANT la migration 110. Deux contresens, sur la page la plus vue :
+//   • « 3 spots/dépt » annoncé au gratuit, qui voit désormais les 416 ;
+//   • « Carte complète du département » vendu comme avantage Local, alors que
+//     c'est devenu gratuit.
+// La différence Local n'est plus la PRÉSENCE des spots mais leur PRÉCISION, plus
+// les filtres, les couches et l'alerte de la veille. Même correction que
+// `app/(marketing)/tarifs/pricing-cards.tsx` : toute modification ici doit rester
+// alignée sur ce fichier, qui fait référence.
 const TIER_FEATURES: Record<HomeTier['id'], string[]> = {
   discovery: [
     'Carnet illimité + photos',
+    'Tous les spots sur la carte, position approchée',
+    '7 jours de marées et de météo',
     'Fil régional complet, gratuit',
-    '26 fiches espèces + guides',
-    '3 spots/dépt, coords floutées',
   ],
   local: [
-    'Carte complète de ton département',
-    'Coords GPS précises + score 0-100',
+    'Coords GPS précises de tous les spots',
+    'Alerté la veille sur ton spot favori',
     'Filtres, hors-ligne, notifications',
     'Bathymétrie, vent, courants',
   ],

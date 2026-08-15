@@ -238,9 +238,16 @@ export default async function AbonnementPage() {
           {isCanceled && (
             <div className="mt-5 rounded-[14px] border border-sand-200 bg-sand-50 p-5">
               <p className="text-sm font-semibold text-navy-900">Voilà ce que tu rates</p>
+              {/* ⚠️ SPRINT 78 (§2.3 de l'audit du 14/08) : ce bloc vantait « la
+                  carte complète » et « le score 0-100 » à quelqu'un qui les a
+                  désormais GRATUITEMENT depuis la migration 110. C'est le pire
+                  endroit possible pour une promesse fausse : l'utilisateur est en
+                  train de juger si l'abonnement vaut son prix. On ne liste plus
+                  que ce qu'il perd réellement en repassant au palier gratuit. */}
               <ul className="mt-3 flex flex-col gap-2 text-sm text-ink-700">
-                <li>Carte complète : tous les spots, coordonnées précises au mètre.</li>
-                <li>Score d&rsquo;activité 0-100 par spot et filtres espèces / techniques.</li>
+                <li>Les coordonnées GPS précises des spots, au lieu d&rsquo;une position approchée.</li>
+                <li>L&rsquo;alerte la veille au soir quand les conditions tournent bien sur ton spot favori.</li>
+                <li>Les filtres espèces / techniques et les couches avancées de la carte.</li>
                 <li>Notifications et stats avancées de ton carnet.</li>
               </ul>
               <Link

@@ -12,9 +12,9 @@ export default function WelcomeTrialEmail({ firstName = "pêcheur", planLabel = 
     <EmailShell preview="Ton essai 7 jours démarre maintenant">
       <Text style={h1}>Bienvenue, {firstName} 🎣</Text>
       <Text style={paragraph}>
-        Ton essai 7 jours de <strong>{planLabel}</strong> démarre maintenant. Tu as accès à la
-        carte complète, aux coordonnées GPS précises, au score d&rsquo;activité et au fil régional
-        en écriture.
+        Ton essai 7 jours de <strong>{planLabel}</strong> démarre maintenant. Tu as accès aux
+        coordonnées GPS précises de tous les spots, aux filtres espèces et techniques, aux
+        couches avancées de la carte et aux alertes sur tes spots favoris.
       </Text>
       <Text style={paragraph}>
         <strong>Aucune charge avant la fin de l&rsquo;essai.</strong> Tu peux annuler à tout moment

@@ -113,8 +113,9 @@ export default async function TarifsPage() {
             Le carnet et la communauté sont gratuits. La précision se paie.
           </h1>
           <p className="mt-5 text-base sm:text-lg text-ink-600 leading-relaxed max-w-xl mx-auto">
-            Logue sans limite, poste sans limite. Tu paies uniquement pour ce qui se voit
-            au mètre près : la carte complète et le score.
+            Logue sans limite, poste sans limite. La carte, les marées et les prises sont
+            gratuites. Tu paies uniquement pour ce qui se voit au mètre près : les
+            coordonnées exactes, les filtres et les alertes.
           </p>
         </div>
 

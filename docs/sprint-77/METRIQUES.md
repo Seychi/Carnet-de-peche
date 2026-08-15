@@ -65,6 +65,49 @@ C'est accessoirement la meilleure illustration du Bloc 8 : le dernier pêcheur e
 date a logué sa prise **en privé sans le vouloir**, parce que c'est le défaut
 actuel. Base de référence corrigée : **27 prises, dont 7 publiques (26 %)**.
 
+### Base RÉELLE après suppression des comptes de test (2026-08-14, 23h)
+
+John a supprimé les comptes de QA (`testseo@gmail.com`, `test1234@gmmm.com`) ainsi
+que leurs prises et favoris. Relevé en SQL live après suppression :
+
+| Repère | Valeur mesurée |
+|---|---|
+| Comptes | **45** *(dont 1 compte de test résiduel du 09/08, `testinggg@`, 0 prise)* |
+| Comptes créés sur 7 jours | **17** |
+| Prises | **27** — `public` **7** · `private` **19** · `friends` **1** |
+| Favoris | **10** |
+| Spots avec ≥ 1 prise **publique** | **2 / 416 (0,5 %)** |
+| Spots approuvés / en attente / rejetés | **416 / 4 018 / 171** |
+
+⚠️ Deux écarts avec les chiffres du brief du sprint 78, à ne pas confondre avec du
+bruit :
+
+- **« Spots avec au moins une prise publique : 3 » → en réalité 2.** Le troisième
+  était le spot de la prise de test (Pointe de Penvins), parti avec le compte. La
+  vraie base de départ du Bloc 5 est donc **0,5 %**, pas 0,7 %.
+- **Le compte total n'a pas baissé** malgré 2 suppressions : **3 inscriptions
+  réelles** sont arrivées entre-temps, dont une à **22h13**, après le déploiement du
+  sprint 77.
+
+### Le signal le plus parlant de ce relevé
+
+**Les 6 derniers comptes créés ont, à eux tous, zéro prise loguée.**
+
+| Compte | Créé (Paris) | Onboardé | Prises |
+|---|---|---|---|
+| `jetspiritagency@` | 14/08 22:13 *(après le déploiement)* | non | **0** |
+| `jon_vr6@` | 14/08 16:54 | oui | **0** |
+| `jamchaa8@` | 14/08 14:57 | oui | **0** |
+| `crevotn@` | 13/08 20:33 | oui | **0** |
+| `rannoujardinage@` | 12/08 08:01 | oui | **0** |
+| `aubindupian333@` | 11/08 09:19 | oui | **0** |
+
+Cinq sur six finissent l'onboarding et aucun ne logue. Le point de chute n'est pas
+l'inscription, il est **juste après** — ce qui est exactement ce que le Bloc 1 du
+sprint 78 corrige (les trois appels à l'action d'une fiche mènent au mur de
+connexion, et le champ de date naît invalide donc le formulaire refuse d'être
+soumis). Ces six comptes sont le témoin à surveiller après correctif.
+
 Le défaut de colonne est bien passé à `'public'` (`information_schema` :
 `'public'::text`) **sans toucher une seule ligne existante**. Toute variation de
 ces trois compteurs après déploiement est un **échec du sprint**, pas un détail.

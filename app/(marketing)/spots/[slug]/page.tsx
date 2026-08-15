@@ -600,9 +600,27 @@ export default async function SpotPage({
   /** Anonyme : les 2 dernières prises. Compte gratuit et plus : toutes. */
   const catchesForView = isAnonymous ? catches.slice(0, 2) : catches
 
-  const ctaHref = user
-    ? `/carnet/nouvelle?spot_id=${spot.id}`
-    : buildLoginRedirect(`/spots/${spot.slug}`)
+  // ⚠️ SPRINT 78, Bloc 1 — LA porte du Bloc 7 du sprint 77.
+  //
+  // Ce lien partait vers `/auth/login` pour un anonyme. Résultat mesuré à l'audit
+  // du 14/08 : **zéro lien vers `/carnet/nouvelle` dans le HTML servi**, et les
+  // trois appels à l'action de la fiche (« Logue ta prise ici », « Loguer ma
+  // prise », « + Loguer une prise ici », qui consomment tous cette variable)
+  // menaient au mur de connexion. Le bloc entier « on ne demande plus le compte
+  // AVANT de donner » était donc construit, déployé, fonctionnel et
+  // INATTEIGNABLE : le formulaire anonyme n'a été atteint pendant la QA qu'en
+  // tapant l'URL à la main.
+  //
+  // La route `/carnet/nouvelle` est publique depuis le sprint 77 (sortie du
+  // groupe (app) + liste blanche `PUBLIC_APP_ROUTES` du middleware), elle répond
+  // 200 à un anonyme, et c'est elle qui demande le compte au moment
+  // d'enregistrer. Le même lien sert donc désormais les deux paliers.
+  //
+  // Leçon d'audit à garder : le critère d'acceptation du sprint 77 était « la
+  // route répond 200 », c'est-à-dire une DESTINATION. Il faut prouver le CHEMIN
+  // (« il existe un lien cliquable vers X dans le HTML servi »), sinon on valide
+  // une porte qui n'a pas de poignée.
+  const ctaHref = `/carnet/nouvelle?spot_id=${spot.id}`
 
   const googleMapsUrl =
     `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
@@ -1242,7 +1260,11 @@ export default async function SpotPage({
           « + Loguer une prise ici » ne veut rien dire : il n'a ni compte ni
           prise. On lui propose ce qu'il est venu chercher. Connecté :
           strictement inchangé. */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-sand-200 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+      {/* `sticky-bottom-bar` : sprint 78, Bloc 1. Tant que le bandeau de
+          consentement est à l'écran, cette barre se range AU-DESSUS de lui au
+          lieu d'être recouverte à 83 % et rendue inatteignable au doigt
+          (règle dans app/globals.css, hauteur mesurée par CookieBanner). */}
+      <div className="sticky-bottom-bar md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-sand-200 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
         {showSignupWall ? (
           <SpotSignupCta href={buildSignupHref(`/spots/${slug}`)} spotName={spot.name} />
         ) : (

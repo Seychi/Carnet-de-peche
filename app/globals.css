@@ -404,3 +404,22 @@
   html { scroll-behavior: auto; }
   .animate-pulse { animation: none !important; }
 }
+
+/* ============================================================
+   Barres collantes vs bandeau de consentement (sprint 78, Bloc 1).
+
+   Mesuré à l'audit du 2026-08-14 : le bandeau de consentement (z-60) recouvrait
+   le CTA collant de la fiche de spot (z-20) à 83 %, et `elementFromPoint()` au
+   centre du bouton renvoyait le bandeau. Le CTA n'était pas masqué, il était
+   INATTEIGNABLE, et seulement pour les visiteurs qui n'ont pas encore répondu,
+   c'est-à-dire tous les nouveaux venus.
+
+   `CookieBanner` publie sa hauteur RÉELLE (ResizeObserver) dans
+   `--consent-banner-height` et pose `data-consent-pending` sur <html> tant que
+   le choix n'est pas fait. Les barres collantes s'adossent dessus. On mesure au
+   lieu de coder un décalage en dur, parce que la hauteur du bandeau change quand
+   il passe sur deux lignes en 390 px.
+   ============================================================ */
+[data-consent-pending] .sticky-bottom-bar {
+  bottom: calc(var(--consent-banner-height, 0px) + 0.75rem);
+}

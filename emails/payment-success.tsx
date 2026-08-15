@@ -20,7 +20,7 @@ export default function PaymentSuccessEmail({
       <Text style={h1}>Paiement reçu, merci {firstName}</Text>
       <Text style={paragraph}>
         On a bien encaissé <strong>{amount}</strong> le {dateLabel}. Ton accès continue sans
-        interruption : carte complète, GPS précis, score d&rsquo;activité.
+        interruption : coordonnées GPS précises, filtres et alertes sur tes spots favoris.
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>
         La facture détaillée est disponible à tout moment depuis ton espace abonnement.

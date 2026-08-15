@@ -25,8 +25,8 @@ export default function PostTrialWinbackEmail({
         ton carnet, tes prises et tes stats restent à toi, gratuitement, pour toujours.
       </Text>
       <Text style={paragraph}>
-        Si la carte complète, les coordonnées précises et le score d&rsquo;activité par spot
-        t&rsquo;ont manqué, tu peux reprendre quand tu veux. C&rsquo;est sans engagement, annulable
+        Si les coordonnées précises, les filtres et l&rsquo;alerte de la veille sur tes spots
+        favoris t&rsquo;ont manqué, tu peux reprendre quand tu veux. C&rsquo;est sans engagement, annulable
         en 1 clic.
       </Text>
       <Text style={{ ...paragraph, marginBottom: "24px" }}>

@@ -1,5 +1,6 @@
 import 'server-only'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { isEmailSuppressed } from '@/lib/email/suppression'
 
 export type EmailRecipient = {
   email: string
@@ -42,6 +43,22 @@ export async function getEmailRecipient(
 
     // Marketing : on n'envoie pas si l'utilisateur s'est désinscrit.
     if (opts?.marketing && profile?.marketing_email_optin === false) {
+      return null
+    }
+
+    // Liste de suppression (sprint 78, migration 112) : une adresse qui a rebondi
+    // durement ou qui nous a signalés comme indésirables ne reçoit plus rien.
+    //
+    // ⚠️ Cette garde s'applique à TOUS les envois, transactionnels compris, et pas
+    // seulement au marketing. C'est volontaire : l'enjeu n'est pas le consentement
+    // (le rebond n'est pas un choix de l'utilisateur) mais la réputation du
+    // domaine expéditeur. Continuer à écrire à une boîte morte dégrade la
+    // délivrabilité de TOUS les autres emails, y compris l'alerte de marnage.
+    //
+    // Placée ici parce que c'est le point de passage unique de la résolution de
+    // destinataire : webhooks Stripe, crons et actions y passent tous.
+    if (await isEmailSuppressed(userData.user.email)) {
+      console.warn('[email] destinataire sur liste de suppression, envoi annulé', { userId })
       return null
     }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import posthog from 'posthog-js'
 import { Cookie, Check, X } from 'lucide-react'
@@ -24,6 +24,41 @@ export function CookieBanner() {
   // `null` = pas encore évalué (évite un flash au SSR/hydration).
   const [show, setShow] = useState(false)
   const [ready, setReady] = useState(false)
+
+  // ⚠️ SPRINT 78, Bloc 1 — collision mesurée à l'audit du 14/08.
+  //
+  // Ce bandeau (`z-[60]`) recouvrait le CTA collant des fiches de spot (`z-20`)
+  // à **83 %**, et `document.elementFromPoint()` au centre du bouton renvoyait le
+  // bandeau : le CTA n'était pas seulement masqué, il était INATTEIGNABLE au
+  // doigt. Or le bandeau ne s'affiche qu'aux visiteurs qui n'ont pas encore
+  // répondu, c'est-à-dire tous les nouveaux venus, c'est-à-dire l'écrasante
+  // majorité des ~690 clics Google hebdomadaires. Le CTA principal de la page qui
+  // porte 80 % des clics était donc mort pour la population qu'on cherche à
+  // convertir. Ça donne aussi une lecture possible du mur à 1,3 % de clic : une
+  // partie du chiffre peut être mécanique et non éditoriale.
+  //
+  // Plutôt qu'un décalage en dur (qui casserait dès que la copie du bandeau
+  // change de hauteur, notamment quand il passe sur deux lignes en 390 px), on
+  // publie la hauteur RÉELLE mesurée, et les éléments collants s'y adossent via
+  // `--consent-banner-height` (cf app/globals.css).
+  const bannerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = bannerRef.current
+    if (!ready || !show || !el) return
+    const root = document.documentElement
+    const apply = () => {
+      root.style.setProperty('--consent-banner-height', `${el.offsetHeight}px`)
+      root.dataset.consentPending = '1'
+    }
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      delete root.dataset.consentPending
+      root.style.removeProperty('--consent-banner-height')
+    }
+  }, [ready, show])
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return
@@ -74,6 +109,7 @@ export function CookieBanner() {
 
   return (
     <div
+      ref={bannerRef}
       role="dialog"
       aria-label="Consentement à la mesure d'audience"
       aria-live="polite"

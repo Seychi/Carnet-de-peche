@@ -30,6 +30,18 @@ vi.mock('@/lib/drafts/replay', () => ({
   })),
 }))
 
+// lib/auth/email-domain importe 'server-only' et fait une résolution DNS.
+// Sprint 78 : par défaut on renvoie « livrable », pour que ces tests continuent
+// de porter sur ce qu'ils testent (inscription, codes, rejeu) et pas sur le DNS.
+// Le comportement du contrôle lui-même est couvert par ses propres tests.
+const { checkEmailDomainMock } = vi.hoisted(() => ({
+  checkEmailDomainMock: vi.fn(async () => ({ deliverable: true })),
+}))
+vi.mock('@/lib/auth/email-domain', () => ({
+  checkEmailDomain: checkEmailDomainMock,
+  INVALID_DOMAIN_MESSAGE: 'Ce domaine ne peut pas recevoir d’email.',
+}))
+
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { replayPendingDrafts } from '@/lib/drafts/replay'

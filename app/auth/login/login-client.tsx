@@ -265,10 +265,18 @@ export function LoginPageClient({
   inviteOnly,
   initialTab = "signin",
   initialCtx,
+  draftSummary,
 }: {
   inviteOnly: boolean;
   /** Sprint 76, Bloc 3 : /auth/register ouvre directement sur l'inscription. */
   initialTab?: Tab;
+  /**
+   * Sprint 78, Bloc 1 : rappel de ce qui attend en brouillon (« Ta prise de bar
+   * à Pointe de Penvins et tes 2 spots mis de côté t'attendent »). Calculé côté
+   * SERVEUR à partir des cookies, donc présent dès le premier rendu, sans
+   * scintillement. `undefined` → copie générique inchangée.
+   */
+  draftSummary?: string | null;
   /**
    * Contexte DÉJÀ normalisé côté serveur (plan / interval / redirect validé par
    * `safeInternalPath`). Fourni → il fait foi et l'URL n'est plus relue : c'est
@@ -407,10 +415,16 @@ export function LoginPageClient({
         <h1 className="text-[28px] mb-2">
           {tab === "signin" ? "Connexion à ton carnet" : "Crée ton carnet"}
         </h1>
+        {/* Sprint 78, Bloc 1 : quand un brouillon attend (favori ou prise posés
+            sans compte), on nomme CE QUI EST EN JEU au lieu de servir une
+            promesse générique. Demander « logue ta première prise » à quelqu'un
+            qui vient de la loguer, c'est lui demander de recommencer.
+            `draftSummary` n'est fourni qu'à l'onglet inscription et seulement
+            s'il y a réellement quelque chose en attente. */}
         <p className="text-ink-500 text-[15px]">
           {tab === "signin"
             ? "Content de te revoir."
-            : "Logue ta première prise en 2 minutes."}
+            : (draftSummary ?? "Logue ta première prise en 2 minutes.")}
         </p>
       </div>
 

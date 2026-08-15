@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { safeInternalPath } from "@/lib/auth/redirect";
 import { captureSignupCompleted } from "@/lib/analytics/server";
 import { replayPendingDrafts } from "@/lib/drafts/replay";
+import { checkEmailDomain, INVALID_DOMAIN_MESSAGE } from "@/lib/auth/email-domain";
 
 // Rejeu des brouillons d'inscription différée (sprint 77, Bloc 7). Appelé une
 // fois la session posée, AVANT toute redirection : le favori et la prise mis de
@@ -232,6 +233,22 @@ export async function signUpWithPassword(
   if (!passwordParsed.success) {
     return {
       error: passwordParsed.error.issues[0].message,
+      success: false,
+      email,
+      submittedAt: null,
+    };
+  }
+
+  // Sprint 78 : le domaine peut-il seulement recevoir du courrier ?
+  // La confirmation d'email est désactivée (décision assumée : l'exiger viderait
+  // de son sens l'inscription différée du sprint 77), donc rien n'empêchait
+  // `test1234@gmmm.com` de créer un compte confirmé avec session ouverte.
+  // Ce contrôle attrape la faute de frappe, pas la boîte inexistante, et il
+  // ÉCHOUE OUVERT : un DNS lent ou en panne laisse passer (cf lib/auth/email-domain.ts).
+  const domainVerdict = await checkEmailDomain(email);
+  if (!domainVerdict.deliverable) {
+    return {
+      error: INVALID_DOMAIN_MESSAGE,
       success: false,
       email,
       submittedAt: null,

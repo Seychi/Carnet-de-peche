@@ -98,8 +98,15 @@ export default function CGUPage() {
           <tr><th>Plan</th><th>Tarif</th><th>Périmètre</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte basique (3 spots/dept floutés de plusieurs centaines de mètres), guides, fil régional complet (lecture et écriture)</td></tr>
-          <tr><td><strong>Local</strong></td><td>4,90 € / mois ou 49 € / an</td><td>Carte complète du département, coords précises, scores, filtres</td></tr>
+          {/* ⚠️ SPRINT 78 : mis en conformité avec la matrice réelle (migration 110).
+              Ce tableau est CONTRACTUEL : il décrivait comme payante une prestation
+              devenue gratuite (« carte complète du département ») et sous-décrivait
+              le palier gratuit (« 3 spots/dept »). Ce n'est pas de la copie
+              marketing, ça doit refléter ce qui est réellement servi. Toute
+              évolution des paliers doit repasser ici, en même temps que
+              `pricing-cards.tsx`. */}
+          <tr><td><strong>Découverte</strong></td><td>Gratuit</td><td>Carnet illimité, carte de tous les spots en position approchée (floutée de plusieurs centaines de mètres), marées et météo sur 7 jours, guides, fil régional complet (lecture et écriture)</td></tr>
+          <tr><td><strong>Local</strong></td><td>4,90 € / mois ou 49 € / an</td><td>Coordonnées GPS précises des spots, alertes de conditions sur les spots favoris, filtres espèces et techniques, couches avancées de la carte</td></tr>
           <tr><td><strong>Itinérant</strong></td><td>9,90 € / mois ou 99 € / an</td><td>Tous les départements côtiers FR, fonctionnalités avancées</td></tr>
         </tbody>
       </table>

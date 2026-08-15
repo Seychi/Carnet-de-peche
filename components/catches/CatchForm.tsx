@@ -226,6 +226,15 @@ export function CatchForm(props: CatchFormProps) {
   const [measuredPhotoError, setMeasuredPhotoError] = useState<string | null>(null)
   const [geoLoading, setGeoLoading] = useState(false)
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>('idle')
+
+  // Borne « pas dans le futur » du champ date, posée UNIQUEMENT après montage.
+  // `undefined` au rendu serveur ⇒ l'attribut `max` n'est pas émis ⇒ il ne peut
+  // jamais entrer en contradiction avec la `value` réécrite en heure locale par
+  // React. Voir le commentaire détaillé sur le champ lui-même (sprint 78).
+  const [maxCaughtAtLocal, setMaxCaughtAtLocal] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    setMaxCaughtAtLocal(isoToLocal(new Date().toISOString()))
+  }, [])
   const submittedRef = useRef(false)
   const lastFieldRef = useRef('')
 
@@ -1276,7 +1285,32 @@ export function CatchForm(props: CatchFormProps) {
               // fait foi. Pas de nouveau calcul, juste la stabilité serveur/client.
               suppressHydrationWarning
               value={isoToLocal(field.value ?? new Date().toISOString())}
-              max={isoToLocal(new Date().toISOString())}
+              // ⚠️ SPRINT 78 — `max` n'est POSÉ QU'APRÈS MONTAGE, à dessein.
+              //
+              // Le défaut corrigé ici bloquait la soumission du formulaire pour
+              // toute la France métropolitaine, toute l'année (audit QA du 14/08) :
+              //   value (propriété DOM, réécrite par React en heure LOCALE) = 21:00
+              //   max   (attribut, laissé tel que le SERVEUR l'a écrit, en UTC) = 19:00
+              // donc `value > max`, `checkValidity()` faux, et la validation native
+              // du navigateur refusait l'envoi en n'affichant qu'une bulle, très
+              // facile à rater sur mobile.
+              //
+              // React traite les deux différemment : `value` est une propriété
+              // contrôlée, réécrite impérativement après montage ; `max` est un
+              // attribut, figé au rendu serveur tant qu'aucun re-rendu n'a lieu.
+              // Le `suppressHydrationWarning` ci-dessus ne couvrait que `value`.
+              //
+              // En ne rendant PAS `max` côté serveur, il n'existe aucun instant où
+              // les deux peuvent diverger. La contrainte arrive à l'hydratation,
+              // et la règle « pas dans le futur » reste de toute façon appliquée
+              // côté serveur par zod (`notFuture`, lib/catches/schema.ts) — c'est
+              // elle qui fait autorité, cet attribut n'est qu'un confort de saisie.
+              //
+              // Le défaut datait du sprint 53 mais était dormant : la route vivait
+              // dans le groupe (app) et s'atteignait par navigation client, donc
+              // `max` était calculé par le client. Le sprint 77 en a fait une entrée
+              // par URL rendue par le serveur, ce qui l'a réveillé.
+              max={maxCaughtAtLocal}
               onChange={(e) => field.onChange(localToIso(e.target.value))}
               onBlur={field.onBlur}
               {...trackFocus('caught_at')}
