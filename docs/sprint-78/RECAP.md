@@ -41,6 +41,36 @@ Trois décisions de conception qui méritent d'être connues :
    (un vrai pêcheur qu'on refuse). Les fournisseurs courants ne déclenchent aucune
    requête DNS du tout.
 
+### ★ Ce que le connecteur Resend a révélé (2026-08-15)
+
+| Constat | Détail |
+|---|---|
+| Domaine `carnet-de-peche.com` | **vérifié**, envoi activé, région eu-west-1 |
+| DKIM `resend._domainkey` | ✅ publié et résolvable |
+| **SPF du domaine de retour** | 🔴 **cassé** |
+| Webhook | ✅ **créé** par mes soins (`email.bounced` + `email.complained`) |
+| Suppressions déjà connues de Resend | **2 rebonds durs** (30/06 et 06/07), **importés dans notre table** |
+
+⚠️ **Le SPF est bien cassé, et le tableau de bord Resend ment.** Resend n'envoie pas
+depuis l'apex mais depuis le sous-domaine `send.carnet-de-peche.com`, et il affiche
+ses deux enregistrements (MX + TXT) comme « verified ». Or une résolution DNS
+publique renvoie **NXDOMAIN** sur ce sous-domaine :
+
+```
+nslookup -type=TXT send.carnet-de-peche.com 8.8.8.8
+→ Non-existent domain
+```
+
+Le statut « verified » est un cache d'une vérification passée. Conséquence réelle :
+DKIM passe (donc DMARC passe par alignement DKIM et les emails ne sont pas rejetés),
+mais **SPF échoue sur le domaine de retour**. C'est exactement le « ça tient sur une
+seule jambe » de l'audit, et ça pèse sur la délivrabilité. Les valeurs exactes à
+republier sont dans le guide ci-dessous.
+
+⚠️ **La recommandation de l'audit d'ajouter Resend au SPF de l'apex était fausse** :
+l'apex sert ImprovMX (réception), Resend a son propre sous-domaine. Il ne faut PAS
+toucher au SPF de l'apex.
+
 `RESEND_WEBHOOK_SECRET` est **optionnel même en prod**, à dessein : l'endpoint doit
 pouvoir être déployé avant d'être déclaré côté Resend. Sans secret il répond 500 et
 rien d'autre ne casse. À passer en requis une fois branché.
