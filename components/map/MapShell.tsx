@@ -16,6 +16,7 @@ import MapLegend from '@/components/map/MapLegend'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import type { SpotMarker } from '@/lib/map/utils'
 import { COASTAL_DEFAULT_CENTER, COASTAL_DEFAULT_ZOOM } from '@/lib/map/utils'
+import { parseViewport, withViewport, type MapViewport } from '@/lib/map/viewport-url'
 import type { UserTier } from '@/lib/auth/tier'
 import type { SpotFilters } from '@/lib/spots/filters-schema'
 import { hasActiveFilters, countActiveFilters, serializeFiltersToSearchParams } from '@/lib/spots/filter-url'
@@ -210,6 +211,48 @@ export default function MapShell({
   // Instance de la carte — état réactif pour pouvoir passer à UserLocationMarker
   const [mapInstance, setMapInstance] = useState<MapLibreMap | null>(null)
   const mapInstanceRef = useRef<MapLibreMap | null>(null)
+
+  // ── Cadrage conservé dans l'URL (audit du 15/08, P0-3, seconde moitié) ──────
+  //
+  // Défaut mesuré : carte zoomée → clic marqueur → « Voir le spot complet » →
+  // retour. La carte se remontait de zéro et revenait au cadrage France. Sur
+  // mobile, cet aller-retour EST le parcours normal : le visiteur reperdait son
+  // zoom à chaque spot consulté.
+  //
+  // Lu UNE SEULE FOIS au premier rendu (initialiseur de `useState`) : la valeur
+  // sert à monter la carte, elle ne doit pas la re-cadrer à chaque écriture
+  // d'URL derrière. `null` côté serveur, où `window` n'existe pas.
+  const [savedViewport] = useState<MapViewport | null>(() =>
+    typeof window === 'undefined' ? null : parseViewport(window.location.search),
+  )
+
+  /**
+   * Écrit le cadre courant dans l'URL à chaque fin de déplacement.
+   *
+   * ⚠️ `replaceState`, jamais `pushState` : un `push` empilerait une entrée
+   * d'historique par panoramique, et le bouton « retour » du navigateur
+   * remonterait le fil des déplacements au lieu de quitter la carte.
+   *
+   * ⚠️ `history` directement, pas `router.replace` : ce dernier déclencherait un
+   * aller-retour serveur (`/carte` est `force-dynamic`) à chaque geste. On ne
+   * veut que réécrire la barre d'adresse.
+   */
+  const rememberViewport = useCallback((map: MapLibreMap) => {
+    const write = () => {
+      try {
+        const c = map.getCenter()
+        const next = withViewport(window.location.search, {
+          lng: c.lng,
+          lat: c.lat,
+          zoom: map.getZoom(),
+        })
+        window.history.replaceState(window.history.state, '', `${window.location.pathname}?${next}`)
+      } catch {
+        // Un cadre non mémorisé n'est pas un incident : la carte continue.
+      }
+    }
+    map.on('moveend', write)
+  }, [])
 
   const isAnonymous = userTier === 'anonymous'
   const activeCount = countActiveFilters(filters)
@@ -546,9 +589,17 @@ export default function MapShell({
           <MapView
             spots={filteredSpots}
             nearbySpotIds={nearbySpotIds}
-            initialCenter={initialCenter ?? COASTAL_DEFAULT_CENTER}
-            initialZoom={initialZoom ?? COASTAL_DEFAULT_ZOOM}
-            initialBounds={initialBounds}
+            // ⚠️ AUDIT DU 15/08, P0-3 — un cadre présent dans l'URL est
+            // PRIORITAIRE sur tout le reste : c'est le cadrage que le visiteur
+            // avait avant de partir voir une fiche. Les bornes par défaut ne
+            // s'appliquent qu'à une arrivée sans cadre.
+            initialCenter={
+              savedViewport
+                ? [savedViewport.lng, savedViewport.lat]
+                : (initialCenter ?? COASTAL_DEFAULT_CENTER)
+            }
+            initialZoom={savedViewport ? savedViewport.zoom : (initialZoom ?? COASTAL_DEFAULT_ZOOM)}
+            initialBounds={savedViewport ? undefined : initialBounds}
             className="w-full h-full"
             onMarkerClick={setActiveSpot}
             onMapReady={(map) => {
@@ -556,6 +607,7 @@ export default function MapShell({
               setMapInstance(map)
               // Carte prête → un clic marker peut suivre : on précharge le chunk popup
               void loadSpotPopup()
+              rememberViewport(map)
             }}
           />
         ) : (
