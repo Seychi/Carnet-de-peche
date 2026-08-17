@@ -5,6 +5,7 @@ import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { CookieBanner } from "@/components/consent/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -88,6 +89,7 @@ export default function RootLayout({
           <PwaProvider />
           <CookieBanner />
           <Analytics />
+          <SpeedInsights />
         </PostHogProvider>
       </body>
     </html>
