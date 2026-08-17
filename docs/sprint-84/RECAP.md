@@ -272,7 +272,14 @@ cookie, la mise en cache est cassée ou dangereuse : **arrêter et remonter**.
 2. Merger et déployer. **Noter la date et l'heure exactes ci-dessous** : toute la comparaison
    avant/après en dépend.
 
-   > Déployé le : `_______________`
+   > Poussé sur `main` le **17/08/2026 à 15:36** (commit `31f908f`). Vercel déploie
+   > automatiquement depuis `main`, donc la comparaison avant/après part de là.
+   > **J+7 = 24/08/2026** pour les statistiques d'exploration et l'Active CPU.
+   >
+   > ⚠️ L'Active CPU du mois **n'a pas été relevé avant le déploiement** (point 1
+   > ci-dessus, dashboard Vercel, hors de portée de Claude Code). La comparaison
+   > avant/après sur ce chiffre est donc perdue. Le repère qui reste, et qui est le
+   > plus important, est la **cadence d'exploration** de Search Console.
 
 3. **deploy-watch** juste après : TTFB réel, taux de `HIT`, aucune nouvelle issue Sentry
    (surveiller l'hydratation React #418, déjà connue sur 3 routes).
