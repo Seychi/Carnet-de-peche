@@ -234,7 +234,9 @@ Remonté depuis le code : la branche anonyme ne contient ni `createCatch`, ni
 
 1. Merger, déployer, **noter l'heure exacte**.
 
-   > Déployé le : `_______________`
+   > Poussé sur `main` le **18/08/2026 à 00:17** (commit `7b56d0c`). Vercel déploie
+   > automatiquement depuis `main`. **J+14 = 01/09/2026** pour le volume de
+   > `pending_catch_started`.
 
 2. **deploy-watch** juste après : aucune nouvelle issue Sentry, cache du sprint 84 intact.
 3. ★ **Rejouer le parcours sur un vrai téléphone, en 390 px réel.** La QA du 17/08 n'a pu
