@@ -356,12 +356,22 @@ select count(*) from spots where moderation_status='approved' and generation_bat
 3. Merger et déployer, **après** le point 2.
 4. **Noter la date et l'heure exactes du déploiement ici même** : toute la mesure en dépend.
 
-   > Déployé le : `_______________`
+   > Poussé sur `main` le **17/08/2026 à 11:53** (commit `357c94d`).
+   > Vercel déploie automatiquement depuis `main` : **la fenêtre de mesure démarre là.**
+   > J+21 = **07/09/2026**. J+30 = **16/09/2026**.
+   >
+   > ⚠️ Le point 2 ci-dessus (extraction des 40 pages) n'était **pas fait** au moment du
+   > push : la baseline par page manque donc pour de bon sur la fenêtre d'avant. Les 13
+   > requêtes de nom de lieu, elles, sont figées et suffisent au verdict du Bloc 2.
 
 5. Resoumettre le sitemap dans Search Console après déploiement.
 6. Reprogrammer la relecture du lot 1 (protocole de cohortes) au **03/09**, pas au 18/08.
-7. **QA visuelle à faire** : rendu mobile 390 px de la liste compacte à 12 entrées. Elle a
-   été validée sur un harnais de géométrie (0 px de débordement, cibles à 44 px), pas sur la
-   vraie page. Une capture sur la preview reste à faire.
+7. **QA visuelle à finir** : le rendu mobile 390 px de la liste compacte a été mesuré dans
+   un Chromium réel (390 × 844, DPR 2), avec le markup exact du composant, le thème Tailwind
+   compilé, les vraies polices et les 12 noms les plus longs du Finistère tirés de la base.
+   Relevé complet et captures : `docs/sprint-83/QA-390-BLOC2.md`. Résultat : 0 px de
+   débordement, cibles à 44 px, section de 1 076 px ramenée à 625 px. **Ce que ça ne prouve
+   pas** : l'intégration dans la page complète (sections voisines, hydratation, position
+   dans le défilement). Une passe sur la page déployée reste à faire.
 8. Trancher un jour, hors sprint : les 7 autres espèces à maille de façade unique qui
    servent le même gabarit que le mulet (§6).
