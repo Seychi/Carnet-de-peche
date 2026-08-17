@@ -138,6 +138,7 @@ export default async function GuidePage({
         />
       ))}
       <GuideLayout
+        slug={guide.slug}
         title={guide.title}
         excerpt={guide.excerpt}
         readTime={guide.readTime}

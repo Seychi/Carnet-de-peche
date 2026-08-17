@@ -20,6 +20,10 @@ import { getAllGuides } from '@/lib/guides/loader'
 import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS } from '@/lib/geo/departments'
 import { STRUCTURE_LABELS } from '@/lib/labels'
 import { Bathy } from '@/components/ui-v2/bathy'
+import { SeoTitle } from '@/components/seo/seo-title'
+import { KeyFacts } from '@/components/seo/key-facts'
+import { SeoInlineCta } from '@/components/seo/seo-inline-cta'
+import { shortSpotName } from '@/lib/seo/spot-title'
 import { TagData } from '@/components/ui-v2/tag-data'
 
 // ISR quotidien — les stats live (prises 30j, spots) se rafraîchissent chaque jour.
@@ -229,10 +233,10 @@ export default async function ProgrammaticPageView({
       />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-navy-950 pt-10 pb-12">
+      <section className="relative overflow-hidden bg-navy-950 pt-7 pb-8 sm:pt-10 sm:pb-11">
         <Bathy opacity={0.3} />
         <div className="relative mx-auto max-w-[860px] px-5">
-          <nav className="mb-6 flex flex-wrap items-center gap-2" aria-label="Fil d'ariane">
+          <nav className="mb-4 flex flex-wrap items-center gap-2 sm:mb-5" aria-label="Fil d'ariane">
             <Link
               href="/guides"
               className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-teal-300 hover:text-white transition-colors"
@@ -252,13 +256,16 @@ export default async function ProgrammaticPageView({
               </>
             )}
           </nav>
-          <h1 className="font-display text-white">{title}</h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">
+          {/* Sprint 87 Bloc 1 : le titre passe par la primitive partagée, qui
+              porte le clamp réduit et `data-fold="title"`. Le h1 global
+              (clamp 32→72px) reste intact pour la home et les index. */}
+          <SeoTitle>{title}</SeoTitle>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/60 sm:mt-4 sm:text-lg">
             {species.label} <em className="text-white/40">({species.latin})</em>{' '}
             {technique.withArticle}, vu du bord : les postes, les saisons, les marées qui comptent.
           </p>
           {catches30d > 0 && (
-            <TagData variant="on-dark" className="mt-5 block">
+            <TagData variant="on-dark" className="mt-4 block">
               ● {catches30d} PRISE{catches30d > 1 ? 'S' : ''} DE {species.label.toUpperCase()} LOGUÉE
               {catches30d > 1 ? 'S' : ''} CES 30 DERNIERS JOURS
               {deptLabel ? ` · ${deptLabel.toUpperCase()}` : ' · FRANCE'}
@@ -267,9 +274,57 @@ export default async function ProgrammaticPageView({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[860px] px-5 py-10">
+      <div className="mx-auto max-w-[860px] px-5 pt-6 pb-10">
+        {/* ── L'essentiel ─────────────────────────────────────────────────
+            Sprint 87 Bloc 2 : le bloc vivait en `not-prose` ENTRE les
+            paragraphes de technique, donc sous le premier écran en mobile.
+            C'est pourtant LUI la réponse à la requête qui a amené le visiteur ;
+            la prose est le « pour creuser ». Il remonte, sans être redessiné. */}
+        {techContent && (
+          <KeyFacts
+            label={`L'ESSENTIEL · ${technique.label.toUpperCase()}`}
+            items={techContent.bullets}
+            footnote={
+              <>
+                <strong className="text-navy-900">Quand :</strong> {techContent.seasonNote}
+              </>
+            }
+          />
+        )}
+
+        {/* ── CTA précoce ─────────────────────────────────────────────────
+            Le seul CTA vivait en bas de page, hors de portée du visiteur mobile
+            qui ne déroule pas, et n'émettait AUCUN événement.
+
+            ★ Il porte désormais le contexte de spot. Il pointait `/carnet/nouvelle`
+            NU, ce qui envoie un visiteur sans compte sur l'écran « Choisis d'abord
+            ton spot » qui le renvoie chercher ailleurs, alors que la page liste
+            déjà jusqu'à 5 spots et que tout le parcours anonyme des sprints 77/86
+            ne fonctionne QU'AVEC un spot en contexte.
+            `?spot_id=` accepte l'UUID comme le slug (cf app/carnet/nouvelle/page.tsx,
+            correctif du sprint 79 Bloc 3) : on passe l'UUID, forme canonique.
+            Le nom du spot est raccourci avant le cadratin, sinon le libellé du
+            bouton déborde à 390 px. */}
+        <SeoInlineCta
+          template="peche"
+          slug={programmaticUrl(page).replace('/peche/', '')}
+          position="inline"
+          href={
+            spots.length > 0
+              ? `/carnet/nouvelle?spot_id=${spots[0].id}`
+              : `/spots?species=${species.dbKey}`
+          }
+          label={
+            spots.length > 0
+              ? `Loguer une prise à ${shortSpotName(spots[0].name)}`
+              : `Trouver un spot à ${species.labelLower}`
+          }
+          headline={`Ta prochaine prise ${species.articleDe}${species.labelLower} mérite mieux qu'un souvenir.`}
+          note="Marée, météo et conditions enregistrées automatiquement."
+        />
+
         {/* ── L'espèce ────────────────────────────────────────────────── */}
-        <section className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-navy-900 prose-p:text-ink-700 prose-li:text-ink-700 prose-strong:text-navy-900">
+        <section className="prose prose-slate mt-10 max-w-none prose-headings:font-display prose-headings:text-navy-900 prose-p:text-ink-700 prose-li:text-ink-700 prose-strong:text-navy-900">
           {content.intro.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -283,20 +338,6 @@ export default async function ProgrammaticPageView({
               {techContent.paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
-              <div className="not-prose my-6 rounded-[14px] border border-sand-200 bg-white p-5">
-                <TagData className="mb-3 block">L&apos;ESSENTIEL · {technique.label.toUpperCase()}</TagData>
-                <ul className="flex flex-col gap-2 text-[14px] leading-relaxed text-ink-700">
-                  {techContent.bullets.map((b, i) => (
-                    <li key={i} className="flex gap-2.5">
-                      <span className="mt-[7px] size-1.5 shrink-0 rounded-full bg-teal-500" aria-hidden="true" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-4 border-t border-sand-200 pt-3 text-[13px] text-ink-600">
-                  <strong className="text-navy-900">Quand :</strong> {techContent.seasonNote}
-                </p>
-              </div>
             </>
           )}
 
@@ -436,25 +477,24 @@ export default async function ProgrammaticPageView({
           </div>
         </section>
 
-        {/* ── CTA ─────────────────────────────────────────────────────── */}
-        <section className="relative mt-12 overflow-hidden rounded-[18px] bg-navy-950 p-7 text-center">
-          <Bathy density={2} opacity={0.3} />
-          <div className="relative">
-            <p className="font-display text-xl text-white">
-              Ta prochaine prise {species.articleDe}{species.labelLower} mérite mieux qu&apos;un souvenir.
-            </p>
-            <p className="mx-auto mt-2 max-w-md text-[14px] text-white/60">
-              Logue-la : conditions auto-enregistrées, patterns qui se dessinent, et un carnet qui
-              apprend où et quand TU pêches le mieux.
-            </p>
-            <Link
-              href="/carnet/nouvelle"
-              className="mt-5 inline-block rounded-lg bg-teal-500 px-6 py-3 text-[14.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-300"
-            >
-              Logue ta prise
-            </Link>
-          </div>
-        </section>
+        {/* ── CTA de fin ──────────────────────────────────────────────────
+            Conservé pour qui a tout lu : même bloc navy, même copie. Il passe
+            par la primitive pour être instrumenté (`position: 'footer'`) et
+            porte lui aussi le contexte de spot. */}
+        <SeoInlineCta
+          template="peche"
+          slug={programmaticUrl(page).replace('/peche/', '')}
+          position="footer"
+          variant="card"
+          href={
+            spots.length > 0
+              ? `/carnet/nouvelle?spot_id=${spots[0].id}`
+              : `/spots?species=${species.dbKey}`
+          }
+          label={spots.length > 0 ? 'Logue ta prise' : `Trouver un spot à ${species.labelLower}`}
+          headline={`Ta prochaine prise ${species.articleDe}${species.labelLower} mérite mieux qu'un souvenir.`}
+          note="Logue-la : conditions auto-enregistrées, patterns qui se dessinent, et un carnet qui apprend où et quand TU pêches le mieux."
+        />
       </div>
     </div>
   )

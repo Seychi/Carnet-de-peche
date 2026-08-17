@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, ChevronRight, ShieldCheck } from 'lucide-react'
 import { createAnonClient } from '@/lib/supabase/anon'
+import { SeoTitle } from '@/components/seo/seo-title'
 import {
   SPECIES,
   TECHNIQUES,
@@ -192,7 +193,7 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       ))}
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-navy-950 pt-10 pb-12">
+      <section className="relative overflow-hidden bg-navy-950 pt-7 pb-8 sm:pt-10 sm:pb-12">
         <Bathy opacity={0.3} withLabels />
         <div className="relative mx-auto max-w-[980px] px-5">
           <nav className="mb-6 flex items-center gap-2" aria-label="Fil d'ariane">
@@ -205,10 +206,13 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
             <ChevronRight size={12} className="text-white/30" />
             <TagData className="text-white/45">{species.label.toUpperCase()}</TagData>
           </nav>
-          <h1 className="font-display text-white">
+          {/* Sprint 87 Bloc 1 : primitive partagée. Ce gabarit est le SEUL avec un
+              avant mesurable (sprint 75) : on ne touche QUE la taille du titre,
+              tout autre changement rendrait la comparaison illisible. */}
+          <SeoTitle>
             {species.article}{species.labelLower}{' '}
             <span className="text-[0.55em] font-normal italic text-white/40">{species.latin}</span>
-          </h1>
+          </SeoTitle>
           {/* Sprint 75 Bloc 2 : LA RÉPONSE D'ABORD. Maille, statut du jour et quota
               remontent au-dessus de l'intro, sinon ils sont hors écran en 390 px
               (82 % du trafic). La prose de fond reste juste en dessous, intacte. */}

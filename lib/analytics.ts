@@ -92,6 +92,27 @@ export const analytics = {
     capture('species_page_cta_clicked', props)
   },
   /**
+   * Clic sur un CTA d'une page SEO (sprint 87). `template` = gabarit, `slug` =
+   * identifiant PUBLIC de la page (jamais une coordonnée).
+   *
+   * ⚠️ Événement NOUVEAU, ce n'est PAS un renommage. `species_page_cta_clicked`
+   * reste tel quel : les deux coexistent sur /especes, et c'est voulu. L'ancien
+   * porte la continuité de mesure du sprint 75, le nouveau porte la comparaison
+   * ENTRE gabarits, que rien ne permettait jusqu'ici (/peche et /guides
+   * n'émettaient aucun événement de conversion).
+   *
+   * ⚠️ Piège de lecture : /peche et /guides partent de ZÉRO événement, pas d'un
+   * taux bas. Aucun « avant/après » en taux n'est possible sur ces deux gabarits,
+   * le repère est le VOLUME hebdomadaire absolu.
+   */
+  seoCtaClicked(props: {
+    template: 'peche' | 'guide' | 'espece'
+    slug: string
+    position: 'inline' | 'footer'
+  }): void {
+    capture('seo_cta_clicked', props)
+  },
+  /**
    * Clic d'une fiche espèce vers une fiche spot (sprint 75, Bloc 5). Mesure le
    * PONT du sprint : /especes (36 % des impressions, 1,7 % de CTR) doit alimenter
    * /spots (8,4 % de CTR). `spot_slug` est un identifiant public, jamais une coord.

@@ -68,6 +68,7 @@ export function SpeciesAnswer({
 
   return (
     <section
+      data-fold="answer"
       aria-label="Réglementation en bref"
       className="mt-6 rounded-[14px] border border-white/10 bg-white/[0.05] p-4"
     >

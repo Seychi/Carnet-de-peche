@@ -25,10 +25,24 @@ export function SpeciesCtaLink({
   className?: string
   children: React.ReactNode
 }) {
+  // Sprint 87 Bloc 4 : marqueurs de mesure, pour que ce gabarit se lise comme les
+  // deux autres (`scripts/measure-fold.mjs`, `e2e/10-pli-mobile.spec.ts`).
+  //
+  // ⚠️ La position `sticky` est volontairement EXCLUE du marqueur. Une barre
+  // collante est par construction toujours dans le viewport : la marquer ferait
+  // passer le garde-fou « un CTA existe avant 1 000 px » sur n'importe quelle
+  // page, y compris une page où le CTA de lecture serait retombé tout en bas.
+  // Le test doit mesurer ce que le visiteur rencontre EN LISANT, pas ce qui le
+  // suit. Même leçon que le sprint 85 §3, où la barre collante de la fiche spot
+  // émettait `spot_page` sans être un mur et confondait la mesure.
+  const foldMarker = position === 'sticky' ? undefined : 'cta'
+
   return (
     <Link
       href={href}
       className={className}
+      data-fold={foldMarker}
+      data-position={position}
       onClick={() => analytics.speciesPageCtaClicked({ species, position })}
     >
       {children}

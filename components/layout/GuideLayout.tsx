@@ -3,6 +3,9 @@ import Image from 'next/image'
 import { Clock, ArrowLeft } from 'lucide-react'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import { SeoTitle } from '@/components/seo/seo-title'
+import { SeoInlineCta } from '@/components/seo/seo-inline-cta'
+import { SPECIES_LABELS } from '@/lib/labels'
 
 interface RelatedGuide {
   slug: string
@@ -10,6 +13,8 @@ interface RelatedGuide {
 }
 
 interface GuideLayoutProps {
+  /** Slug du guide. Identifiant PUBLIC, part dans l'analytics du CTA. */
+  slug: string
   title: string
   excerpt: string
   readTime: number
@@ -41,6 +46,7 @@ function HeroImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export function GuideLayout({
+  slug,
   title,
   excerpt,
   readTime,
@@ -62,12 +68,24 @@ export function GuideLayout({
       : /^[aeiouhéèê]/i.test(speciesLower)
         ? `Logue ta prochaine prise d’${speciesLower}`
         : `Logue ta prochaine prise de ${speciesLower}`
+  // Sprint 87 Bloc 3 : destination du CTA. Un lecteur de guide n'a AUCUN spot en
+  // contexte, contrairement à /peche : on l'envoie sur /spots, qui porte déjà les
+  // surfaces d'inscription instrumentées des sprints 76 et 79, au lieu d'inventer
+  // un entonnoir. Le frontmatter porte un LIBELLÉ (« Bar »), pas une clé de base :
+  // on résout, et on retombe sur /spots nu si l'espèce n'est pas exploitable
+  // (« Multi-espèces », ou un libellé hors référentiel).
+  const speciesDbKey = Object.keys(SPECIES_LABELS).find(
+    (k) => SPECIES_LABELS[k].toLowerCase() === species.toLowerCase(),
+  )
+  const ctaHref = speciesDbKey ? `/spots?species=${speciesDbKey}` : '/spots'
+  const ctaLabel = speciesDbKey ? `Trouver un spot à ${speciesLower}` : 'Trouver un spot'
+
   // Pas de <main> ici : le layout (marketing) fournit déjà <main id="main">
   // (un seul landmark principal par page, a11y). Sprint 56.
   return (
     <div className="bg-sand-50 min-h-screen">
       {/* Hero navy-950 + isobathes (DA v2) */}
-      <section className={`relative overflow-hidden bg-navy-950 pt-10 ${heroImage ? 'pb-0' : 'pb-14'}`}>
+      <section className={`relative overflow-hidden bg-navy-950 pt-7 sm:pt-10 ${heroImage ? 'pb-0' : 'pb-8 sm:pb-12'}`}>
         <Bathy opacity={0.3} />
         <div className="relative max-w-[1280px] mx-auto px-6">
           <Link
@@ -91,14 +109,29 @@ export function GuideLayout({
               </span>
             )}
           </div>
-          <h1 className="text-white font-display max-w-3xl">{title}</h1>
+          <SeoTitle className="max-w-3xl">{title}</SeoTitle>
           <p className="mt-4 text-white/60 max-w-2xl text-lg leading-relaxed">{excerpt}</p>
-          <TagData className="mt-6 flex items-center gap-2 text-white/40">
+          <TagData className="mt-5 flex items-center gap-2 text-white/40">
             <Clock size={13} className="text-white/40" aria-hidden="true" />
             {readTime} MIN DE LECTURE · {publishedAt.toUpperCase()}
           </TagData>
         </div>
       </section>
+
+      {/* Sprint 87 Bloc 3 : le CTA remonte au-dessus du corps MDX. Avant, le seul
+          CTA de l'article vivait en TOUTE FIN, et le second était dans une sidebar
+          `hidden lg:block`, donc invisible aux 82 % de mobile. */}
+      <div className="mx-auto max-w-[1280px] px-6">
+        <SeoInlineCta
+          template="guide"
+          slug={slug}
+          position="inline"
+          href={ctaHref}
+          label={ctaLabel}
+          headline={huntLine + '.'}
+          note="Marée, météo et conditions enregistrées automatiquement."
+        />
+      </div>
 
       {/* Image de couverture */}
       {heroImage && (
@@ -122,20 +155,22 @@ export function GuideLayout({
           ">
             {children}
 
-            {/* CTA milieu / fin — inséré automatiquement en bas */}
-            <div className="not-prose mt-12 p-6 bg-teal-500/10 border border-teal-500/20 rounded-[18px] text-center">
-              <p className="font-semibold text-navy-900 mb-2">
-                {huntLine}
-              </p>
-              <p className="text-sm text-ink-500 mb-4">
-                Rejoins la communauté et crée ton carnet de pêche gratuit.
-              </p>
-              <Link
-                href="/auth/login"
-                className="inline-block px-6 py-2.5 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors duration-200"
-              >
-                Créer mon carnet gratuit →
-              </Link>
+            {/* CTA de fin, pour qui a tout lu.
+                ⚠️ Sprint 87 : il était libellé « Créer mon carnet gratuit » et
+                pointait `/auth/login`. La promesse et la destination ne
+                coïncidaient pas, exactement le défaut corrigé au sprint 85 sur
+                /tarifs et la carte Découverte. */}
+            <div className="not-prose">
+              <SeoInlineCta
+                template="guide"
+                slug={slug}
+                position="footer"
+                variant="card"
+                href="/auth/register"
+                label="Créer mon carnet gratuit"
+                headline={huntLine + '.'}
+                note="Rejoins la communauté et crée ton carnet de pêche gratuit."
+              />
             </div>
           </article>
 
@@ -163,24 +198,19 @@ export function GuideLayout({
                 </div>
               )}
 
-              {/* CTA abonnement */}
-              <div className="relative overflow-hidden bg-navy-950 rounded-[18px] p-6 text-center">
-                <Bathy density={2} opacity={0.3} />
-                <div className="relative">
-                  <p className="text-white font-semibold text-sm mb-2">Trouve les spots près de chez toi</p>
-                  {/* Sprint 79, Bloc 5 : le score n'est plus un argument payant
-                      (il est gratuit depuis le sprint 78). */}
-                  <p className="text-white/60 text-xs mb-4">
-                    Carte complète, GPS précis, filtres espèces.
-                  </p>
-                  <Link
-                    href="/tarifs"
-                    className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors duration-200"
-                  >
-                    Voir les formules
-                  </Link>
-                </div>
-              </div>
+              {/* ⚠️ Sprint 87 : ce bloc vendait /tarifs, donc un ABONNEMENT, à un
+                  lecteur qui n'a pas encore de compte. C'est l'anti-motif corrigé
+                  au sprint 75 (cf l'en-tête de lib/gating/wall.ts) et il vivait en
+                  plus dans une sidebar `hidden lg:block`, invisible aux 82 % de
+                  mobile. Remplacé par le même CTA gratuit que le haut de page. */}
+              <SeoInlineCta
+                template="guide"
+                slug={slug}
+                position="inline"
+                href={ctaHref}
+                label={ctaLabel}
+                note="Gratuit, sans carte bancaire."
+              />
             </div>
           </aside>
         </div>
