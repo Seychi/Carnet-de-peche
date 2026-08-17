@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { CookieBanner } from "@/components/consent/CookieBanner";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -86,6 +87,7 @@ export default function RootLayout({
           <Toaster position="top-center" richColors />
           <PwaProvider />
           <CookieBanner />
+          <Analytics />
         </PostHogProvider>
       </body>
     </html>
