@@ -95,7 +95,7 @@ async function fetchSpot(spotIdOrSlug: string): Promise<SpotRow | null> {
  * Pourquoi un écran plutôt qu'un formulaire vide : le brouillon est un cookie
  * qui ne porte AUCUNE coordonnée, à dessein (cf lib/drafts/schema.ts, invariant
  * RGPD du sprint 77). C'est le spot qui porte le lieu. Rendre ici un formulaire
- * sans spot afficherait un « Garder ma prise en brouillon » qui ne peut RIEN
+ * sans spot afficherait un « Créer mon carnet et enregistrer » qui ne peut RIEN
  * enregistrer : le pire des deux mondes, exactement le défaut du Bloc 4. On dit
  * donc ce qui manque, et on donne le chemin le plus court pour l'obtenir.
  */

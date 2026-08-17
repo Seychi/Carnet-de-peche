@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm, Controller, type SubmitHandler, type SubmitErrorHandler, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { MapPin, Loader2, Fish, Search, ChevronDown, Users, Trophy, Sparkles, Award, Target } from 'lucide-react'
+import { MapPin, Loader2, Fish, Search, ChevronDown, Check, Users, Trophy, Sparkles, Award, Target } from 'lucide-react'
 
 import { createCatchSchema, formCatchSchema, catchBaseSchema, isInFranceMetro, type CreateCatchInput } from '@/lib/catches/schema'
 import { createCatch, updateCatch, uploadCatchPhoto } from '@/lib/catches/actions'
@@ -21,8 +21,10 @@ import { CityAutocomplete } from '@/components/catches/CityAutocomplete'
 import { GearPicker } from '@/components/catches/GearPicker'
 import { geocodeMunicipality } from '@/lib/geo/geocode'
 import { analytics } from '@/lib/analytics'
-import { writePendingCatch } from '@/lib/drafts/client'
-import { SignupWall } from '@/components/map/SignupBanner'
+import { writePendingCatch, readPendingCatch } from '@/lib/drafts/client'
+import { pendingCatchSchema } from '@/lib/drafts/schema'
+import { buildSignupHref } from '@/lib/gating/wall'
+import { useSignupWallImpression } from '@/lib/hooks/useSignupWallImpression'
 import type { CatchRow } from '@/lib/catches/queries'
 import type { GearItem, GearKind } from '@/app/actions/gear'
 
@@ -73,9 +75,33 @@ const SUBMIT_LABELS_EDIT: Record<SubmitPhase, string> = {
   conditions: 'Conditions en cours…',
 }
 
-// Visiteur sans compte (sprint 77, Bloc 7) : le bouton dit « brouillon », jamais
-// « enregistrer ». Rien n'est en base tant que le carnet n'existe pas.
-const SUBMIT_LABELS_DRAFT = 'Garder ma prise en brouillon'
+// Visiteur sans compte (sprint 77, Bloc 7 · refondu sprint 86, Bloc 1).
+//
+// ★ UNE seule action, et elle dit où elle mène. L'ancien libellé (« Garder ma
+// prise en brouillon ») faisait du footer une PREMIÈRE soumission, suivie d'une
+// seconde dans le mur : mesuré en production le 17/08, le bouton qui ne
+// convertit pas était 1,37 fois plus grand que celui qui convertit, dans le même
+// teal, et le seul des deux à rester à l'écran. Le brouillon, lui, n'a pas
+// disparu : il s'écrit en continu, en silence (cf l'effet d'autosave).
+const SUBMIT_LABELS_DRAFT = 'Créer mon carnet et enregistrer'
+
+// Sprint 86, Bloc 1 : la promesse permanente affichée sous le formulaire d'un
+// visiteur sans compte. Ce n'est plus un mur (aucun bouton, aucun lien dans le
+// cas nominal) : l'action unique est le footer. La copie doit être vraie DÈS LE
+// CHARGEMENT, donc jamais « ton brouillon est prêt » : à cet instant, il n'y a
+// encore rien à garder.
+// ⚠️ Revue croisée du sprint 86 : « reportée telle quelle » était FAUX. Le cookie
+// ne porte que ce que `pendingCatchSchema` accepte (espèce, technique, taille,
+// poids, date, remise à l'eau, visibilité) et `replayPendingDrafts` force en dur
+// `precise_for_friends: true` / `reveal_precise_to_public: false`. Un visiteur qui
+// ouvrait les réglages fins de coordonnées voyait donc son choix écrasé pendant
+// que cette puce lui promettait le contraire, à l'écran en même temps. On nomme ce
+// qui voyage plutôt que de promettre tout.
+const PENDING_CATCH_PROMISES = [
+  'Ton espèce, ta taille, ta date et ta visibilité sont reportées, tu ne retapes rien',
+  'Ton carnet garde tes prises et apprend de tes sorties',
+  'C’est gratuit, sans carte bancaire, en 30 secondes',
+] as const
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -205,6 +231,14 @@ export function CatchForm(props: CatchFormProps) {
   const anonymousDraft =
     props.mode === 'create' && props.anonymousDraft === true && !!props.spotContext
 
+  // Sprint 86, Bloc 1 : le brouillon COOKIE (`pending-catch`) ne s'écrit plus au
+  // clic mais EN CONTINU, dans l'autosave déjà en place. On extrait ici les deux
+  // seules valeurs dont l'effet a besoin, en PRIMITIFS : un objet en dépendance
+  // d'un `useEffect` le rejoue à chaque rendu du parent (leçon du sprint 80, où
+  // un tableau en dépendance faisait démonter la carte).
+  const draftSpotId = anonymousDraft ? spotContext?.id : undefined
+  const draftSpotSlug = anonymousDraft ? spotContext?.slug : undefined
+
   // Contexte « loguer à plusieurs » (sprint 50) : pré-remplissage SANS FK ni coord.
   // Ignoré en édition et quand un spot pilote déjà le flow (le spot prime). La prise
   // garde les coords privées de l'utilisateur ; la sortie n'apporte que dept + espèce.
@@ -241,12 +275,33 @@ export function CatchForm(props: CatchFormProps) {
   const abandonSentRef = useRef(false)
   const lastFieldRef = useRef('')
 
-  // Inscription différée (sprint 77, Bloc 7) : le brouillon d'un visiteur sans
-  // compte est écrit en cookie, et le mur `pending_catch` s'ouvre sous le
-  // formulaire. Rien n'est enregistré tant qu'il n'a pas créé son carnet.
-  // 'failed' = cookie refusé (navigateur restrictif) : on le DIT, on ne laisse
-  // jamais croire que la saisie est gardée quelque part.
-  const [draftState, setDraftState] = useState<'idle' | 'saved' | 'failed'>('idle')
+  // Inscription différée (sprint 77, Bloc 7 · refondu sprint 86, Bloc 1).
+  //
+  // Il n'y a plus d'état 'saved' : le parcours en deux temps a disparu, donc il
+  // n'y a plus rien à réhydrater au rechargement (c'était le défaut n°0 de la QA
+  // du 17/08, corrigé par construction et non par un initialiseur de plus).
+  // Reste 'failed' = cookie refusé (navigateur restrictif, valeur trop grosse) :
+  // on le DIT sur place, et surtout on NE NAVIGUE PAS, parce que quitter la page
+  // effacerait la saisie. C'est le seul cas où l'ancien parcours protégeait mieux.
+  const [draftState, setDraftState] = useState<'idle' | 'failed'>('idle')
+
+  // Bloc de promesse `pending_catch` : permanent depuis le sprint 86, donc son
+  // impression part au MONTAGE. Le hook du sprint 85 n'émet que si le bloc a un
+  // rectangle de rendu ; pour un inscrit le bloc n'est même pas monté, la ref
+  // reste nulle et rien n'est émis.
+  //
+  // ⚠️ L'impression va monter d'un ordre de grandeur (elle partait après le clic,
+  // elle part maintenant à chaque ouverture du formulaire par un anonyme) et le
+  // taux de clic de `pending_catch` va mécaniquement s'effondrer. Ce n'est PAS une
+  // régression : le repère de succès est le VOLUME de `pending_catch_started`.
+  const pendingWallRef = useRef<HTMLDivElement>(null)
+  useSignupWallImpression(pendingWallRef, 'pending_catch')
+
+  // Sprint 86, Bloc 2 : un visiteur sans compte n'a pas encore d'abonnés. Les
+  // deux réglages de coordonnées précises partent donc repliés POUR LUI, sans
+  // changer une seule valeur par défaut, et restent atteignables en un clic. Un
+  // inscrit ne voit pas ce dépliant : sa section est celle d'avant, dépliée.
+  const [preciseSettingsOpen, setPreciseSettingsOpen] = useState(false)
 
   // Célébration (Sprint 61) : record / nouvelle espèce / badge tombé au log. On garde
   // la destination en attente pour naviguer À LA FERMETURE de l'overlay (pas avant).
@@ -429,6 +484,23 @@ export function CatchForm(props: CatchFormProps) {
   }, [watchedTechnique, setValue])
 
   // Brouillon (création uniquement)
+  //
+  // ★ SPRINT 86, Bloc 1 — DEUX brouillons, deux rôles, dans le MÊME débounce.
+  // Ne jamais les confondre :
+  //   1. `localStorage[DRAFT_KEY]` refait le FORMULAIRE si on revient dessus.
+  //      Il sert à tout le monde, connecté compris. TTL 30 min.
+  //   2. le cookie `pending-catch` est le SEUL support qui survit à la navigation
+  //      vers /auth/register, et le seul que `replayPendingDrafts()` sait rejouer
+  //      en vraie prise après inscription. Anonymes uniquement.
+  // Le sprint 86 supprime le BOUTON « garder en brouillon », pas le mécanisme :
+  // le cookie s'écrit désormais en continu, en silence. Bénéfice de bord, un
+  // visiteur qui part SANS rien cliquer garde sa saisie, et /auth/register peut
+  // lui rappeler « Ta prise de bar à … t'attend ».
+  //
+  // ⚠️ On valide contre `pendingCatchSchema` AVANT d'écrire : `watch` livre les
+  // valeurs BRUTES du formulaire, pas la sortie de zod (c'est `onSubmit` qui a
+  // cette garantie). Un cookie illisible serait pire que pas de cookie : la
+  // phrase de rappel disparaîtrait en silence, sans que rien ne le signale.
   useEffect(() => {
     if (isEdit) return
     let timer: ReturnType<typeof setTimeout>
@@ -437,10 +509,30 @@ export function CatchForm(props: CatchFormProps) {
       timer = setTimeout(() => {
         const { photo_path: _p, ...toSave } = values as Partial<CreateCatchInput>
         localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: toSave }))
+
+        // En dessous de l'espèce il n'y a rien à rejouer (`species` est requis par
+        // `pendingCatchSchema`) : on n'écrit pas de brouillon vide. Hors mode
+        // anonyme, `draftSpotId`/`draftSpotSlug` sont `undefined` : un inscrit
+        // n'écrit JAMAIS ce cookie, exactement comme avant ce sprint.
+        if (!draftSpotId || !draftSpotSlug || !toSave.species) return
+        const candidate = pendingCatchSchema.safeParse({
+          spot_id: draftSpotId,
+          spot_slug: draftSpotSlug,
+          species: toSave.species,
+          technique: toSave.technique,
+          size_cm: toSave.size_cm,
+          weight_kg: toSave.weight_kg,
+          caught_at: toSave.caught_at,
+          // Mêmes replis que la soumission : `released` n'est pas présélectionné
+          // (sprint 59) et `privacy` part publique (sprint 77, Bloc 8).
+          released: toSave.released ?? true,
+          privacy: toSave.privacy ?? 'public',
+        })
+        if (candidate.success) writePendingCatch(candidate.data)
       }, 800)
     })
     return () => { unsubscribe(); clearTimeout(timer) }
-  }, [watch, isEdit])
+  }, [watch, isEdit, draftSpotId, draftSpotSlug])
 
   // Analytics (création uniquement)
   //
@@ -532,30 +624,84 @@ export function CatchForm(props: CatchFormProps) {
   }
 
   const onSubmit: SubmitHandler<CreateCatchInput> = async (data) => {
-    // ── Visiteur sans compte (sprint 77, Bloc 7) ────────────────────────────
-    // On ne demande le compte QU'ICI, une fois la saisie faite. Le brouillon
-    // part en cookie (aucune requête, aucune ligne en base) et le mur s'ouvre.
+    // ── Visiteur sans compte (sprint 77, Bloc 7 · refondu sprint 86, Bloc 1) ──
+    // UNE seule action : elle valide, écrit le brouillon en cookie (aucune
+    // requête, aucune ligne en base) et emmène créer le carnet. Plus de seconde
+    // soumission : le bloc `#catch-pending-wall` n'est plus une action, c'est une
+    // promesse permanente affichée au-dessus du footer.
+    //
+    // L'écriture est refaite ICI, avec `data` (sortie de zod), même si l'autosave
+    // vient probablement de l'écrire : c'est cette écriture-là qui fait foi, et
+    // c'est son résultat qui décide si l'on peut quitter la page.
     if (anonymousDraft && spotContext) {
-      const written = writePendingCatch({
-        spot_id: spotContext.id,
-        spot_slug: spotContext.slug,
-        species: data.species,
-        technique: data.technique,
-        size_cm: data.size_cm,
-        weight_kg: data.weight_kg,
-        caught_at: data.caught_at,
-        released: data.released ?? true,
-        privacy: data.privacy ?? 'public',
-      })
+      // Le repère de succès de ce sprint est le VOLUME de `pending_catch_started`
+      // (3 sur les 90 jours précédant le 17/08) : un double envoi le doublerait.
+      // Le bouton est déjà désactivé pendant la navigation, cette garde ferme le
+      // cas résiduel. Mode anonyme uniquement : le chemin d'un inscrit ne bouge pas.
+      if (submitPhase !== 'idle') return
+      // ★ Sprint 86, revue croisée : `writePendingCatch` ne prouvait RIEN.
+      // `writeCookie` (lib/drafts/client) pose `document.cookie` puis renvoie
+      // `true` SANS relire. Or un navigateur qui bloque les cookies du site en
+      // fait un no-op SILENCIEUX, sans exception. On naviguait donc vers
+      // /auth/register avec un cookie inexistant : pas de « Ta prise de … », rien
+      // à rejouer, et la saisie perdue puisqu'on a quitté la page. Le seul cas
+      // que ce sprint devait protéger ne l'était pas.
+      //
+      // Deuxième trou fermé par la même relecture : cette écriture-ci ne validait
+      // pas la charge, contrairement à l'autosave. Un `spot_slug` refusé par
+      // `pendingCatchSchema` produisait un cookie illisible et on partait quand
+      // même. Ce n'est pas théorique : `plages-des-terrasses-du-soleil-poste-de-
+      // secours-n--osm1723971383` est approuvé et public en prod, et son double
+      // tiret viole la regex de slug.
+      //
+      // On ne touche pas à `lib/drafts/client.ts` (garde-fou du brief) : on
+      // vérifie ici, en relisant ce que le navigateur a réellement accepté.
+      // `readPendingCatch` est une relecture de CONTRÔLE, à ne pas confondre avec
+      // l'initialiseur d'état que le brief proscrit explicitement.
+      const written =
+        writePendingCatch({
+          spot_id: spotContext.id,
+          spot_slug: spotContext.slug,
+          species: data.species,
+          technique: data.technique,
+          size_cm: data.size_cm,
+          weight_kg: data.weight_kg,
+          caught_at: data.caught_at,
+          released: data.released ?? true,
+          privacy: data.privacy ?? 'public',
+        }) && readPendingCatch() !== null
       submittedRef.current = true
       analytics.pendingCatchStarted({ species: data.species, technique: data.technique })
-      setDraftState(written ? 'saved' : 'failed')
-      // Le mur est en bas du formulaire : on l'amène sous les yeux.
-      requestAnimationFrame(() => {
-        document
-          .getElementById('catch-pending-wall')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      })
+      // Le footer EST le CTA du mur depuis ce sprint : c'est lui qui porte le
+      // clic de la surface. Surface inchangée (`lib/gating/wall.ts`) — la
+      // renommer casserait l'historique du funnel.
+      analytics.signupWallClicked({ surface: 'pending_catch' })
+
+      // ★ Cookie refusé : on NE NAVIGUE PAS. Quitter la page effacerait la
+      // saisie, et c'est le seul cas où le parcours en deux temps protégeait
+      // mieux. On le dit sur place, on propose un NOUVEL ONGLET, et l'ancien
+      // reste ouvert avec la saisie (le brouillon localStorage la refait au
+      // rechargement).
+      if (!written) {
+        setDraftState('failed')
+        // Le bloc est en bas du formulaire : seul ce cas a encore besoin qu'on
+        // l'amène sous les yeux (dans le cas nominal, on navigue).
+        requestAnimationFrame(() => {
+          document
+            .getElementById('catch-pending-wall')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+        return
+      }
+
+      setDraftState('idle')
+      // Posé AVANT la navigation, à dessein : `router.push` est asynchrone (la
+      // charge RSC de /auth/register est récupérée avant que cette page ne soit
+      // démontée, et cette page-là lit les cookies, donc elle n'est pas servie
+      // depuis un cache). Sans ce basculement, rien ne bouge pendant le
+      // chargement et le visiteur reclique.
+      setSubmitPhase('saving')
+      router.push(buildSignupHref(`/spots/${spotContext.slug}`))
       return
     }
 
@@ -1468,64 +1614,134 @@ export function CatchForm(props: CatchFormProps) {
           </div>
         </div>
 
-        <div className="mt-4 space-y-3 pt-3 border-t border-sand-200">
-          <Controller
-            name="precise_for_friends"
-            control={control}
-            render={({ field }) => (
-              <ToggleRow
-                label="Coords précises pour mes abonnés"
-                checked={field.value ?? true}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
+        {/* ── Réglages fins de coordonnées (sprint 86, Bloc 2) ──
+            Repliés POUR UN ANONYME seulement : ces deux interrupteurs lui
+            demandent un arbitrage sur une audience (« mes abonnés ») qu'il n'a
+            pas encore, dans un formulaire qui fait déjà 3,3 écrans. On ne cache
+            pas une information de confidentialité, on la met au repos : le
+            dépliant est à un clic, et le rappel « Ton coin reste ton coin »
+            ci-dessus reste visible en toutes circonstances.
+            Les valeurs par défaut ne bougent pas (precise_for_friends: true,
+            reveal_precise_to_public: false), et « Qui voit cette prise » reste
+            à l'écran (sprint 77, Bloc 8 : jamais un réglage de visibilité
+            enterré derrière un menu). Pour un inscrit, la section est celle
+            d'avant, dépliée, sans dépliant. */}
+        <div className="mt-4 pt-3 border-t border-sand-200">
+          {anonymousDraft && (
+            <button
+              type="button"
+              onClick={() => setPreciseSettingsOpen((o) => !o)}
+              aria-expanded={preciseSettingsOpen}
+              aria-controls="catch-precise-settings"
+              className="flex min-h-11 w-full items-center justify-between gap-2 text-left text-[13px] font-medium text-ink-600"
+            >
+              <span>Réglages de confidentialité</span>
+              <ChevronDown
+                size={16}
+                aria-hidden="true"
+                className={`shrink-0 transition-transform ${preciseSettingsOpen ? 'rotate-180' : ''}`}
               />
-            )}
-          />
-          <Controller
-            name="reveal_precise_to_public"
-            control={control}
-            render={({ field }) => (
-              <>
+            </button>
+          )}
+          <div
+            id="catch-precise-settings"
+            className={`space-y-3${
+              anonymousDraft ? (preciseSettingsOpen ? ' mt-3' : ' hidden') : ''
+            }`}
+          >
+            <Controller
+              name="precise_for_friends"
+              control={control}
+              render={({ field }) => (
                 <ToggleRow
-                  label="Coords précises publiques"
-                  checked={field.value ?? false}
+                  label="Coords précises pour mes abonnés"
+                  checked={field.value ?? true}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                 />
-                {field.value && (
-                  <p className="text-[12px] font-medium text-red-600 bg-red-50 border border-red-200 rounded-[8px] px-3 py-2">
-                    ⚠️ Tout le monde verra l&rsquo;endroit exact de ta prise.
-                  </p>
-                )}
-              </>
-            )}
-          />
+              )}
+            />
+            <Controller
+              name="reveal_precise_to_public"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <ToggleRow
+                    label="Coords précises publiques"
+                    checked={field.value ?? false}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                  {field.value && (
+                    <p className="text-[12px] font-medium text-red-600 bg-red-50 border border-red-200 rounded-[8px] px-3 py-2">
+                      ⚠️ Tout le monde verra l&rsquo;endroit exact de ta prise.
+                    </p>
+                  )}
+                </>
+              )}
+            />
+          </div>
         </div>
       </Card>
 
-      {/* ── Mur d'inscription différée (sprint 77, Bloc 7) ──
-          Il n'arrive PAS avant le geste, mais après : la saisie est faite, le
-          brouillon est posé, et on nomme ce qui est sur le point d'être perdu.
-          Copie de perte : `wallCopyForSurface('pending_catch')`. */}
+      {/* ── Promesse d'inscription différée (sprint 77, Bloc 7 · sprint 86, Bloc 1) ──
+          Ce bloc n'est PLUS une action. Il est visible dès le chargement, avant
+          toute saisie, et ne porte AUCUN bouton ni lien dans le cas nominal :
+          l'action unique est le footer collant. C'est ce qui règle d'un coup le
+          défaut n°1 (deux soumissions, la plus grosse étant la mauvaise) et le
+          défaut n°2 (le focus qui restait sur le leurre : il n'y a plus de leurre).
+
+          `role="status"` + `aria-live="polite"` (défaut n°3) : permanent, le bloc
+          n'annonce rien à l'arrivée — comportement normal d'une région live — et
+          annonce le seul changement d'état qui reste, le refus du cookie. */}
       {anonymousDraft && spotContext && (
-        <div id="catch-pending-wall" className="scroll-mt-20">
-          {draftState === 'idle' ? (
-            <p className="rounded-[14px] border border-sand-200 bg-slate-50 px-4 py-3 text-[12.5px] leading-relaxed text-ink-500">
-              Remplis ta prise, on te demandera le compte à la fin. Rien n&rsquo;est enregistré tant
-              que ton carnet n&rsquo;existe pas.
-            </p>
+        <div
+          id="catch-pending-wall"
+          ref={pendingWallRef}
+          role="status"
+          aria-live="polite"
+          className="scroll-mt-20 rounded-[14px] border border-white/10 bg-navy-900 px-4 py-3.5"
+        >
+          {draftState === 'failed' ? (
+            <>
+              <p className="text-[13.5px] font-semibold leading-snug text-white">
+                Ton navigateur refuse de garder ta saisie
+              </p>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-white/70">
+                Si tu quittes cette page maintenant, elle sera perdue. Ouvre
+                l&rsquo;inscription dans un nouvel onglet : celui-ci reste ouvert avec ta prise.
+                Reviens ensuite ici, recharge la page, et enregistre-la.
+              </p>
+              <a
+                href={buildSignupHref(`/spots/${spotContext.slug}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-500 px-4 text-[13.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+              >
+                Créer mon carnet dans un nouvel onglet
+              </a>
+            </>
           ) : (
-            <SignupWall
-              surface="pending_catch"
-              spotName={spotContext.name}
-              redirectTo={`/spots/${spotContext.slug}`}
-              tone="dark"
-              intro={
-                draftState === 'saved'
-                  ? 'Ta saisie est gardée en brouillon sur cet appareil. Elle n’est pas encore enregistrée.'
-                  : 'Ton navigateur refuse de garder le brouillon : crée ton carnet maintenant, sans quitter cette page, pour ne rien perdre.'
-              }
-            />
+            <>
+              <p className="text-[13.5px] font-semibold leading-snug text-white">
+                Ta prise à {spotContext.name} part dans ton carnet
+              </p>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-white/70">
+                Rien n&rsquo;est enregistré pour l&rsquo;instant. Le bouton en bas crée ton
+                carnet, puis y ajoute cette prise.
+              </p>
+              <ul className="mt-2.5 flex flex-col gap-1.5">
+                {PENDING_CATCH_PROMISES.map((promise) => (
+                  <li
+                    key={promise}
+                    className="flex items-start gap-1.5 text-[12px] leading-snug text-white/80"
+                  >
+                    <Check size={13} aria-hidden="true" className="mt-px shrink-0 text-teal-300" />
+                    {promise}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       )}
@@ -1551,9 +1767,7 @@ export function CatchForm(props: CatchFormProps) {
         >
           {submitPhase !== 'idle' && <Loader2 size={18} className="animate-spin" />}
           {anonymousDraft
-            ? draftState === 'idle'
-              ? SUBMIT_LABELS_DRAFT
-              : 'Mettre à jour mon brouillon'
+            ? SUBMIT_LABELS_DRAFT
             : isEdit
               ? SUBMIT_LABELS_EDIT[submitPhase]
               : SUBMIT_LABELS[submitPhase]}
