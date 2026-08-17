@@ -1,7 +1,9 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
 import { analytics } from '@/lib/analytics'
+import { useSignupWallImpression } from '@/lib/hooks/useSignupWallImpression'
 import { shortSpotName } from '@/lib/seo/spot-title'
 
 // CTA collant mobile d'une fiche de spot pour un visiteur SANS COMPTE
@@ -42,8 +44,23 @@ export function spotCtaLabel(spotName: string): string {
 }
 
 export function SpotSignupCta({ href, spotName }: { href: string; spotName: string }) {
+  const ref = useRef<HTMLAnchorElement>(null)
+
+  // ★ Sprint 85, Bloc 0 (Défaut 3) — ce CTA émettait un CLIC sur la surface
+  // `spot_page` sans jamais déclarer d'impression : c'est le mur `lg:hidden` de la
+  // colonne principale qui portait, seul, le dénominateur. Le Bloc 2 supprime ce
+  // mur (un seul mur dans le corps de la fiche), et sur mobile — 82 % du trafic —
+  // cette barre est désormais la seule sollicitation `spot_page` à l'écran. Sans
+  // cette ligne, la surface repartirait avec des clics et zéro impression, très
+  // exactement le défaut que ce sprint corrige.
+  //
+  // Le compte est juste dans les deux sens : la barre est `md:hidden`, donc
+  // masquée sur desktop, où c'est le mur de la colonne latérale qui compte.
+  useSignupWallImpression(ref, 'spot_page')
+
   return (
     <Link
+      ref={ref}
       href={href}
       onClick={() => analytics.signupWallClicked({ surface: 'spot_page' })}
       className="flex min-h-11 items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold rounded-xl transition-colors text-sm"

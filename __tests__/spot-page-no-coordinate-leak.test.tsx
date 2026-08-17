@@ -328,7 +328,10 @@ describe('fiche spot statique : aucune coordonnée précise dans le HTML mis en 
     const html = await renderSpotPage()
     // Le rendu serveur n'a AUCUN moyen de connaître le visiteur : les composants
     // de compte sont rendus dans leur variante anonyme, avec un lien de connexion.
-    expect(html).toContain('/auth/login')
+    // Sprint 85 Bloc 1 : la cible anonyme est passée de /auth/login à /auth/register.
+    // L'intention de l'assertion est « le rendu serveur produit la variante ANONYME »,
+    // pas « c'est une URL de connexion » : c'est donc la cible qui bouge, pas le test.
+    expect(html).toContain('/auth/register')
     // Les tendances perso ne sont jamais rendues côté serveur.
     expect(html).not.toContain('data-mock="PersonalTendencies"')
     // Ni l'encart d'abonnement, réservé aux inscrits (sprint 79, Bloc 5).

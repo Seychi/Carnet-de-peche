@@ -7,8 +7,22 @@ import { LoginPageClient } from './login-client'
 // (`?tab=register`, `?redirect=…`, `?plan=…`) sont autant d'URL distinctes aux
 // yeux d'un moteur. On les rabat toutes sur la page nue.
 // Le <title> reste celui du layout (`default`), la page étant un client component.
+// Sprint 85, Bloc 1 : `noindex, follow`. Mesuré sur 90 jours, **23 personnes
+// ENTRAIENT sur le site par cette page** (4e page d'entrée), parce que le
+// sitemap la déclarait. Quelqu'un qui arrive d'un moteur sur une page de
+// *connexion* n'a par définition pas de compte : on lui servait un formulaire
+// qui suppose qu'il en a un. La page d'entrée déclarée est `/auth/register`.
+//
+// `follow` et PAS de `disallow` dans robots.ts, à dessein : une page bloquée au
+// crawl ne peut pas voir son `noindex` et resterait indexée. Il faut que le
+// robot puisse lire la page pour lire l'instruction.
+//
+// ⚠️ Effet volontaire : `/auth/login?tab=register` (liens historiques) hérite du
+// noindex. La route continue de répondre 200 et d'ouvrir l'onglet inscription,
+// seul son référencement s'éteint au profit de `/auth/register`.
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.carnet-de-peche.com/auth/login' },
+  robots: { index: false, follow: true },
 }
 
 // Wrapper SERVEUR (sprint 54 WS-D) : lit INVITE_ONLY côté serveur (var non publique)

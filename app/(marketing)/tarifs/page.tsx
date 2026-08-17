@@ -174,8 +174,11 @@ export default async function TarifsPage() {
           <p className="mt-3 font-display text-2xl sm:text-3xl font-bold tracking-[-0.02em] text-white text-balance">
             Loguer ta première prise est gratuit, sans CB.
           </p>
+          {/* Sprint 85, Bloc 1 : ce CTA dit « Créer » et menait à `/auth/login`,
+              soit un formulaire de connexion servi à quelqu'un qui n'a pas de
+              compte. Dernier reliquat du P0 1.1.i de l'audit de mai. */}
           <a
-            href="/auth/login"
+            href="/auth/register"
             className="mt-8 inline-flex min-h-[52px] items-center justify-center px-8 rounded-full bg-teal-500 text-navy-950 font-semibold text-[15px] transition-colors duration-150 hover:bg-teal-300"
           >
             Créer mon carnet gratuit

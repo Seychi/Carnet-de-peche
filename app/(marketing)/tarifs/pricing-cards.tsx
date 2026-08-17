@@ -234,8 +234,12 @@ export function PricingCards({
             ))}
           </ul>
           <div className="mt-auto">
+            {/* Sprint 85, Bloc 1 : la carte Découverte était la seule des trois à
+                pointer vers `/auth/login` (les deux payantes utilisent déjà
+                `/auth/register` plus haut). Un CTA « Créer mon carnet » qui ouvre
+                un formulaire de connexion demande un compte pour en créer un. */}
             <Link
-              href="/auth/login"
+              href="/auth/register"
               className={cn(buttonVariants({ variant: 'line', size: 'cta' }), 'w-full')}
             >
               Créer mon carnet

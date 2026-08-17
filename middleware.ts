@@ -64,6 +64,37 @@ export async function middleware(request: NextRequest) {
   const isPublicAppRoute = PUBLIC_APP_ROUTES.some((r) => pathname.startsWith(r));
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Sprint 85, Bloc 1 — `/auth/login?tab=register` → 301 vers `/auth/register`.
+  //
+  // Le sprint 76 a fait de `/auth/register` une vraie page ; `?tab=register` n'a
+  // survécu que pour honorer des liens externes historiques. AUCUN lien interne
+  // n'y pointe plus (un test de `components/map/__tests__/bottom-stack.test.ts`
+  // l'interdit même). Depuis que `/auth/login` est en `noindex`, ces liens
+  // externes alimentent une page qui ne sera plus indexée : le 301 consolide le
+  // signal vers la bonne porte, et surtout il fait atterrir un humain venu d'un
+  // vieux lien sur le formulaire d'INSCRIPTION plutôt que sur une page qui dit
+  // « login ».
+  //
+  // ⚠️ Ici et pas dans la page : `/auth/login` fait partie des routes
+  // PRÉ-RENDUES du sprint 84. Lire `searchParams` dans le composant de page
+  // interromprait la génération statique et forcerait `revalidate = 0` (c'est
+  // exactement ce qui coûte `/spots`). Le middleware tourne déjà sur AUTH_ROUTES.
+  //
+  // ⚠️ On copie la query ENTIÈRE puis on retire `tab` : une recopie clé par clé
+  // écraserait les paramètres répétés. `?redirect=` doit survivre intact
+  // (invariant sprint 70 Bloc C), `?plan=` aussi.
+  // ─────────────────────────────────────────────────────────────────────────
+  if (
+    pathname === "/auth/login" &&
+    request.nextUrl.searchParams.get("tab") === "register"
+  ) {
+    const target = new URL("/auth/register", request.url);
+    target.search = request.nextUrl.search;
+    target.searchParams.delete("tab");
+    return NextResponse.redirect(target, 301);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Sprint 84, Bloc 2 — SORTIE ANTICIPÉE avant toute création de client.
   //
   // `supabase.auth.getUser()` valide le JWT contre le serveur Auth : c'est UN

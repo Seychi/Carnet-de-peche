@@ -50,6 +50,16 @@ Dashboard → **Authentication → URL Configuration** :
 
 ## 2. Coller le template magic link
 
+> ⚠️ **2026-08-17 (sprint 85, Bloc 5) : le chemin « lien magique » a été retiré de
+> l'interface** (`/auth/login` et `/auth/register`). Raison : zéro compte créé par
+> ce chemin en trois mois, mesuré en base le 17/08 (52 comptes, dont 34 par email +
+> mot de passe et 18 via Google, et aucun compte email sans mot de passe).
+>
+> **Le template ci-dessous est CONSERVÉ et ne doit PAS être supprimé, ni le magic
+> link désactivé dans le Dashboard.** Le type `email` du flux `token_hash` sert
+> aussi la **confirmation d'inscription** (cf « Périmètre restant » plus bas) :
+> couper ce flux casserait l'inscription elle-même.
+
 Dashboard → **Authentication → Emails → Templates → Magic Link** :
 
 - Subject : `Ton lien de connexion — Carnet de Pêche`

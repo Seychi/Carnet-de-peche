@@ -696,6 +696,7 @@ Si tu bloques sur une erreur technique :
 |---|---|---|
 | **Avant de coder contre une lib externe** (Next 15, @supabase/ssr, Tailwind v4, MapLibre, suncalc, Stripe SDK, zod…) | `context7` → **docs-researcher** | Doc version-correcte d'abord. Évite le bug « API périmée » (cf. finding Stripe 22.x du sprint 9). |
 | **Schéma / migration / RLS / perf / types** | `supabase` (RO) → **supabase-guard** | Inspecter en lecture AVANT (`list_tables`, `get_advisors`, `get_logs`). Migration = fichier numéroté + CLI. Regen `lib/types.ts`. |
+| **Mesurer le volume d'inscriptions** | `supabase` (RO), jamais PostHog | Le nombre d'inscrits se lit dans `auth.users`, pas dans PostHog : écart mesuré de **40 %** le 17/08 (sprint 85, 47 comptes réels contre 28 vus par PostHog — PostHog ne voit que les visiteurs consentants). PostHog reste fiable pour les **taux** et les comportements (le biais de consentement touche numérateur et dénominateur, il se compense). Rejouer `pnpm reconcile:signups -- --posthog <n>` à chaque sprint de conversion. |
 | **Après un déploiement / bug prod** | `vercel` + `sentry` → **deploy-watch** | Corréler build/runtime logs + issues Sentry + advisors Supabase → cause racine. |
 | **QA d'un écran live ou preview** | Claude in Chrome + `playwright` → **qa-chrome** | Captures desk+mobile, console, réseau, passe anti-régression (GPS, gating, perf, SEO). |
 | **PR / issues / branches / historique** | `github` | Contexte repo sans quitter Claude Code. |

@@ -13,13 +13,35 @@
 
 import posthog from 'posthog-js'
 
+import type { AuthErrorType } from '@/lib/auth/error-type'
+
 /** Capture sûre : no-op en SSR ou si PostHog n'est pas initialisé/clé absente. */
-function capture(event: string, props?: Record<string, unknown>): void {
+function capture(
+  event: string,
+  props?: Record<string, unknown>,
+  options?: { transport?: 'sendBeacon' }
+): void {
   if (typeof window === 'undefined') return
   // __loaded passe à true après posthog.init(). Avant ça (clé absente, provider
   // pas monté), on ne fait rien plutôt que de jeter.
   if (!posthog.__loaded) return
-  posthog.capture(event, props)
+  posthog.capture(event, props, options)
+}
+
+/** Onglet du formulaire d'auth (sprint 85, Bloc 3). Union fermée : pas de texte libre. */
+export type AuthFormTab = 'signin' | 'signup'
+/** Champs instrumentés du formulaire d'auth. Le NOM du champ, jamais sa valeur. */
+export type AuthFormField = 'email' | 'password' | 'invite_code'
+
+/**
+ * Filtre d'allowlist : transforme un nom de champ arbitraire (issu d'un
+ * `FormData`) en `AuthFormField`, ou `undefined`. C'est ce qui garantit qu'un
+ * jour où quelqu'un ajoutera un champ, sa valeur ne partira pas en analytics.
+ */
+export function asAuthFormField(name?: string | null): AuthFormField | undefined {
+  return name === 'email' || name === 'password' || name === 'invite_code'
+    ? name
+    : undefined
 }
 
 export const analytics = {
@@ -99,6 +121,48 @@ export const analytics = {
   // Sprint 79, Bloc 4 : la technique est facultative au stade brouillon.
   pendingCatchStarted(props: { species: string; technique?: string }): void {
     capture('pending_catch_started', props)
+  },
+
+  // ── Formulaire d'auth : où le tunnel se perd (sprint 85, Bloc 3) ────────────
+  // /auth/register convertit à 14,6 % et /auth/login à 14,5 % : c'est le plus
+  // gros gisement du site, et on n'a AUCUNE idée du champ sur lequel les gens
+  // décrochent. Ces events posent la mesure ; la refonte, elle, attend d'être
+  // armée par ces chiffres (sprint 86).
+  //
+  // ★ GARANTIE PII, non négociable : ces cinq events ne portent QUE des unions
+  // fermées (`tab`, `field`, `provider`, `error_type`) et des booléens. Ni
+  // adresse email, ni mot de passe, ni code fondateur, ni message d'erreur brut
+  // ne PEUT y entrer — le typage l'interdit et un test le verrouille.
+  /** Le formulaire d'auth s'affiche. `has_draft` = un brouillon attend (sprint 78). */
+  signupFormViewed(props: { tab: AuthFormTab; has_draft: boolean }): void {
+    capture('signup_form_viewed', props)
+  },
+  /** Premier focus sur un champ. Dit où l'attention s'arrête avant l'abandon. */
+  signupFieldFocused(props: { tab: AuthFormTab; field: AuthFormField }): void {
+    capture('signup_field_focused', props)
+  },
+  /** Une soumission est tentée. `client_valid` = elle a passé la validation zod. */
+  signupSubmitAttempted(props: { tab: AuthFormTab; client_valid: boolean }): void {
+    capture('signup_submit_attempted', props)
+  },
+  /**
+   * Une erreur s'affiche. `error_type` est un TYPE (cf lib/auth/error-type.ts),
+   * jamais le message et encore moins la valeur saisie.
+   */
+  signupErrorShown(props: {
+    tab: AuthFormTab
+    error_type: AuthErrorType
+    field?: AuthFormField
+  }): void {
+    capture('signup_error_shown', props)
+  },
+  /**
+   * Clic sur un bouton de connexion tierce. Émis en `sendBeacon` : le clic part
+   * en navigation immédiate (Server Action → redirection OAuth), et un XHR
+   * classique serait annulé au déchargement de la page.
+   */
+  signupOauthClicked(props: { tab: AuthFormTab; provider: 'google' }): void {
+    capture('signup_oauth_clicked', props, { transport: 'sendBeacon' })
   },
 
   /** Clic sur un CTA de la home (conversion funnel). `cta` = identifiant du bouton. */

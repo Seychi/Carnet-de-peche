@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
 import { useBottomBarHeight } from '@/components/map/useBottomBarHeight'
 import { useConsentBannerVisible } from '@/lib/hooks/useConsentBannerVisible'
+import { useSignupWallImpression } from '@/lib/hooks/useSignupWallImpression'
 import {
   buildSignupHref,
   SIGNUP_WALL_BENEFITS,
@@ -73,10 +74,18 @@ type SignupWallProps = {
   /** Fond sombre (navy) au lieu de l'encart clair. */
   tone?: 'light' | 'dark'
   /**
-   * `false` quand le mur est monté mais hors écran (sidebar masquée en CSS) :
-   * on n'envoie alors aucun event « vu », pour ne pas gonfler le funnel.
+   * Quelle copie servir, quand la surface possède une copie de COUPURE dédiée
+   * (sprint 77 : `spot_tides`, `spot_score`, `spot_catches`, `pending_*`).
+   *
+   *  - `'surface'` (défaut) : la copie de la coupure. Comportement historique,
+   *    inchangé pour toutes les surfaces existantes.
+   *  - `'spot'` : la copie contextualisée au spot (« Suis {nom}, c'est gratuit »,
+   *    les trois bénéfices, la note « Sans carte bancaire »). Sprint 85, Bloc 2 :
+   *    c'est la copie mesurée gagnante, et le mur unique de la fiche de spot la
+   *    sert **tout en gardant l'identifiant de surface de son emplacement**, pour
+   *    ne pas casser l'historique du funnel.
    */
-  track?: boolean
+  copy?: 'surface' | 'spot'
   className?: string
 }
 
@@ -88,12 +97,13 @@ export function SignupWall({
   intro,
   compact = false,
   tone = 'light',
-  track = true,
+  copy = 'surface',
   className = '',
 }: SignupWallProps) {
   const currentPath = useCurrentPath()
   const href = buildSignupHref(redirectTo ?? currentPath)
   const dark = tone === 'dark'
+  const rootRef = useRef<HTMLDivElement>(null)
 
   // Sprint 77, Bloc 2 et 4 : une surface de COUPURE (spot_tides, spot_score,
   // spot_catches, pending_favorite, pending_catch) nomme ce qui est derrière
@@ -105,7 +115,10 @@ export function SignupWall({
   //   3. copie contextualisée au spot 4. copie générique
   // Sans surface de coupure ET sans `spotName`, on retombe EXACTEMENT sur la
   // copie générique (non-régression des surfaces carte, testée).
-  const cutCopy = wallCopyForSurface(surface, spotName)
+  //
+  // `copy="spot"` court-circuite l'étape 2 : le mur garde son identifiant de
+  // surface mais sert la copie du spot (sprint 85, Bloc 2).
+  const cutCopy = copy === 'spot' ? undefined : wallCopyForSurface(surface, spotName)
   const resolvedTitle =
     title ??
     cutCopy?.title ??
@@ -113,13 +126,15 @@ export function SignupWall({
   const benefits =
     cutCopy?.benefits ?? (spotName ? SIGNUP_WALL_BENEFITS_SPOT : SIGNUP_WALL_BENEFITS)
 
-  useEffect(() => {
-    if (!track) return
-    analytics.signupWallViewed({ surface })
-  }, [surface, track])
+  // ★ Sprint 85, Bloc 0 (Défaut 3) : l'impression remplace la prop `track`, qui
+  // demandait à chaque appelant de deviner si SON instance était affichée, coupait
+  // l'événement « vu » sans couper le clic, et laissait trois surfaces avec des
+  // clics et zéro impression. Voir lib/hooks/useSignupWallImpression.
+  useSignupWallImpression(rootRef, surface)
 
   return (
     <div
+      ref={rootRef}
       className={[
         'rounded-xl p-3',
         dark

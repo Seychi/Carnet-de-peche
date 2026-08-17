@@ -13,8 +13,7 @@ import { getSpotNextWindow } from '@/app/actions/solunar'
 import type { FishingWindow, QualityLevel, SolunarEventType } from '@/lib/solunar/types'
 import { QUALITY_TEXT_CLS } from '@/lib/solunar/quality-style'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
-import { buildLoginRedirect } from '@/lib/auth/redirect'
-import { getWallKind } from '@/lib/gating/wall'
+import { buildSignupHref, getWallKind } from '@/lib/gating/wall'
 import { SignupWall } from '@/components/map/SignupBanner'
 
 // ─── Solunar helpers ─────────────────────────────────────────────────────────
@@ -281,13 +280,18 @@ export default function SpotPopup({ spot, onClose, userTier = 'anonymous' }: Spo
           )}
         </div>
         <div className="flex shrink-0 items-center">
-          {/* Étoile favori (sprint 72) : tous tiers. Anonyme → login (l'action
-              serveur refuse de toute façon). État lazy-chargé côté client. */}
+          {/* Étoile favori (sprint 72) : tous tiers. Sans compte, le bouton passe
+              en mode BROUILLON (cookie) et cette cible sert de retour ensuite.
+              Sprint 85, Bloc 1 : la cible est `/auth/register`, pas `/auth/login`.
+              Qui met un spot de côté sans compte n'en a pas : lui servir un
+              formulaire de CONNEXION est un contresens. `buildSignupHref` garde le
+              `?redirect=` que `FavoriteSpotButton` relit pour revenir sur la fiche.
+              État lazy-chargé côté client. */}
           <FavoriteSpotButton
             spotId={spot.id}
             source="map"
             loginHref={
-              userTier === 'anonymous' ? buildLoginRedirect(`/spots/${spot.slug}`) : undefined
+              userTier === 'anonymous' ? buildSignupHref(`/spots/${spot.slug}`) : undefined
             }
             className="-my-1.5"
           />

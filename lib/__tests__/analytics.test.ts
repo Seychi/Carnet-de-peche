@@ -43,6 +43,14 @@ describe('lib/analytics (client)', () => {
       'paywallViewed',
       'upsellClicked',
       'checkoutStarted',
+      // Formulaire d'auth (sprint 85, Bloc 3) : la mesure du plus gros gisement
+      // du site. Leur contenu (aucune PII) est verrouillé par
+      // app/auth/login/__tests__/login-instrumentation.test.ts.
+      'signupFormViewed',
+      'signupFieldFocused',
+      'signupSubmitAttempted',
+      'signupErrorShown',
+      'signupOauthClicked',
       'identify',
       'reset',
       'capturePageview',
@@ -60,6 +68,11 @@ describe('lib/analytics (client)', () => {
       analytics.paywallViewed({ surface: 'map_banner' })
       analytics.upsellClicked({ surface: 'map_banner' })
       analytics.checkoutStarted({ plan: 'local', interval: 'monthly' })
+      analytics.signupFormViewed({ tab: 'signup', has_draft: false })
+      analytics.signupFieldFocused({ tab: 'signup', field: 'email' })
+      analytics.signupSubmitAttempted({ tab: 'signup', client_valid: true })
+      analytics.signupErrorShown({ tab: 'signin', error_type: 'invalid_credentials' })
+      analytics.signupOauthClicked({ tab: 'signin', provider: 'google' })
       analytics.identify('user-123')
       analytics.reset()
       analytics.capturePageview('https://example.test/')

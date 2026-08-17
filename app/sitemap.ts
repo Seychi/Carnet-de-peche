@@ -25,7 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // /techniques exclu : la page est en robots noindex (stub teaser) tant que les
     // guides techniques ne sont pas publiés → ne pas l'annoncer dans le sitemap.
     { url: `${BASE_URL}/contact`,               priority: 0.5, changeFrequency: 'yearly' },
-    { url: `${BASE_URL}/auth/login`,            priority: 0.5, changeFrequency: 'yearly' },
+    // /auth/login retirée au sprint 85 (Bloc 1) : 23 personnes sur 90 jours
+    // ENTRAIENT sur le site par la page de connexion (4e page d'entrée). Qui
+    // arrive d'un moteur sur une page de connexion n'a pas de compte. La page
+    // reste crawlable (Allow dans robots.ts) mais porte un noindex : c'est
+    // /auth/register qui est la porte d'entrée déclarée.
     { url: `${BASE_URL}/auth/register`,         priority: 0.7, changeFrequency: 'yearly' },
   ]
 

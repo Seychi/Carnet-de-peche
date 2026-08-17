@@ -89,59 +89,17 @@ const passwordSchema = z
   .min(8, "Minimum 8 caractères.")
   .regex(/\d/, "Doit contenir au moins 1 chiffre.");
 
-export async function sendMagicLink(
-  _prevState: LoginState,
-  formData: FormData
-): Promise<LoginState> {
-  const emailRaw = formData.get("email");
-  const parsed = emailSchema.safeParse(emailRaw);
-
-  if (!parsed.success) {
-    return {
-      error: "Adresse email invalide.",
-      success: false,
-      email: String(emailRaw ?? ""),
-      submittedAt: null,
-    };
-  }
-
-  const email = parsed.data;
-  const supabase = await createClient();
-  const origin = await getOrigin();
-
-  // Sprint 77, Bloc 10 : le lien magique est un vrai chemin d'INSCRIPTION, au
-  // même niveau que Google. Il doit donc porter le contexte de retour comme les
-  // autres (cible validée en chemin interne, anti open-redirect).
-  const next = safeInternalPath(
-    typeof formData.get("redirect") === "string"
-      ? (formData.get("redirect") as string)
-      : null,
-    "/home",
-  );
-
-  // En beta (INVITE_ONLY), le lien magique ne CRÉE pas de compte (il ne peut pas
-  // porter de code d'invitation) : il reste une CONNEXION pour les comptes existants
-  // mais ne contourne plus la beta comme vecteur d'inscription (sprint 54 WS-D).
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      shouldCreateUser: process.env.INVITE_ONLY !== "true",
-    },
-  });
-
-  if (error) {
-    console.error("[sendMagicLink]", error.message);
-    return {
-      error: translateAuthError(error.message, error.status),
-      success: false,
-      email,
-      submittedAt: null,
-    };
-  }
-
-  return { error: null, success: true, email, submittedAt: Date.now() };
-}
+// Sprint 85, Bloc 5 — l'action d'envoi du lien magique a été RETIRÉE, avec le
+// chemin correspondant dans l'interface. Mesure du 17/08 sur les 52 comptes
+// (`auth.identities` croisé avec la présence d'un mot de passe) : 34 comptes par
+// email + mot de passe, 18 via Google, et ZÉRO compte créé par lien magique en
+// trois mois d'ouverture. Le sprint 77 l'avait promu au rang des deux autres
+// chemins ; il n'a rien produit, et son email arrivait dans les indésirables.
+//
+// ⚠️ Le flux `token_hash` de `app/auth/confirm/route.ts` reste INTACT : son type
+// `email` sert AUSSI la confirmation d'inscription, et `recovery` le reset. Le
+// magic link ne doit donc PAS être désactivé côté Dashboard Supabase, et le
+// template `supabase/email-templates/magic-link.html` est conservé.
 
 export async function signInWithPassword(
   _prevState: LoginState,

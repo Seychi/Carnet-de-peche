@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, BadgeCheck, Waves } from 'lucide-react'
 import { createAnonClient } from '@/lib/supabase/anon'
-import { buildLoginRedirect } from '@/lib/auth/redirect'
 import { buildSignupHref } from '@/lib/gating/wall'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
@@ -555,7 +554,15 @@ export default async function SpotPage({
   const pubLat = roundCachedCoord(spot.lat)
   const pubLng = roundCachedCoord(spot.lng)
 
-  const loginHref = buildLoginRedirect(`/spots/${spot.slug}`)
+  // Sprint 85 Bloc 1 : un visiteur ANONYME de la fiche n'a par définition pas de
+  // compte. On l'envoyait sur `/auth/login` (le plus visible : « Signaler » ouvrait
+  // un formulaire de connexion), on l'envoie désormais sur l'inscription. Le
+  // `?redirect=` de retour vers la fiche est identique, `buildSignupHref` l'encode
+  // de la même façon. Le nom `loginHref` est conservé : il vit dans les props des
+  // slots et sa sémantique réelle est « ce visiteur est anonyme ».
+  // ⚠️ `buildLoginRedirect` reste la bonne cible pour les gardes de routes (app) :
+  // là, c'est souvent un INSCRIT dont la session a expiré (invariant sprint 70 Bloc C).
+  const loginHref = buildSignupHref(`/spots/${spot.slug}`)
 
   // Bloc 10 : maillage horizontal. 2e vague de requêtes (elles ont besoin de
   // spot.lat/lng, inconnus avant getSpotBySlug), mais les deux partent EN
@@ -923,18 +930,14 @@ export default async function SpotPage({
               />
             )}
 
-            {weeklyForView.length > 0 && (
-              <AnonymousOnly>
-                <SignupWall
-                  surface="spot_score"
-                  spotName={spot.name}
-                  redirectTo={`/spots/${slug}`}
-                  compact
-                  className="mt-4 p-5"
-                  track={false}
-                />
-              </AnonymousOnly>
-            )}
+            {/* ★ SPRINT 85, Bloc 2 — le mur `spot_score` a été RETIRÉ d'ici.
+                La fiche empilait trois murs qui disaient la même chose avec le
+                même bouton vert. Mesuré sur 90 jours : `spot_page` 16 clics,
+                `spot_tides` 7, `spot_score` 1. Il n'en reste qu'UN dans le corps
+                de la page, à la coupure des 7 jours (plus bas), et il porte la
+                copie qui convertit. L'identifiant de surface `spot_score` reste
+                déclaré dans lib/gating/wall.ts : on ne renomme ni ne supprime une
+                surface, sinon l'historique du funnel devient illisible. */}
 
             {/* Tes tendances perso à ce spot (D-A1 : gratuit, descriptif).
                 Absentes du HTML mis en cache par construction : ce sont TES prises. */}
@@ -957,37 +960,52 @@ export default async function SpotPage({
               />
             )}
 
-            {conditions && (
-              <AnonymousOnly>
-                <SignupWall
-                  surface="spot_tides"
-                  spotName={spot.name}
-                  redirectTo={`/spots/${slug}`}
-                  compact
-                  className="mt-4 p-5"
-                  track={false}
-                />
-              </AnonymousOnly>
-            )}
+            {/* ══ SPRINT 85, Bloc 2 — LE SEUL MUR DU CORPS DE LA FICHE ═══════
+                Avant : trois murs empilés (`spot_score` au-dessus, `spot_tides`
+                ici, `spot_page` juste en dessous) disaient la même chose avec le
+                même bouton vert, et le lien vers `/carnet/nouvelle` — le SEUL
+                chemin qui ne demande aucun compte — n'apparaissait qu'en bas de
+                page. La fiche demandait donc trois fois un compte avant de
+                proposer la chose qui n'en exige pas (`pending_catch_started` :
+                4 en 90 jours).
 
-            {/* ── Mur d'inscription, DANS LE FLUX MOBILE (sprint 76, Bloc 2) ──
-                Il vivait uniquement dans l'<aside>, donc tout en bas sur mobile,
-                après les dangers, la météo et les marées, alors que 82 % du
-                trafic est mobile. Ici il tombe juste après les conditions et
-                les marées, c'est-à-dire après la valeur et avant le décrochage.
+                Après : on DONNE avant de demander. Le tunnel sans compte passe
+                au-dessus, le mur unique reste à la coupure où le désir naît (les
+                7 prochains jours, juste sous les conditions), et il porte la
+                copie mesurée gagnante (celle de `spot_page` : « Suis {nom},
+                c'est gratuit », les trois bénéfices, la note sans carte
+                bancaire) via `copy="spot"`.
 
-                C'est CETTE instance qui porte l'event `signup_wall_viewed` :
-                elle est montée quel que soit le viewport (le `lg:hidden` ne
-                masque qu'en CSS, l'effet de montage part quand même), donc on
-                compte exactement UNE vue de mur par vue de page. L'instance de
-                la sidebar est en `track={false}` pour ne pas doubler le
-                dénominateur du taux de clic. */}
+                ⚠️ L'identifiant de surface reste celui de l'EMPLACEMENT occupé,
+                `spot_tides`, pas un nouveau nom : `lib/gating/wall.ts` prévient
+                qu'un renommage casse l'historique du funnel.
+
+                ⚠️ Volontairement HORS du `conditions &&` qui précède : si
+                Open-Meteo ne répond pas, la fiche perdrait sinon son unique mur.
+                « Exactement un mur » doit être vrai sur toutes les fiches, pas
+                seulement sur celles dont la météo est revenue. */}
             <AnonymousOnly>
+              <div className="rounded-[18px] border border-sand-200 bg-white p-5 md:p-6">
+                <p className="text-[15px] font-semibold leading-snug text-navy-900">
+                  Note ta prise ici, pas besoin de compte
+                </p>
+                <p className="mt-1.5 text-sm leading-snug text-ink-600">
+                  Remplis ta prise maintenant, on ne te demandera le compte qu’à la fin.
+                </p>
+                <Link
+                  href={ctaHref}
+                  className="mt-3.5 flex min-h-11 w-full items-center justify-center rounded-xl border border-teal-500 bg-teal-50 px-4 text-[14px] font-semibold text-navy-900 transition-colors hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 sm:w-auto sm:px-6"
+                >
+                  Noter ma prise ici
+                </Link>
+              </div>
+
               <SignupWall
-                surface="spot_page"
+                surface="spot_tides"
                 spotName={spot.name}
+                copy="spot"
                 redirectTo={`/spots/${slug}`}
-                className="lg:hidden p-5"
+                className="p-5"
               />
             </AnonymousOnly>
 
@@ -1011,18 +1029,13 @@ export default async function SpotPage({
               extraSlot={<SpotExtraCatches />}
             />
 
-            {catches.length > catchesForView.length && (
-              <AnonymousOnly>
-                <SignupWall
-                  surface="spot_catches"
-                  spotName={spot.name}
-                  redirectTo={`/spots/${slug}`}
-                  compact
-                  className="mt-4 p-5"
-                  track={false}
-                />
-              </AnonymousOnly>
-            )}
+            {/* ★ SPRINT 85, Bloc 2 — le mur `spot_catches` a été RETIRÉ d'ici
+                (0 impression ET 0 clic en 90 jours : le 4e mur de la page n'était
+                même plus lu). La coupure elle-même reste : `SpotActivitySection`
+                affiche « N autres prises déclarées ici » avec son propre lien, et
+                le mur unique plus haut porte le bénéfice « toutes les prises
+                déclarées sur ce spot ». La surface `spot_catches` reste déclarée
+                dans lib/gating/wall.ts : on ne supprime jamais un identifiant. */}
 
             {/* Description */}
             {spot.description && (
@@ -1272,16 +1285,22 @@ export default async function SpotPage({
                 qu'afficher ce qu'elle a renvoyé au navigateur du visiteur. */}
             <SpotPreciseGpsCard />
 
-            {/* Mur d'inscription, version sidebar (desktop). `track={false}` :
-                l'instance de la colonne principale porte déjà l'event, sinon une
-                seule vue de page en émettrait deux et le taux de clic serait
-                mécaniquement divisé par deux. */}
+            {/* Mur d'inscription de FIN DE LECTURE, version sidebar (desktop).
+                Sprint 85, Bloc 2 : on le garde, un mur en fin de lecture ne
+                concurrence pas celui du milieu de page.
+
+                ⚠️ `track={false}` a disparu : la prop n'existe plus. Elle coupait
+                l'impression sans couper le clic, et laissait des surfaces avec des
+                clics et zéro impression (Défaut 3). L'impression est désormais
+                MESURÉE : `hidden lg:block` veut dire aucun rectangle de rendu sur
+                mobile, donc aucune impression émise là-bas, et sur desktop c'est
+                bien ce mur qui porte le dénominateur de `spot_page`. Sur mobile,
+                c'est le CTA collant (`SpotSignupCta`, même surface) qui le porte. */}
             <AnonymousOnly>
               <SignupWall
                 surface="spot_page"
                 spotName={spot.name}
                 tone="dark"
-                track={false}
                 redirectTo={`/spots/${slug}`}
                 className="hidden lg:block p-6"
               />

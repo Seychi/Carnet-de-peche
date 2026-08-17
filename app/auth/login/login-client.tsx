@@ -3,6 +3,7 @@
 import {
   useActionState,
   useEffect,
+  useRef,
   useState,
   type FormEvent,
   type FocusEvent,
@@ -16,7 +17,6 @@ import {
   EyeOff,
   Loader2,
   Mail,
-  MailCheck,
   KeyRound,
   ChevronLeft,
   type LucideIcon,
@@ -36,7 +36,12 @@ import {
 } from "@/lib/auth/schema";
 import type { AuthContext } from "@/lib/auth/auth-context";
 import {
-  sendMagicLink,
+  analytics,
+  asAuthFormField,
+  type AuthFormField,
+} from "@/lib/analytics";
+import { classifyAuthError } from "@/lib/auth/error-type";
+import {
   signInWithPassword,
   signUpWithPassword,
   requestPasswordReset,
@@ -51,18 +56,26 @@ import {
 // champ — au blur (live) et au submit (bloque l'envoi si invalide).
 
 // Valide tout le formulaire au submit ; bloque l'envoi si un champ est invalide.
+//
+// Sprint 85, Bloc 3 : `onResult` reçoit le VERDICT (et le NOM du premier champ
+// fautif), jamais les données. `data` contient les valeurs saisies et ne sort
+// pas de cette fonction : c'est le seul endroit où elles sont manipulées.
 function gateSubmit(
   schema: z.ZodType,
-  setErrors: (errors: FieldErrors) => void
+  setErrors: (errors: FieldErrors) => void,
+  onResult?: (valid: boolean, firstInvalidField?: string) => void
 ) {
   return (e: FormEvent<HTMLFormElement>) => {
     const data = Object.fromEntries(new FormData(e.currentTarget).entries());
     const res = schema.safeParse(data);
     if (!res.success) {
       e.preventDefault();
-      setErrors(zodToFieldErrors(res.error));
+      const errors = zodToFieldErrors(res.error);
+      setErrors(errors);
+      onResult?.(false, Object.keys(errors)[0]);
     } else {
       setErrors({});
+      onResult?.(true);
     }
   };
 }
@@ -102,7 +115,10 @@ const initialState: LoginState = {
 };
 
 type Tab = "signin" | "signup";
-type SentReason = "magic" | "signup" | "reset";
+// Sprint 85, Bloc 5 : le lien magique a été retiré de l'interface (0 compte créé
+// en 3 mois, mesuré en base le 17/08). Il ne reste que deux écrans « email
+// envoyé » : la confirmation d'inscription et la réinitialisation.
+type SentReason = "signup" | "reset";
 
 function SubmitButton({
   label,
@@ -136,42 +152,19 @@ function SubmitButton({
   );
 }
 
-/**
- * Bouton du lien magique (sprint 77, Bloc 10). Même gabarit que « Continuer avec
- * Google » (hauteur, pilule, bordure) pour que les deux chemins se lisent au
- * même niveau, sans voler la vedette au CTA principal du formulaire.
- */
-function MagicLinkButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      variant="outline"
-      disabled={pending}
-      aria-busy={pending}
-      className="flex items-center justify-center gap-3 min-h-[48px] rounded-full border border-ink-200 text-[14px] font-medium text-ink-700 hover:bg-ink-50 transition-colors w-full"
-    >
-      {pending ? (
-        <Loader2 size={15} className="animate-spin" aria-hidden="true" />
-      ) : (
-        <Mail size={15} aria-hidden="true" />
-      )}
-      {pending ? "Envoi en cours…" : "Recevoir un lien de connexion"}
-    </Button>
-  );
-}
-
 function PasswordInput({
   id,
   name,
   autoComplete,
   onBlur,
+  onFocus,
   invalid,
 }: {
   id?: string;
   name: string;
   autoComplete?: string;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
   invalid?: boolean;
 }) {
   const [show, setShow] = useState(false);
@@ -184,6 +177,7 @@ function PasswordInput({
         placeholder="••••••••"
         autoComplete={autoComplete}
         onBlur={onBlur}
+        onFocus={onFocus}
         aria-invalid={invalid || undefined}
         className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500 pr-10"
         required
@@ -207,12 +201,6 @@ const SENT_CONTENT: Record<
   SentReason,
   { Icon: LucideIcon; title: string; body: string; sub: string }
 > = {
-  magic: {
-    Icon: MailCheck,
-    title: "Vérifie ton email",
-    body: "On vient d'envoyer un lien de connexion à",
-    sub: "Clique dessus depuis ton téléphone ou ton ordi.",
-  },
   signup: {
     Icon: Mail,
     title: "Confirme ton adresse",
@@ -307,7 +295,6 @@ export function LoginPageClient({
   const [signinErrors, setSigninErrors] = useState<FieldErrors>({});
   const [signupErrors, setSignupErrors] = useState<FieldErrors>({});
   const [resetErrors, setResetErrors] = useState<FieldErrors>({});
-  const [magicErrors, setMagicErrors] = useState<FieldErrors>({});
   const [sent, setSent] = useState<{ reason: SentReason; email: string } | null>(
     null
   );
@@ -324,7 +311,6 @@ export function LoginPageClient({
     requestPasswordReset,
     initialState
   );
-  const [magicState, magicAction] = useActionState(sendMagicLink, initialState);
 
   // Initialise le tab + le contexte d'auth depuis l'URL.
   // Court-circuité quand le serveur a déjà normalisé le contexte (/auth/register) :
@@ -354,17 +340,74 @@ export function LoginPageClient({
       setSent({ reason: "reset", email: resetState.email });
   }, [resetState.submittedAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (magicState.success && magicState.submittedAt)
-      setSent({ reason: "magic", email: magicState.email });
-  }, [magicState.submittedAt]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Erreur OAuth renvoyée dans l'URL
   const [oauthError, setOauthError] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "oauth") setOauthError(true);
-  }, []);
+    if (params.get("error") === "oauth") {
+      setOauthError(true);
+      analytics.signupErrorShown({ tab, error_type: "oauth_failed" });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Instrumentation du formulaire (sprint 85, Bloc 3) ──────────────────────
+  // On MESURE avant de refondre : /auth/register convertit à 14,6 %, et on ne
+  // sait pas sur quel champ les gens s'arrêtent. Rien ici ne change le
+  // comportement du formulaire ; aucune valeur saisie ne quitte le composant.
+  const viewedTabsRef = useRef<Set<Tab>>(new Set());
+  const focusedFieldsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    // Le reset et l'écran « email envoyé » sont des sous-flux : on ne les compte
+    // pas comme une vue du formulaire, sinon le dénominateur ment.
+    if (showReset || sent) return;
+    if (viewedTabsRef.current.has(tab)) return;
+    viewedTabsRef.current.add(tab);
+    analytics.signupFormViewed({ tab, has_draft: Boolean(draftSummary) });
+  }, [tab, showReset, sent, draftSummary]);
+
+  /** Premier focus d'un champ, une fois par onglet : on cherche le point d'arrêt. */
+  function trackFocus(formTab: Tab, field: AuthFormField) {
+    return () => {
+      const key = `${formTab}:${field}`;
+      if (focusedFieldsRef.current.has(key)) return;
+      focusedFieldsRef.current.add(key);
+      analytics.signupFieldFocused({ tab: formTab, field });
+    };
+  }
+
+  /** Verdict de la validation client, sans jamais porter la valeur saisie. */
+  function trackSubmit(formTab: Tab) {
+    return (valid: boolean, firstInvalidField?: string) => {
+      analytics.signupSubmitAttempted({ tab: formTab, client_valid: valid });
+      if (!valid) {
+        analytics.signupErrorShown({
+          tab: formTab,
+          error_type: "client_validation",
+          field: asAuthFormField(firstInvalidField),
+        });
+      }
+    };
+  }
+
+  // Erreurs SERVEUR : on remonte le TYPE (cf lib/auth/error-type.ts), pas le
+  // message. `useActionState` renvoie un objet neuf à chaque soumission, donc
+  // deux échecs identiques d'affilée comptent bien pour deux.
+  useEffect(() => {
+    if (signinState.error)
+      analytics.signupErrorShown({
+        tab: "signin",
+        error_type: classifyAuthError(signinState.error),
+      });
+  }, [signinState]);
+
+  useEffect(() => {
+    if (signupState.error)
+      analytics.signupErrorShown({
+        tab: "signup",
+        error_type: classifyAuthError(signupState.error),
+      });
+  }, [signupState]);
 
   /** Query du contexte d'auth, pour ne rien perdre en changeant de page. */
   function ctxQuery(extra?: Record<string, string>): string {
@@ -457,11 +500,13 @@ export function LoginPageClient({
             (sprint 54 : l'OAuth ne peut pas porter de code d'invitation).
             Masqué en mode reset, qui est un sous-flux.
 
-            Sprint 77, Bloc 10 : le LIEN MAGIQUE sort du repli et se range juste
-            en dessous, au même niveau visuel. Trois chemins de rang égal, dans
-            l'ordre du coût pour l'utilisateur : Google (1 clic), lien magique
-            (1 champ), email + mot de passe (2 champs). Google reste au-dessus
-            sur les deux onglets (décision John, sprint 76). */}
+            Sprint 85, Bloc 5 : le lien magique, promu ici au sprint 77 au rang
+            des deux autres chemins, est RETIRÉ. Mesure du 17/08 sur les 52
+            comptes : 34 par email + mot de passe, 18 via Google, et zéro par
+            lien magique seul. Il ne reste donc que DEUX chemins, dans l'ordre
+            du coût pour l'utilisateur : Google (1 clic), puis email + mot de
+            passe (2 champs). Google reste au-dessus sur les deux onglets
+            (décision John, sprint 76). */}
         {!showReset && !inviteOnly && (
           <div className="flex flex-col gap-3 mb-5">
             {oauthError && (
@@ -469,7 +514,12 @@ export function LoginPageClient({
                 La connexion Google a échoué. Réessaie.
               </p>
             )}
-            <form action={signInWithGoogle}>
+            <form
+              action={signInWithGoogle}
+              onSubmit={() =>
+                analytics.signupOauthClicked({ tab, provider: "google" })
+              }
+            >
               {authCtx.redirect && (
                 <input type="hidden" name="redirect" value={authCtx.redirect} />
               )}
@@ -497,44 +547,6 @@ export function LoginPageClient({
                 </svg>
                 Continuer avec Google
               </button>
-            </form>
-
-            {/* ── Lien magique : 2e chemin, plein format (sprint 77, Bloc 10) ──
-                Il était fonctionnel mais caché derrière un bouton à déplier, donc
-                invisible. Un seul champ, aucun mot de passe à inventer. */}
-            <form
-              action={magicAction}
-              noValidate
-              onSubmit={gateSubmit(emailOnlySchema, setMagicErrors)}
-              className="flex flex-col gap-2"
-            >
-              {authCtx.redirect && (
-                <input type="hidden" name="redirect" value={authCtx.redirect} />
-              )}
-              <Label htmlFor="magic-email" className="sr-only">
-                Ton email pour recevoir un lien de connexion
-              </Label>
-              <Input
-                id="magic-email"
-                name="email"
-                type="email"
-                placeholder="toi@exemple.fr"
-                autoComplete="email"
-                onBlur={gateBlur(emailOnlySchema, setMagicErrors)}
-                aria-invalid={magicErrors.email ? true : undefined}
-                className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
-                required
-              />
-              <FieldError message={magicErrors.email} />
-              {magicState.error && (
-                <p className="text-[13px] text-coral-500" role="alert">
-                  {magicState.error}
-                </p>
-              )}
-              <MagicLinkButton />
-              <p className="text-[12px] text-ink-500 text-center">
-                Sans mot de passe : tu reçois un lien, tu cliques, tu es dans ton carnet.
-              </p>
             </form>
 
             <div className="flex items-center gap-3">
@@ -602,7 +614,11 @@ export function LoginPageClient({
           <form
             action={signinAction}
             noValidate
-            onSubmit={gateSubmit(signinSchema, setSigninErrors)}
+            onSubmit={gateSubmit(
+              signinSchema,
+              setSigninErrors,
+              trackSubmit("signin")
+            )}
             className="flex flex-col gap-5"
           >
             {authCtx.redirect && (
@@ -633,6 +649,7 @@ export function LoginPageClient({
                 type="email"
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
+                onFocus={trackFocus("signin", "email")}
                 onBlur={gateBlur(signinSchema, setSigninErrors)}
                 aria-invalid={signinErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
@@ -651,6 +668,7 @@ export function LoginPageClient({
                 id="signin-password"
                 name="password"
                 autoComplete="current-password"
+                onFocus={trackFocus("signin", "password")}
                 onBlur={gateBlur(signinSchema, setSigninErrors)}
                 invalid={!!signinErrors.password}
               />
@@ -682,7 +700,11 @@ export function LoginPageClient({
           <form
             action={signupAction}
             noValidate
-            onSubmit={gateSubmit(signupSchema, setSignupErrors)}
+            onSubmit={gateSubmit(
+              signupSchema,
+              setSignupErrors,
+              trackSubmit("signup")
+            )}
             className="flex flex-col gap-5"
           >
             {authCtx.redirect && (
@@ -708,6 +730,7 @@ export function LoginPageClient({
                 type="email"
                 placeholder="toi@exemple.fr"
                 autoComplete="email"
+                onFocus={trackFocus("signup", "email")}
                 onBlur={gateBlur(signupSchema, setSignupErrors)}
                 aria-invalid={signupErrors.email ? true : undefined}
                 className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
@@ -726,6 +749,7 @@ export function LoginPageClient({
                 id="signup-password"
                 name="password"
                 autoComplete="new-password"
+                onFocus={trackFocus("signup", "password")}
                 onBlur={gateBlur(signupSchema, setSignupErrors)}
                 invalid={!!signupErrors.password}
               />
@@ -741,7 +765,12 @@ export function LoginPageClient({
                 Local (comp via redeem_comp_code). Le serveur ne l'exige que si
                 INVITE_ONLY=true (gate historique, off) : le libellé suit.
                 Sprint 76 : replié derrière un lien hors beta, pour ne pas
-                signaler « c'est fermé » à un visiteur venu de Google. */}
+                signaler « c'est fermé » à un visiteur venu de Google.
+                Sprint 85, Bloc 3 : repli VÉRIFIÉ (le champ n'est pas dans le
+                DOM tant qu'on n'a pas cliqué) et verrouillé par un test des
+                deux cas, `inviteOnly` vrai comme faux. Le comportement serveur
+                n'a pas bougé d'une ligne : un code saisi est toujours consommé
+                et le gate INVITE_ONLY reste entier. */}
             {showInviteCode ? (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="signup-invite" className="text-[14px] font-semibold text-ink-900">
@@ -753,6 +782,7 @@ export function LoginPageClient({
                   type="text"
                   autoComplete="off"
                   placeholder="Ex. FDR-XXXX-XXXX"
+                  onFocus={trackFocus("signup", "invite_code")}
                   required={inviteOnly}
                   className="min-h-[48px] rounded-[12px] border-ink-200 text-[15px] focus-visible:ring-teal-500"
                 />
@@ -789,9 +819,9 @@ export function LoginPageClient({
         </div>
 
         {/* ── Options sociales ──
-            Google et le lien magique sont remontés AU-DESSUS du formulaire
-            (sprints 76 et 77) : il ne reste ici qu'Apple. Une seule instance de
-            chaque bouton dans le DOM, pour les deux onglets. */}
+            Google est remonté AU-DESSUS du formulaire (sprint 76) : il ne reste
+            ici qu'Apple. Une seule instance de chaque bouton dans le DOM, pour
+            les deux onglets. */}
         <div className="flex flex-col gap-3">
           {/* Erreur OAuth quand le bouton Google est masqué (beta INVITE_ONLY). */}
           {oauthError && inviteOnly && (
