@@ -7,9 +7,13 @@ import { SPOTS_PUBLISHED_LABEL } from '@/lib/marketing/stats'
 
 const SITE_URL = 'https://www.carnet-de-peche.com'
 
-// La home reste cache-friendly : les fetchs de données vivent en `unstable_cache`
-// (révalidés 1 h). Le Header lit les cookies → la page est rendue dynamiquement, mais
-// la donnée lourde (counts, snapshot hero, spots carte) est mutualisée par le cache.
+// ISR horaire, RÉELLEMENT actif depuis le sprint 84. Deux chemins rendaient cette page
+// dynamique et vidaient ce `revalidate` de tout effet : le `<Header/>` du layout
+// (corrigé au Bloc 1, `HeaderPublic` + `HeaderAuthSlot`) et, propre à la home,
+// `lib/marketing/home-data` → `lib/conditions/spot-forecast`, dont le cache météo se
+// lisait avec un client porteur de session. Les deux sont fermés : plus aucun
+// `cookies()` dans l'arbre serveur de cette page.
+// La donnée lourde (counts, activité, spots carte) reste mutualisée par `unstable_cache`.
 export const revalidate = 3600
 
 export const metadata: Metadata = {

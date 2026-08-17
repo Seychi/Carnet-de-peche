@@ -40,7 +40,62 @@ const PUBLIC_APP_ROUTES = ["/carnet/nouvelle"];
 // Routes réservées aux visiteurs non-connectés
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 
+// Sprint 84, Bloc 2 — nom du cookie de session écrit par @supabase/ssr :
+// `sb-<project-ref>-auth-token`, éventuellement découpé en `.0`, `.1`… quand la
+// valeur dépasse la taille max d'un cookie (cf `storageKey` par défaut de
+// supabase-js : `sb-${hostname.split('.')[0]}-auth-token`). Le cookie PKCE
+// `…-auth-token-code-verifier` est volontairement EXCLU : il existe pendant le
+// callback OAuth, où il n'y a pas encore de session à rafraîchir.
+const SUPABASE_AUTH_COOKIE = /^sb-.+-auth-token(\.\d+)?$/;
+
+function hasSupabaseAuthCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => SUPABASE_AUTH_COOKIE.test(cookie.name));
+}
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const isAppRoute = APP_ROUTES.some((r) => pathname.startsWith(r));
+  const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
+  // Sprint 77, Bloc 7 : ouverte aux anonymes, mais TOUJOURS soumise au reste des
+  // règles app (l'onboarding d'un connecté non-onboardé, plus bas, s'applique).
+  const isPublicAppRoute = PUBLIC_APP_ROUTES.some((r) => pathname.startsWith(r));
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Sprint 84, Bloc 2 — SORTIE ANTICIPÉE avant toute création de client.
+  //
+  // `supabase.auth.getUser()` valide le JWT contre le serveur Auth : c'est UN
+  // ALLER-RETOUR RÉSEAU par requête HTTP (vérifié sur @supabase/ssr 0.10.3 :
+  // `getSession()` lit le cookie sans fetch, `getUser()` fait un GET /user).
+  // Sur `/`, `/spots/*`, `/especes/*`, `/peche/*` il ne sert à RIEN : aucune de
+  // ces routes n'est redirigée par le middleware. C'est de la latence pure,
+  // payée par Googlebot et par 100 % du trafic SEO.
+  //
+  // ⚠️ Deux conditions, pas une :
+  //   1. la route n'est concernée par aucune des trois listes ci-dessus ;
+  //   2. la requête ne porte AUCUN cookie de session Supabase.
+  // La 2e n'est pas du zèle. Le middleware est le seul endroit qui peut
+  // PERSISTER un token rafraîchi : `lib/supabase/server.ts` avale l'écriture
+  // (`setAll` en try/catch, un Server Component ne peut pas poser de cookie).
+  // Or `/spots/[slug]` (page SEO n°1) appelle `getUser()` + `getUserTier()`
+  // côté serveur. Sans le middleware, un connecté revenant à froid avec un
+  // access token expiré ferait consommer son refresh token par le RSC sans
+  // pouvoir le réécrire — les refresh tokens Supabase étant à usage unique, le
+  // rafraîchissement suivant du client navigateur échouerait et le
+  // déconnecterait. Le visiteur SANS cookie, lui (Googlebot et l'écrasante
+  // majorité du trafic SEO), n'a par définition rien à rafraîchir.
+  // ─────────────────────────────────────────────────────────────────────────
+  if (
+    !isAppRoute &&
+    !isAuthRoute &&
+    !isPublicAppRoute &&
+    !hasSupabaseAuthCookie(request)
+  ) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -65,13 +120,6 @@ export async function middleware(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const { pathname } = request.nextUrl;
-
-  const isAppRoute = APP_ROUTES.some((r) => pathname.startsWith(r));
-  const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
-  // Sprint 77, Bloc 7 : ouverte aux anonymes, mais TOUJOURS soumise au reste des
-  // règles app (l'onboarding d'un connecté non-onboardé, plus bas, s'applique).
-  const isPublicAppRoute = PUBLIC_APP_ROUTES.some((r) => pathname.startsWith(r));
 
   // Pas connecté → redirige vers /auth/login en gardant la cible de retour
   // (chemin INTERNE uniquement — l'URL est construite à partir du pathname

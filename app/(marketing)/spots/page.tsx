@@ -1,12 +1,48 @@
 import { Fragment } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { getUserTier } from '@/lib/auth/tier'
-import { getWallKind, signupWallTitleForFacet } from '@/lib/gating/wall'
+import { createAnonClient } from '@/lib/supabase/anon'
+import { signupWallTitleForFacet } from '@/lib/gating/wall'
 import { SignupWall } from '@/components/map/SignupBanner'
+import { SpotViewerBootstrap } from '@/components/spots/viewer/SpotViewerBootstrap'
+import { SpotViewerProvider, AnonymousOnly, ConnectedOnly } from '@/components/spots/viewer/SpotViewerProvider'
+import { SpotsDeptFold } from '@/components/spots/viewer/SpotsDeptFold'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS, COASTAL_DEPARTMENTS, departmentArticle } from '@/lib/geo/departments'
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ★ SPRINT 84, Bloc 3 — 1re page d'entrée organique du site.
+//
+// Ce qui a été fait : plus aucune lecture de session côté serveur. `getUserTier()`
+// et le client Supabase à cookies sont partis ; le rendu est celui d'un visiteur
+// sans compte, et la bascule connectée (retrait des murs, liste dépliée) se fait
+// dans le navigateur (`components/spots/viewer/`). Gain immédiat et réel : un
+// aller-retour réseau vers le serveur Auth de Supabase en MOINS par requête, sur la
+// page qui reçoit le plus de trafic organique.
+//
+// ⚠️ CE QUI RESTE VRAI ET QU'IL NE FAUT PAS SE RACONTER : cette page N'EST PAS
+// encore pré-rendue, et `revalidate = 3600` ci-dessous reste INERTE. Le brief du
+// sprint 84 disait « même traitement que la fiche, la page redevient statique » :
+// c'est faux, et la cause n'est pas l'auth.
+//
+//   Elle lit `searchParams` (les facettes `?dept=` / `?species=`, qui SONT des
+//   pages d'atterrissage indexées). Dans Next 15, attendre `searchParams` au niveau
+//   d'une page interrompt la génération statique ET force `revalidate = 0` — donc
+//   ni pré-rendu, ni ISR, quoi qu'on écrive ici.
+//   Référence : packages/next/src/server/request/search-params.ts,
+//   `makeErroringSearchParams` → `throwToInterruptStaticGeneration`.
+//
+// Les deux sorties possibles, à arbitrer avec John (aucune n'est neutre) :
+//   a. sortir les facettes de la query string vers de vrais segments
+//      (`/spots/departement/[code]`), ce qui les rend pré-générables — c'est déjà
+//      le plan esquissé par l'avertissement « penser à paginer » plus bas ;
+//   b. envelopper le sous-arbre qui dépend de `searchParams` dans un `<Suspense>`
+//      pour laisser une coquille statique se pré-rendre. ⚠️ À manier avec
+//      précaution : au sprint 78 on a mesuré qu'un `<Suspense>` change l'ordre du
+//      document SERVI, ce qui n'est pas anodin sur une page dont on mesure le CTR.
+//
+// Tant que l'un des deux n'est pas fait, ne PAS écrire ici que la page est en cache.
+// ═══════════════════════════════════════════════════════════════════════════════
 
 export const revalidate = 3600
 
@@ -59,7 +95,7 @@ function buildDescription(dept?: string, species?: string): string {
 // ── Data ───────────────────────────────────────────────────────────────────────
 
 async function fetchPublicSpots(dept?: string, species?: string): Promise<SpotRow[]> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   let query = supabase
     .from('spots')
     .select('id, name, slug, department, species, techniques, structure, difficulty')
@@ -78,9 +114,12 @@ async function fetchPublicSpots(dept?: string, species?: string): Promise<SpotRo
 
 // Facettes pour le maillage interne (sprint 57 WS-C) : départements et espèces ayant
 // au moins un spot public → liens vers les landings /spots?dept= / /spots?species=.
-// Requête légère (2 colonnes), mise en cache par `revalidate=3600`.
+// Requête légère (2 colonnes). ⚠️ Sprint 84 : elle n'est PAS mise en cache par
+// `revalidate=3600`, contrairement à ce qui était écrit ici. Cette page lit
+// `searchParams`, ce qui interrompt la génération statique et force `revalidate = 0`
+// (cf le bandeau en tête de fichier) : la requête repart à chaque visite.
 async function fetchSpotFacets(): Promise<{ depts: string[]; species: string[] }> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase
     .from('spots')
     .select('department, species')
@@ -199,25 +238,19 @@ function SpotCard({ spot }: { spot: SpotRow }) {
 export default async function SpotsPage({ searchParams }: Props) {
   const { dept, species } = await searchParams
   // Sprint 76, Bloc 9 : cette page est la 2e la plus vue du site et sa 1re source
-  // de SORTIE, sans aucune surface de conversion. Le tier part en PARALLÈLE des
-  // deux requêtes existantes (aucune requête séquentielle ajoutée).
-  //
-  // Note ISR : `revalidate = 3600` est déjà inerte ici, le <Header/> du layout
-  // marketing appelle `auth.getUser()` et rend donc toutes ces routes dynamiques.
-  // Lire le tier ne coûte pas le cache, il était déjà perdu.
-  const [spots, facets, tier] = await Promise.all([
+  // de SORTIE, sans aucune surface de conversion.
+  const [spots, facets] = await Promise.all([
     fetchPublicSpots(dept, species),
     fetchSpotFacets(),
-    getUserTier(),
   ])
 
   // Règle unique du sprint 75 : anonyme → mur d'INSCRIPTION (gratuit, zéro prix).
   // Inscrit gratuit et abonnés → rien ici, l'encart /tarifs de pied de page est
   // inchangé pour tout le monde.
-  const showSignupWall = getWallKind(tier) === 'signup'
-  // Sprint 77, Bloc 3 : la liste est une surface de DÉCOUVERTE, elle peut être
-  // réduite pour un anonyme. Un compte gratuit la reçoit dépliée, sans <details>.
-  const collapseList = showSignupWall
+  //
+  // Sprint 84 : le rendu serveur est celui d'un anonyme, donc les murs sont
+  // TOUJOURS dans le HTML mis en cache, et retirés dans le navigateur d'un
+  // connecté avant la première peinture (`AnonymousOnly`).
   const wallTitle = signupWallTitleForFacet({
     deptPhrase: dept ? departmentArticle(dept, 'de') : null,
     speciesLabel: species ? (SPECIES_LABELS[species] ?? species).toLowerCase() : null,
@@ -251,7 +284,12 @@ export default async function SpotsPage({ searchParams }: Props) {
   }
 
   return (
+    <SpotViewerProvider>
     <div>
+      {/* Masque les blocs [data-anon-only] avant la première peinture pour un
+          visiteur qui a un cookie de session. Voir components/spots/viewer/auth-hint.ts. */}
+      <SpotViewerBootstrap />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -372,12 +410,12 @@ export default async function SpotsPage({ searchParams }: Props) {
                 // humain reçoivent exactement le même HTML, le repli est un
                 // comportement de navigateur, pas une branche serveur.
                 // Ne JAMAIS remplacer ça par un montage au clic.
-                const preview = collapseList
-                  ? deptSpots.slice(0, LIST_PREVIEW_PER_DEPT)
-                  : deptSpots
-                const folded = collapseList
-                  ? deptSpots.slice(LIST_PREVIEW_PER_DEPT)
-                  : []
+                //
+                // Sprint 84, Bloc 3 : le HTML est mis en cache, il porte donc
+                // TOUJOURS la version repliée. `SpotsDeptFold` déplie dans le
+                // navigateur d'un connecté, avant la première peinture.
+                const preview = deptSpots.slice(0, LIST_PREVIEW_PER_DEPT)
+                const folded = deptSpots.slice(LIST_PREVIEW_PER_DEPT)
                 return (
                 <div key={deptCode}>
                   <h2 className="font-display text-navy-900 text-xl mb-5">
@@ -398,32 +436,34 @@ export default async function SpotsPage({ searchParams }: Props) {
                             page (exactement ce que le brief voulait éviter).
                             Après 3 cartes, il est atteint dans le 1er écran et
                             demi en 390 px, quelle que soit la facette. */}
-                        {showSignupWall &&
-                          groupIndex === 0 &&
+                        {groupIndex === 0 &&
                           i === Math.min(2, preview.length - 1) && (
-                            <SignupWall
-                              surface="spots_list"
-                              title={wallTitle}
-                              redirectTo={wallRedirectTo}
-                              className="sm:col-span-2 lg:col-span-3"
-                            />
+                            <AnonymousOnly>
+                              <SignupWall
+                                surface="spots_list"
+                                title={wallTitle}
+                                redirectTo={wallRedirectTo}
+                                className="sm:col-span-2 lg:col-span-3"
+                              />
+                            </AnonymousOnly>
                           )}
                       </Fragment>
                     ))}
                   </div>
 
                   {folded.length > 0 && (
-                    <details className="mt-4">
-                      <summary className="cursor-pointer select-none rounded-[10px] border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-navy-900 transition-colors hover:border-teal-500/40 hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
-                        Voir les {folded.length} autres spots{' '}
-                        {departmentArticle(deptCode, 'de')}
-                      </summary>
-                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {folded.map((spot) => (
-                          <SpotCard key={spot.id} spot={spot} />
-                        ))}
-                      </div>
-                    </details>
+                    <SpotsDeptFold
+                      summary={
+                        <>
+                          Voir les {folded.length} autres spots{' '}
+                          {departmentArticle(deptCode, 'de')}
+                        </>
+                      }
+                    >
+                      {folded.map((spot) => (
+                        <SpotCard key={spot.id} spot={spot} />
+                      ))}
+                    </SpotsDeptFold>
                   )}
                 </div>
                 )
@@ -493,31 +533,35 @@ export default async function SpotsPage({ searchParams }: Props) {
           de sortie du sprint (CTR Google de /spots, 7,2 %) se joue là, pas ici. */}
       <section className="bg-white py-12 border-t border-ink-100">
         <div className="max-w-[760px] mx-auto px-6 text-center">
-          {showSignupWall ? (
+          <AnonymousOnly>
             <SignupWall
               surface="spots_index_footer"
               intro="Tes spots de côté, tes prises loguées, les marées de chacun d'eux."
               className="mx-auto max-w-md text-left"
             />
-          ) : (
-            <>
-              <h2 className="font-display text-navy-900 text-2xl mb-3">
-                Accède aux coordonnées précises
-              </h2>
-              <p className="text-ink-500 mb-6 text-sm leading-relaxed max-w-md mx-auto">
-                GPS exact et données de marée sur chaque spot. Abonnement Local à partir de
-                4,90 €/mois.
-              </p>
-              <Link
-                href="/tarifs"
-                className="inline-block px-8 py-3 bg-navy-900 hover:bg-navy-800 text-white font-semibold rounded-[12px] transition-colors text-sm"
-              >
-                Voir les formules
-              </Link>
-            </>
-          )}
+          </AnonymousOnly>
+          {/* Upsell abonnement : jamais dans le HTML mis en cache (règle sprint 79,
+              Bloc 5 — un visiteur sans compte n'a rien à acheter, et c'est SA
+              version qui est mise en cache). Monté après résolution, en pied de
+              page : il ne pousse aucun contenu. */}
+          <ConnectedOnly>
+            <h2 className="font-display text-navy-900 text-2xl mb-3">
+              Accède aux coordonnées précises
+            </h2>
+            <p className="text-ink-500 mb-6 text-sm leading-relaxed max-w-md mx-auto">
+              GPS exact et données de marée sur chaque spot. Abonnement Local à partir de
+              4,90 €/mois.
+            </p>
+            <Link
+              href="/tarifs"
+              className="inline-block px-8 py-3 bg-navy-900 hover:bg-navy-800 text-white font-semibold rounded-[12px] transition-colors text-sm"
+            >
+              Voir les formules
+            </Link>
+          </ConnectedOnly>
         </div>
       </section>
     </div>
+    </SpotViewerProvider>
   )
 }

@@ -1,5 +1,5 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 
 // « Meilleurs spots pour l'espèce » de la fiche /especes (sprint 23, WS-B / D-B4).
 // Appelle la RPC 049 get_top_spots_for_species (tri par signal réel de l'espèce + gating
@@ -37,14 +37,22 @@ type RpcRow = {
  * Nombre TOTAL de spots publiés portant l'espèce (sprint 75, Bloc 3) — alimente le
  * lien « voir les N spots ». Compte only (`head: true`), donc une requête légère.
  *
- * ⚠️ Passe par la RLS (client de session, pas la RPC definer) : elle restreint déjà
- * `anon` aux spots approuvés, donc ce compteur est cohérent avec ce que la landing
+ * ⚠️ Passe par la RLS (client ANON, pas la RPC definer) : elle restreint déjà `anon`
+ * aux spots approuvés, donc ce compteur est cohérent avec ce que la landing
  * `/spots?species=` affichera réellement. Annoncer un nombre que la page suivante
  * ne montre pas serait pire que de ne rien annoncer.
+ *
+ * ★ Sprint 84 — c'est précisément pour ce compteur que le client anonyme est le BON,
+ * pas seulement le plus rapide. La policy `spots_select_visible` ouvre au-delà du
+ * public pour `created_by = auth.uid()` et pour `is_moderator()` : la page étant
+ * désormais mise en cache, un rendu déclenché par la session d'un MODÉRATEUR figeait
+ * son surplus de spots `pending` dans le HTML servi à tout le monde. Mesuré en base le
+ * 17/08 sur `bar` : 413 spots vus par `anon` contre 423 par le modérateur. On annonce
+ * le chiffre anonyme, qui est celui que la landing affichera vraiment.
  */
 export async function countSpotsForSpecies(dbKey: string): Promise<number> {
   try {
-    const supabase = await createClient()
+    const supabase = createAnonClient()
     const { count, error } = await supabase
       .from('spots')
       .select('id', { count: 'exact', head: true })
@@ -61,7 +69,13 @@ export async function getTopSpotsForSpecies(
   dbKey: string,
   opts?: { dept?: string | null; limit?: number },
 ): Promise<TopSpot[]> {
-  const supabase = await createClient()
+  // Client ANON sans cookies (sprint 84) : la fiche espèce est mise en cache, son HTML
+  // doit donc être celui d'un visiteur sans compte. `persoCatches` (colonne
+  // `perso_catches` de la RPC, gatée sur `auth.uid()`) vaut alors 0 — ce champ n'est de
+  // toute façon rendu nulle part, seul `speciesCatches` (k-anon) l'est. Vérifié en base
+  // le 17/08 : `get_top_spots_for_species('bar', …)` renvoie les mêmes 8 spots à `anon`
+  // et à un modérateur (la migration 109 filtre les spots approuvés sans condition).
+  const supabase = createAnonClient()
   const limit = opts?.limit ?? 6
 
   // Appel DIRECT (méthode bindée à son instance) — surtout PAS `const rpc = supabase.rpc`

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { MapPin, ShieldCheck, ArrowRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS } from '@/lib/labels'
 import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 import { TagData } from '@/components/ui-v2/tag-data'
@@ -8,8 +8,16 @@ import { TideSparkline } from '@/components/ui-v2/tide-sparkline'
 
 /* ─── <SpotCard slug="..." /> — encart spot lié (RPC existante, tolérant) ───── */
 
+// Client ANON sans cookies (sprint 84) : ce composant MDX était le seul accès aux
+// cookies de `/guides/[slug]`, et il rendait dynamiques les 4 guides qui l'emploient
+// (les 2 qui ne l'appellent pas se pré-rendaient déjà, ce qui a mis la cause en
+// évidence). La RPC `get_spot_by_slug` est SECURITY DEFINER et gate la précision sur
+// `current_tier(auth.uid())` : sans session elle renvoie `is_precise = false` et le
+// centroïde de `geom_public`. La carte n'affiche de toute façon aucune coordonnée
+// (nom, département, structure, espèces), donc le HTML mis en cache est identique
+// pour tous, et il devient structurellement impossible qu'une donnée d'abonné y entre.
 export async function SpotCard({ slug }: { slug: string }) {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data, error } = await supabase.rpc('get_spot_by_slug', { p_slug: slug })
   if (error || !data || data.length === 0) return null
   const spot = data[0]

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Fish } from 'lucide-react'
-import { Header } from '@/components/layout/Header'
+import { HeaderPublic } from '@/components/layout/HeaderPublic'
 import { Footer } from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <>
-      <Header />
+      <HeaderPublic />
       <main className="bg-sand-50 flex flex-col items-center justify-center px-6 py-24 text-center min-h-[60vh]">
         <Fish size={64} className="mb-6 text-teal-500" strokeWidth={1.7} aria-hidden="true" />
         <h1 className="font-display text-navy-900 text-4xl mb-3">

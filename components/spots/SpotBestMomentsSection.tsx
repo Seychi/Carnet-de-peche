@@ -5,6 +5,7 @@ import { Info } from 'lucide-react'
 import type { DailyForecast } from '@/lib/solunar/types'
 import { WeeklyCalendar } from '@/components/solunar/WeeklyCalendar'
 import { DayBestMoments } from '@/components/solunar/DayBestMoments'
+import { useSpotViewer } from '@/components/spots/viewer/SpotViewerProvider'
 import {
   Dialog,
   DialogContent,
@@ -35,12 +36,25 @@ export function SpotBestMomentsSection({
   tidesByDate,
   showWeek = true,
 }: SpotBestMomentsSectionProps) {
+  // ─── Sprint 84, Bloc 3 : la semaine arrive APRÈS hydratation ────────────────
+  // La page est statique et son HTML est celui d'un visiteur sans compte : il ne
+  // porte QUE le jour même (palier sprint 77, Bloc 2 — les jours 2 à 7 restent
+  // absents du DOM servi, jamais masqués en CSS). Un visiteur connecté récupère
+  // la semaine complète via /api/spots/[slug]/viewer, servie ici par le contexte.
+  // Le jour 1 est calculé par le même module (`lib/spots/week.ts`) et sur la même
+  // coordonnée : le score affiché avant et après la bascule est identique.
+  const { week } = useSpotViewer()
+  const resolvedWeekly = week?.weekly?.length ? week.weekly : weekly
+  const resolvedWeatherCodes = week ? week.weatherCodes : weatherCodes
+  const resolvedTides = week ? week.tidesByDate : tidesByDate
+  const resolvedShowWeek = week ? week.weekly.length > 1 : showWeek
+
   const [selectedDate, setSelectedDate] = useState(weekly[0]?.date ?? '')
   // Sans la frise, aucun moyen de changer de jour : on force le jour même plutôt
   // que de laisser un état sélectionné inaccessible.
-  const selectedDaily = showWeek
-    ? (weekly.find(d => d.date === selectedDate) ?? weekly[0])
-    : weekly[0]
+  const selectedDaily = resolvedShowWeek
+    ? (resolvedWeekly.find(d => d.date === selectedDate) ?? resolvedWeekly[0])
+    : resolvedWeekly[0]
 
   if (!selectedDaily) return null
 
@@ -55,13 +69,13 @@ export function SpotBestMomentsSection({
       </div>
 
       {/* Calendrier 7 jours — palier compte gratuit (absent du DOM en anonyme) */}
-      {showWeek && (
+      {resolvedShowWeek && (
         <WeeklyCalendar
-          weekly={weekly}
+          weekly={resolvedWeekly}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
-          weatherCodes={weatherCodes}
-          tidesByDate={tidesByDate}
+          weatherCodes={resolvedWeatherCodes}
+          tidesByDate={resolvedTides}
         />
       )}
 

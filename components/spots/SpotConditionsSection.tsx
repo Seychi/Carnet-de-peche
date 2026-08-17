@@ -9,11 +9,20 @@ import type { SpotConditions } from '@/lib/conditions/spot-forecast'
 
 type Props = {
   spotName: string
+  /** Coordonnée PUBLIQUE (floutée, arrondie) : elle finit dans le HTML via `windyUrl`. */
   lat: number
   lng: number
   conditions: SpotConditions
   /** Prévisions 7 jours — alimente la bande « force des marées » (marnage réel). */
   forecastWeek?: SpotConditions[]
+  /**
+   * Sprint 84, Bloc 3 : la fiche spot est statique et son HTML est celui d'un
+   * visiteur sans compte, qui n'a pas droit à la bande 7 jours. Un connecté la
+   * reçoit après hydratation : la page passe ici un composant CLIENT qui la monte
+   * quand `/api/spots/[slug]/viewer` a répondu. `forecastWeek` reste supporté pour
+   * les appelants qui rendent la bande côté serveur.
+   */
+  weekBandSlot?: React.ReactNode
   /** Département du spot : sert à caler les heures de PM/BM sur le port de référence. */
   department: string
 }
@@ -56,7 +65,7 @@ function currentHourParis(): number {
   return parseInt(h, 10) % 24
 }
 
-export default async function SpotConditionsSection({ spotName, lat, lng, conditions, forecastWeek, department }: Props) {
+export default async function SpotConditionsSection({ spotName, lat, lng, conditions, forecastWeek, weekBandSlot, department }: Props) {
   const windyUrl = `https://www.windy.com/?${lat.toFixed(4)},${lng.toFixed(4)},10`
   const dateLabel = formatDate(conditions.date)
   const updatedAt = formatTime(conditions.fetched_at)
@@ -99,7 +108,7 @@ export default async function SpotConditionsSection({ spotName, lat, lng, condit
             currentHourIdx={currentHour}
             offsetMinutes={tideOffsetMinutes}
           />
-          {marnageDays.length > 0 && <TideStrengthBand days={marnageDays} />}
+          {marnageDays.length > 0 ? <TideStrengthBand days={marnageDays} /> : weekBandSlot}
         </div>
       ) : (
         <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-ink-50 rounded-[10px]">

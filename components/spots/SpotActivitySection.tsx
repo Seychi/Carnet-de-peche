@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { SPECIES_LABELS } from '@/lib/labels'
+import { ANON_ONLY_ATTR } from '@/components/spots/viewer/auth-hint'
 
 // Signal social local : "X pêcheurs ont logué Y prises ici les 7 derniers jours."
 // Lit via get_spot_activity (RPC migration 018) qui passe par catches_for_viewer
@@ -29,6 +30,7 @@ export async function SpotActivitySection({
   ctaHref,
   maxRecent = 3,
   signupHref,
+  extraRowsSlot,
 }: {
   spotId: string
   ctaHref: string
@@ -41,8 +43,19 @@ export async function SpotActivitySection({
   maxRecent?: number
   /** Fourni uniquement quand il reste des prises derrière le mur. */
   signupHref?: string
+  /**
+   * Sprint 84, Bloc 3 : lignes supplémentaires d'un visiteur CONNECTÉ, montées
+   * après hydratation (le HTML statique est celui d'un anonyme, il n'en porte que
+   * `ANON_ACTIVITY_ROWS`). Rendu à l'intérieur du même `<ul>` pour garder une seule
+   * liste sémantique.
+   */
+  extraRowsSlot?: React.ReactNode
 }) {
-  const supabase = await createClient()
+  // Sprint 84, Bloc 3 : client ANON sans cookies. `get_spot_activity` est une RPC
+  // k-anon (K=3) qui lit `catches_for_viewer` : elle ne renvoie AUCUNE coordonnée et
+  // son résultat ne dépend pas du visiteur. Lire avec le client de session appelait
+  // `cookies()` et rendait toute la fiche dynamique.
+  const supabase = createAnonClient()
   const { data } = await supabase.rpc('get_spot_activity', { p_spot_id: spotId, p_days: 7 })
   const row = Array.isArray(data) ? data[0] : data
 
@@ -121,13 +134,21 @@ export async function SpotActivitySection({
             )}
           </li>
         ))}
+        {extraRowsSlot}
       </ul>
 
       {/* Sprint 77, Bloc 2 : la coupure nomme ce qui est derrière elle plutôt
           que de servir un CTA générique. Le chiffre est vrai, il vient du
-          compteur agrégé de la semaine. */}
+          compteur agrégé de la semaine.
+          Sprint 84, Bloc 3 : `data-anon-only` — le HTML est mis en cache et sert
+          donc aussi les connectés, chez qui cette ligne est masquée AVANT la
+          première peinture (cf components/spots/viewer/auth-hint.ts). Balisage
+          inerte : pas d'événement, rien à démonter, l'attribut suffit. */}
       {signupHref && hiddenCount > 0 && (
-        <p className="mt-4 pt-4 border-t border-ink-100 text-[14px] text-ink-600">
+        <p
+          {...{ [ANON_ONLY_ATTR]: '' }}
+          className="mt-4 pt-4 border-t border-ink-100 text-[14px] text-ink-600"
+        >
           <Link href={signupHref} className="font-semibold text-teal-600 hover:text-teal-700">
             {hiddenCount} autre{hiddenCount > 1 ? 's' : ''} prise{hiddenCount > 1 ? 's' : ''} déclarée
             {hiddenCount > 1 ? 's' : ''} ici

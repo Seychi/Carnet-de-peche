@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
 import MapView from '@/components/map/MapView'
 import type { SpotMarker } from '@/lib/map/utils'
+import { useSpotViewer } from '@/components/spots/viewer/SpotViewerProvider'
 
 type Props = {
   id: string
@@ -58,13 +59,23 @@ export default function SpotMiniMap(props: Props) {
     setAttempt((a) => a + 1)
   }, [])
 
+  // ─── Sprint 84, Bloc 3 : la position exacte arrive APRÈS hydratation ────────
+  // La fiche est statique : le HTML mis en cache ne peut porter que la coordonnée
+  // publique (centroïde de `geom_public`, ~500-900 m, arrondie à 3 décimales). Un
+  // abonné à qui la BASE accorde la position exacte la reçoit par
+  // /api/spots/[slug]/viewer, et la mini-carte se recentre dessus.
+  const { precise } = useSpotViewer()
+  const lng = precise?.lng ?? props.lng
+  const lat = precise?.lat ?? props.lat
+  const isPrecise = precise ? true : props.isPrecise
+
   const marker = useMemo((): SpotMarker => ({
     id: props.id,
     slug: props.slug,
     name: props.name,
-    lng: props.lng,
-    lat: props.lat,
-    isPrecise: props.isPrecise,
+    lng,
+    lat,
+    isPrecise,
     department: props.department,
     region: props.region,
     species: props.species,
@@ -72,7 +83,7 @@ export default function SpotMiniMap(props: Props) {
     difficulty: props.difficulty,
     structure: props.structure,
     verified: props.verified,
-  }), [props])
+  }), [props, lng, lat, isPrecise])
 
   // Repli honnête : ni coordonnée ni carte brisée, juste le nom du spot sur un
   // fond marin (même palette que MapSkeleton) + une reprise manuelle. Aucune
@@ -100,7 +111,7 @@ export default function SpotMiniMap(props: Props) {
     <MapView
       key={attempt}
       spots={[marker]}
-      initialCenter={[props.lng, props.lat]}
+      initialCenter={[lng, lat]}
       initialZoom={13}
       onMapReady={handleMapReady}
       className="w-full h-full"

@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -124,10 +124,14 @@ function buildWindByHour(
 
 // ─── Cache Supabase ───────────────────────────────────────────────────────────
 
-// Lecture via le client de session (policy RLS SELECT weather_cache ouverte → la
-// fiche spot publique, même visiteur anonyme, profite du cache hit).
+// Lecture via le client ANON SANS COOKIES (sprint 84). La policy RLS SELECT de
+// `weather_cache` est `using (true)` pour `anon` ET `authenticated` : la donnée lue
+// est rigoureusement la même dans les deux rôles, ce cache n'a rien de personnel.
+// En revanche le client de session appelait `cookies()`, ce qui rendait dynamique
+// TOUTE page atteignant ce module (la home via `lib/marketing/home-data`, les
+// fiches spot, le cockpit) et vidait leur `revalidate` de son sens.
 async function readCache(key: string): Promise<SpotConditions | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data, error } = await supabase
     .from('weather_cache')
     .select('payload')

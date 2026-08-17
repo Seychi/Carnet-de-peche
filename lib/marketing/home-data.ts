@@ -32,8 +32,14 @@ export { HOME_TIERS, type HomeTier } from './home-data-core'
 //
 // Le client est un client anon SANS cookies → counts/activité
 // passent en `unstable_cache` (ISR). Le hero réutilise `fetchSpotConditions` (cache
-// weather_cache 1h) qui lit des cookies → mémoïsé par requête via React `cache()`,
-// pas `unstable_cache` (la home est de toute façon déjà dynamique : Header + auth).
+// weather_cache 1h), mémoïsé par requête via React `cache()` et non `unstable_cache`
+// car son contenu dépend de l'heure courante (marée du moment).
+//
+// ⚠️ Sprint 84 : `fetchSpotConditions` lisait les cookies (client de session sur
+// `weather_cache`), ce qui rendait la home DYNAMIQUE et vidait son `revalidate = 3600`
+// de tout effet. C'était le dernier chemin vers `cookies()` de cette page. Corrigé
+// dans `lib/conditions/spot-forecast.ts` : la policy de `weather_cache` étant
+// `using (true)`, le client anonyme y lit exactement la même chose.
 // ════════════════════════════════════════════════════════════════════════════
 
 // Façade par défaut du hero (Finistère). Fallback marée = Pointe du Raz si aucun
@@ -332,8 +338,8 @@ async function _getHeroSnapshot(region: HeroRegion): Promise<HeroSnapshot> {
   }
 }
 
-/** Hero façade ATLANTIQUE (par défaut). Mémoïsé par requête (React cache) — pas
- * `unstable_cache` (fetchSpotConditions lit des cookies). */
+/** Hero façade ATLANTIQUE (par défaut). Mémoïsé par requête (React cache) et pas
+ * `unstable_cache` : le snapshot dépend de l'heure courante (marée du moment). */
 export const getHeroSnapshot = cache(() => _getHeroSnapshot(REGION_ATLANTIC))
 /** Vue carte MÉDITERRANÉE — sert de FOND décoratif à la section Tarifs (§04). Centre =
  *  meilleur spot Med ; spots = TOUS (floutés). Léger : aucun fetch marée/météo (≠ hero). */

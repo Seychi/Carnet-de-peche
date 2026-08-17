@@ -2,35 +2,56 @@ import { cache } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, Lock, BadgeCheck, Waves } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { createClient } from '@/lib/supabase/server'
+import { Navigation, ArrowLeft, ChevronRight, AlertTriangle, BadgeCheck, Waves } from 'lucide-react'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { buildLoginRedirect } from '@/lib/auth/redirect'
 import { buildSignupHref } from '@/lib/gating/wall'
-import { getUserTier } from '@/lib/auth/tier'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
 import { NearbySpotsSection, type NearbyEntry } from '@/components/spots/NearbySpotsSection'
 import { SpotUpLinks } from '@/components/spots/SpotUpLinks'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotTodayBand from '@/components/spots/SpotTodayBand'
-import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
 import { SignupWall } from '@/components/map/SignupBanner'
 import SpotConditionsSection from '@/components/spots/SpotConditionsSection'
 import { TideCalibrationNote } from '@/components/spots/TideCalibrationNote'
-import { SpotReportButton, SpotConfirmButton } from '@/components/spots/ReportSpotDialog'
+import { SpotCatchCard } from '@/components/spots/SpotCatchCard'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
+import {
+  SpotViewerBootstrap,
+  AuthedOnlyStatic,
+} from '@/components/spots/viewer/SpotViewerBootstrap'
+import {
+  SpotViewerProvider,
+  AnonymousOnly,
+} from '@/components/spots/viewer/SpotViewerProvider'
+import {
+  SpotCoordsLine,
+  SpotItineraryLinks,
+  SpotApproxNote,
+  SpotPreciseGpsCard,
+  SpotSubscribeUpsell,
+  SpotFavoriteSlot,
+  SpotConfirmSlot,
+  SpotReportSlot,
+  SpotTendenciesSlot,
+  SpotExtraCatches,
+  SpotActivityExtraRows,
+  SpotWeekMarnageBand,
+} from '@/components/spots/viewer/slots'
 import { getAllGuides } from '@/lib/guides/loader'
 import { relatedGuidesFor } from '@/lib/guides/related'
-import { fetchSpotConditions, fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
-import { refineExtremumHour, formatHourFraction } from '@/lib/conditions/tide'
-import { getTideCalibration, isLowTidalRangeDepartment, getTideAccuracyChip, monthsAgo } from '@/lib/conditions/tide-calibration'
+import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
+import { isLowTidalRangeDepartment, getTideAccuracyChip, monthsAgo } from '@/lib/conditions/tide-calibration'
 import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
-import { computeWeeklyForecast } from '@/lib/solunar/index'
-import { getPersonalTendencies } from '@/lib/scoring/personal'
-import { PersonalTendencies } from '@/components/scoring/PersonalTendencies'
+import { buildSpotWeek, calibratedExtremumLabel, pickDates } from '@/lib/spots/week'
+import {
+  ANON_CATCHES,
+  ANON_ACTIVITY_ROWS,
+  roundCachedCoord,
+  type ViewerCatch,
+} from '@/lib/spots/viewer'
 import { SpotBestMomentsSection } from '@/components/spots/SpotBestMomentsSection'
 import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
@@ -39,6 +60,38 @@ import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
 import { buildSpotTitleAB } from '@/lib/seo/spot-title'
 import { buildSpotJsonLd } from '@/lib/seo/spot-jsonld'
 import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ★ SPRINT 84, Bloc 3 — CETTE PAGE SE REND TOUJOURS COMME UN VISITEUR ANONYME.
+//
+// Avant : la page appelait `auth.getUser()` et `getUserTier()`, plus quatre modules
+// qui lisaient les cookies par la bande (`SpotActivitySection`, `spot-forecast`,
+// `tide-calibration`, `scoring/personal`). Un seul de ces appels suffit à rendre la
+// route DYNAMIQUE : `revalidate = 1800` était inerte, chaque visite recalculait
+// marées, météo, bathymétrie et solunar, et le TTFB mesuré était de 1 247 ms sur la
+// page qui porte 80 % des clics Google.
+//
+// Maintenant : tout le rendu serveur passe par `createAnonClient()` (client Supabase
+// SANS cookies). La page est donc pré-rendue et mise en cache, et le HTML servi est
+// EXACTEMENT celui d'un visiteur sans compte — celui de Googlebot et de tout le
+// trafic SEO.
+//
+// 🔒 Pourquoi c'est sûr : le gating vit dans la BASE, pas ici. Sans cookie,
+// `auth.uid()` est NULL, donc `get_spot_by_slug` et `nearby_spots` (SECURITY
+// DEFINER, gatées sur `current_tier`) renvoient le centroïde de `geom_public`
+// (~500-900 m) et `is_precise = false`, et les colonnes `spots.geom`/`catches.geom`
+// restent illisibles (verrous de colonne 028b/041). Le rendu serveur ne PEUT donc
+// pas obtenir une coordonnée précise, même en le voulant.
+//
+// ⚠️ Ce que ça impose : tout ce qu'un visiteur CONNECTÉ voit en plus (coordonnée
+// exacte, favori, confirmation, frise 7 jours, prises complètes, tendances perso)
+// arrive après hydratation, en un aller-retour, via `/api/spots/[slug]/viewer`.
+// Rien n'a été retiré au produit : cf `components/spots/viewer/`.
+//
+// ⚠️ Et ce qu'il ne faut PLUS jamais faire ici : importer `@/lib/supabase/server`,
+// `next/headers`, `getUserTier()` ou tout module qui les atteint. Le verrou
+// `__tests__/spot-page-is-static.test.ts` échoue si ça revient.
+// ═══════════════════════════════════════════════════════════════════════════════
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,20 +121,13 @@ type SpotDetail = {
   created_at: string
 }
 
-type PublicCatch = {
-  id: string
-  species: string
-  size_cm: number | null
-  weight_g: number | null
-  caught_at: string
-  username: string | null
-  display_name: string | null
-}
+/** Prise publique. Type partagé avec le delta connecté (`lib/spots/viewer`). */
+type PublicCatch = ViewerCatch
 
 // ─── Data fetching ─────────────────────────────────────────────────────────────
 
 const getSpotBySlug = cache(async (slug: string): Promise<SpotDetail | null> => {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data, error } = await supabase.rpc('get_spot_by_slug', { p_slug: slug })
   if (error || !data || data.length === 0) return null
   const row = data[0]
@@ -101,7 +147,7 @@ const getSpotBySlug = cache(async (slug: string): Promise<SpotDetail | null> => 
 })
 
 async function fetchRecentCatches(spotId: string): Promise<PublicCatch[]> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase
     .from('catches_for_viewer')
     .select('id, species, size_cm, weight_g, caught_at, username, display_name')
@@ -113,7 +159,7 @@ async function fetchRecentCatches(spotId: string): Promise<PublicCatch[]> {
 }
 
 async function fetchCatchCount(spotId: string): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { count } = await supabase
     .from('catches_for_viewer')
     .select('id', { count: 'exact', head: true })
@@ -141,7 +187,7 @@ async function fetchNearbySpots(
   lng: number,
   excludeId: string,
 ): Promise<NearbySpot[]> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase.rpc('nearby_spots', {
     lat,
     lng,
@@ -176,7 +222,7 @@ async function fetchDepartmentSpots(
   excludeId: string,
   originSlug: string,
 ): Promise<{ id: string; slug: string; name: string; species: string[] }[]> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase
     .from('spots')
     .select('id, slug, name, species')
@@ -226,9 +272,47 @@ const NEARBY_RADIUS_KM = 40
 // de quoi remplir. Les petits (59 : 3 spots, 14 : 4) servent ce qu'ils ont.
 const NEARBY_MAX = 12
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
+// ─── SEO & rendu ──────────────────────────────────────────────────────────────
 
+/**
+ * 30 minutes. À NE PAS augmenter dans ce sprint : la bande « conditions du jour »
+ * (`SpotTodayBand`) annonce la prochaine pleine mer et le score du jour, deux
+ * chiffres qui doivent rester justes à la demi-heure près.
+ */
 export const revalidate = 1800
+
+/**
+ * ★ Pré-génération VOLONTAIREMENT COURTE (sprint 84, Bloc 3).
+ *
+ * Il y a 607 fiches publiques approuvées. Les générer toutes au build voudrait dire
+ * des milliers d'appels Open-Meteo (marée + météo + semaine) et EMODnet (bathymétrie)
+ * en quelques minutes : le rate-limit ne tomberait pas sur une page, il CASSERAIT LE
+ * BUILD. Les 10 fiches ci-dessous sont celles déjà identifiées comme sources de
+ * trafic organique — elles sont chaudes dès le déploiement.
+ *
+ * `dynamicParams = true` : les 597 autres se génèrent à la PREMIÈRE visite puis
+ * restent en cache 30 min. C'est déjà le modèle documenté de `/peche/[...slug]`.
+ *
+ * ⚠️ Ces 10 slugs ont été vérifiés en base le 17/08/2026 (approved + public).
+ * Un slug disparu ne casse pas le build (la page rend un 404), mais il gaspille une
+ * pré-génération : les revérifier si la curation renomme des spots.
+ */
+export const dynamicParams = true
+
+export function generateStaticParams(): { slug: string }[] {
+  return [
+    'pointe-du-grand-minou',
+    'jetees-de-dieppe',
+    'digues-de-sausset-les-pins',
+    'pointe-de-penmarch',
+    'chenal-de-l-aa-gravelines',
+    'pointe-du-conguel',
+    'pointe-de-penvins',
+    'pointe-de-kerpenhir',
+    'pointe-de-trefeuntec-plonevez-porzay',
+    'pointe-de-mousterlin',
+  ].map((slug) => ({ slug }))
+}
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
@@ -328,35 +412,16 @@ const VERIFICATION_LEVELS: Record<
 
 /** Compteur de confirmations (D2) via RPC qui ne renvoie QU'un nombre (jamais qui). */
 async function fetchConfirmationCount(spotId: string): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase.rpc('get_spot_confirmation_count', { p_spot_id: spotId })
   return typeof data === 'number' ? data : 0
 }
 
-/** L'utilisateur courant a-t-il confirmé ce spot ? Lecture RLS own (jamais d'autrui). */
-async function fetchViewerConfirmed(spotId: string, userId: string | undefined): Promise<boolean> {
-  if (!userId) return false
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('spot_confirmations')
-    .select('id')
-    .eq('spot_id', spotId)
-    .maybeSingle()
-  return data != null
-}
-
-/** Le spot est-il dans les favoris du viewer ? (sprint 72, lecture RLS own). */
-async function fetchViewerFavorite(spotId: string, userId: string | undefined): Promise<boolean> {
-  if (!userId) return false
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('favorite_spots')
-    .select('spot_id')
-    .eq('spot_id', spotId)
-    .eq('user_id', userId)
-    .maybeSingle()
-  return data != null
-}
+// Sprint 84, Bloc 3 : `fetchViewerConfirmed` et `fetchViewerFavorite` ont disparu
+// d'ici. Ces deux lectures dépendent de l'utilisateur courant, elles n'ont donc rien
+// à faire dans un rendu mis en cache et servi à tout le monde. Elles vivent
+// désormais dans `app/api/spots/[slug]/viewer/route.ts`, appelée après hydratation
+// avec la session réelle (RLS `own` inchangée).
 
 /**
  * Nombre de prises publiques loguées DEPUIS la vérification (WS C). Agrégé via la RPC
@@ -372,7 +437,7 @@ async function fetchCatchesSinceVerified(
   if (Number.isNaN(verifiedDate.getTime())) return null
   const days = Math.ceil((Date.now() - verifiedDate.getTime()) / (24 * 60 * 60 * 1000))
   if (days <= 0) return 0
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const { data } = await supabase.rpc('get_spot_activity', { p_spot_id: spotId, p_days: days })
   const row = Array.isArray(data) ? data[0] : data
   return row?.catches_count ?? 0
@@ -393,38 +458,18 @@ function DifficultyStars({ difficulty }: { difficulty: number | null }) {
 }
 
 
-function CatchCard({ c }: { c: PublicCatch }) {
-  const author = c.display_name || c.username || 'Anonyme'
-  let dateStr = ''
-  try {
-    dateStr = formatDistanceToNow(new Date(c.caught_at), { addSuffix: true, locale: fr })
-  } catch {
-    dateStr = '—'
-  }
-
-  return (
-    <div className="shrink-0 w-44 md:w-auto snap-start bg-white border border-sand-200 rounded-[14px] p-4">
-      <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-700 mb-3">
-        {SPECIES_LABELS[c.species] ?? c.species}
-      </span>
-      <p className="font-mono text-2xl font-semibold text-navy-900 leading-none">
-        {c.size_cm ? `${c.size_cm} cm` : '—'}
-      </p>
-      {c.weight_g && c.weight_g > 0 && (
-        <p className="mt-1 font-mono text-sm text-ink-500">{(c.weight_g / 1000).toFixed(1)} kg</p>
-      )}
-      <p className="text-xs text-ink-500 mt-3 truncate">{author}</p>
-      <p className="text-xs text-ink-500">{dateStr}</p>
-    </div>
-  )
-}
+// La carte de prise vit dans `components/spots/SpotCatchCard.tsx` depuis le sprint 84 :
+// le HTML statique n'en sert que 2 (palier anonyme), les suivantes sont rendues côté
+// client pour un connecté, et les deux chemins doivent produire le même balisage.
 
 function RecentCatchesSection({
-  catches, totalCount, ctaHref,
+  catches, totalCount, ctaHref, extraSlot,
 }: {
   catches: PublicCatch[]
   totalCount: number
   ctaHref: string
+  /** Prises au-delà du palier anonyme, montées après hydratation. */
+  extraSlot?: React.ReactNode
 }) {
   return (
     <section className="bg-white rounded-[18px] border border-sand-200 p-5 md:p-7">
@@ -452,7 +497,8 @@ function RecentCatchesSection({
       ) : (
         <>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 snap-x snap-mandatory md:grid md:grid-cols-2 md:overflow-visible md:mx-0 md:px-0 lg:grid-cols-3">
-            {catches.map((c) => <CatchCard key={c.id} c={c} />)}
+            {catches.map((c) => <SpotCatchCard key={c.id} c={c} />)}
+            {extraSlot}
           </div>
           {totalCount > 5 && (
             <p className="text-xs text-ink-500 text-center mt-4">
@@ -473,43 +519,43 @@ export default async function SpotPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const supabase = await createClient()
 
-  const [spot, { data: { user } }] = await Promise.all([
-    getSpotBySlug(slug),
-    supabase.auth.getUser(),
-  ])
-
-  // Sprint 75 Bloc 1 : cette page est le 1er format d'entrée depuis Google
-  // (8,4 % de CTR). Un visiteur SANS compte n'a pas à lire « voir les formules » :
-  // on lui propose le carnet gratuit. Un connecté qui n'a pas les coords précises
-  // est, lui, un vrai candidat à l'abonnement, sa copie ne change pas.
-  const showSignupWall = !user
-
+  // ⚠️ Aucune lecture d'auth ici, et il ne doit jamais y en avoir : cf le bandeau en
+  // tête de fichier. Tout le rendu est celui d'un visiteur sans compte.
+  const spot = await getSpotBySlug(slug)
   if (!spot) notFound()
 
+  const deptKey = String(spot.department).trim()
+
   const [
-    catches, catchCount, conditions, forecastWeek, allGuides, depth, substrate,
-    confirmationCount, viewerConfirmed, catchesSinceVerified, tideChip, viewerFavorite,
+    catches, catchCount, conditions, week, allGuides, depth, substrate,
+    confirmationCount, catchesSinceVerified, tideChip,
   ] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
     fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
-    fetchSpotForecastWeek(spot.lat, spot.lng).catch(() => []),
+    // Semaine + calibration marée en un seul module, partagé avec
+    // /api/spots/[slug]/viewer pour que les deux chemins donnent le même jour 1.
+    buildSpotWeek(spot.lat, spot.lng, deptKey).catch(() => null),
     getAllGuides().catch(() => []),
     fetchSpotDepth(spot.lat, spot.lng).catch(() => null),
     fetchSeabedSubstrate(spot.lat, spot.lng).catch(() => null),
-    // WS B (D2) compteur confirmations + confirmation propre (RLS own) ; WS C prises
-    // depuis vérif ; WS D chip précision marées. Tous agrégés / sans coordonnée.
+    // WS B (D2) compteur confirmations ; WS C prises depuis vérif ; WS D chip
+    // précision marées. Tous agrégés / sans coordonnée, donc mis en cache sans risque.
     fetchConfirmationCount(spot.id).catch(() => 0),
-    fetchViewerConfirmed(spot.id, user?.id).catch(() => false),
     fetchCatchesSinceVerified(spot.id, spot.verified_at).catch(() => null),
-    getTideAccuracyChip(String(spot.department).trim()).catch(() => null),
-    // Sprint 72 : étoile favori (tous tiers), état initial RLS own.
-    fetchViewerFavorite(spot.id, user?.id).catch(() => false),
+    getTideAccuracyChip(deptKey).catch(() => null),
   ])
 
-  const deptKey = String(spot.department).trim()
+  // ★ Coordonnée telle qu'elle part dans le HTML MIS EN CACHE : déjà floutée par
+  // `geom_public` (~500-900 m), et arrondie à 3 décimales (~110 m) pour que
+  // l'invariant « aucun nombre à plus de 3 décimales dans le HTML servi » soit
+  // vérifiable par un test plutôt que par de la bonne volonté. La coordonnée exacte
+  // d'un abonné n'est jamais arrondie : elle n'entre jamais ici.
+  const pubLat = roundCachedCoord(spot.lat)
+  const pubLng = roundCachedCoord(spot.lng)
+
+  const loginHref = buildLoginRedirect(`/spots/${spot.slug}`)
 
   // Bloc 10 : maillage horizontal. 2e vague de requêtes (elles ont besoin de
   // spot.lat/lng, inconnus avant getSpotBySlug), mais les deux partent EN
@@ -561,53 +607,8 @@ export default async function SpotPage({
   // l'ancien filter().slice(3) ne la faisait pas. Elle est désormais réelle et testée.
   const relatedGuideLinks = relatedGuidesFor(allGuides, spotSpeciesLabels)
 
-  // Scoring perso neutralisé (B1 sprint 7.5) : le forecast reste générique tant que
-  // la « vraie performance » (sorties loguées) n'est pas implémentée.
-  const weekly = forecastWeek.length > 0
-    ? await computeWeeklyForecast(new Date(), spot.lat, spot.lng, forecastWeek)
-    : []
-
-  // Tendances perso « à ce spot » — D-A1 : GRATUIT pour tout user connecté.
-  // Descriptif uniquement (où/quand tombent TES prises ici), jamais prédictif.
-  const personalTendencies = user
-    ? await getPersonalTendencies({ spotId: spot.id }).catch(() => null)
-    : null
-
-  // Offset de calibration marée du port de référence du spot (sprint 38) : les
-  // heures de PM/BM du calendrier 7j doivent être calées sur le SHOM comme la
-  // courbe du jour (TideChart) et les cartes texte, sinon « PM 14h32 » sur la fiche
-  // ne coïnciderait pas avec le « ↑ 14h » du calendrier. 0 si façade non auditée.
-  const tideCal = await getTideCalibration(deptKey).catch(() => null)
-  const tideOffsetHours = (tideCal?.offsetMinutes ?? 0) / 60
-
-  // Heure d'un extremum calée : raffinée sub-horaire + offset, formatée « HHhMM »
-  // (même chaîne que les cartes texte). Bornée à l'axe 0-23.
-  const calibratedExtremumLabel = (
-    points: { hour: number; height_m: number }[],
-    hour: number,
-  ): string => {
-    const h = Math.max(0, Math.min(23, refineExtremumHour(points, hour) + tideOffsetHours))
-    return formatHourFraction(h)
-  }
-
-  // WMO code par date pour les icônes météo du calendrier
-  const weatherCodes: Record<string, number> = {}
-  // PM/BM par date (1re pleine et 1re basse mer du jour) pour le calendrier 7j.
-  const tidesByDate: Record<string, { high?: string; low?: string }> = {}
-  for (const fc of forecastWeek) {
-    if (fc.weather.code != null) weatherCodes[fc.date] = fc.weather.code
-    const hi = fc.tide.extrema.find((e) => e.type === 'high')
-    const lo = fc.tide.extrema.find((e) => e.type === 'low')
-    if (hi || lo) {
-      tidesByDate[fc.date] = {
-        high: hi ? calibratedExtremumLabel(fc.tide.points, hi.hour) : undefined,
-        low: lo ? calibratedExtremumLabel(fc.tide.points, lo.hour) : undefined,
-      }
-    }
-  }
-
-  // ─── Sprint 77, Bloc 2 : la fiche sert TROIS profondeurs, pas deux ──────────
-  // Avant ce sprint, anonyme et compte gratuit recevaient exactement les mêmes
+  // ─── Sprint 77, Bloc 2 (inchangé) — la fiche sert TROIS profondeurs ─────────
+  // Avant ce sprint-là, anonyme et compte gratuit recevaient exactement les mêmes
   // données : créer un compte ne débloquait RIEN ici, et les murs promettaient au
   // visiteur ce qu'il venait de recevoir (mur mesuré à 1,3 % de clic).
   //
@@ -625,23 +626,22 @@ export default async function SpotPage({
   // palier (ils sont produits par `generateMetadata`, qui ne le lit pas). Bot et
   // humain reçoivent le même HTML : aucune branche sur le `user-agent`, jamais.
   //
-  // ℹ️ Le palier vient de `getUserTier()` (RPC `current_tier`), pas de `!user` :
-  // la page a désormais trois états. `showSignupWall` reste équivalent à
-  // `isAnonymous` et n'est pas renommé pour ne pas brasser tout le fichier.
-  const tier = await getUserTier()
-  const isAnonymous = tier === 'anonymous'
-  const canSeeWeek = !isAnonymous
+  // ★ SPRINT 84, Bloc 3 : le rendu serveur est désormais TOUJOURS celui du palier
+  // anonyme, puisqu'il n'a plus aucun moyen de savoir qui regarde. Les jours 2 à 7
+  // ne sont donc plus jamais dans le HTML — la règle « absent du DOM » est même
+  // rendue structurelle. Un visiteur CONNECTÉ récupère la semaine complète après
+  // hydratation via `/api/spots/[slug]/viewer`, calculée par le MÊME module
+  // (`lib/spots/week.ts`) et sur la MÊME coordonnée : le jour 1 ne bouge pas d'un
+  // point de score entre l'avant et l'après-bascule.
+  const weekly = week?.weekly ?? []
+  const tideOffsetHours = week?.tideOffsetHours ?? 0
 
-  const weeklyForView = canSeeWeek ? weekly : weekly.slice(0, 1)
+  const weeklyForView = weekly.slice(0, 1)
   // Les tables annexes sont réduites aux dates réellement rendues, sinon les
   // jours 2 à 7 repartiraient dans le payload par la bande.
   const viewDates = new Set(weeklyForView.map((d) => d.date))
-  const pick = <T,>(src: Record<string, T>): Record<string, T> =>
-    canSeeWeek
-      ? src
-      : Object.fromEntries(Object.entries(src).filter(([date]) => viewDates.has(date)))
-  const weatherCodesForView = pick(weatherCodes)
-  const tidesByDateForView = pick(tidesByDate)
+  const weatherCodesForView = pickDates(week?.weatherCodes ?? {}, viewDates)
+  const tidesByDateForView = pickDates(week?.tidesByDate ?? {}, viewDates)
 
   // ── Bande « conditions du jour » du premier écran (sprint 80, Bloc 1) ──────
   // Tout vient de données DÉJÀ chargées : `weekly` (calculé ligne ~521) et
@@ -661,11 +661,18 @@ export default async function SpotPage({
     const nowHour = new Date().getHours()
     const next = extrema.find((e) => e.hour >= nowHour) ?? extrema[extrema.length - 1]
     const points = conditions?.tide?.points ?? []
-    return { label: calibratedExtremumLabel(points, next.hour), kind: next.type }
+    return {
+      label: calibratedExtremumLabel(points, next.hour, tideOffsetHours),
+      kind: next.type,
+    }
   })()
 
-  /** Anonyme : les 2 dernières prises. Compte gratuit et plus : toutes. */
-  const catchesForView = isAnonymous ? catches.slice(0, 2) : catches
+  /**
+   * Palier anonyme : les 2 dernières prises seulement (sprint 77, Bloc 2). Les
+   * suivantes sont montées après hydratation par `SpotExtraCatches` pour un
+   * visiteur connecté — elles ne sont donc jamais dans le HTML mis en cache.
+   */
+  const catchesForView = catches.slice(0, ANON_CATCHES)
 
   // ⚠️ SPRINT 78, Bloc 1 — LA porte du Bloc 7 du sprint 77.
   //
@@ -689,10 +696,9 @@ export default async function SpotPage({
   // une porte qui n'a pas de poignée.
   const ctaHref = `/carnet/nouvelle?spot_id=${spot.id}`
 
-  const googleMapsUrl =
-    `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`
-  const appleMapsUrl = `https://maps.apple.com/?daddr=${spot.lat},${spot.lng}`
-  const wazeUrl = `https://waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`
+  // Les liens d'itinéraire sont rendus par `SpotItineraryLinks` (composant client) :
+  // le HTML mis en cache porte la coordonnée publique arrondie, et un abonné voit ses
+  // boutons pointer sur la position exacte une fois le delta reçu.
 
   const structureLabel = STRUCTURE_LABELS[spot.structure ?? ''] ?? spot.structure ?? ''
 
@@ -711,8 +717,8 @@ export default async function SpotPage({
         name: spot.name,
         slug: spot.slug,
         description: spot.description,
-        lat: spot.lat,
-        lng: spot.lng,
+        lat: pubLat,
+        lng: pubLng,
         region: spot.region,
         deptKey,
         deptLabel: DEPARTMENT_LABELS[deptKey] ?? deptKey,
@@ -720,7 +726,14 @@ export default async function SpotPage({
     : null
 
   return (
+    <SpotViewerProvider slug={spot.slug}>
     <div className="bg-sand-50 min-h-screen pb-20 md:pb-0">
+      {/* ★ En TÊTE de page : masque les blocs [data-anon-only] avant la première
+          peinture pour un visiteur qui a un cookie de session. Sans ça, un connecté
+          verrait les murs d'inscription s'afficher puis disparaître, et tout le
+          contenu remonterait d'un bloc. Voir components/spots/viewer/auth-hint.ts. */}
+      <SpotViewerBootstrap />
+
       {jsonLd && (
         <script
           type="application/ld+json"
@@ -791,13 +804,12 @@ export default async function SpotPage({
           <div className="mb-2 flex items-start justify-between gap-3">
             <h1 className="font-display text-white">{spot.name}</h1>
             {/* Étoile favori (sprint 72) : tous tiers, base des alertes de la veille.
-                Anonyme → connexion (l'action serveur refuse de toute façon). */}
-            <FavoriteSpotButton
+                Le HTML mis en cache porte la variante SANS COMPTE (brouillon en
+                cookie, sprint 77 Bloc 7) ; l'état réel arrive après hydratation. */}
+            <SpotFavoriteSlot
               spotId={spot.id}
-              initialFavorite={viewerFavorite}
-              loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
-              onDark
-              className="-mt-1"
+              spotSlug={spot.slug}
+              loginHref={loginHref}
             />
           </div>
           {/* ⚠️ SPRINT 80, Bloc 1 — la réponse d'abord, la limitation ensuite.
@@ -818,11 +830,10 @@ export default async function SpotPage({
             dayQuality={todayForecast?.dayQuality ?? null}
           />
 
-          <TagData className="mb-3 block text-white/45 md:mb-5">
-            {spot.is_precise
-              ? `${Math.abs(spot.lat).toFixed(4)}°${spot.lat >= 0 ? 'N' : 'S'} · ${Math.abs(spot.lng).toFixed(4)}°${spot.lng >= 0 ? 'E' : 'O'}`
-              : `ZONE APPROCHÉE · ${structureLabel.toUpperCase() || 'SPOT'}`}
-          </TagData>
+          {/* Le HTML mis en cache dit toujours « ZONE APPROCHÉE ». Un abonné à qui
+              la BASE accorde la position exacte la reçoit après hydratation, dans
+              le même élément (même hauteur, aucun décalage). */}
+          <SpotCoordsLine structureLabel={structureLabel} />
 
           <div className="flex flex-wrap items-center gap-2">
             {structureLabel && (
@@ -866,9 +877,9 @@ export default async function SpotPage({
                   id={spot.id}
                   slug={spot.slug}
                   name={spot.name}
-                  lng={spot.lng}
-                  lat={spot.lat}
-                  isPrecise={spot.is_precise}
+                  lng={pubLng}
+                  lat={pubLat}
+                  isPrecise={false}
                   department={spot.department}
                   region={spot.region}
                   species={spot.species}
@@ -884,23 +895,7 @@ export default async function SpotPage({
                   <Navigation size={14} className="text-teal-500" />
                   Itinéraire GPS
                 </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: 'Google Maps', href: googleMapsUrl },
-                    { label: 'Plans', href: appleMapsUrl },
-                    { label: 'Waze', href: wazeUrl },
-                  ].map((nav) => (
-                    <a
-                      key={nav.label}
-                      href={nav.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center min-h-[44px] px-2 rounded-xl border border-ink-200 bg-white text-ink-700 text-[13px] font-medium hover:bg-ink-50 hover:border-teal-400 transition-colors text-center"
-                    >
-                      {nav.label}
-                    </a>
-                  ))}
-                </div>
+                <SpotItineraryLinks lat={pubLat} lng={pubLng} />
                 <Link
                   href="/carte"
                   className="mt-2 flex items-center justify-center min-h-[44px] rounded-xl border border-teal-400 bg-teal-50 text-navy-900 text-[13px] font-semibold hover:bg-teal-100 transition-colors"
@@ -909,13 +904,7 @@ export default async function SpotPage({
                 </Link>
               </div>
 
-              {!spot.is_precise && (
-                <p className="text-xs text-ink-500 text-center mt-2">
-                  {showSignupWall
-                    ? 'Coordonnées approchées, comme pour tous les visiteurs.'
-                    : 'Coordonnées approchées. Abonne-toi pour le GPS précis'}
-                </p>
-              )}
+              <SpotApproxNote />
             </div>
 
             {/* Meilleurs moments — Sprint 77, Bloc 2.
@@ -930,53 +919,55 @@ export default async function SpotPage({
                 spotName={spot.name}
                 weatherCodes={weatherCodesForView}
                 tidesByDate={tidesByDateForView}
-                showWeek={canSeeWeek}
+                showWeek={false}
               />
             )}
 
-            {isAnonymous && weeklyForView.length > 0 && (
-              <SignupWall
-                surface="spot_score"
-                spotName={spot.name}
-                redirectTo={`/spots/${slug}`}
-                compact
-                className="mt-4 p-5"
-                track={false}
-              />
+            {weeklyForView.length > 0 && (
+              <AnonymousOnly>
+                <SignupWall
+                  surface="spot_score"
+                  spotName={spot.name}
+                  redirectTo={`/spots/${slug}`}
+                  compact
+                  className="mt-4 p-5"
+                  track={false}
+                />
+              </AnonymousOnly>
             )}
 
-            {/* Tes tendances perso à ce spot (D-A1 : gratuit, descriptif) */}
-            {user && personalTendencies && (
-              <section className="mt-6">
-                <PersonalTendencies data={personalTendencies} scopeLabel="à ce spot" />
-              </section>
-            )}
+            {/* Tes tendances perso à ce spot (D-A1 : gratuit, descriptif).
+                Absentes du HTML mis en cache par construction : ce sont TES prises. */}
+            <SpotTendenciesSlot />
 
             {/* Conditions — Sprint 77, Bloc 2.
                 La marée et la météo DU JOUR (`conditions`) restent servies à
                 tout le monde : c'est du socle SEO. Seule la bande 7 jours
-                (`forecastWeek`) passe au palier compte gratuit, et elle est
-                retirée à la source, pas masquée. */}
+                passe au palier compte gratuit — et depuis le sprint 84 elle n'est
+                plus jamais rendue côté serveur : `weekBandSlot` la monte après
+                hydratation quand le delta connecté est arrivé. */}
             {conditions && (
               <SpotConditionsSection
                 spotName={spot.name}
-                lat={spot.lat}
-                lng={spot.lng}
+                lat={pubLat}
+                lng={pubLng}
                 conditions={conditions}
-                forecastWeek={canSeeWeek ? forecastWeek : undefined}
+                weekBandSlot={<SpotWeekMarnageBand />}
                 department={deptKey}
               />
             )}
 
-            {isAnonymous && conditions && (
-              <SignupWall
-                surface="spot_tides"
-                spotName={spot.name}
-                redirectTo={`/spots/${slug}`}
-                compact
-                className="mt-4 p-5"
-                track={false}
-              />
+            {conditions && (
+              <AnonymousOnly>
+                <SignupWall
+                  surface="spot_tides"
+                  spotName={spot.name}
+                  redirectTo={`/spots/${slug}`}
+                  compact
+                  className="mt-4 p-5"
+                  track={false}
+                />
+              </AnonymousOnly>
             )}
 
             {/* ── Mur d'inscription, DANS LE FLUX MOBILE (sprint 76, Bloc 2) ──
@@ -991,14 +982,14 @@ export default async function SpotPage({
                 compte exactement UNE vue de mur par vue de page. L'instance de
                 la sidebar est en `track={false}` pour ne pas doubler le
                 dénominateur du taux de clic. */}
-            {showSignupWall && (
+            <AnonymousOnly>
               <SignupWall
                 surface="spot_page"
                 spotName={spot.name}
                 redirectTo={`/spots/${slug}`}
                 className="lg:hidden p-5"
               />
-            )}
+            </AnonymousOnly>
 
             {/* Signal social 7 jours (masqué si aucune activité).
                 Sprint 77, Bloc 2 : anonyme → les 2 dernières, puis une ligne
@@ -1007,26 +998,30 @@ export default async function SpotPage({
             <SpotActivitySection
               spotId={spot.id}
               ctaHref={ctaHref}
-              maxRecent={isAnonymous ? 2 : 3}
-              signupHref={isAnonymous ? buildSignupHref(`/spots/${slug}`) : undefined}
+              maxRecent={ANON_ACTIVITY_ROWS}
+              signupHref={buildSignupHref(`/spots/${slug}`)}
+              extraRowsSlot={<SpotActivityExtraRows />}
             />
 
-            {/* Prises récentes (historique complet, tronqué pour un anonyme) */}
+            {/* Prises récentes (historique complet, tronqué au palier anonyme) */}
             <RecentCatchesSection
               catches={catchesForView}
               totalCount={catchCount}
               ctaHref={ctaHref}
+              extraSlot={<SpotExtraCatches />}
             />
 
-            {isAnonymous && catches.length > catchesForView.length && (
-              <SignupWall
-                surface="spot_catches"
-                spotName={spot.name}
-                redirectTo={`/spots/${slug}`}
-                compact
-                className="mt-4 p-5"
-                track={false}
-              />
+            {catches.length > catchesForView.length && (
+              <AnonymousOnly>
+                <SignupWall
+                  surface="spot_catches"
+                  spotName={spot.name}
+                  redirectTo={`/spots/${slug}`}
+                  compact
+                  className="mt-4 p-5"
+                  track={false}
+                />
+              </AnonymousOnly>
             )}
 
             {/* Description */}
@@ -1173,19 +1168,15 @@ export default async function SpotPage({
                 {/* Compteur de confirmations communautaires (D2) — descriptif, pas un
                     classement. Le compteur ne renvoie qu'un nombre (RPC), aucune
                     identité. Connecté → bouton confirmer/annuler ; sinon CTA login. */}
-                <SpotConfirmButton
+                <SpotConfirmSlot
                   spotId={spot.id}
                   initialCount={confirmationCount}
-                  initialConfirmed={viewerConfirmed}
-                  loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
+                  loginHref={loginHref}
                 />
 
                 {/* Signaler une erreur de position (WS A) — report sans coordonnée. */}
                 <div className="mt-3 border-t border-teal-500/15 pt-3">
-                  <SpotReportButton
-                    spotId={spot.id}
-                    loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
-                  />
+                  <SpotReportSlot spotId={spot.id} loginHref={loginHref} />
                 </div>
               </div>
             )}
@@ -1194,10 +1185,7 @@ export default async function SpotPage({
                 report d'erreur de coordonnée reste utile sur les points communautaires /
                 importés qui n'ont pas d'encart « vérifié ». Sans coordonnée exposée. */}
             {!spot.verified && (
-              <SpotReportButton
-                spotId={spot.id}
-                loginHref={user ? undefined : buildLoginRedirect(`/spots/${spot.slug}`)}
-              />
+              <SpotReportSlot spotId={spot.id} loginHref={loginHref} />
             )}
 
             {/* Note marée Méditerranée / Corse (marnage faible, non auditée) : on
@@ -1279,31 +1267,16 @@ export default async function SpotPage({
                 Il devient un bloc FRÈRE : le visiteur sans compte le voit quelle
                 que soit la précision servie. La branche coordonnées et l'upsell
                 abonnement des inscrits gratuits ne changent pas d'un octet. */}
-            {spot.is_precise && (
-              <div className="bg-teal-50 border border-teal-100 rounded-[18px] p-6">
-                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-2">
-                  GPS précis disponible
-                </p>
-                <p className="text-sm text-teal-900 font-mono">
-                  {spot.lat.toFixed(5)}, {spot.lng.toFixed(5)}
-                </p>
-                <a
-                  href={googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 flex items-center gap-1.5 text-sm text-teal-700 hover:text-teal-900 font-medium"
-                >
-                  <Navigation size={13} />
-                  Ouvrir dans Maps
-                </a>
-              </div>
-            )}
+            {/* GPS précis : jamais dans le HTML mis en cache. C'est la BASE qui
+                décide (get_spot_by_slug + current_tier), le composant ne fait
+                qu'afficher ce qu'elle a renvoyé au navigateur du visiteur. */}
+            <SpotPreciseGpsCard />
 
             {/* Mur d'inscription, version sidebar (desktop). `track={false}` :
                 l'instance de la colonne principale porte déjà l'event, sinon une
                 seule vue de page en émettrait deux et le taux de clic serait
                 mécaniquement divisé par deux. */}
-            {showSignupWall && (
+            <AnonymousOnly>
               <SignupWall
                 surface="spot_page"
                 spotName={spot.name}
@@ -1312,29 +1285,13 @@ export default async function SpotPage({
                 redirectTo={`/spots/${slug}`}
                 className="hidden lg:block p-6"
               />
-            )}
+            </AnonymousOnly>
 
             {/* Upsell abonnement : réservé aux INSCRITS gratuits sans coordonnée
-                précise. Comportement inchangé (règle sprint 75). */}
-            {!showSignupWall && !spot.is_precise && (
-              <div className="bg-navy-900 rounded-[18px] p-6 text-center">
-                <Lock size={24} strokeWidth={1.5} className="text-teal-400 mx-auto mb-3" />
-                <p className="text-white font-semibold text-sm mb-1">Coordonnées précises</p>
-                {/* Sprint 79, Bloc 5 : le score sort des arguments de vente. Il
-                    n'est plus gaté nulle part depuis le sprint 78 (décision John
-                    du 15/08 : il reste gratuit, assumé). Le vendre revenait à
-                    faire payer une chose déjà donnée. */}
-                <p className="text-white/60 text-xs mb-5 leading-snug">
-                  GPS exact, filtres avancés, couches de carte.
-                </p>
-                <Link
-                  href="/tarifs"
-                  className="block px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-sm rounded-[10px] transition-colors"
-                >
-                  Voir les formules
-                </Link>
-              </div>
-            )}
+                précise (règle sprint 75, réaffirmée au sprint 79 Bloc 5). Absent du
+                HTML mis en cache : un visiteur sans compte ne doit jamais lire de
+                prix, et c'est SA version qui est mise en cache. */}
+            <SpotSubscribeUpsell />
 
             {/* CTA desktop */}
             <Link
@@ -1373,18 +1330,28 @@ export default async function SpotPage({
           consentement est à l'écran, cette barre se range AU-DESSUS de lui au
           lieu d'être recouverte à 83 % et rendue inatteignable au doigt
           (règle dans app/globals.css, hauteur mesurée par CookieBanner). */}
+      {/* Sprint 84, Bloc 3 : les DEUX variantes sont dans le HTML mis en cache, et
+          c'est la CSS de pré-peinture qui choisit. La barre est en `position: fixed`,
+          donc aucune variante ne pousse le contenu ; et garder le lien
+          `/carnet/nouvelle` dans le document sert le crawl (leçon du sprint 78 :
+          prouver le CHEMIN, pas seulement la destination).
+          Le lien connecté est symétrique : `data-authed-only`, masqué par défaut par
+          la même feuille de style de pré-peinture. Aucun des deux n'attend le
+          delta réseau, la barre n'est donc jamais vide. */}
       <div className="sticky-bottom-bar md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-sand-200 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-        {showSignupWall ? (
+        <AnonymousOnly>
           <SpotSignupCta href={buildSignupHref(`/spots/${slug}`)} spotName={spot.name} />
-        ) : (
+        </AnonymousOnly>
+        <AuthedOnlyStatic>
           <Link
             href={ctaHref}
             className="flex items-center justify-center gap-2 w-full py-3 bg-teal-500 hover:bg-teal-300 text-navy-950 font-semibold rounded-xl transition-colors text-sm"
           >
             + Loguer une prise ici
           </Link>
-        )}
+        </AuthedOnlyStatic>
       </div>
     </div>
+    </SpotViewerProvider>
   )
 }

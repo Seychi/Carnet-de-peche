@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, ChevronRight, MapPin } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import {
   getAllProgrammaticPages,
   resolveProgrammaticSlug,
@@ -85,12 +85,27 @@ type SpotLite = {
   species: string[]
 }
 
+// Lecture ANONYME assumée (sprint 84) : cette page est mise en cache, donc son HTML
+// est servi à tout le monde. Elle doit se rendre exactement comme pour un visiteur
+// sans compte, et c'est aussi ce qui lui rend son ISR (le client de session lisait
+// les cookies et la rendait dynamique malgré `revalidate = 86400`).
+//
+// Les deux lectures sont publiques par nature et l'anonymat ne change pas le résultat :
+//   - `spots` filtré `visibility = 'public'` : la policy `spots_select_visible` n'ouvre
+//     au-delà que pour `created_by = auth.uid()` et `is_moderator()`. Rendre la page
+//     avec une session de MODÉRATEUR y injectait les spots encore `pending` et figeait
+//     ce surplus dans le cache ISR pour tous. Mesuré le 17/08 sur `bar` : 413 spots vus
+//     par `anon` contre 423 par le modérateur. C'est la vue anonyme qui est la bonne.
+//   - `catches_for_viewer` filtré `privacy = 'public'` : la vue (SECURITY DEFINER) ne
+//     donne en plus à un connecté que SES prises et celles de ses suivis, or le filtre
+//     `privacy = 'public'` les exclut déjà. Vérifié en base : même compte pour `anon` et
+//     pour un compte possédant 6 prises non publiques.
 async function fetchData(page: ProgrammaticPage): Promise<{
   spots: SpotLite[]
   catches30d: number
   deptsWithSpots: string[]
 }> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const dbKey = SPECIES[page.species].dbKey
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString()
 

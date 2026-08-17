@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, ChevronRight, ShieldCheck } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import {
   SPECIES,
   TECHNIQUES,
@@ -91,9 +91,17 @@ export async function generateMetadata({
 
 // Compteur national de prises publiques de l'espèce (30 j) — signal « carte vivante »
 // du hero. Les « meilleurs spots » et le score régional décomposé sont chargés par
-// leurs propres composants (Suspense), gating et k-anon inclus.
+// leurs propres composants, gating et k-anon inclus.
+//
+// Client ANON sans cookies (sprint 84) : le filtre `privacy = 'public'` rend ce compte
+// rigoureusement indépendant du visiteur. `catches_for_viewer` est une vue SECURITY
+// DEFINER dont le WHERE est
+// `user_id = auth.uid() OR privacy = 'public' OR (friends AND follow)` : ce qu'elle
+// accorde EN PLUS à un connecté (ses prises, celles de ses suivis) est exclu par ce
+// filtre. Vérifié en base le 17/08 : même compte pour `anon` et pour un compte
+// possédant 6 prises non publiques.
 async function fetchCatches30d(dbKey: string): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString()
   const { count } = await supabase
     .from('catches_for_viewer')

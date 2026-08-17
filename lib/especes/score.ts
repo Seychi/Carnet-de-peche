@@ -1,5 +1,6 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { createAnonClient } from '@/lib/supabase/anon'
 import type { UserTier } from '@/lib/auth/tier'
 import { fetchQualityCells } from '@/lib/map/quality'
 import { scoreRegion } from '@/lib/geo/bbox'
@@ -10,6 +11,12 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 // Itinérant via auth.uid()) — agrégé sur le périmètre de l'utilisateur (département si
 // connu, sinon national). Aucun chiffre fabriqué (garde-fou honnêteté 7.5) : une
 // composante absente est `null`, pas simulée. Anon/Discovery → communauté seule.
+//
+// ⚠️ Sprint 84 — CE MODULE NE DOIT PLUS LIRE LES COOKIES. Il est atteint par le rendu
+// SERVEUR de `/especes/[slug]`, une page mise en cache : un seul `cookies()` ici et les
+// 26 fiches redeviennent dynamiques. La variante VISITEUR (tier, département, perso)
+// vit désormais dans `lib/especes/score-viewer.ts`, appelée uniquement par une Server
+// Action, donc après hydratation et jamais dans le HTML mis en cache.
 
 export type SpeciesScore = {
   tier: UserTier
@@ -24,23 +31,17 @@ export type SpeciesScore = {
   perso: { catches: number } | null
 }
 
-export async function getSpeciesRegionalScore(dbKey: string): Promise<SpeciesScore> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  let tier: UserTier = 'anonymous'
-  let homeDept: string | null = null
-  if (user) {
-    const [{ data: tierData }, { data: prof }] = await Promise.all([
-      supabase.rpc('current_tier', { uid: user.id }),
-      supabase.from('profiles').select('home_department').eq('id', user.id).maybeSingle(),
-    ])
-    tier = (tierData as UserTier) ?? 'discovery'
-    homeDept = (prof?.home_department as string | null) ?? null
-  }
-
+/**
+ * Cœur de calcul, partagé par la voie anonyme et la voie visiteur.
+ * Le `supabase` reçu porte l'identité : client anon (auth.uid() NULL → composante
+ * perso vide par construction) ou client de session (perso réel si Itinérant).
+ */
+export async function computeSpeciesScore(
+  supabase: SupabaseClient,
+  dbKey: string,
+  tier: UserTier,
+  homeDept: string | null,
+): Promise<SpeciesScore> {
   const region = scoreRegion(
     homeDept,
     homeDept ? DEPARTMENT_LABELS[homeDept.trim()] : undefined,
@@ -74,4 +75,15 @@ export async function getSpeciesRegionalScore(dbKey: string): Promise<SpeciesSco
     community,
     perso,
   }
+}
+
+/**
+ * Variante ANONYME, sans aucun cookie : c'est elle qui est rendue côté serveur et
+ * mise en cache. Périmètre national (un anonyme n'a pas de département), composante
+ * perso structurellement absente. Exactement ce qu'un visiteur sans compte voit
+ * aujourd'hui, donc exactement ce que voit Googlebot : le HTML servi ne change pas.
+ */
+export async function getSpeciesRegionalScoreAnon(dbKey: string): Promise<SpeciesScore> {
+  const supabase = createAnonClient()
+  return computeSpeciesScore(supabase, dbKey, 'anonymous', null)
 }

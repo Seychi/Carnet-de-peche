@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { referencePortForDepartment } from '@/lib/conditions/tide-departments'
 
 // ── Calibration marées par port de référence (sprint 38, F3 + fix offset) ──────
@@ -50,7 +50,11 @@ export async function getTideCalibration(
   const refPort = referencePortForDepartment(department)
   if (!refPort) return null
 
-  const supabase = await createClient()
+  // Sprint 84, Bloc 3 : client ANON sans cookies. `tide_calibration` est une table
+  // de référence publique (policy `for select to anon, authenticated using (true)`,
+  // migration 062) : la donnée lue est strictement la même qu'avec le client de
+  // session, mais la page qui appelle ceci reste éligible au rendu statique.
+  const supabase = createAnonClient()
   const { data } = await supabase
     .from('tide_calibration')
     .select('port, median_error_min, bias_min, residual_min, verified_at, source')
