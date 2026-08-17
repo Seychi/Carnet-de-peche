@@ -283,7 +283,8 @@ aux fiches qui passent.
    boîte de réception. Le SMTP est branché, c'est le seul test qui le prouve.
 2. Merger, déployer, **noter l'heure exacte** ici.
 
-   > Déployé le : `_______________`
+   > Poussé sur `main` le **17/08/2026 à 20:53** (commit `1fb2163`). Vercel déploie
+   > automatiquement depuis `main`. **J+14 = 31/08/2026** pour la réconciliation.
 
 3. **Créer l'insight PostHog d'activation** (funnel `signup_completed` → `catch_log_started`
    → 3e prise, fenêtre 30 j) et coller son URL ici. Le mode opératoire est dans `ACTIVATION.md`.
