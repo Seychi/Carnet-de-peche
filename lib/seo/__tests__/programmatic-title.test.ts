@@ -21,14 +21,17 @@ import { DEPARTMENT_LABELS } from '@/lib/geo/departments'
 const PAGES = getAllProgrammaticPages()
 
 describe('programmaticTitle — accord de l’article (Bloc 6)', () => {
-  it('génère les 337 pages attendues', () => {
-    // Garde-fou anti-pages-creuses du sprint 57 : 6 espèces avec contenu, pas plus.
-    expect(PAGES.length).toBe(337)
+  it('génère les 455 pages attendues', () => {
+    // Garde-fou anti-pages-creuses : une espèce n'a de pages que si elle a un
+    // SpeciesContent rédigé. 6 espèces au sprint 57, 12 depuis le sprint 83
+    // Bloc 4 (+118 pages méditerranéennes adossées à l'inventaire mesuré ;
+    // détail et comptages dans programmatic-mediterranee.test.ts).
+    expect(PAGES.length).toBe(455)
     const species = new Set(PAGES.map((p) => p.species))
-    expect(species.size).toBe(6)
+    expect(species.size).toBe(12)
   })
 
-  it('accorde l’article à l’espèce sur les 337 pages, jamais « du » par défaut', () => {
+  it('accorde l’article à l’espèce sur les 455 pages, jamais « du » par défaut', () => {
     const wrong: string[] = []
     for (const p of PAGES) {
       const meta = SPECIES[p.species]
@@ -97,7 +100,7 @@ describe('programmaticTitle — accord de l’article (Bloc 6)', () => {
 })
 
 describe('programmaticTitle — longueur SERP', () => {
-  it('aucun titre au-dessus de 60 caractères sur les 337 pages', () => {
+  it('aucun titre au-dessus de 60 caractères sur les 455 pages', () => {
     const tooLong = PAGES.map((p) => ({ url: programmaticUrl(p), title: programmaticTitle(p) }))
       .filter((t) => t.title.length > SERP_TITLE_MAX)
       .map((t) => `${t.title.length} : ${t.title}`)

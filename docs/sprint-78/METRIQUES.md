@@ -6,6 +6,15 @@
 >
 > Source : Google Search Console, tiré via le connecteur Supermetrics (compte
 > `sc-domain:carnet-de-peche.com`). Chiffres produit : SQL live sur la production.
+>
+> **⚠️ Correction du 2026-08-17 (sprint 83, Bloc 0).** La règle de dépublication du §1
+> ci-dessous (seuil de CTR agrégé sur `/spots`) est **retirée et remplacée** par le
+> protocole de comparaison de cohortes plus bas dans ce fichier. Motif détaillé dans
+> `docs/audits/DIAGNOSTIC-SEO-2026-08-16.md` §4 : le seuil agrégé se serait déclenché à
+> tort, parce que le CTR `/spots` baissait déjà **avant** la publication du lot, sous
+> l'effet mécanique de l'afflux de longue traîne consécutif au correctif sitemap du
+> 05/08, pas sous l'effet du lot lui-même. Voir aussi la baseline gelée
+> `docs/sprint-83/BASELINE.md`.
 
 ---
 
@@ -27,16 +36,32 @@ chiffre du brief correspond vraisemblablement à une semaine de pointe et non à
 moyenne. C'est la moyenne 30 jours qui sert de base ici, parce que c'est elle qu'on
 pourra comparer sans effet de fenêtre.
 
-### ★ Le témoin, et la règle de sortie
+### ★ Le témoin, et la règle de sortie (corrigé le 2026-08-17, cf note en tête de fichier)
 
-**`/spots` est à 7,2 % de CTR.** C'est LA métrique qui décide du sort du Bloc 2.
+**`/spots` est à 7,2 % de CTR.** C'est le chiffre de départ, pas un seuil d'alerte.
 
-> ⚠️ **Si le CTR de `/spots` passe sous 6 %, on dépublie le lot**, sans attendre.
-> ```sql
-> update public.spots set moderation_status='pending' where generation_batch='S78-MED-01';
-> ```
+~~⚠️ Si le CTR de `/spots` passe sous 6 %, on dépublie le lot, sans attendre.~~
+**Cette règle est abandonnée.** Le CTR agrégé de `/spots` mesure la dilution par des
+pages neuves, pas leur qualité : ajouter 191 pages qui démarrent forcément en bas de
+classement fait mécaniquement baisser la moyenne du répertoire, quelle que soit la
+qualité de ces pages. La preuve est dans les chiffres eux-mêmes : le CTR `/spots`
+était **déjà à 5,4 % le 13/08 et 5,0 % le 14/08**, avant que le lot `S78-MED-01` ne
+parte le **15/08 à 10 h 06**. Le seuil se serait donc déclenché sur une baisse
+antérieure au lot qu'il est censé juger.
 
-La bascule est instantanée et sans déploiement : la base pilote le contenu.
+**Protocole de remplacement : comparaison de cohortes, pas de seuil agrégé.**
+
+- Comparer le CTR des fiches `generation_batch='S78-MED-01'` (191 fiches) à celui des
+  fiches curées `generation_batch is null` (416 fiches), **sur la même fenêtre**, par
+  `pagepath` (GSC via Supermetrics).
+- **Pas avant le 03/09/2026.** Au débit de découverte mesuré (~10 URL/jour, §5
+  ci-dessous), les 191 fiches du lot mettent environ 19 jours à être explorées une
+  première fois par Google : les juger avant, c'est comparer une cohorte indexée à une
+  cohorte qui ne l'est pas encore.
+- Détail du raisonnement : `docs/audits/DIAGNOSTIC-SEO-2026-08-16.md` §4, et la
+  baseline gelée `docs/sprint-83/BASELINE.md`.
+
+Aucune fiche du lot 1 n'a été ni ne sera dépubliée sur la base de cette ancienne règle.
 
 ### Bloc 4 — la base à battre
 
@@ -86,9 +111,16 @@ Bloc 1. Ce sont eux le témoin d'activation à surveiller.
 
 ## 4. Relectures
 
-- [ ] **J+3 (18/08)** — CTR `/spots`, impressions, position. Indexation du lot 1 dans GSC.
-- [ ] **J+7 (22/08)** — ⚠️ **si `/spots` est sous 6 %, dépublier le lot avant d'aller plus loin.** Sinon, publier le lot 2.
-- [ ] **J+14 (29/08)** — CTR des 191 nouvelles fiches (cible > 4 %), CTR `/especes` sur l'intention pêche (cible > 3 %), activation des comptes (cible > 35 %).
+> **⚠️ J+3 et J+7 sont SANS OBJET (correction du 2026-08-17, sprint 83 Bloc 0).** Les
+> deux lignes sont barrées et conservées ci-dessous pour garder la trace de la
+> décision initiale. Motif : au débit de découverte mesuré (~10 URL/jour), le lot 1
+> n'est pas encore indexé à ces échéances, et la règle de dépublication qu'elles
+> portaient est retirée (cf §1). La lecture qui fait foi est le **protocole de
+> comparaison de cohortes au 03/09/2026** décrit au §1.
+
+- ~~[ ] **J+3 (18/08)** — CTR `/spots`, impressions, position. Indexation du lot 1 dans GSC.~~ **SANS OBJET**, cf note ci-dessus.
+- ~~[ ] **J+7 (22/08)** — ⚠️ si `/spots` est sous 6 %, dépublier le lot avant d'aller plus loin. Sinon, publier le lot 2.~~ **SANS OBJET**, la règle de dépublication est retirée (§1). Ne pas publier le lot 2 sur la base de cette échéance.
+- [ ] **J+14 (29/08)** — CTR des 191 nouvelles fiches (cible > 4 %), CTR `/especes` sur l'intention pêche (cible > 3 %), activation des comptes (cible > 35 %). ⚠️ Le CTR des 191 fiches à cette date reste indicatif : la comparaison de cohortes qui fait foi n'a lieu qu'au 03/09/2026 (§1).
 
 ### Requêtes de contrôle
 

@@ -57,13 +57,35 @@ describe('buildSpeciesTitle — les 26 espèces réelles', () => {
   })
 
   it('respecte l’override seoTitle (sprint 77 Bloc 9, fiches à intention identification)', () => {
-    // mulet / tassergal / congre portent un `seoTitle` manuel : la formule générique
-    // (maille + saisons/spots) ne doit JAMAIS reprendre le dessus tant qu'il est présent.
-    for (const slug of ['mulet', 'tassergal', 'congre'] as const) {
+    // ⚠️ Sprint 83 Bloc 5 : `mulet` est SORTI de cette liste. Son override a été retiré
+    // (relevé GSC du 16/08 : l'intention « maille » pèse 283 impressions contre ~82 pour
+    // l'identification, et c'est la seule qui accroche la page 1). Il est désormais
+    // couvert par le test dédié ci-dessous et par la formule générique.
+    // tassergal / congre gardent le leur : requêtes d'identification pure.
+    for (const slug of ['tassergal', 'congre'] as const) {
       const content = ESPECES_CONTENT[slug]
       expect(content.seoTitle).toBeTruthy()
       expect(buildSpeciesTitle(inputFor(slug))).toBe(content.seoTitle)
     }
+  })
+
+  it('mulet : le titre porte la maille, le chiffre et l’année (sprint 83 Bloc 5)', () => {
+    // L'ancien titre (« Où pêcher le mulet du bord : spots et technique au pain ») ne
+    // contenait ni « maille » ni de chiffre, alors que 73 % des requêtes visibles en
+    // cherchent un. Zéro clic sur 283 impressions dont une partie en position 5-6.
+    expect(ESPECES_CONTENT.mulet.seoTitle, 'l’override doit rester retiré').toBeUndefined()
+
+    const title = buildSpeciesTitle(inputFor('mulet'))
+    expect(title).toContain('maille')
+    expect(title).toContain('30')
+    expect(title).toContain('2026')
+    expect(title.length).toBeLessThanOrEqual(TITLE_MAX_LENGTH)
+
+    // Honnêteté réglementaire : la Méditerranée n'a PAS de maille pour le mulet, le
+    // titre ne doit donc revendiquer aucune portée nationale ni citer les deux façades.
+    // C'est la description qui qualifie la façade, et elle doit le faire explicitement.
+    expect(title).not.toMatch(/national|deux façades|Méditerranée/i)
+    expect(buildSpeciesDescription(inputFor('mulet'))).toContain('en Manche et Atlantique')
   })
 
   it('dégrade proprement quand l’espèce n’a aucune maille (aucune valeur inventée)', () => {

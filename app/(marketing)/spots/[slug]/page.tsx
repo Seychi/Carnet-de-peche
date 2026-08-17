@@ -12,6 +12,7 @@ import { getUserTier } from '@/lib/auth/tier'
 import type { NearbySpot } from '@/lib/spots/nearby'
 import { SpotSignupCta } from '@/components/spots/SpotSignupCta'
 import { NearbySpotsSection, type NearbyEntry } from '@/components/spots/NearbySpotsSection'
+import { SpotUpLinks } from '@/components/spots/SpotUpLinks'
 import SpotMiniMap from '@/components/spots/SpotMiniMap'
 import SpotTodayBand from '@/components/spots/SpotTodayBand'
 import { FavoriteSpotButton } from '@/components/spots/FavoriteSpotButton'
@@ -35,7 +36,7 @@ import { SpotActivitySection } from '@/components/spots/SpotActivitySection'
 import { SpotRegulationCard } from '@/components/regulation/SpotRegulationCard'
 import { SPECIES_LABELS, TECHNIQUE_LABELS, STRUCTURE_LABELS, HAZARDS_LABELS } from '@/lib/labels'
 import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
-import { buildSpotTitle } from '@/lib/seo/spot-title'
+import { buildSpotTitleAB } from '@/lib/seo/spot-title'
 import { buildSpotJsonLd } from '@/lib/seo/spot-jsonld'
 import { DEPARTMENT_LABELS, departmentArticle } from '@/lib/geo/departments'
 
@@ -199,7 +200,15 @@ async function fetchDepartmentSpots(
   //
   // Aucune migration : la donnée nécessaire était déjà là. Le `limit` SQL est
   // retiré parce qu'il tronquait AVANT la rotation, ce qui l'aurait annulée ;
-  // un département plafonne à ~100 lignes de 4 colonnes courtes.
+  // un département plafonne à ~105 lignes de 4 colonnes courtes.
+  //
+  // ⚠️ MARGE DE `NEARBY_MAX + 6` (sprint 83, Bloc 2) : cette liste sert de
+  // REMPLISSAGE après déduplication avec les voisins de `nearby_spots`, il en
+  // faut donc plus que `NEARBY_MAX`. Un anonyme (tout le trafic SEO) reçoit au
+  // plus 3 voisins depuis la migration 110 : 18 − 3 = 15 lignes survivent à la
+  // déduplication, largement de quoi remplir les 12. Un abonné qui recevrait
+  // beaucoup de voisins les consomme lui-même, donc la liste se remplit quand
+  // même. La marge tient au passage de 6 à 12.
   if (rows.length === 0) return rows
   const offset = slugHash(originSlug) % rows.length
   return [...rows.slice(offset), ...rows.slice(0, offset)].slice(0, NEARBY_MAX + 6)
@@ -207,7 +216,15 @@ async function fetchDepartmentSpots(
 
 /** Jamais plus de 50 km : au-delà, « spots à proximité » devient un mensonge. */
 const NEARBY_RADIUS_KM = 40
-const NEARBY_MAX = 6
+// Sprint 83, Bloc 2 : 6 → 12. Une fiche servait 6 liens sortants vers d'autres
+// fiches, et c'est le nombre de liens internes reçus qui décide de la position
+// d'une fiche sur une requête de nom de lieu. Passer à 12 double le maillage
+// reçu par le département SANS toucher à `nearby_spots` (le plafond anonyme à 3
+// reste un gating de tier, migration 110) : le besoin est un LIEN, pas une
+// distance, et le repli départemental fournit slug + nom sans distance.
+// 105 spots dans le 56 et 94 dans le 29 : les deux plus gros départements ont
+// de quoi remplir. Les petits (59 : 3 spots, 14 : 4) servent ce qu'ils ont.
+const NEARBY_MAX = 12
 
 // ─── SEO ──────────────────────────────────────────────────────────────────────
 
@@ -232,7 +249,24 @@ export async function generateMetadata(
   // coupe vers 60) et cumulaient DEUX tirets cadratins, celui du gabarit et
   // celui déjà présent dans `spot.name`. Gabarit + dégradation dans lib/seo/spot-title,
   // testés sur les 416 spots réels. La description, l'OG et le Twitter card ne bougent pas.
-  const title = buildSpotTitle(spot.name, deptKey, speciesLabels)
+  //
+  // Sprint 83, Bloc 1 : le titre est désormais un A/B RÉEL entre deux gabarits.
+  // Cohorte A = « Pêche à {commune} ({dept}) : {espèces} » (inchangé). Cohorte B =
+  // « {commune} ({dept}) : marée du jour et spot de pêche », servie aux seuls
+  // départements à marée calibrée, parce que les gens cherchent la marée PAR NOM DE
+  // SPOT (« maree pen lan », « marée rostiviec » : 54 impressions, 0 clic) et que le
+  // mot « marée » n'existait que dans la meta description.
+  //
+  // ⚠️ L'affectation est un hash PUR du slug, donc identique à chaque rendu : un
+  // titre qui varierait d'un rendu à l'autre ferait voir à Google un site instable.
+  // Ni cookie, ni aléatoire, ni PostHog. Cohortes figées dans docs/sprint-83/AB-MAREE.md,
+  // verdict à J+21, pas avant : cf le plan de mesure du brief.
+  const { title } = buildSpotTitleAB({
+    slug: spot.slug,
+    name: spot.name,
+    department: deptKey,
+    speciesLabels,
+  })
   const description = `${structureLabel} pour pêcher ${topSpecies} ${departmentArticle(deptKey, 'dans')}. Conditions, marées et techniques recommandées.`.slice(0, 158)
   const ogDescription = spot.description
     ? `${spot.description.slice(0, 150)}${spot.description.length > 150 ? '…' : ''}`
@@ -487,7 +521,9 @@ export default async function SpotPage({
   ])
 
   // Les spots proches d'abord (avec leur distance), complétés par le département
-  // jusqu'à 6. `nearby_spots` plafonne à 3 pour un anonyme : le repli est la norme.
+  // jusqu'à NEARBY_MAX. `nearby_spots` plafonne à 3 pour un anonyme : le repli
+  // départemental est la norme sur les pages indexées, et c'est lui qui porte
+  // l'essentiel des 12 liens depuis le sprint 83.
   const nearbySlugs = new Set(nearbyRaw.map((s) => s.slug))
   const nearbyEntries: NearbyEntry[] = [
     ...nearbyRaw.slice(0, NEARBY_MAX).map((s) => ({
@@ -503,8 +539,17 @@ export default async function SpotPage({
 
   // Libellé honnête : « à moins de X km » seulement si la section est vraiment
   // faite de spots proches ; sinon on annonce le département.
+  //
+  // ⚠️ Sprint 83, Bloc 2 : le seuil était `>= 3` entrées à distance, ce qui était
+  // FAUX et l'est devenu davantage. `nearby_spots` plafonne un anonyme (donc tout
+  // le trafic Google) à 3 voisins : le seuil était satisfait par construction, et
+  // le reste de la liste vient du remplissage départemental, qui n'a AUCUNE
+  // contrainte de distance. Mesuré sur /spots/aber-wrach-sainte-marguerite : des
+  // spots à 59, 87 et 118 km étaient servis sous le titre « à moins de 40 km ».
+  // Passer NEARBY_MAX de 6 à 12 faisait passer ce mensonge de 3 à 9 entrées.
+  // La promesse n'est tenue que si TOUTES les entrées portent une distance.
   const nearbyTitle =
-    nearbyEntries.filter((e) => e.distanceM != null).length >= 3
+    nearbyEntries.length > 0 && nearbyEntries.every((e) => e.distanceM != null)
       ? `Autres spots à moins de ${NEARBY_RADIUS_KM} km`
       : `Autres spots ${departmentArticle(deptKey, 'dans')}`
 
@@ -1300,6 +1345,22 @@ export default async function SpotPage({
             </Link>
           </aside>
         </div>
+
+        {/* Liens remontants (sprint 83, Bloc 2) — la fiche ne maillait qu'à
+            l'HORIZONTALE (spot → spot). Ce bloc la relie aux trois pages qui
+            concentrent l'autorité : la landing du département, la fiche de
+            l'espèce principale, et le guide de technique QUAND il existe.
+            Placé sous la grille pour être en bas de page dans les deux
+            colonnes ET sur mobile, où la colonne principale passe avant
+            l'aside. SERVER COMPONENT : rendu dans le HTML servi, sans un octet
+            de JS, jamais derrière un accordéon. Aucune coordonnée. */}
+        <SpotUpLinks
+          department={deptKey}
+          species={spot.species}
+          techniques={spot.techniques}
+          guides={allGuides}
+          className="mt-8"
+        />
       </div>
 
       {/* ── CTA collant mobile ────────────────────────────────────────────

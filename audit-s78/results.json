@@ -1,0 +1,2305 @@
+[
+ {
+  "name": "home",
+  "path": "/",
+  "status": 200,
+  "err": null,
+  "loadMs": 1432,
+  "reqCount": 118,
+  "headerBytes": 3694600,
+  "jsBytes": 2863274,
+  "imgBytes": 94384,
+  "perf": {
+   "ttfb": 306,
+   "domContentLoaded": 459,
+   "loadEvent": 459,
+   "transferSize": 189785,
+   "fcp": 448,
+   "lcp": null,
+   "resources": 47,
+   "resourceBytes": 3665
+  },
+  "errors": [
+   "eZ: AJAXError: Failed to fetch (api.maptiler.com) (0): https://api.maptiler.com/tiles/v3/tiles.json?key=WFPrhXlgulIhXnSJoCIr\n    at https://www.carnet-de-peche.com/_next/static/chunks/05f6971a.a1a316c",
+   "eZ: AJAXError: Failed to fetch (api.maptiler.com) (0): https://api.maptiler.com/maps/dataviz-dark/sprite@2x.json\n    at https://www.carnet-de-peche.com/_next/static/chunks/05f6971a.a1a316c1d81a0dfb.js"
+  ],
+  "errorCount": 2,
+  "failed": [
+   "https://www.carnet-de-peche.com/carte?_rsc=SCJVgjZa56qhWaZb :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://api.maptiler.com/tiles/v3/tiles.json?key=WFPrhXlgulIhXnSJoCIr :: net::ERR_ABORTED",
+   "https://api.maptiler.com/maps/dataviz-dark/sprite@2x.png :: net::ERR_ABORTED",
+   "https://api.maptiler.com/maps/dataviz-dark/sprite@2x.json :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=SCJVgjZa56qhWaZb :: net::ERR_ABORTED"
+  ],
+  "title": "Carnet de Pêche — Sache quand et où ça va mordre",
+  "titleLen": 48,
+  "description": "Le carnet de pêche numérique et le réseau social des pêcheurs à la canne du bord en France. Marées réelles, 200+ spots curés et vérifiés, 26 espèces sourcées, fil régional 100 % gratuit. Logue tes prises : le carnet apprend tes patterns et te dit quand et où sortir.",
+  "descLen": 266,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/",
+  "ogImage": "",
+  "h1s": [
+   "Sache quand et où ça va mordre."
+  ],
+  "headings": [
+   "H1: Sache quand et où ça va mordre.",
+   "H2: Tout le monde a la météo. Personne n'a la tienne.",
+   "H2: Une carte marine, pas un plan de ville.",
+   "H2: Tout ce qui sort sur ta côte.",
+   "H2: Le carnet est gratuit. La carte au mètre, c'est toi qui choisis.",
+   "H2: Tes questions, nos réponses.",
+   "H2: Ton prochain beau bar commence par une ligne."
+  ],
+  "docHeight": 8790,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 516,
+  "htmlChars": 209820,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 4,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 32,
+  "linksToNouvelle": 0,
+  "linksToRegister": 6,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "WebSite",
+   "Organization",
+   "FAQPage"
+  ],
+  "bodyTextLen": 4767
+ },
+ {
+  "name": "carte",
+  "path": "/carte",
+  "status": 200,
+  "err": null,
+  "loadMs": 2501,
+  "reqCount": 128,
+  "headerBytes": 4659632,
+  "jsBytes": 1432381,
+  "imgBytes": 94384,
+  "perf": {
+   "ttfb": 135,
+   "domContentLoaded": 599,
+   "loadEvent": 599,
+   "transferSize": 91490,
+   "fcp": 228,
+   "lcp": null,
+   "resources": 55,
+   "resourceBytes": 1362
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=njgGQaY8qb8z68tF :: net::ERR_ABORTED"
+  ],
+  "title": "Carte des spots de pêche — Carnet de Pêche",
+  "titleLen": 42,
+  "description": "Carte interactive des spots de pêche à la canne du bord en France. Filtre par espèce et technique, marées et météo en temps réel. Logue tes prises pour affiner les scores.",
+  "descLen": 171,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/carte",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Carte des spots de pêche"
+  ],
+  "headings": [
+   "H1: Carte des spots de pêche",
+   "H2: Filtres"
+  ],
+  "docHeight": 664,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 381,
+  "htmlChars": 129949,
+  "overlays": [
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "40",
+    "cls": "fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ease-out translate-y-",
+    "text": "Crée ton carnet, c'est gratuit. Tes prises, les marées de tes spots et le fil de ton département. Créer mon ca",
+    "x": 0,
+    "y": 514.25,
+    "w": 390,
+    "h": 149.75
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "50",
+    "cls": "md:hidden fixed z-50 flex flex-col gap-3",
+    "text": "",
+    "x": 318,
+    "y": 516,
+    "w": 56,
+    "h": 124
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 9,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Retour",
+    "x": 8,
+    "y": 11.5,
+    "w": 36,
+    "h": 32
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Ouvrir les filtres",
+    "x": 346,
+    "y": 9.5,
+    "w": 36,
+    "h": 36
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Couches de la carte",
+    "x": 12,
+    "y": 68,
+    "w": 56,
+    "h": 34
+   },
+   {
+    "tag": "a",
+    "href": "/auth/login?tab=register",
+    "text": "C'est gratuit",
+    "x": 254.59375,
+    "y": 585.5,
+    "w": 107.40625,
+    "h": 32
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Fermer",
+    "x": 278,
+    "y": 524.25,
+    "w": 28,
+    "h": 28
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 14,
+  "linksToNouvelle": 0,
+  "linksToRegister": 3,
+  "linksToLogin": 2,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [],
+  "bodyTextLen": 435
+ },
+ {
+  "name": "spots",
+  "path": "/spots",
+  "status": 200,
+  "err": null,
+  "loadMs": 3234,
+  "reqCount": 132,
+  "headerBytes": 205684,
+  "jsBytes": 1488,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 748,
+   "domContentLoaded": 1034,
+   "loadEvent": 1035,
+   "transferSize": 2014255,
+   "fcp": 800,
+   "lcp": null,
+   "resources": 42,
+   "resourceBytes": 4547
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/?_rsc=jybJUzF36N6aEsy5 :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/carte?_rsc=jybJUzF36N6aEsy5 :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=jybJUzF36N6aEsy5 :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/a-castagna-osm3715987564?_rsc=jybJUzF36N6aEsy5 :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/a-castagna-osm3715987564?_rsc=jybJUzF36N6aEsy5 :: net::ERR_ABORTED"
+  ],
+  "title": "Spots de pêche à la canne du bord en France — Carnet de Pêche",
+  "titleLen": 61,
+  "description": "Annuaire complet des spots de pêche à la canne du bord en France. Conditions météo, marées et prises récentes pour chaque spot.",
+  "descLen": 127,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/spots",
+  "ogImage": "https://www.carnet-de-peche.com/og/spots",
+  "h1s": [
+   "Spots de pêche à la canne du bord en France"
+  ],
+  "headings": [
+   "H1: Spots de pêche à la canne du bord en France",
+   "H2: Corse-du-Sud· 34 spots",
+   "H2: Haute-Corse· 34 spots",
+   "H2: Alpes-Maritimes· 34 spots",
+   "H2: Aude· 24 spots",
+   "H2: Bouches-du-Rhône· 36 spots",
+   "H2: Calvados· 4 spots",
+   "H2: Charente-Maritime· 14 spots",
+   "H2: Côtes-d'Armor· 33 spots",
+   "H2: Finistère· 94 spots",
+   "H2: Gard· 14 spots",
+   "H2: Gironde· 13 spots",
+   "H2: Hérault· 29 spots",
+   "H2: Ille-et-Vilaine· 5 spots"
+  ],
+  "docHeight": 24587,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 7739,
+  "htmlChars": 2029439,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "section",
+    "pos": "sticky",
+    "z": "10",
+    "cls": "bg-white border-b border-ink-100 py-5 sticky top-0 z-10",
+    "text": "DÉPARTEMENT Tous les départements 14 — Calvados 17 — Charente-Maritime 22 — Côtes-d'Armor 29 — Finistère 33 — ",
+    "x": 0,
+    "y": 493.78125,
+    "w": 390,
+    "h": 227
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 8,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/carte",
+    "text": "Voir sur la carte",
+    "x": 24,
+    "y": 399.78125,
+    "w": 140.46875,
+    "h": 38
+   },
+   {
+    "tag": "select",
+    "href": "",
+    "text": "Tous les départements 14 — Calvados 17 — Charente-Maritime 22 — Côtes-",
+    "x": 24,
+    "y": 533.78125,
+    "w": 342,
+    "h": 41
+   },
+   {
+    "tag": "select",
+    "href": "",
+    "text": "Toutes les espèces Bar Dorade royale Lieu jaune Maquereau Sar Orphie S",
+    "x": 24,
+    "y": 606.78125,
+    "w": 342,
+    "h": 41
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Filtrer",
+    "x": 24,
+    "y": 659.78125,
+    "w": 342,
+    "h": 40
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 685,
+  "linksToNouvelle": 0,
+  "linksToRegister": 2,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "ItemList"
+  ],
+  "bodyTextLen": 12706
+ },
+ {
+  "name": "fiche-gen",
+  "path": "/spots/cap-de-la-croisette-osm8811707251",
+  "status": 200,
+  "err": null,
+  "loadMs": 1674,
+  "reqCount": 161,
+  "headerBytes": 3669658,
+  "jsBytes": 2863274,
+  "imgBytes": 188768,
+  "perf": {
+   "ttfb": 1252,
+   "domContentLoaded": 0,
+   "loadEvent": 0,
+   "transferSize": 300,
+   "fcp": null,
+   "lcp": null,
+   "resources": 1,
+   "resourceBytes": 0
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=EZ2oO6BAbQaVK-8t :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/fil?_rsc=EZ2oO6BAbQaVK-8t :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes?_rsc=EZ2oO6BAbQaVK-8t :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides?_rsc=EZ2oO6BAbQaVK-8t :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides/declaration-obligatoire-peche-en-mer-recfishing?_rsc=EZ2oO6BAbQaVK-8t :: net::ERR_ABORTED"
+  ],
+  "probeError": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation"
+ },
+ {
+  "name": "fiche-gen2",
+  "path": "/spots/plage-de-bodri-osm113823751",
+  "status": 200,
+  "err": null,
+  "loadMs": 1315,
+  "reqCount": 166,
+  "headerBytes": 3456766,
+  "jsBytes": 2863274,
+  "imgBytes": 188768,
+  "perf": {
+   "ttfb": 774,
+   "domContentLoaded": 894,
+   "loadEvent": 930,
+   "transferSize": 157614,
+   "fcp": 904,
+   "lcp": null,
+   "resources": 67,
+   "resourceBytes": 5865
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/aregno-plage-osm159630741?_rsc=1fknnVTVB0vYq-Ah :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/plage-caruchettu-osm211922077?_rsc=1fknnVTVB0vYq-Ah :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides/comment-lire-une-courbe-de-maree?_rsc=1fknnVTVB0vYq-Ah :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides/peche-a-la-dorade-royale-au-surfcasting?_rsc=1fknnVTVB0vYq-Ah :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes/oblade?_rsc=1fknnVTVB0vYq-Ah :: net::ERR_ABORTED"
+  ],
+  "title": "Pêche à Plage de Bodri (2B) : Dorade royale, Marbré",
+  "titleLen": 51,
+  "description": "Plage pour pêcher Dorade royale, Marbré, Sar dans la Haute-Corse. Conditions, marées et techniques recommandées.",
+  "descLen": 112,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/spots/plage-de-bodri-osm113823751",
+  "ogImage": "https://www.carnet-de-peche.com/og/spot/plage-de-bodri-osm113823751",
+  "h1s": [
+   "Plage de Bodri"
+  ],
+  "headings": [
+   "H1: Plage de Bodri",
+   "H2: Meilleurs moments à Plage de Bodri",
+   "H2: Conditions à Plage de Bodri",
+   "H2: Activité récente",
+   "H2: Prises récentes",
+   "H2: Description",
+   "H2: Accès",
+   "H2: Autres spots dans la Haute-Corse",
+   "H2: Guides liés"
+  ],
+  "docHeight": 8735,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 890,
+  "htmlChars": 187836,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "20",
+    "cls": "sticky-bottom-bar md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-s",
+    "text": "Voir les conditions à Plage de Bodri, gratuit",
+    "x": 0,
+    "y": 413,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 14,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/spots",
+    "text": "SPOTS",
+    "x": 16,
+    "y": 101,
+    "w": 55.109375,
+    "h": 17.8125
+   },
+   {
+    "tag": "a",
+    "href": "/especes/dorade-royale",
+    "text": "Dorade royale",
+    "x": 167.59375,
+    "y": 265.859375,
+    "w": 116.6875,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "href": "/especes/marbre",
+    "text": "Marbré",
+    "x": 292.28125,
+    "y": 265.859375,
+    "w": 71.78125,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "href": "/especes/sar",
+    "text": "Sar",
+    "x": 16,
+    "y": 305.859375,
+    "w": 46.125,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "href": "https://www.maptiler.com/copyright/",
+    "text": "© MapTiler",
+    "x": 110.328125,
+    "y": 675.859375,
+    "w": 58.40625,
+    "h": 14
+   },
+   {
+    "tag": "a",
+    "href": "https://www.openstreetmap.org/copyright",
+    "text": "© OpenStreetMap contributors",
+    "x": 172.078125,
+    "y": 675.859375,
+    "w": 162.921875,
+    "h": 14
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Comment le score est calculé",
+    "x": 339,
+    "y": 925.859375,
+    "w": 14,
+    "h": 14
+   },
+   {
+    "tag": "a",
+    "href": "https://www.windy.com/?42.6344,8.9132,10",
+    "text": "Windy",
+    "x": 273.015625,
+    "y": 2229.78125,
+    "w": 79.984375,
+    "h": 30
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Courbe",
+    "x": 231.609375,
+    "y": 2326.78125,
+    "w": 66.5625,
+    "h": 28
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Grille",
+    "x": 298.171875,
+    "y": 2326.78125,
+    "w": 53.828125,
+    "h": 28
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   }
+  ],
+  "dates": [],
+  "linkCount": 62,
+  "linksToNouvelle": 3,
+  "linksToRegister": 6,
+  "linksToLogin": 2,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "Place+BreadcrumbList"
+  ],
+  "bodyTextLen": 5190
+ },
+ {
+  "name": "fiche-hist",
+  "path": "/spots/pointe-des-chats-groix",
+  "status": 200,
+  "err": null,
+  "loadMs": 1340,
+  "reqCount": 167,
+  "headerBytes": 3389442,
+  "jsBytes": 2863274,
+  "imgBytes": 188768,
+  "perf": {
+   "ttfb": 434,
+   "domContentLoaded": 651,
+   "loadEvent": 758,
+   "transferSize": 161345,
+   "fcp": 744,
+   "lcp": null,
+   "resources": 67,
+   "resourceBytes": 5858
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/pointe-du-listrec-locoal-mendon?_rsc=Gc7VAO-56F2oigvF :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots/pointe-du-guern-baden?_rsc=Gc7VAO-56F2oigvF :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides/les-meilleurs-coefficients-pour-pecher-le-bar?_rsc=Gc7VAO-56F2oigvF :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/guides/declaration-obligatoire-peche-en-mer-recfishing?_rsc=Gc7VAO-56F2oigvF :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/login?redirect=%2Fspots%2Fpointe-des-chats-groix&_rsc=Gc7VAO-56F2oigvF :: net::ERR_ABORTED"
+  ],
+  "title": "Pêche à Pointe des Chats (56) : Bar, Lieu jaune",
+  "titleLen": 47,
+  "description": "Pointe rocheuse pour pêcher Bar, Lieu jaune, Vieille dans le Morbihan. Conditions, marées et techniques recommandées.",
+  "descLen": 117,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/spots/pointe-des-chats-groix",
+  "ogImage": "https://www.carnet-de-peche.com/og/spot/pointe-des-chats-groix",
+  "h1s": [
+   "Pointe des Chats"
+  ],
+  "headings": [
+   "H1: Pointe des Chats",
+   "H2: Meilleurs moments à Pointe des Chats",
+   "H2: Conditions à Pointe des Chats",
+   "H2: Activité récente",
+   "H2: Prises récentes",
+   "H2: Description",
+   "H2: Accès",
+   "H2: Autres spots dans le Morbihan",
+   "H2: Guides liés"
+  ],
+  "docHeight": 8492,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 938,
+  "htmlChars": 193228,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "20",
+    "cls": "sticky-bottom-bar md:hidden fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-s",
+    "text": "Voir les conditions à Pointe des Chats, gratuit",
+    "x": 0,
+    "y": 413,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 15,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/spots",
+    "text": "SPOTS",
+    "x": 16,
+    "y": 101,
+    "w": 55.109375,
+    "h": 17.8125
+   },
+   {
+    "tag": "a",
+    "href": "/especes/bar",
+    "text": "Bar",
+    "x": 237.8125,
+    "y": 300.90625,
+    "w": 46.296875,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "href": "/especes/lieu-jaune",
+    "text": "Lieu jaune",
+    "x": 16,
+    "y": 340.90625,
+    "w": 91.65625,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "href": "/especes/vieille",
+    "text": "Vieille",
+    "x": 115.65625,
+    "y": 340.90625,
+    "w": 63.546875,
+    "h": 32
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Spot : Pointe des Chats",
+    "x": 182,
+    "y": 587.90625,
+    "w": 26,
+    "h": 26
+   },
+   {
+    "tag": "a",
+    "href": "https://www.maptiler.com/copyright/",
+    "text": "© MapTiler",
+    "x": 110.328125,
+    "y": 710.90625,
+    "w": 58.40625,
+    "h": 14
+   },
+   {
+    "tag": "a",
+    "href": "https://www.openstreetmap.org/copyright",
+    "text": "© OpenStreetMap contributors",
+    "x": 172.078125,
+    "y": 710.90625,
+    "w": 162.921875,
+    "h": 14
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Comment le score est calculé",
+    "x": 339,
+    "y": 960.90625,
+    "w": 14,
+    "h": 14
+   },
+   {
+    "tag": "a",
+    "href": "https://www.windy.com/?47.6262,-3.4278,10",
+    "text": "Windy",
+    "x": 273.015625,
+    "y": 2280.9375,
+    "w": 79.984375,
+    "h": 30
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Courbe",
+    "x": 231.609375,
+    "y": 2377.9375,
+    "w": 66.5625,
+    "h": 28
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Grille",
+    "x": 298.171875,
+    "y": 2377.9375,
+    "w": 53.828125,
+    "h": 28
+   }
+  ],
+  "dates": [],
+  "linkCount": 64,
+  "linksToNouvelle": 3,
+  "linksToRegister": 6,
+  "linksToLogin": 2,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "Place+BreadcrumbList"
+  ],
+  "bodyTextLen": 4803
+ },
+ {
+  "name": "especes",
+  "path": "/especes",
+  "status": 200,
+  "err": null,
+  "loadMs": 579,
+  "reqCount": 103,
+  "headerBytes": 207014,
+  "jsBytes": 2818,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 165,
+   "domContentLoaded": 287,
+   "loadEvent": 288,
+   "transferSize": 221299,
+   "fcp": 268,
+   "lcp": null,
+   "resources": 34,
+   "resourceBytes": 2197
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/auth/register?_rsc=AA4dAWiIySYGlGBR :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/?_rsc=AA4dAWiIySYGlGBR :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=AA4dAWiIySYGlGBR :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes/lieu-jaune?_rsc=AA4dAWiIySYGlGBR :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes/maquereau?_rsc=AA4dAWiIySYGlGBR :: net::ERR_ABORTED"
+  ],
+  "title": "Les espèces de la canne du bord : bar, dorade, lieu jaune… · Carnet de Pêche",
+  "titleLen": 76,
+  "description": "Bar, dorade royale, lieu jaune, maquereau, sar, orphie : fiches complètes pour la pêche du bord. Tailles légales vérifiées, saisons par façade, techniques et postes.",
+  "descLen": 165,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/especes",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Les espèces de la canne du bord"
+  ],
+  "headings": [
+   "H1: Les espèces de la canne du bord",
+   "H2: Bar",
+   "H2: Dorade royale",
+   "H2: Lieu jaune",
+   "H2: Maquereau",
+   "H2: Sar",
+   "H2: Orphie",
+   "H2: Seiche",
+   "H2: Mulet",
+   "H2: Sole",
+   "H2: Calmar",
+   "H2: Congre",
+   "H2: Vieille",
+   "H2: Rouget"
+  ],
+  "docHeight": 10583,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 931,
+  "htmlChars": 238161,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 4,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 52,
+  "linksToNouvelle": 0,
+  "linksToRegister": 2,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "ItemList",
+   "BreadcrumbList"
+  ],
+  "bodyTextLen": 6220
+ },
+ {
+  "name": "especes-bar",
+  "path": "/especes/bar",
+  "status": 200,
+  "err": null,
+  "loadMs": 761,
+  "reqCount": 111,
+  "headerBytes": 205684,
+  "jsBytes": 1488,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 295,
+   "domContentLoaded": 417,
+   "loadEvent": 417,
+   "transferSize": 185051,
+   "fcp": 404,
+   "lcp": null,
+   "resources": 33,
+   "resourceBytes": 3564
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/auth/register?_rsc=rxmeotn_L-Qvw62h :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=rxmeotn_L-Qvw62h :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes?_rsc=rxmeotn_L-Qvw62h :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=rxmeotn_L-Qvw62h :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/especes?_rsc=rxmeotn_L-Qvw62h :: net::ERR_ABORTED"
+  ],
+  "title": "Pêche du bar du bord : spots, saisons et taille légale",
+  "titleLen": 54,
+  "description": "Maille du bar : 42 cm en Manche et Atlantique, 30 cm en Méditerranée. Marquage obligatoire. En été, l'activité est bonne en Manche et Atlantique.",
+  "descLen": 145,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/especes/bar",
+  "ogImage": "https://www.carnet-de-peche.com/especes/bar/opengraph-image-6xz4m8?7f0e12a05db0e910",
+  "h1s": [
+   "Le bar Dicentrarchus labrax"
+  ],
+  "headings": [
+   "H1: Le bar Dicentrarchus labrax",
+   "H2: Taille légale et réglementation",
+   "H2: Les saisons, façade par façade",
+   "H2: Comment le pêcher du bord",
+   "H2: Où se poster selon les conditions",
+   "H2: Questions fréquentes",
+   "H2: Autres espèces du bord"
+  ],
+  "docHeight": 8885,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 704,
+  "htmlChars": 200317,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 22,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/especes",
+    "text": "ESPÈCES",
+    "x": 20,
+    "y": 109,
+    "w": 52.375,
+    "h": 17.046875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/aber-wrach-sainte-marguerite",
+    "text": "Aber Wrac'h — dunes de Sainte-Marguerite ESTUAIRE",
+    "x": 41,
+    "y": 1367.484375,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/port-tino-rossi-ajaccio",
+    "text": "Ajaccio — port Tino Rossi DIGUE",
+    "x": 41,
+    "y": 1442.40625,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/embouchure-de-l-adour-anglet",
+    "text": "Anglet — embouchure de l'Adour (plage de la Barre) ESTUAIRE",
+    "x": 41,
+    "y": 1517.328125,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/anse-de-paulilles",
+    "text": "Anse de Paulilles PLAGE",
+    "x": 41,
+    "y": 1592.25,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/digue-du-port-vauban",
+    "text": "Antibes — digue du Port Vauban DIGUE",
+    "x": 41,
+    "y": 1667.171875,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/pointe-de-l-aiguillon-arcachon",
+    "text": "Arcachon — pointe de l'Aiguillon POINTE ROCHEUSE",
+    "x": 41,
+    "y": 1742.09375,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/digue-du-port-de-bandol",
+    "text": "Bandol — digue du port DIGUE",
+    "x": 41,
+    "y": 1817.015625,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots/barcaggio-cap-corse",
+    "text": "Barcaggio — pointe du Cap Corse POINTE ROCHEUSE",
+    "x": 41,
+    "y": 1891.9375,
+    "w": 308,
+    "h": 36.921875
+   },
+   {
+    "tag": "a",
+    "href": "/spots?species=bar",
+    "text": "Voir les 413 spots à bar",
+    "x": 41,
+    "y": 1944.859375,
+    "w": 163.96875,
+    "h": 20.140625
+   },
+   {
+    "tag": "a",
+    "href": "/peche/bar/flottante/alpes-maritimes",
+    "text": "Flottante Alpes-Maritimes",
+    "x": 41,
+    "y": 2021.65625,
+    "w": 170.59375,
+    "h": 28.59375
+   }
+  ],
+  "dates": [],
+  "linkCount": 64,
+  "linksToNouvelle": 3,
+  "linksToRegister": 2,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "Article",
+   "BreadcrumbList",
+   "FAQPage",
+   "ItemList"
+  ],
+  "bodyTextLen": 8037
+ },
+ {
+  "name": "tarifs",
+  "path": "/tarifs",
+  "status": 200,
+  "err": null,
+  "loadMs": 418,
+  "reqCount": 79,
+  "headerBytes": 205684,
+  "jsBytes": 1488,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 178,
+   "domContentLoaded": 263,
+   "loadEvent": 278,
+   "transferSize": 91907,
+   "fcp": 264,
+   "lcp": null,
+   "resources": 33,
+   "resourceBytes": 1302
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/auth/register?_rsc=JCYCt_oCoVgdlENU :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=JCYCt_oCoVgdlENU :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=JCYCt_oCoVgdlENU :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/login?_rsc=JCYCt_oCoVgdlENU :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/spots?_rsc=JCYCt_oCoVgdlENU :: net::ERR_ABORTED"
+  ],
+  "title": "Tarifs — Carnet de Pêche",
+  "titleLen": 24,
+  "description": "3 formules claires pour tous les pêcheurs à la canne du bord. Découverte gratuit, Local à 4,90 €/mois, Itinérant à 9,90 €/mois. Essai 7 jours, satisfait ou remboursé sous 30 jours.",
+  "descLen": 180,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/tarifs",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Le carnet et la communauté sont gratuits. La précision se paie."
+  ],
+  "headings": [
+   "H1: Le carnet et la communauté sont gratuits. La précision se paie.",
+   "H2: Tes questions, nos réponses"
+  ],
+  "docHeight": 5621,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 431,
+  "htmlChars": 109048,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 4,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 29,
+  "linksToNouvelle": 0,
+  "linksToRegister": 3,
+  "linksToLogin": 3,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "Product"
+  ],
+  "bodyTextLen": 4020
+ },
+ {
+  "name": "register",
+  "path": "/auth/register",
+  "status": 200,
+  "err": null,
+  "loadMs": 583,
+  "reqCount": 86,
+  "headerBytes": 207987,
+  "jsBytes": 3750,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 30,
+   "domContentLoaded": 213,
+   "loadEvent": 285,
+   "transferSize": 11202,
+   "fcp": 220,
+   "lcp": null,
+   "resources": 41,
+   "resourceBytes": 892
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=OdHz-rHkJ_eMeg3m :: net::ERR_ABORTED"
+  ],
+  "title": "Créer ton carnet de pêche, gratuit · Carnet de Pêche",
+  "titleLen": 52,
+  "description": "Crée ton carnet de pêche en 30 secondes, sans carte bancaire. Logue tes prises, suis les marées et la météo de tes spots.",
+  "descLen": 121,
+  "robots": "",
+  "canonical": "",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Crée ton carnet"
+  ],
+  "headings": [
+   "H1: Crée ton carnet"
+  ],
+  "docHeight": 1123,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 180,
+  "htmlChars": 63277,
+  "overlays": [
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 11,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Connexion",
+    "x": 49,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Inscription",
+    "x": 197,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Afficher le mot de passe",
+    "x": 317,
+    "y": 694.484375,
+    "w": 16,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "J’ai un code fondateur",
+    "x": 45,
+    "y": 771.078125,
+    "w": 138.53125,
+    "h": 20.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Connecte-toi",
+    "x": 209.90625,
+    "y": 1018.8125,
+    "w": 89,
+    "h": 21.6875
+   },
+   {
+    "tag": "a",
+    "href": "/legal/cgu",
+    "text": "CGU",
+    "x": 211.765625,
+    "y": 1089.5,
+    "w": 26.65625,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "Confidentialité",
+    "x": 248.640625,
+    "y": 1089.5,
+    "w": 82.03125,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 5,
+  "linksToNouvelle": 0,
+  "linksToRegister": 0,
+  "linksToLogin": 0,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [],
+  "bodyTextLen": 685
+ },
+ {
+  "name": "login",
+  "path": "/auth/login",
+  "status": 200,
+  "err": null,
+  "loadMs": 610,
+  "reqCount": 85,
+  "headerBytes": 207948,
+  "jsBytes": 3752,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 43,
+   "domContentLoaded": 252,
+   "loadEvent": 296,
+   "transferSize": 11081,
+   "fcp": 260,
+   "lcp": null,
+   "resources": 41,
+   "resourceBytes": 892
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=j55_PTWy1L9i_IyX :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/?_rsc=j55_PTWy1L9i_IyX :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=j55_PTWy1L9i_IyX :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/cgu?_rsc=j55_PTWy1L9i_IyX :: net::ERR_ABORTED"
+  ],
+  "title": "Connexion · Carnet de Pêche",
+  "titleLen": 27,
+  "description": "Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots, entre passionnés.",
+  "descLen": 170,
+  "robots": "",
+  "canonical": "",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Connexion à ton carnet"
+  ],
+  "headings": [
+   "H1: Connexion à ton carnet"
+  ],
+  "docHeight": 1085,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 182,
+  "htmlChars": 63339,
+  "overlays": [
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 11,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Connexion",
+    "x": 49,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Inscription",
+    "x": 197,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Afficher le mot de passe",
+    "x": 317,
+    "y": 694.484375,
+    "w": 16,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Mot de passe oublié ?",
+    "x": 45,
+    "y": 732.484375,
+    "w": 135.625,
+    "h": 20.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Crée le tien",
+    "x": 238.53125,
+    "y": 980.21875,
+    "w": 76.578125,
+    "h": 21.6875
+   },
+   {
+    "tag": "a",
+    "href": "/legal/cgu",
+    "text": "CGU",
+    "x": 211.765625,
+    "y": 1050.90625,
+    "w": 26.65625,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "Confidentialité",
+    "x": 248.640625,
+    "y": 1050.90625,
+    "w": 82.03125,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 5,
+  "linksToNouvelle": 0,
+  "linksToRegister": 0,
+  "linksToLogin": 0,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [],
+  "bodyTextLen": 638
+ },
+ {
+  "name": "nouvelle",
+  "path": "/carnet/nouvelle",
+  "status": 200,
+  "err": null,
+  "loadMs": 3735,
+  "reqCount": 123,
+  "headerBytes": 311777,
+  "jsBytes": 5442,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 115,
+   "domContentLoaded": 306,
+   "loadEvent": 505,
+   "transferSize": 11193,
+   "fcp": 308,
+   "lcp": null,
+   "resources": 41,
+   "resourceBytes": 892
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=vYisy8daAZ9XCO4y :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://eu-assets.i.posthog.com/array/phc_BnWjBSCDt6ptmnPTJ6Ad7eqx4FJnFzhzoLeagjvCDFsM/config.js :: net::ERR_ABORTED",
+   "https://eu-assets.i.posthog.com/static/web-vitals.js?v=1.393.0 :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://eu-assets.i.posthog.com/static/dead-clicks-autocapture.js?v=1.393.0 :: net::ERR_ABORTED"
+  ],
+  "title": "Connexion · Carnet de Pêche",
+  "titleLen": 27,
+  "description": "Le carnet de pêche numérique et le réseau communautaire des pêcheurs à la canne du bord. Logue tes prises, suis les conditions, retrouve les bons spots, entre passionnés.",
+  "descLen": 170,
+  "robots": "",
+  "canonical": "",
+  "ogImage": "https://www.carnet-de-peche.com/opengraph-image?c8bcc04f9842f0d1",
+  "h1s": [
+   "Connexion à ton carnet"
+  ],
+  "headings": [
+   "H1: Connexion à ton carnet"
+  ],
+  "docHeight": 1085,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 196,
+  "htmlChars": 64607,
+  "overlays": [
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 11,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Connexion",
+    "x": 49,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Inscription",
+    "x": 197,
+    "y": 229.640625,
+    "w": 144,
+    "h": 37.6875
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Afficher le mot de passe",
+    "x": 317,
+    "y": 694.484375,
+    "w": 16,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Mot de passe oublié ?",
+    "x": 45,
+    "y": 732.484375,
+    "w": 135.625,
+    "h": 20.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Crée le tien",
+    "x": 238.53125,
+    "y": 980.21875,
+    "w": 76.578125,
+    "h": 21.6875
+   },
+   {
+    "tag": "a",
+    "href": "/legal/cgu",
+    "text": "CGU",
+    "x": 211.765625,
+    "y": 1050.90625,
+    "w": 26.65625,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "Confidentialité",
+    "x": 248.640625,
+    "y": 1050.90625,
+    "w": 82.03125,
+    "h": 15
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 5,
+  "linksToNouvelle": 0,
+  "linksToRegister": 0,
+  "linksToLogin": 0,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [],
+  "bodyTextLen": 638
+ },
+ {
+  "name": "declarer",
+  "path": "/declarer-ses-prises",
+  "status": 200,
+  "err": null,
+  "loadMs": 1099,
+  "reqCount": 77,
+  "headerBytes": 205684,
+  "jsBytes": 1488,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 145,
+   "domContentLoaded": 291,
+   "loadEvent": 291,
+   "transferSize": 109149,
+   "fcp": 268,
+   "lcp": null,
+   "resources": 31,
+   "resourceBytes": 1302
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/?_rsc=_F7qTZsCr8NfyLnD :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=_F7qTZsCr8NfyLnD :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=_F7qTZsCr8NfyLnD :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/?_rsc=_F7qTZsCr8NfyLnD :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=_F7qTZsCr8NfyLnD :: net::ERR_ABORTED"
+  ],
+  "title": "Déclaration des prises en mer : RecFishing 2026",
+  "titleLen": 47,
+  "description": "Depuis 2026, certaines espèces (bar, lieu jaune, maquereau) se déclarent sous 24 h via l’appli RecFishing, même relâchées. Ce qu’il faut déclarer, et comment le carnet te le rappelle.",
+  "descLen": 183,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/declarer-ses-prises",
+  "ogImage": "",
+  "h1s": [
+   "Déclarer ses prises en mer : l’obligation RecFishing 2026"
+  ],
+  "headings": [
+   "H1: Déclarer ses prises en mer : l’obligation RecFishing 2026",
+   "H2: Ce que dit la règle depuis 2026",
+   "H2: Quelles espèces sont concernées",
+   "H2: Ce que Carnet de Pêche fait pour toi (et ce qu’il ne fait pas)",
+   "H2: Questions fréquentes",
+   "H2: Pour aller plus loin",
+   "H2: Un carnet qui pense à la déclaration pour toi"
+  ],
+  "docHeight": 5256,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 411,
+  "htmlChars": 125998,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 9,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/",
+    "text": "ACCUEIL",
+    "x": 20,
+    "y": 109,
+    "w": 52.375,
+    "h": 17.046875
+   },
+   {
+    "tag": "a",
+    "href": "https://fishers.recreational-fishing.ec.europa.eu/",
+    "text": "Le portail RecFishing",
+    "x": 41,
+    "y": 2842.09375,
+    "w": 175.109375,
+    "h": 37.375
+   },
+   {
+    "tag": "a",
+    "href": "/guides/declaration-obligatoire-peche-en-mer-recfishing",
+    "text": "Le guide complet RecFishing",
+    "x": 20,
+    "y": 3443.75,
+    "w": 210.359375,
+    "h": 34.140625
+   },
+   {
+    "tag": "a",
+    "href": "/especes",
+    "text": "Les fiches espèces et leurs mailles",
+    "x": 20,
+    "y": 3485.890625,
+    "w": 248.3125,
+    "h": 34.140625
+   },
+   {
+    "tag": "a",
+    "href": "/especes/bar",
+    "text": "Réglementation du bar",
+    "x": 20,
+    "y": 3528.03125,
+    "w": 172.046875,
+    "h": 34.140625
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 32,
+  "linksToNouvelle": 0,
+  "linksToRegister": 3,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [
+   "Article",
+   "BreadcrumbList",
+   "FAQPage"
+  ],
+  "bodyTextLen": 4385
+ },
+ {
+  "name": "fil",
+  "path": "/fil",
+  "status": 200,
+  "err": null,
+  "loadMs": 2251,
+  "reqCount": 74,
+  "headerBytes": 205684,
+  "jsBytes": 1488,
+  "imgBytes": 0,
+  "perf": {
+   "ttfb": 133,
+   "domContentLoaded": 247,
+   "loadEvent": 248,
+   "transferSize": 66086,
+   "fcp": 236,
+   "lcp": null,
+   "resources": 32,
+   "resourceBytes": 4082
+  },
+  "errors": [],
+  "errorCount": 0,
+  "failed": [
+   "https://www.carnet-de-peche.com/carte?_rsc=5_cUGLp6dDzn21Ph :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/legal/confidentialite?_rsc=5_cUGLp6dDzn21Ph :: net::ERR_ABORTED",
+   "https://o4511550966988800.ingest.de.sentry.io/api/4511550978850896/envelope/?sentry_version=7&sentry_key=7ce6045e5f8609f :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/auth/register?_rsc=5_cUGLp6dDzn21Ph :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/carte?_rsc=5_cUGLp6dDzn21Ph :: net::ERR_ABORTED",
+   "https://www.carnet-de-peche.com/?_rsc=5_cUGLp6dDzn21Ph :: net::ERR_ABORTED"
+  ],
+  "title": "Fil régional · Carnet de Pêche",
+  "titleLen": 30,
+  "description": "Le fil des pêcheurs à la canne du bord de ton département : prises récentes, conditions du jour, échanges entre passionnés, sans donner tes coins secrets. Crée ton compte pour rejoindre le fil de ta côte.",
+  "descLen": 204,
+  "robots": "",
+  "canonical": "https://www.carnet-de-peche.com/fil",
+  "ogImage": "",
+  "h1s": [
+   "Le fil des pêcheurs de ton département."
+  ],
+  "headings": [
+   "H1: Le fil des pêcheurs de ton département.",
+   "H2: Rejoins le fil de ta côte."
+  ],
+  "docHeight": 2985,
+  "scrollWidth": 390,
+  "viewportWidth": 390,
+  "hasHorizontalOverflow": false,
+  "overflowers": [],
+  "domNodes": 250,
+  "htmlChars": 83577,
+  "overlays": [
+   {
+    "tag": "header",
+    "pos": "sticky",
+    "z": "50",
+    "cls": "header-shell sticky top-0 z-50",
+    "text": "Créer mon carnet",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 69
+   },
+   {
+    "tag": "div",
+    "pos": "fixed",
+    "z": "60",
+    "cls": "fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-[14px] border",
+    "text": "On mesure l'audience du site de façon anonymisée (PostHog, hébergé en Europe) pour l'améliorer. Tu peux refuse",
+    "x": 12,
+    "y": 482.234375,
+    "w": 366,
+    "h": 169.765625
+   }
+  ],
+  "smallTapsCount": 8,
+  "smallTaps": [
+   {
+    "tag": "a",
+    "href": "#main",
+    "text": "Aller au contenu",
+    "x": -1,
+    "y": -1,
+    "w": 1,
+    "h": 1
+   },
+   {
+    "tag": "a",
+    "href": "/",
+    "text": "Carnet de Pêche",
+    "x": 24,
+    "y": 2047.53125,
+    "w": 342,
+    "h": 28
+   },
+   {
+    "tag": "a",
+    "href": "/carte",
+    "text": "Carte",
+    "x": 24,
+    "y": 2295.78125,
+    "w": 36.1875,
+    "h": 44
+   },
+   {
+    "tag": "a",
+    "href": "/tarifs",
+    "text": "Tarifs",
+    "x": 24,
+    "y": 2463.78125,
+    "w": 36.9375,
+    "h": 44
+   },
+   {
+    "tag": "a",
+    "href": "/legal/cgu",
+    "text": "CGU",
+    "x": 24,
+    "y": 2691.78125,
+    "w": 31.09375,
+    "h": 44
+   },
+   {
+    "tag": "a",
+    "href": "/legal/confidentialite",
+    "text": "En savoir plus",
+    "x": 218.015625,
+    "y": 566.984375,
+    "w": 85.328125,
+    "h": 16
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Refuser",
+    "x": 29,
+    "y": 596.859375,
+    "w": 99.3125,
+    "h": 38.140625
+   },
+   {
+    "tag": "button",
+    "href": "",
+    "text": "Accepter",
+    "x": 136.3125,
+    "y": 597.859375,
+    "w": 106.515625,
+    "h": 36.140625
+   }
+  ],
+  "dates": [],
+  "linkCount": 28,
+  "linksToNouvelle": 0,
+  "linksToRegister": 3,
+  "linksToLogin": 1,
+  "imgCount": 0,
+  "imgNoDim": 0,
+  "imgOversized": [],
+  "jsonLd": [],
+  "bodyTextLen": 1695
+ }
+]

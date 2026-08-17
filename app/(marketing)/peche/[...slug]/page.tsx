@@ -166,8 +166,21 @@ export default async function ProgrammaticPageView({
       )
         .sort((a, b) => Number(deptsWithSpots.includes(b)) - Number(deptsWithSpots.includes(a)))
         .slice(0, 8)
-    : // page nationale → les départements qui ont des spots, sinon les bretons
-      (deptsWithSpots.length > 0 ? deptsWithSpots : ['29', '56', '22', '35']).slice(0, 8)
+    : // page nationale → départements qui ONT une page ET des spots.
+      //
+      // ⚠️ Sprint 83, Bloc 4 : deux liens morts vivaient ici. `deptsWithSpots`
+      // sort de la BASE et ignore complètement la matrice : la page nationale du
+      // sar liait le Morbihan (7 spots réels) alors que /peche/sar/<technique>/
+      // morbihan n'existe pas, donc 404. Et le repli codé en dur sur la Bretagne
+      // envoyait toute espèce méditerranéenne sur 4 liens morts. On part donc des
+      // départements réellement ouverts, et les spots ne servent qu'à prioriser.
+      (() => {
+        const ouverts = COASTAL_DEPARTMENTS.filter((d) =>
+          resolveProgrammaticSlug([page.species, page.technique, DEPARTMENT_SLUGS[d]]),
+        )
+        const avecSpots = ouverts.filter((d) => deptsWithSpots.includes(d))
+        return (avecSpots.length > 0 ? avecSpots : ouverts).slice(0, 8)
+      })()
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -373,7 +386,14 @@ export default async function ProgrammaticPageView({
         <section className="mt-10">
           {otherTechniques.length > 0 && (
             <>
-              <TagData className="mb-2.5 block">LE {species.label.toUpperCase()} AUTREMENT</TagData>
+              {/* L'article vient du référentiel : « LE BAR », « LA SEICHE »,
+                  « L'ORPHIE ». Il était codé en dur au masculin, ce qui servait
+                  « LE ORPHIE AUTREMENT » et « LE DORADE ROYALE AUTREMENT » en
+                  production (sprint 83, Bloc 4). */}
+              <TagData className="mb-2.5 block">
+                {species.article.toUpperCase()}
+                {species.label.toUpperCase()} AUTREMENT
+              </TagData>
               <div className="mb-6 flex flex-wrap gap-2">
                 {otherTechniques.map((p) => (
                   <Link

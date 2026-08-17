@@ -76,16 +76,20 @@ export const SPECIES: Record<SpeciesSlug, SpeciesMeta> = {
   // ── Sprint 23 : extension à 20 espèces du bord (fiches profondes + carnet) ──
   // hasProgrammatic=false : pas (encore) de SpeciesContent → aucune page /peche/… générée
   // pour elles (garde-fou anti thin content, cf WS-C).
-  seiche: { label: 'Seiche', labelLower: 'seiche', dbKey: 'seiche', latin: 'Sepia officinalis', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  // hasProgrammatic passé à true au sprint 83 Bloc 4 pour les 6 espèces à inventaire
+  // MESURÉ (seiche, rouget, pageot, oblade, marbré, liche) : elles ont un
+  // `SpeciesContent` rédigé ET des spots réels derrière chaque page (cf
+  // SPECIES_DEPARTMENTS_WITH_INVENTORY plus bas).
+  seiche: { label: 'Seiche', labelLower: 'seiche', dbKey: 'seiche', latin: 'Sepia officinalis', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
   mulet: { label: 'Mulet', labelLower: 'mulet', dbKey: 'mulet', latin: 'Chelon labrosus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   sole: { label: 'Sole', labelLower: 'sole', dbKey: 'sole', latin: 'Solea solea', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   calmar: { label: 'Calmar', labelLower: 'calmar', dbKey: 'calmar', latin: 'Loligo vulgaris', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   congre: { label: 'Congre', labelLower: 'congre', dbKey: 'congre', latin: 'Conger conger', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   vieille: { label: 'Vieille', labelLower: 'vieille', dbKey: 'vieille', latin: 'Labrus bergylta', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
-  rouget: { label: 'Rouget', labelLower: 'rouget', dbKey: 'rouget', latin: 'Mullus surmuletus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  rouget: { label: 'Rouget', labelLower: 'rouget', dbKey: 'rouget', latin: 'Mullus surmuletus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
   'dorade-grise': { label: 'Dorade grise', labelLower: 'dorade grise', dbKey: 'dorade_grise', latin: 'Spondyliosoma cantharus', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
-  pageot: { label: 'Pageot', labelLower: 'pageot', dbKey: 'pageot', latin: 'Pagellus erythrinus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
-  oblade: { label: 'Oblade', labelLower: 'oblade', dbKey: 'oblade', latin: 'Oblada melanura', article: "L'", articleDe: "de l'", gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  pageot: { label: 'Pageot', labelLower: 'pageot', dbKey: 'pageot', latin: 'Pagellus erythrinus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  oblade: { label: 'Oblade', labelLower: 'oblade', dbKey: 'oblade', latin: 'Oblada melanura', article: "L'", articleDe: "de l'", gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
   maigre: { label: 'Maigre', labelLower: 'maigre', dbKey: 'maigre', latin: 'Argyrosomus regius', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   tacaud: { label: 'Tacaud', labelLower: 'tacaud', dbKey: 'tacaud', latin: 'Trisopterus luscus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   chinchard: { label: 'Chinchard', labelLower: 'chinchard', dbKey: 'chinchard', latin: 'Trachurus trachurus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
@@ -93,8 +97,8 @@ export const SPECIES: Record<SpeciesSlug, SpeciesMeta> = {
   // ── Sprint 29 : +6 espèces du bord (fiches profondes ; pas de pages programmatiques) ──
   barracuda: { label: 'Barracuda', labelLower: 'barracuda', dbKey: 'barracuda', latin: 'Sphyraena viridensis', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   tassergal: { label: 'Tassergal', labelLower: 'tassergal', dbKey: 'tassergal', latin: 'Pomatomus saltatrix', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
-  liche: { label: 'Liche', labelLower: 'liche', dbKey: 'liche', latin: 'Lichia amia', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
-  marbre: { label: 'Marbré', labelLower: 'marbré', dbKey: 'marbre', latin: 'Lithognathus mormyrus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
+  liche: { label: 'Liche', labelLower: 'liche', dbKey: 'liche', latin: 'Lichia amia', article: 'La ', articleDe: 'de la ', gender: 'f', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
+  marbre: { label: 'Marbré', labelLower: 'marbré', dbKey: 'marbre', latin: 'Lithognathus mormyrus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: true },
   'lieu-noir': { label: 'Lieu noir', labelLower: 'lieu noir', dbKey: 'lieu_noir', latin: 'Pollachius virens', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
   merlan: { label: 'Merlan', labelLower: 'merlan', dbKey: 'merlan', latin: 'Merlangius merlangus', article: 'Le ', articleDe: 'du ', gender: 'm', inCarnet: true, hasDeepSheet: true, hasProgrammatic: false },
 }
@@ -215,10 +219,73 @@ const SPECIES_TECHNIQUES: Partial<Record<SpeciesSlug, TechniqueSlug[]>> = {
   maquereau: ['leurres', 'flottante'],
   sar: ['surfcasting', 'flottante'],
   orphie: ['flottante', 'leurres'],
+  // ── Sprint 83, Bloc 4 : ouverture aux espèces à inventaire réel ──────────────
+  // Aucune technique inventée ici : chaque couple reprend EXACTEMENT les techniques
+  // déjà rédigées et sourcées sur la fiche profonde correspondante
+  // (`lib/especes/content/<slug>.ts`, tableau `techniques`). Si une technique n'y
+  // figure pas, elle n'a pas de page.
+  seiche: ['leurres', 'flottante'],
+  oblade: ['flottante', 'surfcasting'],
+  marbre: ['surfcasting', 'flottante'],
+  pageot: ['surfcasting', 'flottante'],
+  rouget: ['surfcasting'],
+  liche: ['leurres', 'vif'],
 }
 
-/** Départements où l'espèce est réellement pêchable du bord. */
+/**
+ * Départements réellement POURVUS, mesurés en base le **2026-08-17** (sprint 83,
+ * Bloc 4). Requête de référence, à rejouer avant tout élargissement :
+ *
+ * ```sql
+ * select sp as species, trim(s.department) as dept, count(*) as spots
+ * from public.spots s, unnest(s.species) as sp
+ * where s.moderation_status = 'approved' and s.visibility = 'public'
+ * group by 1, 2 having count(*) >= 3 order by 1, 3 desc;
+ * ```
+ *
+ * ⚠️ `spots.department` est un `char(3)` complété par des espaces : `trim()` des
+ * DEUX côtés, sinon le regroupement rend des départements fantômes (bugs S52/S67).
+ *
+ * SEUIL = 3 spots. En dessous, la page n'a rien à montrer : son bloc « les spots de
+ * la carte » servirait une liste d'un ou deux liens, c'est-à-dire exactement la page
+ * creuse que la matrice existe pour empêcher. Un département absent d'ici n'a pas
+ * d'URL et ne sort pas au sitemap : la page ne peut donc pas répondre 404 par
+ * manque de matière, elle n'existe simplement pas.
+ *
+ * Différence assumée avec le `switch` ci-dessous : les 6 espèces historiques sont
+ * bornées par leur AIRE DE RÉPARTITION (fait halieutique stable), les 6 nouvelles
+ * par l'INVENTAIRE MESURÉ (fait de catalogue, qui bouge avec la curation). Les
+ * deux garde-fous se cumulent, ils ne se remplacent pas.
+ */
+const SPECIES_DEPARTMENTS_WITH_INVENTORY: Partial<Record<SpeciesSlug, readonly string[]>> = {
+  // 225 spots / 24 dépts, tous au-dessus du seuil : 56(45) 29(40) 44(12) 85(12)
+  // 13(9) 22(9) 2A(9) 2B(9) 50(8) 17(7) 34(6) 76(6) 83(6) 06(5) 33(5) 35(5)
+  // 62(5) 64(5) 14(4) 30(4) 40(4) 66(4) 11(3) 59(3).
+  seiche: [...COASTAL_DEPARTMENTS],
+  // 227 spots / 9 dépts méditerranéens : 2A(34) 2B(32) 83(30) 13(29) 06(28)
+  // 66(24) 34(22) 11(19) 30(9).
+  oblade: ['06', '11', '13', '30', '34', '66', '83', '2A', '2B'],
+  // 112 spots / 9 dépts méditerranéens : 2B(22) 34(18) 11(17) 06(15) 83(10)
+  // 30(9) 66(9) 2A(8) 13(4).
+  marbre: ['06', '11', '13', '30', '34', '66', '83', '2A', '2B'],
+  // 101 spots. Écartés faute d'inventaire : 34(2), 64(2), 30(1).
+  // Retenus : 13(26) 2A(21) 83(20) 66(12) 06(8) 2B(6) 11(3).
+  pageot: ['06', '11', '13', '66', '83', '2A', '2B'],
+  // 43 spots très dispersés (23 dépts), mais 5 seulement tiennent le seuil :
+  // 33(5) 85(4) 34(3) 40(3) 44(3). Les 18 autres sont à 1 ou 2 spots.
+  rouget: ['33', '34', '40', '44', '85'],
+  // 15 spots seulement, dont 2 dépts au seuil : 2A(3) 83(3). Le reste est à 1 ou 2.
+  liche: ['83', '2A'],
+}
+
+/** Départements où l'espèce est réellement pêchable du bord ET pourvue en spots. */
 function speciesDepartments(species: SpeciesSlug): string[] {
+  // Espèces ouvertes au sprint 83 : bornées par l'inventaire mesuré. Le filtre passe
+  // par COASTAL_DEPARTMENTS pour garder l'ordre canonique (sitemap déterministe) et
+  // pour qu'un code hors liste côtière ne puisse pas se glisser dans une URL.
+  const measured = SPECIES_DEPARTMENTS_WITH_INVENTORY[species]
+  if (measured) return COASTAL_DEPARTMENTS.filter((d) => measured.includes(d))
+
   switch (species) {
     case 'lieu-jaune':
       // Eau froide : Manche + Atlantique nord uniquement, absent de Méditerranée.

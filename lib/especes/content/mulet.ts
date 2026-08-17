@@ -10,12 +10,28 @@ import type { EspeceContent } from '../types'
 export const muletEspece: EspeceContent = {
   slug: 'mulet',
 
-  // Sprint 77 Bloc 9 : 571 impressions/sem., 3 clics (CTR 0,5 %). Requêtes GSC dominées
-  // par l'identification (« mulet poisson »). La formule générique répond déjà par la
-  // maille dans le title (« Mulet : maille 30 cm ») sans donner de raison de cliquer :
-  // on porte l'intention pêche explicitement, avec l'accroche technique (pain) qui la
-  // distingue d'une simple fiche d'identité. 55 caractères, mesuré.
-  seoTitle: 'Où pêcher le mulet du bord : spots et technique au pain',
+  // Sprint 83 Bloc 5 : l'override `seoTitle` du sprint 77 est RETIRÉ, la fiche
+  // retombe sur la formule générique de `buildSpeciesTitle` (donc sur la maille).
+  //
+  // Le sprint 77 avait posé « Où pêcher le mulet du bord : spots et technique au
+  // pain » sur le constat de requêtes dominées par l'identification. Le relevé GSC
+  // du 16/08 (Supermetrics, fenêtre 18/07 → 14/08 figée) dit l'inverse : c'est la
+  // maille qui porte le trafic, et c'est la seule intention qui accroche la page 1.
+  //
+  //   Maille / taille réglementaire   283 impressions   0 clic   positions  5,2 – 10,7
+  //   Identification (« mulet poisson ») ~82 impressions 0 clic   positions   16 – 67
+  //   Pêche / technique                  ~20 impressions 0 clic   positions   22 – 58
+  //
+  // 73 % des requêtes visibles cherchent un chiffre en cm ; on leur servait une
+  // technique au pain, d'où 0 clic sur 283 impressions dont une partie en position
+  // 5-6. Le titre servi devient « Mulet : maille 30 cm (2026), saisons et spots du
+  // bord » (53 caractères, mesuré).
+  //
+  // ⚠️ Honnêteté de la maille : `formatMailleShort` ne rend que les façades où la
+  // donnée EXISTE, donc « 30 cm » vient de la seule Manche-Atlantique et le titre ne
+  // revendique aucune portée nationale. La meta description, elle, qualifie
+  // explicitement la façade (« Maille du mulet : 30 cm en Manche et Atlantique. »),
+  // et le bloc réglementation porte le « pas de taille minimale en Méditerranée ».
 
   intro: [
     `Le mulet, c'est le poisson que tu vois tous les jours et que tu n'arrives jamais à prendre. Des bancs entiers qui patrouillent sous tes pieds dans le port, des lèvres charnues qui gobent en surface… et au moindre faux pas, tout se volatilise. Loin d'être le poisson « facile » qu'on raconte, c'est l'un des plus méfiants du bord, et c'est exactement ce qui en fait une pêche d'orfèvre.`,

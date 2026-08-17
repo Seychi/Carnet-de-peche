@@ -8,6 +8,7 @@ import {
   SPECIES,
   TECHNIQUES,
   programmaticUrl,
+  resolveProgrammaticSlug,
   type SpeciesSlug,
   type Facade,
 } from '@/lib/seo/programmatic'
@@ -397,25 +398,53 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
               <h2 className="font-display text-xl text-navy-900">
                 Comment {species.gender === 'f' ? 'la' : 'le'} pêcher du bord
               </h2>
+              {/*
+                ⚠️ Sprint 83 : ce bloc émettait un lien /peche pour CHAQUE technique de
+                la fiche profonde, sans jamais demander à `resolveProgrammaticSlug` si la
+                page existe. Résultat mesuré avant correctif : 56 liens émis sur les 26
+                fiches, dont 30 en 404 DUR (les espèces hors `SPECIES_TECHNIQUES` : la
+                route fait `notFound()`). `/especes/mulet` en émettait 2, et c'est
+                justement la page que le Bloc 5 va faire cliquer (283 impressions sur
+                l'intention maille). On ne lie donc que ce qui se résout, et on rend une
+                carte NON cliquable sinon : le conseil technique garde toute sa valeur,
+                seul le lien mort disparaît.
+              */}
               <div className="mt-4 flex flex-col gap-2.5">
-                {content.techniques.map((t) => (
-                  <Link
-                    key={t.slug}
-                    href={programmaticUrl({ species: speciesSlug, technique: t.slug, deptCode: null })}
-                    className="group flex items-start gap-3.5 rounded-[14px] border border-sand-200 bg-white p-4 transition-colors hover:border-teal-500/40"
-                  >
-                    <span className="mt-0.5 shrink-0 rounded-full border border-navy-900 bg-navy-900 px-3 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-white">
-                      {TECHNIQUES[t.slug].label}
-                    </span>
-                    <span className="min-w-0 flex-1 text-[14px] leading-relaxed text-ink-700">
-                      {t.why}
-                    </span>
-                    <ArrowRight
-                      size={15}
-                      className="mt-1 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-teal-600"
-                    />
-                  </Link>
-                ))}
+                {content.techniques.map((t) => {
+                  const target = resolveProgrammaticSlug([speciesSlug, t.slug])
+                  const inner = (
+                    <>
+                      <span className="mt-0.5 shrink-0 rounded-full border border-navy-900 bg-navy-900 px-3 py-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-white">
+                        {TECHNIQUES[t.slug].label}
+                      </span>
+                      <span className="min-w-0 flex-1 text-[14px] leading-relaxed text-ink-700">
+                        {t.why}
+                      </span>
+                      {target && (
+                        <ArrowRight
+                          size={15}
+                          className="mt-1 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-teal-600"
+                        />
+                      )}
+                    </>
+                  )
+                  const shell =
+                    'group flex items-start gap-3.5 rounded-[14px] border border-sand-200 bg-white p-4'
+
+                  return target ? (
+                    <Link
+                      key={t.slug}
+                      href={programmaticUrl(target)}
+                      className={`${shell} transition-colors hover:border-teal-500/40`}
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <div key={t.slug} className={shell}>
+                      {inner}
+                    </div>
+                  )
+                })}
               </div>
             </section>
 

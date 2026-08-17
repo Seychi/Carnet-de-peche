@@ -1,1 +1,7820 @@
-[{"name":"Antibes — digue du Port Vauban","department":"06","species":["bar","dorade_royale","sar","orphie","maquereau","liche","barracuda"]},{"name":"Cap d'Antibes — phare de la Garoupe","department":"06","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Cap Ferrat — pointe Saint-Hospice","department":"06","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Cap Martin — Roquebrune","department":"06","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"digue golfe juan","department":"06","species":["dorade_royale"]},{"name":"Nice — embouchure du Var","department":"06","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre"]},{"name":"Nice — jetée du large du port Lympia","department":"06","species":["bar","dorade_royale","sar","orphie","maquereau","liche","barracuda"]},{"name":"port de la salis","department":"06","species":["bar","dorade_royale"]},{"name":"Théoule-sur-Mer — pointe de l'Aiguille","department":"06","species":["bar","dorade_royale","sar","orphie","maquereau","tassergal"]},{"name":"Cap Leucate","department":"11","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Gruissan — plage & port","department":"11","species":["bar","dorade_royale","sar","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"La Franqui — grande plage","department":"11","species":["bar","dorade_royale","sar","orphie","marbre"]},{"name":"Narbonne-Plage — jetée du port","department":"11","species":["bar","dorade_royale","sar","orphie","maquereau","liche"]},{"name":"Port-la-Nouvelle — jetée","department":"11","species":["bar","dorade_royale","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Port-Leucate — jetée nord","department":"11","species":["bar","dorade_royale","sar","orphie","maquereau","liche"]},{"name":"Roc de la Batterie — Saint-Pierre-la-Mer","department":"11","species":["bar","dorade_royale","sar","orphie"]},{"name":"Cap Couronne — Carro","department":"13","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","tassergal"]},{"name":"Carro — port et jetées","department":"13","species":["dorade_royale","sar","bar","orphie","maquereau"]},{"name":"Carry-le-Rouet — Côte Bleue","department":"13","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade"]},{"name":"Cassis — calanque de Port-Miou","department":"13","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade"]},{"name":"Fos-sur-Mer — plage du Cavaou","department":"13","species":["bar","dorade_royale","sar","maquereau","orphie","marbre"]},{"name":"Marseille — Callelongue / Cap Croisette","department":"13","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Marseille — môle de la Pointe Rouge","department":"13","species":["dorade_royale","sar","bar","orphie","liche","barracuda"]},{"name":"Niolon — calanque et roches","department":"13","species":["bar","sar","dorade_royale","orphie"]},{"name":"Port-Saint-Louis — plage Napoléon","department":"13","species":["bar","dorade_royale","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"Saintes-Maries-de-la-Mer","department":"13","species":["bar","dorade_royale","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"Sausset-les-Pins — digues du port","department":"13","species":["dorade_royale","sar","bar","orphie","maquereau"]},{"name":"Courseulles-sur-Mer — jetées du chenal","department":"14","species":["bar","maquereau","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Ouistreham — embouchure de l'Orne","department":"14","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Port-en-Bessin — jetées","department":"14","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Trouville — jetée de la Touques","department":"14","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Estacade de Châtelaillon-Plage","department":"17","species":["bar","dorade_royale","maquereau","orphie","mulet","seiche","calmar","dorade_grise","congre","chinchard","tacaud"]},{"name":"La Cotinière","department":"17","species":["bar","maquereau","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"La Flotte — môle du port","department":"17","species":["bar","dorade_royale","maquereau","orphie","mulet","sar"]},{"name":"La Rochelle — digue Richelieu (Le Mail)","department":"17","species":["bar","dorade_royale","maquereau","orphie","mulet","sole"]},{"name":"Le Château-d'Oléron — jetée du port","department":"17","species":["bar","dorade_royale","mulet","sole","congre","sar"]},{"name":"Phare de Chassiron","department":"17","species":["bar","sar","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Phare des Baleines","department":"17","species":["bar","sar","dorade_royale","mulet","congre","seiche","calmar","dorade_grise","chinchard","vieille","tacaud"]},{"name":"Plage des Saumonards","department":"17","species":["bar","dorade_royale","sole","maquereau","sar"]},{"name":"Pointe de la Coubre","department":"17","species":["bar","dorade_royale","sole","seiche","mulet","rouget","plie"]},{"name":"Pointe de la Fumée","department":"17","species":["bar","dorade_royale","maquereau","sole","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe de Suzac","department":"17","species":["maigre","bar","sole","dorade_royale","maquereau"]},{"name":"Pointe du Chay (Angoulins)","department":"17","species":["bar","dorade_royale","sar","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe du Fier — La Patache","department":"17","species":["bar","dorade_royale","congre","sar","maquereau"]},{"name":"Saint-Martin-de-Ré — digue extérieure","department":"17","species":["bar","dorade_royale","maquereau","sar","orphie","mulet","congre"]},{"name":"Cap Fréhel — plateformes basses","department":"22","species":["bar","lieu_jaune","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Digue du port d'Erquy","department":"22","species":["maquereau","orphie","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Grande Plage de Saint-Cast","department":"22","species":["bar","sole","dorade_grise","maquereau","mulet"]},{"name":"Môle du port d'Armor","department":"22","species":["maquereau","orphie","bar","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Phare de la Petite Muette : digue de Dahouët","department":"22","species":["bar","mulet","maquereau","orphie","congre","seiche"]},{"name":"Phare de la Pointe à l'Aigle : jetée du Légué","department":"22","species":["bar","mulet","maquereau","dorade_grise","sole","congre"]},{"name":"Phare de Mean Ruz : pointe de Ploumanac'h","department":"22","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Plage Bonaparte","department":"22","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Plage de Bréhec","department":"22","species":["bar","lieu_jaune","vieille","sole","dorade_grise","maquereau"]},{"name":"Plage de Caroual","department":"22","species":["bar","sole","dorade_grise","maquereau","mulet"]},{"name":"Plage de la Ville Berneuf","department":"22","species":["bar","sole","dorade_grise","maquereau"]},{"name":"Plage de Lourtuais","department":"22","species":["dorade_grise","bar","sole","maquereau"]},{"name":"Plage de Saint-Pabu","department":"22","species":["bar","sole","dorade_grise","maquereau","mulet"]},{"name":"Plage de Tresmeur","department":"22","species":["bar","sole","dorade_grise","maquereau","mulet"]},{"name":"Plage de Trestraou","department":"22","species":["bar","sole","maquereau","dorade_grise","mulet"]},{"name":"Plage des Godelins","department":"22","species":["bar","sole","dorade_grise","maquereau"]},{"name":"Plage des Rosaires","department":"22","species":["bar","sole","dorade_grise","maquereau","mulet"]},{"name":"Plage des Vallées","department":"22","species":["bar","dorade_grise","sole","maquereau"]},{"name":"Plage du Palus","department":"22","species":["bar","vieille","lieu_jaune","sole","maquereau"]},{"name":"Plage du Portuais","department":"22","species":["dorade_grise","bar","sole","maquereau"]},{"name":"Plage du Val André","department":"22","species":["bar","maquereau","sole","dorade_grise","mulet"]},{"name":"Pointe de Bihit","department":"22","species":["bar","lieu_jaune","vieille","maquereau","orphie","congre"]},{"name":"Pointe de Château Renard","department":"22","species":["bar","vieille","lieu_jaune","congre","maquereau"]},{"name":"Pointe de l'Arcouest","department":"22","species":["bar","lieu_jaune","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe de la Garde","department":"22","species":["bar","maquereau","dorade_grise","mulet","vieille"]},{"name":"Pointe de la Latte","department":"22","species":["bar","lieu_jaune","vieille","mulet","maquereau","congre"]},{"name":"Pointe de Séhar","department":"22","species":["bar","lieu_jaune","mulet","maquereau","vieille","congre"]},{"name":"Pointe du Château — Gouffre de Plougrescant","department":"22","species":["bar","lieu_jaune","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Pointe du Dourven","department":"22","species":["bar","mulet","sole","lieu_jaune","vieille"]},{"name":"Pointe du Roselier","department":"22","species":["bar","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Port de Gwin Zégal","department":"22","species":["bar","lieu_jaune","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Port Morvan : grève et bordures","department":"22","species":["bar","dorade_grise","sole","mulet","maquereau"]},{"name":"Sillon de Talbert","department":"22","species":["bar","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Aber Wrac'h — dunes de Sainte-Marguerite","department":"29","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Beg an Douzig","department":"29","species":["bar","lieu_jaune","mulet","maquereau"]},{"name":"Beg an Tour","department":"29","species":["bar","lieu_jaune","vieille","maquereau"]},{"name":"Beg an Ty-Guard","department":"29","species":["bar","lieu_jaune","vieille","congre"]},{"name":"Beg ar Bereneg","department":"29","species":["bar","lieu_jaune","vieille","maquereau"]},{"name":"Beg ar Billou","department":"29","species":["bar","lieu_jaune","mulet","maquereau","seiche"]},{"name":"Beg ar C'hale","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Beg ar Galeti","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Beg ar Garreg","department":"29","species":["bar","lieu_jaune","vieille","maquereau"]},{"name":"Beg ar Groas","department":"29","species":["bar","mulet","lieu_jaune","congre","maquereau"]},{"name":"Beg ar Groaz","department":"29","species":["bar","lieu_jaune","vieille","maquereau"]},{"name":"Beg ar Manac'h","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Beg ar Rip (pointe de Postolonnec)","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Beg ar Skeiz","department":"29","species":["bar","lieu_jaune","mulet","maquereau","orphie"]},{"name":"Beg ar Spins","department":"29","species":["bar","lieu_jaune","maquereau","orphie","mulet"]},{"name":"Cale de Beg-Meil","department":"29","species":["bar","mulet","seiche","maquereau","dorade_royale"]},{"name":"Cale de Kerglonou","department":"29","species":["bar","mulet","congre","lieu_jaune","seiche"]},{"name":"Cale de Moulin-Mer","department":"29","species":["bar","mulet","congre","seiche","dorade_grise"]},{"name":"Cale de Mousterlin","department":"29","species":["bar","mulet","dorade_royale","maquereau","seiche"]},{"name":"Cale de Saint-Pierre (Penmarc'h)","department":"29","species":["bar","mulet","seiche","maquereau","dorade_grise"]},{"name":"Cale de Sainte-Évette","department":"29","species":["bar","mulet","lieu_jaune","maquereau","seiche"]},{"name":"Cale des Mareyeurs","department":"29","species":["bar","mulet","seiche","maquereau","dorade_grise"]},{"name":"Cale du Commandant Bizien","department":"29","species":["bar","mulet","seiche","maquereau","dorade_grise"]},{"name":"Cale du Vil (île de Batz)","department":"29","species":["bar","mulet","lieu_jaune","maquereau","seiche"]},{"name":"Cap Coz","department":"29","species":["bar","mulet","dorade_royale","maquereau","sole"]},{"name":"Cap de la Chèvre","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Jetée du vieux port de Roscoff","department":"29","species":["maquereau","orphie","vieille","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Môle du Raoulic (Audierne)","department":"29","species":["bar","mulet","lieu_jaune","maquereau","congre"]},{"name":"Phare du Petit Minou","department":"29","species":["bar","lieu_jaune","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Plage de la Torche / Pors Carn","department":"29","species":["bar","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe de Beg An Fry","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Beg-Meil","department":"29","species":["bar","dorade_royale","lieu_jaune","maquereau","mulet"]},{"name":"Pointe de Bloscon","department":"29","species":["bar","lieu_jaune","vieille","mulet","seiche"]},{"name":"Pointe de Brenterc'h","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Cameulet","department":"29","species":["bar","lieu_jaune","vieille","mulet","congre"]},{"name":"Pointe de Combrit","department":"29","species":["bar","mulet","dorade_royale","maquereau","sole"]},{"name":"Pointe de Cornouaille","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Corsen","department":"29","species":["bar","lieu_jaune","vieille","maquereau","plie"]},{"name":"Pointe de Créac'hmeur","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Dinan","department":"29","species":["bar","lieu_jaune","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Pointe de Doubidy","department":"29","species":["bar","mulet","seiche","lieu_jaune","dorade_grise"]},{"name":"Pointe de Kastel Koz","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Kerfany","department":"29","species":["bar","dorade_royale","mulet","maquereau","seiche"]},{"name":"Pointe de Kermorvan","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de l'Armorique","department":"29","species":["bar","mulet","lieu_jaune","congre","seiche"]},{"name":"Pointe de la Tavelle","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de la Torche","department":"29","species":["bar","lieu_jaune","maquereau","sole","dorade_royale"]},{"name":"Pointe de Landunvez","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Langoz","department":"29","species":["bar","dorade_royale","lieu_jaune","maquereau","sole"]},{"name":"Pointe de Lanvéoc","department":"29","species":["bar","mulet","seiche","lieu_jaune","dorade_grise"]},{"name":"Pointe de Lervily","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Leydé","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Lostmarc'h","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Luguénez","department":"29","species":["bar","dorade_grise","mulet","vieille","congre"]},{"name":"Pointe de Men Meur","department":"29","species":["bar","dorade_royale","sar","maquereau","lieu_jaune"]},{"name":"Pointe de Mousterlin","department":"29","species":["bar","congre","lieu_jaune","dorade_royale","sole"]},{"name":"Pointe de Penmarc'h","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Penn al Lann","department":"29","species":["bar","mulet","lieu_jaune","maquereau","seiche"]},{"name":"Pointe de Perhérel","department":"29","species":["bar","lieu_jaune","vieille","mulet","seiche"]},{"name":"Pointe de Portzen","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Primel","department":"29","species":["bar","lieu_jaune","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Pointe de Roc'h Louët","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Rostiviec","department":"29","species":["bar","mulet","congre","seiche","dorade_grise"]},{"name":"Pointe de Rostudel","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Souc'h","department":"29","species":["bar","lieu_jaune","maquereau","sole","vieille"]},{"name":"Pointe de Tréfeuntec","department":"29","species":["bar","lieu_jaune","maquereau","sole","vieille"]},{"name":"Pointe de Trévignon","department":"29","species":["bar","maquereau","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe des Capucins","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe des Grottes","department":"29","species":["bar","lieu_jaune","vieille","congre"]},{"name":"Pointe des Renards","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe du Cabellou","department":"29","species":["bar","dorade_royale","lieu_jaune","maquereau","mulet"]},{"name":"Pointe du Château","department":"29","species":["bar","mulet","seiche","lieu_jaune","dorade_grise"]},{"name":"Pointe du Cleguer","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Coq","department":"29","species":["bar","mulet","dorade_royale","maquereau","seiche"]},{"name":"Pointe du Dellec","department":"29","species":["bar","mulet","lieu_jaune","vieille","seiche"]},{"name":"Pointe du Diable","department":"29","species":["bar","mulet","lieu_jaune","vieille","seiche"]},{"name":"Pointe du Dolmen","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Grand Gouin","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Grand Minou","department":"29","species":["bar","lieu_jaune","mulet","maquereau","seiche"]},{"name":"Pointe du Guern","department":"29","species":["bar","lieu_jaune","maquereau","sole","vieille"]},{"name":"Pointe du Kador (Beg ar Gador)","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe du Menhir","department":"29","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe du Millier","department":"29","species":["bar","lieu_jaune","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe du Raz","department":"29","species":["bar","lieu_jaune","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe du Van","department":"29","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe Saint-Gilles","department":"29","species":["bar","dorade_royale","sar","maquereau","seiche"]},{"name":"Pointe Saint-Mathieu","department":"29","species":["bar","lieu_jaune","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe Saint-Samson","department":"29","species":["bar","lieu_jaune","vieille","mulet","maquereau"]},{"name":"Port de Carantec","department":"29","species":["bar","mulet","lieu_jaune","seiche","maquereau"]},{"name":"Port de Moguériec","department":"29","species":["bar","mulet","seiche","maquereau","lieu_jaune"]},{"name":"Port de Paluden (aber Wrac'h)","department":"29","species":["bar","mulet","congre","seiche","dorade_grise"]},{"name":"Quai du Rosmeur","department":"29","species":["bar","mulet","seiche","maquereau","dorade_grise"]},{"name":"Quai Victoria","department":"29","species":["bar","mulet","seiche","maquereau","lieu_jaune"]},{"name":"Rochers de Saint-Guénolé","department":"29","species":["bar","lieu_jaune","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Ajaccio — port Tino Rossi","department":"2A","species":["bar","dorade_royale","sar","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche","barracuda"]},{"name":"Bonifacio — goulet / port","department":"2A","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche","barracuda"]},{"name":"Capo di Feno","department":"2A","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","tassergal"]},{"name":"Marine de Porto — tour génoise","department":"2A","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade"]},{"name":"Phare de Pertusato — Bonifacio","department":"2A","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Pointe de la Parata — Sanguinaires","department":"2A","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Port de Propriano","department":"2A","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche","barracuda"]},{"name":"Porto-Vecchio — port / golfe","department":"2A","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","barracuda"]},{"name":"Tour de Campomoro","department":"2A","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade"]},{"name":"Barcaggio — pointe du Cap Corse","department":"2B","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","tassergal"]},{"name":"Bastia — jetée du Dragon","department":"2B","species":["bar","dorade_royale","sar","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","barracuda"]},{"name":"L'Île-Rousse — phare de la Pietra","department":"2B","species":["bar","sar","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Plage de la Marana","department":"2B","species":["bar","dorade_royale","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"Plage de Padulone — embouchure du Tavignano","department":"2B","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre"]},{"name":"Port de Centuri","department":"2B","species":["bar","dorade_royale","sar","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Port de Macinaggio","department":"2B","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Port de Taverna / Campoloro","department":"2B","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Saint-Florent — port","department":"2B","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade"]},{"name":"Le Grau-du-Roi — épis du Boucanet","department":"30","species":["bar","dorade_royale","sar","orphie"]},{"name":"Le Grau-du-Roi — jetées","department":"30","species":["bar","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche","barracuda"]},{"name":"Le Grau-du-Roi — plage Rive Gauche","department":"30","species":["bar","dorade_royale","orphie","maquereau","marbre"]},{"name":"Le Grau-du-Roi — plage Sud de Port-Camargue","department":"30","species":["bar","dorade_royale","sar","orphie","marbre"]},{"name":"Pointe de l'Espiguette","department":"30","species":["bar","dorade_royale","sar","seiche","mulet","sole","rouget","pageot","marbre","tassergal"]},{"name":"Pointe de l'Espiguette — section ouest","department":"30","species":["bar","dorade_royale","sar","orphie","maquereau","marbre"]},{"name":"Arcachon — pointe de l'Aiguillon","department":"33","species":["sole","dorade_royale","mulet","bar","maigre","maquereau"]},{"name":"Carcans-Plage","department":"33","species":["bar","maigre","sole","sar","dorade_royale","maquereau"]},{"name":"Hourtin-Plage","department":"33","species":["bar","maigre","sole","sar","dorade_royale","maquereau"]},{"name":"La Teste-de-Buch — plage de la Corniche (dune du Pilat)","department":"33","species":["bar","dorade_royale","maigre","sar","sole","congre","mulet"]},{"name":"Lacanau-Océan","department":"33","species":["bar","dorade_royale","sole","maigre","sar","maquereau"]},{"name":"Le Verdon-sur-Mer — digue de Port-Médoc","department":"33","species":["bar","maigre","sar","congre","dorade_royale","mulet","maquereau","sole"]},{"name":"Lège-Cap-Ferret — jetée de Grand-Piquey","department":"33","species":["bar","maigre","dorade_royale","sar","orphie","mulet","sole"]},{"name":"Lège-Cap-Ferret — jetée du Canon","department":"33","species":["bar","dorade_royale","maigre","sar","mulet","orphie","sole"]},{"name":"Plage de la Salie Sud","department":"33","species":["bar","dorade_royale","maquereau","maigre","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Montalivet","department":"33","species":["bar","dorade_royale","sar","maigre","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Soulac-sur-Mer","department":"33","species":["bar","dorade_royale","maquereau","sar","sole","seiche","mulet","rouget","plie"]},{"name":"Plage du Truc Vert (Cap Ferret)","department":"33","species":["bar","dorade_royale","sar","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe de Grave","department":"33","species":["bar","dorade_royale","maquereau","maigre","seiche","mulet","sole","rouget","plie"]},{"name":"Cap d'Agde — rochers volcaniques","department":"34","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Frontignan-Plage — la Corniche","department":"34","species":["bar","dorade_royale","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"Le Grau-d'Agde — embouchure de l'Hérault","department":"34","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre"]},{"name":"Marseillan-Plage — digues du grau","department":"34","species":["bar","dorade_royale","sar"]},{"name":"Palavas-les-Flots — embouchure du Lez","department":"34","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre"]},{"name":"Sète — môle Saint-Louis","department":"34","species":["bar","dorade_royale","sar","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche","barracuda"]},{"name":"Sète — plage du Lazaret (la Corniche)","department":"34","species":["bar","dorade_royale","sar","orphie","maquereau","marbre"]},{"name":"Valras-Plage — embouchure de l'Orb","department":"34","species":["bar","dorade_royale","sar","orphie"]},{"name":"Vias-Plage — embouchure du Libron","department":"34","species":["bar","dorade_royale","sar","orphie"]},{"name":"Môle des Noires","department":"35","species":["maquereau","orphie","bar","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Plage du Sillon","department":"35","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe de la Varde","department":"35","species":["bar","sar","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe du Grouin","department":"35","species":["bar","lieu_jaune","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe du Moulinet","department":"35","species":["bar","sar","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Biscarrosse-Plage","department":"40","species":["bar","dorade_royale","sole","sar","maquereau","orphie","mulet"]},{"name":"Capbreton — le Gouf (depuis la passe)","department":"40","species":["bar","maquereau","chinchard","maigre","congre","orphie","sar"]},{"name":"Contis — embouchure du courant","department":"40","species":["bar","dorade_royale","sole","sar","orphie","maquereau","mulet"]},{"name":"Courant d'Huchet (embouchure)","department":"40","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Embouchure du courant de Mimizan","department":"40","species":["bar","dorade_royale","mulet","seiche","sole","rouget","maigre","plie"]},{"name":"Estacade de Capbreton","department":"40","species":["bar","dorade_royale","maquereau","sar","congre","seiche","calmar","mulet","dorade_grise","chinchard","tacaud"]},{"name":"Plage d'Hossegor","department":"40","species":["bar","dorade_royale","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Messanges","department":"40","species":["bar","dorade_royale","sole","sar","maquereau","orphie"]},{"name":"Plage de Moliets — Lette Blanche","department":"40","species":["bar","dorade_royale","sole","sar","maquereau","orphie"]},{"name":"Vieux-Boucau — embouchure du courant de Soustons","department":"40","species":["bar","dorade_royale","sole","sar","orphie","maquereau","mulet"]},{"name":"Corniche de Gourmalon","department":"44","species":["bar","dorade_royale","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Jetée de La Turballe","department":"44","species":["maquereau","orphie","bar","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Jetée du Tréhic","department":"44","species":["maquereau","bar","orphie","dorade_royale","vieille","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Môle de Pornichet","department":"44","species":["maquereau","orphie","dorade_royale","bar","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Môle du Pouliguen","department":"44","species":["maquereau","orphie","bar","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Plage de la Courance","department":"44","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Saint-Brevin","department":"44","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Tharon","department":"44","species":["bar","dorade_royale","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe de Chémoulin","department":"44","species":["bar","sar","maquereau","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe de Penchâteau","department":"44","species":["bar","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe du Croisic — Côte Sauvage","department":"44","species":["bar","sar","dorade_royale","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe Saint-Gildas","department":"44","species":["bar","maquereau","sar","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Cap de Carteret","department":"50","species":["bar","lieu_jaune","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Cap de la Hague — Goury","department":"50","species":["bar","lieu_jaune","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Diélette — digue du port","department":"50","species":["bar","lieu_jaune","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Digue de Querqueville","department":"50","species":["bar","maquereau","lieu_jaune","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Pointe d'Agon","department":"50","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie","merlan"]},{"name":"Pointe de Barfleur — phare de Gatteville","department":"50","species":["bar","lieu_jaune","maquereau","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir"]},{"name":"Pointe du Roc — Granville","department":"50","species":["bar","maquereau","vieille","seiche","calmar","dorade_grise","congre","chinchard","tacaud","lieu_noir","merlan"]},{"name":"Saint-Vaast-la-Hougue — digue de la Hougue","department":"50","species":["bar","maquereau","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Barre d'Étel — rive Plouhinec","department":"56","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Beg en Argol","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Beg en Vertech","department":"56","species":["bar","lieu_jaune","vieille","congre"]},{"name":"Beg er Faut","department":"56","species":["bar","lieu_jaune","congre","vieille","maquereau"]},{"name":"Beg er Gorlé","department":"56","species":["bar","vieille","lieu_jaune","maquereau"]},{"name":"Beg er Lannegui","department":"56","species":["bar","vieille","lieu_jaune","orphie","maquereau"]},{"name":"Beg er Sennerion","department":"56","species":["bar","vieille","lieu_jaune","maquereau","congre"]},{"name":"Beg er Skeul","department":"56","species":["bar","vieille","lieu_jaune","congre","maquereau"]},{"name":"Beg er Vachif","department":"56","species":["bar","lieu_jaune","congre","vieille","maquereau"]},{"name":"Beg er Vil","department":"56","species":["bar","dorade_royale","seiche","maquereau","mulet"]},{"name":"Beg er Vir","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Beg Lagad","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Beg Run er Vilaine","department":"56","species":["bar","lieu_jaune","vieille","maquereau","orphie"]},{"name":"Beg Salus","department":"56","species":["bar","sole","vieille","maquereau","congre"]},{"name":"Cale de la Garenne","department":"56","species":["bar","mulet","dorade_grise","seiche"]},{"name":"Cale de Langle","department":"56","species":["bar","mulet","dorade_grise","seiche","sole"]},{"name":"Cale du Badel","department":"56","species":["bar","mulet","dorade_grise","seiche","sole"]},{"name":"Grande Plage de Carnac","department":"56","species":["bar","dorade_royale","sole","mulet","maquereau"]},{"name":"Grande Plage de Damgan","department":"56","species":["bar","dorade_royale","sole","mulet","maquereau"]},{"name":"Grande plage de Gâvres","department":"56","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Jetée de Locmaria (Groix)","department":"56","species":["bar","lieu_jaune","mulet","seiche","maquereau"]},{"name":"La Grande Plage de Quiberon","department":"56","species":["bar","dorade_royale","sole","mulet","maquereau","seiche"]},{"name":"Môle Éric Tabarly (La Trinité-sur-Mer)","department":"56","species":["bar","mulet","seiche","maquereau","dorade_grise"]},{"name":"Plage d'Herlin","department":"56","species":["bar","lieu_jaune","dorade_royale","maquereau","sole"]},{"name":"Plage de Bétahon","department":"56","species":["bar","mulet","dorade_royale","sole","maquereau"]},{"name":"Plage de Donnant","department":"56","species":["bar","lieu_jaune","dorade_royale","maquereau","sole"]},{"name":"Plage de Kerguelen","department":"56","species":["bar","dorade_royale","sole","maquereau","mulet"]},{"name":"Plage de Kerhillio","department":"56","species":["bar","sole","dorade_royale","maquereau","mulet"]},{"name":"Plage de Kerpape","department":"56","species":["bar","lieu_jaune","vieille","mulet","orphie"]},{"name":"Plage de Kervillen","department":"56","species":["dorade_royale","bar","sole","mulet","maquereau"]},{"name":"Plage de l'Anse du Stole","department":"56","species":["bar","mulet","sole","dorade_royale","maquereau"]},{"name":"Plage de la Falaise","department":"56","species":["bar","mulet","sole","dorade_royale","maquereau"]},{"name":"Plage de la Mine d'Or","department":"56","species":["bar","sole","dorade_royale","mulet","maquereau"]},{"name":"Plage de Penvins","department":"56","species":["bar","dorade_royale","sole","mulet","maquereau"]},{"name":"Plage de Port Mélite","department":"56","species":["bar","lieu_jaune","dorade_royale","vieille","mulet","sole"]},{"name":"Plage de Sainte-Barbe","department":"56","species":["bar","sole","dorade_royale","maquereau"]},{"name":"Plage de Suscinio","department":"56","species":["bar","dorade_royale","sole","mulet","maquereau"]},{"name":"Plage de Toulhars","department":"56","species":["bar","mulet","sole","dorade_royale","maquereau"]},{"name":"Plage des Grands Sables","department":"56","species":["bar","dorade_royale","sole","maquereau","mulet"]},{"name":"Plage du Pérello","department":"56","species":["bar","lieu_jaune","vieille","orphie","mulet"]},{"name":"Pointe Churchill","department":"56","species":["bar","dorade_royale","mulet","seiche","sole"]},{"name":"Pointe d'En Tal","department":"56","species":["bar","sole","maquereau","lieu_jaune","vieille"]},{"name":"Pointe de Beg en Aud","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Beg er Goalennec","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Beg Rohu","department":"56","species":["bar","dorade_royale","sar","maquereau","sole"]},{"name":"Pointe de Berno","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Bilgroix","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Bilhervé","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Brannec","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Brouël","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Casperaquiz","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Duer","department":"56","species":["bar","mulet","seiche","dorade_grise","sole"]},{"name":"Pointe de Gâvres","department":"56","species":["bar","dorade_royale","sole","maquereau","mulet"]},{"name":"Pointe de Goulvars","department":"56","species":["bar","dorade_royale","seiche","maquereau","sole"]},{"name":"Pointe de Ker Biscart","department":"56","species":["bar","lieu_jaune","vieille","maquereau"]},{"name":"Pointe de Kerbihan","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Kergroix","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Kerners","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Kerpenhir","department":"56","species":["bar","dorade_royale","lieu_jaune","maquereau","seiche"]},{"name":"Pointe de Kervihan","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Kervoyal","department":"56","species":["bar","dorade_royale","sar","orphie","maquereau"]},{"name":"Pointe de l'Enfer","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de l'Ours","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de la Garenne","department":"56","species":["bar","mulet","seiche","dorade_grise","sole"]},{"name":"Pointe de la Palisse","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Liouse","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Locmiquel","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Mané-Hellec","department":"56","species":["bar","mulet","dorade_royale","sole","seiche"]},{"name":"Pointe de Marie Venell","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Nénézic","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Pen Lan","department":"56","species":["bar","dorade_royale","sar","mulet","maquereau"]},{"name":"Pointe de Penbert","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Penmarc'h","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Penvins","department":"56","species":["bar","dorade_royale","sar","maquereau","seiche"]},{"name":"Pointe de Roquenec","department":"56","species":["bar","mulet","dorade_royale","sole","congre"]},{"name":"Pointe de Saint-Nicolas","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe de Scouro","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe de Taillefer","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe de Toulvern","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe de Trec'h","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe des Chats","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Béché","department":"56","species":["bar","mulet","seiche","dorade_grise"]},{"name":"Pointe du Béluré","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe du Berchis","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe du Castel","department":"56","species":["bar","lieu_jaune","vieille","sole","maquereau"]},{"name":"Pointe du Conguel","department":"56","species":["bar","lieu_jaune","vieille","dorade_royale","maquereau"]},{"name":"Pointe du Dibenn","department":"56","species":["bar","dorade_royale","mulet","sole","seiche"]},{"name":"Pointe du Grand Guet","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Grand Mont","department":"56","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe du Grognon","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Guern","department":"56","species":["bar","mulet","seiche","dorade_grise"]},{"name":"Pointe du Listrec","department":"56","species":["bar","mulet","dorade_royale","sole","seiche"]},{"name":"Pointe du Monteno","department":"56","species":["bar","dorade_royale","mulet","seiche","maquereau"]},{"name":"Pointe du Nioul","department":"56","species":["bar","dorade_royale","mulet","seiche","dorade_grise"]},{"name":"Pointe du Percho","department":"56","species":["bar","lieu_jaune","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","lieu_noir"]},{"name":"Pointe du Spernec","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Pointe du Spernéguy","department":"56","species":["bar","mulet","seiche","dorade_grise"]},{"name":"Pointe du Talud","department":"56","species":["bar","maquereau","lieu_jaune","vieille","dorade_grise"]},{"name":"Pointe du Verdon","department":"56","species":["bar","mulet","dorade_royale","sole","seiche"]},{"name":"Pointe du Vieux Château","department":"56","species":["bar","lieu_jaune","vieille","maquereau","congre"]},{"name":"Pointe er Hastellic","department":"56","species":["bar","vieille","lieu_jaune","sole","maquereau"]},{"name":"Pointe Saint-Colomban","department":"56","species":["bar","dorade_royale","sar","maquereau","sole"]},{"name":"Pointe Saint-Nicolas","department":"56","species":["bar","lieu_jaune","vieille","congre","maquereau"]},{"name":"Port Blanc","department":"56","species":["bar","sar","dorade_royale","lieu_jaune","vieille"]},{"name":"Port-Navalo — passe du Golfe","department":"56","species":["bar","dorade_royale","lieu_jaune","seiche","calmar","mulet","chinchard"]},{"name":"Bray-Dunes — grande plage","department":"59","species":["bar","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Dunkerque — digue de Malo-les-Bains","department":"59","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Gravelines — Petit-Fort-Philippe","department":"59","species":["bar","maquereau","seiche","mulet","sole","rouget","maigre","plie","merlan"]},{"name":"Boulogne-sur-Mer — digue Carnot","department":"62","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Calais — jetée Ouest","department":"62","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Cap Blanc-Nez","department":"62","species":["bar","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Cap Gris-Nez","department":"62","species":["bar","maquereau","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud","merlan"]},{"name":"Wimereux — digue de promenade","department":"62","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Anglet — embouchure de l'Adour (plage de la Barre)","department":"64","species":["bar","maigre","mulet","sole","dorade_royale"]},{"name":"Bidart — plage du Centre","department":"64","species":["bar","sar","dorade_royale","sole","maigre","mulet"]},{"name":"Bidart — récif de Parlementia","department":"64","species":["bar","sar","dorade_royale","pageot","maquereau"]},{"name":"Digue de Socoa","department":"64","species":["bar","dorade_royale","maquereau","sar","mulet","seiche","calmar","dorade_grise","congre","chinchard","tacaud"]},{"name":"Fort de Socoa","department":"64","species":["bar","dorade_royale","mulet","sar","orphie","maquereau"]},{"name":"Guéthary — port et estran rocheux","department":"64","species":["bar","sar","dorade_royale","pageot","maquereau","orphie"]},{"name":"Hendaye — baie de Txingudi (Bidassoa)","department":"64","species":["bar","sole","mulet","dorade_royale","chinchard","maquereau"]},{"name":"Plage d'Hendaye","department":"64","species":["bar","dorade_royale","sar","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe Saint-Martin","department":"64","species":["bar","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe Sainte-Barbe","department":"64","species":["bar","dorade_royale","sar","mulet","seiche","calmar","dorade_grise","congre","chinchard","tacaud"]},{"name":"Rocher de la Vierge","department":"64","species":["bar","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Saint-Jean-de-Luz — digue aux Chevaux","department":"64","species":["dorade_royale","bar","mulet","sar","maquereau"]},{"name":"Anse de Paulilles","department":"66","species":["dorade_royale","sar","bar","marbre"]},{"name":"Canet-en-Roussillon — jetée du port","department":"66","species":["bar","dorade_royale","sar","orphie"]},{"name":"Cap Béar — Port-Vendres","department":"66","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Cap l'Abeille — Banyuls-sur-Mer","department":"66","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","tassergal"]},{"name":"Cerbère — digue du port","department":"66","species":["dorade_royale","sar","bar","maquereau"]},{"name":"Le Barcarès — grau de Sainte-Marie","department":"66","species":["bar","dorade_royale","seiche","mulet","sole","rouget","maigre"]},{"name":"Pointe Saint-Vincent — Collioure","department":"66","species":["sar","dorade_royale","bar","tassergal"]},{"name":"Port d'Argelès-sur-Mer","department":"66","species":["bar","dorade_royale","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche"]},{"name":"Port-Vendres — môle du port","department":"66","species":["sar","dorade_royale","bar","orphie","maquereau","liche","barracuda"]},{"name":"Dieppe — jetées de l'avant-port","department":"76","species":["bar","maquereau","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Étretat — plage de galets","department":"76","species":["bar","maquereau","seiche","mulet","sole","rouget","plie"]},{"name":"Fécamp — jetée du phare","department":"76","species":["bar","maquereau","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Le Tréport — jetée Ouest","department":"76","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Saint-Valery-en-Caux — jetées","department":"76","species":["bar","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud","merlan"]},{"name":"Sainte-Adresse — Cap de la Hève","department":"76","species":["bar","maquereau","orphie","seiche","mulet","sole","rouget","plie"]},{"name":"Bandol — digue du port","department":"83","species":["bar","dorade_royale","sar","orphie","maquereau","liche"]},{"name":"Cap Camarat — Ramatuelle","department":"83","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda","tassergal"]},{"name":"Cap Dramont — Saint-Raphaël","department":"83","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","tassergal"]},{"name":"Cavalaire-sur-Mer — digue du port","department":"83","species":["bar","dorade_royale","sar","orphie","maquereau"]},{"name":"La Ciotat — bec de l'Aigle","department":"83","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade"]},{"name":"Le Brusc — presqu'île du Gaou","department":"83","species":["bar","sar","dorade_royale","orphie","maquereau"]},{"name":"Le Lavandou — digue du port","department":"83","species":["bar","dorade_royale","sar","orphie","maquereau"]},{"name":"Presqu'île de Giens","department":"83","species":["bar","sar","dorade_royale","seiche","calmar","dorade_grise","congre","chinchard","pageot","oblade","barracuda"]},{"name":"Saint-Tropez — môle Jean Réveille","department":"83","species":["bar","dorade_royale","sar","orphie","maquereau","liche","barracuda"]},{"name":"Sanary-sur-Mer — port & pointe de la Cride","department":"83","species":["bar","dorade_royale","sar","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","oblade","liche"]},{"name":"Toulon — plages du Mourillon","department":"83","species":["bar","dorade_royale","sar","seiche","mulet","sole","rouget","pageot","marbre"]},{"name":"Corniche vendéenne (Sion-sur-l'Océan)","department":"85","species":["bar","sar","maquereau","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Estacade de Saint-Jean-de-Monts","department":"85","species":["bar","dorade_royale","maquereau","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Grande jetée de Saint-Gilles-Croix-de-Vie","department":"85","species":["bar","maquereau","orphie","dorade_royale","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Jetée de Jard-sur-Mer","department":"85","species":["bar","dorade_royale","maquereau","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Jetée de L'Herbaudière","department":"85","species":["bar","dorade_royale","maquereau","orphie","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Jetée de la Chaume","department":"85","species":["bar","dorade_royale","maquereau","sar","seiche","calmar","mulet","dorade_grise","congre","chinchard","tacaud"]},{"name":"Plage de La Tranche-sur-Mer","department":"85","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Plage de Notre-Dame-de-Monts","department":"85","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Plage des Conches","department":"85","species":["bar","dorade_royale","seiche","mulet","sole","rouget","plie"]},{"name":"Pointe de Grosse Terre","department":"85","species":["bar","sar","maquereau","orphie","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]},{"name":"Pointe du Payré — Le Veillon","department":"85","species":["bar","dorade_royale","maquereau","seiche","mulet","sole","rouget","maigre","plie"]},{"name":"Rochers de la Normandelière","department":"85","species":["bar","sar","seiche","calmar","dorade_grise","congre","chinchard","vieille","tacaud"]}]
+[
+ {
+  "slug": "a-castagna-osm3715987564",
+  "name": "a Castagna",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-paraghjola-osm9578140632",
+  "name": "a Paraghjola",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-a-castagna-osm7390718660",
+  "name": "a punta di a Castagna",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-a-tuniccia-osm12001431192",
+  "name": "a punta di a Tuniccia",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-cala-di-cigliu-osm7483356794",
+  "name": "a punta di cala di Cigliu",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-capuneru-osm7483356811",
+  "name": "a punta di Capuneru",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-i-chjappirossi-osm9587161765",
+  "name": "a punta di i Chjappirossi",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-i-setti-navi-osm10760644723",
+  "name": "a punta di i Setti Navi",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-l-agula-osm9578140653",
+  "name": "a punta di l'Agula",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-l-arghjaronu-osm7556586174",
+  "name": "a punta di l'Arghjaronu",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-purtichju-osm7910188382",
+  "name": "a Punta di Purtichju",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-u-ciglionu-osm7393880917",
+  "name": "a punta di u Ciglionu",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-u-paghjaru-osm11468864559",
+  "name": "a punta di u Paghjaru",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-di-u-vescu-osm7919320492",
+  "name": "a punta di u Vescu",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "a-punta-rossa-osm31166800",
+  "name": "a punta Rossa",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "aber-wrach-sainte-marguerite",
+  "name": "Aber Wrac'h — dunes de Sainte-Marguerite",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "alisu-osm257356987",
+  "name": "Alisu",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "allee-de-l-amiraute-osm115707626",
+  "name": "Allée de l'Amirauté",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "anse-de-bon-renaud-osm14021966792",
+  "name": "Anse de Bon-Renaud",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "anse-de-favone-osm178165425",
+  "name": "Anse de Favone",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "anse-de-paulilles",
+  "name": "Anse de Paulilles",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "sar",
+   "bar",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "anse-des-savoyards-osm14019587453",
+  "name": "Anse des Savoyards",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "anse-du-vieux-moulin-osm973669941",
+  "name": "Anse du Vieux Moulin",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "anse-pierrot-le-fou-osm14019587454",
+  "name": "Anse Pierrot-le-Fou",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "arbitru-osm147054638",
+  "name": "Arbitru",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "archipel-plage-osm12052851535",
+  "name": "Archipel Plage",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "aregno-plage-algajola-osm159630740",
+  "name": "Aregno Plage - Algajola",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "aregno-plage-osm159630741",
+  "name": "Aregno Plage",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "argentella-osm273079540",
+  "name": "Argentella",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "avenue-du-gailhousty-osm1302358795",
+  "name": "Avenue du Gailhousty",
+  "department": "11",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "baie-de-txingudi-hendaye",
+  "name": "Hendaye — baie de Txingudi (Bidassoa)",
+  "department": "64",
+  "species": [
+   "bar",
+   "sole",
+   "mulet",
+   "dorade_royale",
+   "chinchard",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "bambou-plage-osm487779952",
+  "name": "Bambou Plage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "baracataggio-osm273051124",
+  "name": "Baracataggio",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "barbicagja-osm25421150",
+  "name": "Barbicagja",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "barcaggio-cap-corse",
+  "name": "Barcaggio — pointe du Cap Corse",
+  "department": "2B",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "barre-d-etel",
+  "name": "Barre d'Étel — rive Plouhinec",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "batterie-du-capon-osm1723311173",
+  "name": "Batterie du Capon",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "bec-de-sormiou-osm747711726",
+  "name": "Bec de Sormiou",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-an-douzig-landeda",
+  "name": "Beg an Douzig",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-an-tour-moelan-sur-mer",
+  "name": "Beg an Tour",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-an-ty-guard-plonevez-porzay",
+  "name": "Beg an Ty-Guard",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-ar-bereneg-camaret",
+  "name": "Beg ar Bereneg",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-billou-santec",
+  "name": "Beg ar Billou",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "beg-ar-c-hale-ile-de-sein",
+  "name": "Beg ar C'hale",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-galeti-portsall",
+  "name": "Beg ar Galeti",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-ar-garreg-plonevez-porzay",
+  "name": "Beg ar Garreg",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-groas-aber-ildut",
+  "name": "Beg ar Groas",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-groaz-landunvez",
+  "name": "Beg ar Groaz",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-manac-h-landunvez",
+  "name": "Beg ar Manac'h",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-ar-rip-postolonnec",
+  "name": "Beg ar Rip (pointe de Postolonnec)",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-ar-skeiz-guisseny",
+  "name": "Beg ar Skeiz",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "maquereau",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "beg-ar-spins-plouguerneau",
+  "name": "Beg ar Spins",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "orphie",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "beg-en-argol-hoedic",
+  "name": "Beg en Argol",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-en-vertech-bangor",
+  "name": "Beg en Vertech",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-er-faut-hoedic",
+  "name": "Beg er Faut",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "congre",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-er-goalennec",
+  "name": "Pointe de Beg er Goalennec",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-er-gorle-houat",
+  "name": "Beg er Gorlé",
+  "department": "56",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-er-lannegui-hoedic",
+  "name": "Beg er Lannegui",
+  "department": "56",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-er-sennerion-hoedic",
+  "name": "Beg er Sennerion",
+  "department": "56",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-er-skeul-groix",
+  "name": "Beg er Skeul",
+  "department": "56",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-er-vachif-houat",
+  "name": "Beg er Vachif",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "congre",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-er-vil-quiberon",
+  "name": "Beg er Vil",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "beg-er-vir-groix",
+  "name": "Beg er Vir",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "beg-lagad-hoedic",
+  "name": "Beg Lagad",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "beg-rohu",
+  "name": "Pointe de Beg Rohu",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "beg-run-er-vilaine-houat",
+  "name": "Beg Run er Vilaine",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "beg-salus-houat",
+  "name": "Beg Salus",
+  "department": "56",
+  "species": [
+   "bar",
+   "sole",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "bijou-plage-osm161443295",
+  "name": "Bijou Plage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "biscarrosse-plage",
+  "name": "Biscarrosse-Plage",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "sar",
+   "maquereau",
+   "orphie",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "bistagne-osm438436210",
+  "name": "Bistagne",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "blue-beach-osm487779963",
+  "name": "Blue Beach",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "bo-s-plage-osm1204885569",
+  "name": "BO'S Plage",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "butte-osm926737179",
+  "name": "butte",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cala-d-orzu-a-piaghja-d-orzu-osm282951286",
+  "name": "Cala d'Orzu / a piaghja d'Orzu",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cala-di-chiesa-osm67301170",
+  "name": "Cala di Chiesa",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cala-di-conca-osm258423014",
+  "name": "Cala di Conca",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cala-piscona-osm9578140641",
+  "name": "Cala Piscona",
+  "department": "2A",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "calanca-di-a-torre-osm1427198445",
+  "name": "Calanca di a Torre",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "calanque-de-breganconnet-osm51095875",
+  "name": "Calanque de Brégançonnet",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "calanque-de-figuerolles-osm165293280",
+  "name": "Calanque de Figuerolles",
+  "department": "13",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "calanque-de-jeffrey-osm163807398",
+  "name": "Calanque de Jeffrey",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "calanque-de-l-oustaou-de-dieu-osm49479492",
+  "name": "Calanque de l'Oustaou de Diéu",
+  "department": "83",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "calanque-de-niolon",
+  "name": "Niolon — calanque et roches",
+  "department": "13",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "cale-capitainerie-port-de-bouc-osm3945912496",
+  "name": "Cale Capitainerie Port de Bouc",
+  "department": "13",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cale-de-beg-meil",
+  "name": "Cale de Beg-Meil",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_royale"
+  ]
+ },
+ {
+  "slug": "cale-de-kerglonou-aber-ildut",
+  "name": "Cale de Kerglonou",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "congre",
+   "lieu_jaune",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "cale-de-la-garenne-le-hezo",
+  "name": "Cale de la Garenne",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_grise",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "cale-de-langle-sene",
+  "name": "Cale de Langle",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_grise",
+   "seiche",
+   "sole"
+  ]
+ },
+ {
+  "slug": "cale-de-mise-a-l-eau-osm2302379010",
+  "name": "Cale de Mise à l'Eau",
+  "department": "30",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cale-de-moulin-mer",
+  "name": "Cale de Moulin-Mer",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "congre",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "cale-de-mousterlin",
+  "name": "Cale de Mousterlin",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "cale-de-saint-pierre-penmarch",
+  "name": "Cale de Saint-Pierre (Penmarc'h)",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "cale-de-sainte-evette",
+  "name": "Cale de Sainte-Évette",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "cale-de-villefranche-osm1608196228",
+  "name": "Cale de Villefranche",
+  "department": "06",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cale-des-mareyeurs-camaret",
+  "name": "Cale des Mareyeurs",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "cale-du-badel-sene",
+  "name": "Cale du Badel",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_grise",
+   "seiche",
+   "sole"
+  ]
+ },
+ {
+  "slug": "cale-du-commandant-bizien",
+  "name": "Cale du Commandant Bizien",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "cale-du-vil-ile-de-batz",
+  "name": "Cale du Vil (île de Batz)",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "cale-port-saint-gervais-osm3945911265",
+  "name": "Cale Port Saint-Gervais",
+  "department": "13",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "callelongue-cap-croisette",
+  "name": "Marseille — Callelongue / Cap Croisette",
+  "department": "13",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "campo-dell-oro-osm158743674",
+  "name": "Campo Dell'Oro",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "campo-mezzano-osm224886601",
+  "name": "Campo Mezzano",
+  "department": "2A",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "canet-osm1723311249",
+  "name": "Canet",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cap-bear",
+  "name": "Cap Béar — Port-Vendres",
+  "department": "66",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-benat-osm12615555022",
+  "name": "Cap Bénat",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-blanc-nez",
+  "name": "Cap Blanc-Nez",
+  "department": "62",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "cap-blanc-osm76921354",
+  "name": "Cap Blanc",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-camarat",
+  "name": "Cap Camarat — Ramatuelle",
+  "department": "83",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-canadell-osm854596200",
+  "name": "Cap Canadell",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-canaille-osm344431790",
+  "name": "Cap Canaille",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-caveaux-osm1478232244",
+  "name": "Cap Caveaux",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-cepet-osm497746581",
+  "name": "Cap Cépet",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-cerbere-osm273159597",
+  "name": "Cap Cerbère",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-couronne",
+  "name": "Cap Couronne — Carro",
+  "department": "13",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-coz-fouesnant",
+  "name": "Cap Coz",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "cap-croisette-osm747717710",
+  "name": "Cap Croisette",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-d-agde",
+  "name": "Cap d'Agde — rochers volcaniques",
+  "department": "34",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-d-antibes",
+  "name": "Cap d'Antibes — phare de la Garoupe",
+  "department": "06",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-d-antibes-osm9070558982",
+  "name": "Cap d'Antibes",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-d-arme-osm281163618",
+  "name": "Cap d'Arme",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-d-escampo-barriou-osm694117176",
+  "name": "Cap d'Escampo-Barriou",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-d-ona-osm847357577",
+  "name": "Cap d'Ona",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-d-ullastrell-osm847354207",
+  "name": "Cap d'Ullastrell",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-bregancon-osm5807340292",
+  "name": "Cap de Brégançon",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-carteret",
+  "name": "Cap de Carteret",
+  "department": "50",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "cap-de-croix-osm1478232245",
+  "name": "Cap de Croix",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-jarre-osm9517565887",
+  "name": "Cap de Jarre",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-l-aigle-osm7207414643",
+  "name": "Cap de l'Aigle",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-la-chevre-crozon",
+  "name": "Cap de la Chèvre",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "cap-de-la-croisette-osm8811707251",
+  "name": "Cap de la Croisette",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-la-hague-goury",
+  "name": "Cap de la Hague — Goury",
+  "department": "50",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "cap-de-la-pointe-blanche-osm12615553471",
+  "name": "Cap de la Pointe Blanche",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-nantes-osm2015235722",
+  "name": "Cap de Nantes",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-nice-osm25304663",
+  "name": "Cap de Nice",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-rederis-osm8969184709",
+  "name": "Cap de Rederís",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-de-saint-tropez-osm7216883164",
+  "name": "Cap de Saint-Tropez",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-des-medes-osm280309695",
+  "name": "Cap des Mèdes",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-dramont",
+  "name": "Cap Dramont — Saint-Raphaël",
+  "department": "83",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-du-chateau-de-velours-osm9720190278",
+  "name": "Cap du Château de Velours",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-du-devenson-osm9517565897",
+  "name": "Cap du Devenson",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-du-troc-osm847747415",
+  "name": "Cap du Troc",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-ferrat",
+  "name": "Cap Ferrat — pointe Saint-Hospice",
+  "department": "06",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-frehel",
+  "name": "Cap Fréhel — plateformes basses",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "cap-frioul-osm1807470845",
+  "name": "Cap Frioul",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-gris-nez",
+  "name": "Cap Gris-Nez",
+  "department": "62",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "cap-gros-osm10141528956",
+  "name": "Cap Gros",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-gros-osm9577786164",
+  "name": "Cap Gros",
+  "department": "2B",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-janet-osm9517565877",
+  "name": "Cap Janet",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-l-abeille-banyuls",
+  "name": "Cap l'Abeille — Banyuls-sur-Mer",
+  "department": "66",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-lardier-osm12784305721",
+  "name": "Cap Lardier",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-leucate",
+  "name": "Cap Leucate",
+  "department": "11",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-martin",
+  "name": "Cap Martin — Roquebrune",
+  "department": "06",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "cap-mejean-osm30987623",
+  "name": "Cap Méjean",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-merce-osm6742337745",
+  "name": "Cap Mercè",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-morgiou-osm747711744",
+  "name": "Cap Morgiou",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-negre-osm12070186416",
+  "name": "Cap nègre",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-negre-osm4846050103",
+  "name": "Cap Nègre",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-peyrefite-osm1804312996",
+  "name": "Cap Peyrefite",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-pinede-osm9517565878",
+  "name": "Cap Pinède",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-pinet-osm12778730759",
+  "name": "Cap Pinet",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-rabarassara-osm6106243911",
+  "name": "Cap Rabarassara",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-ragnon-osm9622350349",
+  "name": "Cap Ragnon",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-ras-osm5631149093",
+  "name": "Cap Ras",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-redon-osm4554132626",
+  "name": "Cap Redon",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-rousset-osm2015235721",
+  "name": "Cap Rousset",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-rousset-osm632636487",
+  "name": "Cap Rousset",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-saint-louis-osm9004456864",
+  "name": "Cap Saint-Louis",
+  "department": "83",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-soubeyran-osm3753905439",
+  "name": "Cap Soubeyran",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cap-sugiton-osm9517565895",
+  "name": "Cap Sugiton",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "capo-cavallo-osm9578103627",
+  "name": "Capo Cavallo",
+  "department": "2B",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "capo-di-feno",
+  "name": "Capo di Feno",
+  "department": "2A",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "capu-di-a-mursetta-osm9578103629",
+  "name": "Capu di a Mursetta",
+  "department": "2B",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "capu-di-portu-vecchiu-osm9578103622",
+  "name": "Capu di Portu Vecchiu",
+  "department": "2B",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "carcans-plage",
+  "name": "Carcans-Plage",
+  "department": "33",
+  "species": [
+   "bar",
+   "maigre",
+   "sole",
+   "sar",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "carnon-plage-osm422436001",
+  "name": "Carnon-Plage",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "carras-plage-osm487779939",
+  "name": "Carras Plage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "carry-le-rouet",
+  "name": "Carry-le-Rouet — Côte Bleue",
+  "department": "13",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "carteau-osm3945905018",
+  "name": "Carteau",
+  "department": "13",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "cassis-port-miou",
+  "name": "Cassis — calanque de Port-Miou",
+  "department": "13",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "catana-osm28421128",
+  "name": "Catana",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "centenaire-plage-osm487779968",
+  "name": "Centenaire Plage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "chemin-de-ronde-osm408630168",
+  "name": "Chemin de Ronde",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "chenal-de-l-aa-gravelines",
+  "name": "Gravelines — Petit-Fort-Philippe",
+  "department": "59",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "chenal-de-la-siesta-osm292924081",
+  "name": "Chenal de la Siesta",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "chenal-epi-holywood-osm132571578",
+  "name": "Chenal Épi Holywood",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "chenal-epi-saint-honorat-osm132571577",
+  "name": "Chenal Épi Saint-Honorat",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "cocoon-beach-osm487779950",
+  "name": "Cocoon Beach",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "corniche-de-gourmalon",
+  "name": "Corniche de Gourmalon",
+  "department": "44",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "corniche-vendeenne",
+  "name": "Corniche vendéenne (Sion-sur-l'Océan)",
+  "department": "85",
+  "species": [
+   "bar",
+   "sar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "courant-d-huchet",
+  "name": "Courant d'Huchet (embouchure)",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "crique-de-peyrefite-osm169265633",
+  "name": "Crique de Peyrefite",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "de-l-embarril-osm1190653037",
+  "name": "de l'embarril",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "diamant-osm25764600",
+  "name": "Diamant",
+  "department": "34",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "digue-aux-chevaux-saint-jean-de-luz",
+  "name": "Saint-Jean-de-Luz — digue aux Chevaux",
+  "department": "64",
+  "species": [
+   "dorade_royale",
+   "bar",
+   "mulet",
+   "sar",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "digue-carnot-boulogne",
+  "name": "Boulogne-sur-Mer — digue Carnot",
+  "department": "62",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "digue-d-amphise-osm1125927239",
+  "name": "Digue d'Amphise",
+  "department": "13",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "digue-de-cavalaire",
+  "name": "Cavalaire-sur-Mer — digue du port",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "digue-de-cerbere",
+  "name": "Cerbère — digue du port",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "sar",
+   "bar",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "digue-de-dielette",
+  "name": "Diélette — digue du port",
+  "department": "50",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "digue-de-port-medoc",
+  "name": "Le Verdon-sur-Mer — digue de Port-Médoc",
+  "department": "33",
+  "species": [
+   "bar",
+   "maigre",
+   "sar",
+   "congre",
+   "dorade_royale",
+   "mulet",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "digue-de-querqueville",
+  "name": "Digue de Querqueville",
+  "department": "50",
+  "species": [
+   "bar",
+   "maquereau",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "digue-de-saint-martin-de-re",
+  "name": "Saint-Martin-de-Ré — digue extérieure",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sar",
+   "orphie",
+   "mulet",
+   "congre"
+  ]
+ },
+ {
+  "slug": "digue-de-saint-vaast",
+  "name": "Saint-Vaast-la-Hougue — digue de la Hougue",
+  "department": "50",
+  "species": [
+   "bar",
+   "maquereau",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "digue-de-socoa",
+  "name": "Digue de Socoa",
+  "department": "64",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sar",
+   "mulet",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "digue-de-wimereux",
+  "name": "Wimereux — digue de promenade",
+  "department": "62",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "digue-des-fakirs-osm454643299",
+  "name": "Digue des Fakirs",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "digue-du-port-d-erquy",
+  "name": "Digue du port d'Erquy",
+  "department": "22",
+  "species": [
+   "maquereau",
+   "orphie",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "digue-du-port-de-bandol",
+  "name": "Bandol — digue du port",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche"
+  ]
+ },
+ {
+  "slug": "digue-du-port-du-lavandou",
+  "name": "Le Lavandou — digue du port",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "digue-du-port-vauban",
+  "name": "Antibes — digue du Port Vauban",
+  "department": "06",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "digue-golfe-juan-4b6bbd",
+  "name": "digue golfe juan",
+  "department": "06",
+  "species": [
+   "dorade_royale"
+  ]
+ },
+ {
+  "slug": "digue-richelieu-la-rochelle",
+  "name": "La Rochelle — digue Richelieu (Le Mail)",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "orphie",
+   "mulet",
+   "sole"
+  ]
+ },
+ {
+  "slug": "digues-de-sausset-les-pins",
+  "name": "Sausset-les-Pins — digues du port",
+  "department": "13",
+  "species": [
+   "dorade_royale",
+   "sar",
+   "bar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "digues-du-grau-marseillan",
+  "name": "Marseillan-Plage — digues du grau",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar"
+  ]
+ },
+ {
+  "slug": "embouchure-courant-de-contis",
+  "name": "Contis — embouchure du courant",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "sar",
+   "orphie",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "embouchure-courant-de-soustons",
+  "name": "Vieux-Boucau — embouchure du courant de Soustons",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "sar",
+   "orphie",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "embouchure-de-l-adour-anglet",
+  "name": "Anglet — embouchure de l'Adour (plage de la Barre)",
+  "department": "64",
+  "species": [
+   "bar",
+   "maigre",
+   "mulet",
+   "sole",
+   "dorade_royale"
+  ]
+ },
+ {
+  "slug": "embouchure-de-l-orb-valras",
+  "name": "Valras-Plage — embouchure de l'Orb",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "embouchure-de-l-orne-ouistreham",
+  "name": "Ouistreham — embouchure de l'Orne",
+  "department": "14",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "embouchure-du-libron-vias",
+  "name": "Vias-Plage — embouchure du Libron",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "embouchure-du-var-nice",
+  "name": "Nice — embouchure du Var",
+  "department": "06",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre"
+  ]
+ },
+ {
+  "slug": "en-baus-osm71087180",
+  "name": "En Baus",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "epi-34-osm698165180",
+  "name": "épi 34",
+  "department": "34",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "epis-du-boucanet",
+  "name": "Le Grau-du-Roi — épis du Boucanet",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "espiguette-section-ouest",
+  "name": "Pointe de l'Espiguette — section ouest",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "estacade-de-capbreton",
+  "name": "Estacade de Capbreton",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sar",
+   "congre",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "estacade-de-chatelaillon",
+  "name": "Estacade de Châtelaillon-Plage",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "orphie",
+   "mulet",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "estacade-de-saint-jean-de-monts",
+  "name": "Estacade de Saint-Jean-de-Monts",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "fort-de-socoa-ciboure",
+  "name": "Fort de Socoa",
+  "department": "64",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "sar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "frontignan-port-osm1191224645",
+  "name": "Frontignan Port",
+  "department": "34",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "grand-travers-osm26478845",
+  "name": "Grand Travers",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "grande-jetee-de-saint-gilles",
+  "name": "Grande jetée de Saint-Gilles-Croix-de-Vie",
+  "department": "85",
+  "species": [
+   "bar",
+   "maquereau",
+   "orphie",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "grande-plage-carnac",
+  "name": "Grande Plage de Carnac",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "grande-plage-damgan",
+  "name": "Grande Plage de Damgan",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "grande-plage-de-gavres",
+  "name": "Grande plage de Gâvres",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "grande-plage-saint-cast-le-guildo",
+  "name": "Grande Plage de Saint-Cast",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "grau-de-sainte-marie-barcares",
+  "name": "Le Barcarès — grau de Sainte-Marie",
+  "department": "66",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre"
+  ]
+ },
+ {
+  "slug": "gruissan-plage",
+  "name": "Gruissan — plage & port",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "guarded-beach-osm677121581",
+  "name": "Guarded beach",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "helio-club-de-l-espiguette-osm13112786978",
+  "name": "Helio club de l'Espiguette",
+  "department": "30",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "hourtin-plage",
+  "name": "Hourtin-Plage",
+  "department": "33",
+  "species": [
+   "bar",
+   "maigre",
+   "sole",
+   "sar",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "hundestrand-osm832879617",
+  "name": "Hundestrand",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "igy-sete-marina-osm1085835105",
+  "name": "IGY Sète Marina",
+  "department": "34",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "jetee-de-fecamp",
+  "name": "Fécamp — jetée du phare",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetee-de-grand-piquey",
+  "name": "Lège-Cap-Ferret — jetée de Grand-Piquey",
+  "department": "33",
+  "species": [
+   "bar",
+   "maigre",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "mulet",
+   "sole"
+  ]
+ },
+ {
+  "slug": "jetee-de-jard-sur-mer",
+  "name": "Jetée de Jard-sur-Mer",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-de-l-herbaudiere",
+  "name": "Jetée de L'Herbaudière",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-de-la-chaume",
+  "name": "Jetée de la Chaume",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-de-la-turballe",
+  "name": "Jetée de La Turballe",
+  "department": "44",
+  "species": [
+   "maquereau",
+   "orphie",
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-de-locmaria-groix",
+  "name": "Jetée de Locmaria (Groix)",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "jetee-de-malo-les-bains",
+  "name": "Dunkerque — digue de Malo-les-Bains",
+  "department": "59",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetee-de-narbonne-plage",
+  "name": "Narbonne-Plage — jetée du port",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche"
+  ]
+ },
+ {
+  "slug": "jetee-de-port-la-nouvelle",
+  "name": "Port-la-Nouvelle — jetée",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "jetee-du-canon",
+  "name": "Lège-Cap-Ferret — jetée du Canon",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maigre",
+   "sar",
+   "mulet",
+   "orphie",
+   "sole"
+  ]
+ },
+ {
+  "slug": "jetee-du-chateau-d-oleron",
+  "name": "Le Château-d'Oléron — jetée du port",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "sole",
+   "congre",
+   "sar"
+  ]
+ },
+ {
+  "slug": "jetee-du-dragon-bastia",
+  "name": "Bastia — jetée du Dragon",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "jetee-du-large-nice",
+  "name": "Nice — jetée du large du port Lympia",
+  "department": "06",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "jetee-du-port-canet",
+  "name": "Canet-en-Roussillon — jetée du port",
+  "department": "66",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "jetee-du-trehic",
+  "name": "Jetée du Tréhic",
+  "department": "44",
+  "species": [
+   "maquereau",
+   "bar",
+   "orphie",
+   "dorade_royale",
+   "vieille",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-du-treport",
+  "name": "Le Tréport — jetée Ouest",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetee-du-vieux-port-de-roscoff",
+  "name": "Jetée du vieux port de Roscoff",
+  "department": "29",
+  "species": [
+   "maquereau",
+   "orphie",
+   "vieille",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "jetee-nord-port-leucate",
+  "name": "Port-Leucate — jetée nord",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche"
+  ]
+ },
+ {
+  "slug": "jetee-ouest-de-calais",
+  "name": "Calais — jetée Ouest",
+  "department": "62",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetees-de-courseulles",
+  "name": "Courseulles-sur-Mer — jetées du chenal",
+  "department": "14",
+  "species": [
+   "bar",
+   "maquereau",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetees-de-dieppe",
+  "name": "Dieppe — jetées de l'avant-port",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetees-de-port-en-bessin",
+  "name": "Port-en-Bessin — jetées",
+  "department": "14",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetees-de-saint-valery-en-caux",
+  "name": "Saint-Valery-en-Caux — jetées",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "jetees-de-trouville",
+  "name": "Trouville — jetée de la Touques",
+  "department": "14",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "jetees-du-grau-du-roi",
+  "name": "Le Grau-du-Roi — jetées",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "l-espiguette-osm295330141",
+  "name": "L'Espiguette",
+  "department": "30",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "l-esplanade-belvedere-osm67713242",
+  "name": "L'Esplanade - Belvédère",
+  "department": "66",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "la-ciotat",
+  "name": "La Ciotat — bec de l'Aigle",
+  "department": "83",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "la-cotiniere",
+  "name": "La Cotinière",
+  "department": "17",
+  "species": [
+   "bar",
+   "maquereau",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "la-dune-osm92089417",
+  "name": "La Dune",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "la-grande-cosse-osm1723311537",
+  "name": "La Grande Cosse",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "la-grande-plage-quiberon",
+  "name": "La Grande Plage de Quiberon",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "mulet",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "la-pinede-osm40323298",
+  "name": "La Pinède",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "la-piscine-osm1494452692",
+  "name": "La Piscine",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "la-vela-osm487779959",
+  "name": "La Vela",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "lacanau-ocean",
+  "name": "Lacanau-Océan",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "maigre",
+   "sar",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "le-clapotis-osm160942458",
+  "name": "Le Clapotis",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "le-gouf-de-capbreton",
+  "name": "Capbreton — le Gouf (depuis la passe)",
+  "department": "40",
+  "species": [
+   "bar",
+   "maquereau",
+   "chinchard",
+   "maigre",
+   "congre",
+   "orphie",
+   "sar"
+  ]
+ },
+ {
+  "slug": "le-grau-d-agde",
+  "name": "Le Grau-d'Agde — embouchure de l'Hérault",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre"
+  ]
+ },
+ {
+  "slug": "le-petit-mousse-osm92089442",
+  "name": "Le Petit Mousse",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "le-petit-travers-osm1545067314",
+  "name": "Le Petit Travers",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "les-canailles-osm487779941",
+  "name": "Les Canailles",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "li-rateta-osm487779956",
+  "name": "Li Rateta",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "marine-de-pietracorbara-osm33839421",
+  "name": "Marine de Pietracorbara",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "marine-de-porto",
+  "name": "Marine de Porto — tour génoise",
+  "department": "2A",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "mise-a-l-eau-du-vidourle-osm99042009",
+  "name": "Mise à l'Eau du Vidourle",
+  "department": "30",
+  "species": [
+   "mulet",
+   "seiche",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "mole-de-la-flotte",
+  "name": "La Flotte — môle du port",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "orphie",
+   "mulet",
+   "sar"
+  ]
+ },
+ {
+  "slug": "mole-de-la-pointe-rouge",
+  "name": "Marseille — môle de la Pointe Rouge",
+  "department": "13",
+  "species": [
+   "dorade_royale",
+   "sar",
+   "bar",
+   "orphie",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "mole-de-pornichet",
+  "name": "Môle de Pornichet",
+  "department": "44",
+  "species": [
+   "maquereau",
+   "orphie",
+   "dorade_royale",
+   "bar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "mole-de-port-vendres",
+  "name": "Port-Vendres — môle du port",
+  "department": "66",
+  "species": [
+   "sar",
+   "dorade_royale",
+   "bar",
+   "orphie",
+   "maquereau",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "mole-des-noires",
+  "name": "Môle des Noires",
+  "department": "35",
+  "species": [
+   "maquereau",
+   "orphie",
+   "bar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "mole-du-port-d-armor",
+  "name": "Môle du port d'Armor",
+  "department": "22",
+  "species": [
+   "maquereau",
+   "orphie",
+   "bar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "mole-du-pouliguen",
+  "name": "Môle du Pouliguen",
+  "department": "44",
+  "species": [
+   "maquereau",
+   "orphie",
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "mole-du-raoulic-audierne",
+  "name": "Môle du Raoulic (Audierne)",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "mole-eric-tabarly",
+  "name": "Môle Éric Tabarly (La Trinité-sur-Mer)",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "mole-jean-reveille-saint-tropez",
+  "name": "Saint-Tropez — môle Jean Réveille",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "mole-saint-louis-sete",
+  "name": "Sète — môle Saint-Louis",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "mourillon-toulon",
+  "name": "Toulon — plages du Mourillon",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "navette-portuaire-visite-touristique-de-port-camar-osm234071195",
+  "name": "Navette Portuaire - Visite Touristique de Port Camargue",
+  "department": "30",
+  "species": [
+   "sar",
+   "oblade",
+   "barracuda",
+   "congre"
+  ]
+ },
+ {
+  "slug": "opera-plage-osm487779971",
+  "name": "Opera Plage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "palavas-est-osm283112390",
+  "name": "Palavas Est",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "palavas-les-flots",
+  "name": "Palavas-les-Flots — embouchure du Lez",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre"
+  ]
+ },
+ {
+  "slug": "phare-de-chassiron",
+  "name": "Phare de Chassiron",
+  "department": "17",
+  "species": [
+   "bar",
+   "sar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "phare-de-la-petite-muette-dahouet",
+  "name": "Phare de la Petite Muette : digue de Dahouët",
+  "department": "22",
+  "species": [
+   "bar",
+   "mulet",
+   "maquereau",
+   "orphie",
+   "congre",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "phare-de-la-pietra-ile-rousse",
+  "name": "L'Île-Rousse — phare de la Pietra",
+  "department": "2B",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "phare-de-la-pointe-a-l-aigle-plerin",
+  "name": "Phare de la Pointe à l'Aigle : jetée du Légué",
+  "department": "22",
+  "species": [
+   "bar",
+   "mulet",
+   "maquereau",
+   "dorade_grise",
+   "sole",
+   "congre"
+  ]
+ },
+ {
+  "slug": "phare-de-mean-ruz-ploumanach",
+  "name": "Phare de Mean Ruz : pointe de Ploumanac'h",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "phare-de-pertusato",
+  "name": "Phare de Pertusato — Bonifacio",
+  "department": "2A",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "phare-des-baleines",
+  "name": "Phare des Baleines",
+  "department": "17",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "mulet",
+   "congre",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "phare-du-petit-minou",
+  "name": "Phare du Petit Minou",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pierres-plates-osm13688809355",
+  "name": "Pierres Plates",
+  "department": "06",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "plage-balanti-osm363780628",
+  "name": "Plage Balanti",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-bonaparte-plouha",
+  "name": "Plage Bonaparte",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "plage-brigitte-bardot-osm26334200",
+  "name": "Plage Brigitte Bardot",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-caruchettu-osm211922077",
+  "name": "Plage Caruchettu",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-centre-osm1389754750",
+  "name": "Plage centre",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-d-argeles-sur-mer-osm10066088",
+  "name": "Plage d'Argelès-sur-Mer",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-d-etretat",
+  "name": "Étretat — plage de galets",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-d-hendaye",
+  "name": "Plage d'Hendaye",
+  "department": "64",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-d-herlin-bangor",
+  "name": "Plage d'Herlin",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "dorade_royale",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "plage-d-hossegor",
+  "name": "Plage d'Hossegor",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-d-olzo-osm803552232",
+  "name": "Plage d'Olzo",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-betahon-ambon",
+  "name": "Plage de Bétahon",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-bodri-osm113823751",
+  "name": "Plage de Bodri",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-bon-voyage-osm833351673",
+  "name": "Plage de Bon Voyage",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-bray-dunes",
+  "name": "Bray-Dunes — grande plage",
+  "department": "59",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-brehec-plouha",
+  "name": "Plage de Bréhec",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "sole",
+   "dorade_grise",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-cala-francese-osm610057933",
+  "name": "Plage de Cala Francese",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-cala-osm303473688",
+  "name": "Plage de Cala",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-caroual-erquy",
+  "name": "Plage de Caroual",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-davia-osm670308279",
+  "name": "Plage de Davia",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-delta-du-fango-osm27392232",
+  "name": "Plage de Delta du Fango",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-donnant-bangor",
+  "name": "Plage de Donnant",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "dorade_royale",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "plage-de-farinette-osm1076186056",
+  "name": "Plage de Farinette",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-farinole-osm623036418",
+  "name": "Plage de Farinole",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-ficaghjola-osm1185847945",
+  "name": "Plage de Ficaghjola",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-frontignan",
+  "name": "Frontignan-Plage — la Corniche",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-de-galeria-osm220745080",
+  "name": "plage de Galéria",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-golfe-bleu-osm24648192",
+  "name": "Plage de Golfe Bleu",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-grisgione-arinella-di-grisgione-osm669489058",
+  "name": "Plage de Grisgione - Arinella di Grisgione",
+  "department": "2B",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-kerguelen-larmor-plage",
+  "name": "Plage de Kerguelen",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-kerhillio-erdeven",
+  "name": "Plage de Kerhillio",
+  "department": "56",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_royale",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-kerpape-ploemeur",
+  "name": "Plage de Kerpape",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "plage-de-kervillen-la-trinite-sur-mer",
+  "name": "Plage de Kervillen",
+  "department": "56",
+  "species": [
+   "dorade_royale",
+   "bar",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-l-anse-du-stole-ploemeur",
+  "name": "Plage de l'Anse du Stole",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "sole",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-l-art-osm13075748612",
+  "name": "Plage de l'Art",
+  "department": "66",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-l-entree-osm12159459235",
+  "name": "Plage de l'Entrée",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-corniche-osm183957370",
+  "name": "Plage de la Corniche",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-corniche-pilat",
+  "name": "La Teste-de-Buch — plage de la Corniche (dune du Pilat)",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maigre",
+   "sar",
+   "sole",
+   "congre",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-la-courance",
+  "name": "Plage de la Courance",
+  "department": "44",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-la-dalle-osm11180476592",
+  "name": "Plage de la Dalle",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-falaise-guidel",
+  "name": "Plage de la Falaise",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "sole",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-la-fontaine-osm20492987",
+  "name": "Plage de la Fontaine",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-franqui",
+  "name": "La Franqui — grande plage",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-de-la-grande-maire-osm9022469891",
+  "name": "Plage de la Grande Maïre",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-marana",
+  "name": "Plage de la Marana",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-de-la-mateille-osm1723311732",
+  "name": "Plage de la Mateille",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-mine-d-or-penestin",
+  "name": "Plage de la Mine d'Or",
+  "department": "56",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_royale",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-la-pyramide-osm842809182",
+  "name": "Plage de la Pyramide",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-redoute-osm92089528",
+  "name": "Plage de la Redoute",
+  "department": "34",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-torche",
+  "name": "Plage de la Torche / Pors Carn",
+  "department": "29",
+  "species": [
+   "bar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-la-tranche",
+  "name": "Plage de La Tranche-sur-Mer",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-la-vieille-nouvelle-osm49202040",
+  "name": "Plage de la Vieille Nouvelle",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-la-ville-berneuf-pleneuf",
+  "name": "Plage de la Ville Berneuf",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-leucate-plage-osm41749055",
+  "name": "Plage de Leucate-Plage",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-lourtuais-erquy",
+  "name": "Plage de Lourtuais",
+  "department": "22",
+  "species": [
+   "dorade_grise",
+   "bar",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-mateille-osm12249085212",
+  "name": "Plage de Mateille",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-messanges",
+  "name": "Plage de Messanges",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "sar",
+   "maquereau",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "plage-de-mimizan",
+  "name": "Embouchure du courant de Mimizan",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-moliets-lette-blanche",
+  "name": "Plage de Moliets — Lette Blanche",
+  "department": "40",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "sar",
+   "maquereau",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "plage-de-montalivet",
+  "name": "Plage de Montalivet",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maigre",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-notre-dame-de-monts",
+  "name": "Plage de Notre-Dame-de-Monts",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-padulone-aleria",
+  "name": "Plage de Padulone — embouchure du Tavignano",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre"
+  ]
+ },
+ {
+  "slug": "plage-de-penvins-sarzeau",
+  "name": "Plage de Penvins",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-port-leucate-osm1723741881",
+  "name": "Plage de Port-Leucate",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-de-port-melite-groix",
+  "name": "Plage de Port Mélite",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "dorade_royale",
+   "vieille",
+   "mulet",
+   "sole"
+  ]
+ },
+ {
+  "slug": "plage-de-saint-brevin",
+  "name": "Plage de Saint-Brevin",
+  "department": "44",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-saint-pabu-erquy",
+  "name": "Plage de Saint-Pabu",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-sainte-barbe-plouharnel",
+  "name": "Plage de Sainte-Barbe",
+  "department": "56",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-soulac",
+  "name": "Plage de Soulac-sur-Mer",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sar",
+   "sole",
+   "seiche",
+   "mulet",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-suscinio-sarzeau",
+  "name": "Plage de Suscinio",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-tharon",
+  "name": "Plage de Tharon",
+  "department": "44",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-de-toulhars-larmor-plage",
+  "name": "Plage de Toulhars",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "sole",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-de-tresmeur-trebeurden",
+  "name": "Plage de Tresmeur",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-de-trestraou-perros-guirec",
+  "name": "Plage de Trestraou",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "maquereau",
+   "dorade_grise",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-des-ayguades-osm1723311743",
+  "name": "Plage des Ayguades",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-des-ayguades-poste-de-secours-n-5-osm298686284",
+  "name": "Plage des Ayguades - Poste de secours n°5",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-des-chalets-osm49248872",
+  "name": "Plage des Chalets",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-des-conches",
+  "name": "Plage des Conches",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-des-godelins-etables-sur-mer",
+  "name": "Plage des Godelins",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-des-grands-sables-belle-ile",
+  "name": "Plage des Grands Sables",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-des-montilles-osm1723311755",
+  "name": "Plage des Montilles",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-des-rosaires-plerin",
+  "name": "Plage des Rosaires",
+  "department": "22",
+  "species": [
+   "bar",
+   "sole",
+   "dorade_grise",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-des-saumonards",
+  "name": "Plage des Saumonards",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "maquereau",
+   "sar"
+  ]
+ },
+ {
+  "slug": "plage-des-vallees-pleneuf",
+  "name": "Plage des Vallées",
+  "department": "22",
+  "species": [
+   "bar",
+   "dorade_grise",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-du-boucanet-osm66097905",
+  "name": "Plage du Boucanet",
+  "department": "30",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-du-cap-ferret",
+  "name": "Plage du Truc Vert (Cap Ferret)",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-du-cavaou",
+  "name": "Fos-sur-Mer — plage du Cavaou",
+  "department": "13",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "orphie",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-du-centre-bidart",
+  "name": "Bidart — plage du Centre",
+  "department": "64",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "sole",
+   "maigre",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-du-creneau-naturel-poste-de-secours-n-4-osm1724005026",
+  "name": "Plage du Créneau Naturel - Poste de secours n° 4",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-du-grazel-osm49248027",
+  "name": "Plage du Grazel",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-du-lazaret-sete",
+  "name": "Sète — plage du Lazaret (la Corniche)",
+  "department": "34",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-du-palus-plouha",
+  "name": "Plage du Palus",
+  "department": "22",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-du-perello-ploemeur",
+  "name": "Plage du Pérello",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "orphie",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-du-portuais-erquy",
+  "name": "Plage du Portuais",
+  "department": "22",
+  "species": [
+   "dorade_grise",
+   "bar",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "plage-du-sillon",
+  "name": "Plage du Sillon",
+  "department": "35",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "plage-du-val-andre-pleneuf",
+  "name": "Plage du Val André",
+  "department": "22",
+  "species": [
+   "bar",
+   "maquereau",
+   "sole",
+   "dorade_grise",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "plage-napoleon-port-saint-louis",
+  "name": "Port-Saint-Louis — plage Napoléon",
+  "department": "13",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-naturiste-de-fleury-osm12005699213",
+  "name": "Plage naturiste de Fleury",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-naturiste-de-l-espiguette-osm12208769115",
+  "name": "Plage naturiste de l'Espiguette",
+  "department": "30",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plage-rive-gauche-grau-du-roi",
+  "name": "Le Grau-du-Roi — plage Rive Gauche",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "orphie",
+   "maquereau",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-sud-port-camargue",
+  "name": "Le Grau-du-Roi — plage Sud de Port-Camargue",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "plage-thales-osm648472932",
+  "name": "Plage \"Thalès\"",
+  "department": "06",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "plages-des-terrasses-du-soleil-poste-de-secours-n--osm1723971383",
+  "name": "Plages des Terrasses du Soleil - Poste de secours n°3",
+  "department": "11",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "pointe-churchill-carnac",
+  "name": "Pointe Churchill",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-d-agon",
+  "name": "Pointe d'Agon",
+  "department": "50",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "pointe-d-en-tal-houat",
+  "name": "Pointe d'En Tal",
+  "department": "56",
+  "species": [
+   "bar",
+   "sole",
+   "maquereau",
+   "lieu_jaune",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-de-barfleur-gatteville",
+  "name": "Pointe de Barfleur — phare de Gatteville",
+  "department": "50",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-de-beg-an-fry-guimaec",
+  "name": "Pointe de Beg An Fry",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-beg-en-aud",
+  "name": "Pointe de Beg en Aud",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-beg-meil",
+  "name": "Pointe de Beg-Meil",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "lieu_jaune",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "pointe-de-berno-ile-d-arz",
+  "name": "Pointe de Berno",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-bihit-trebeurden",
+  "name": "Pointe de Bihit",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "orphie",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-bilgroix",
+  "name": "Pointe de Bilgroix",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-bilherve-ile-d-arz",
+  "name": "Pointe de Bilhervé",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-bloscon-roscoff",
+  "name": "Pointe de Bloscon",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-brannec-ile-aux-moines",
+  "name": "Pointe de Brannec",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-brenterc-h-ploumoguer",
+  "name": "Pointe de Brenterc'h",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-brouel-ile-aux-moines",
+  "name": "Pointe de Brouël",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-cameulet",
+  "name": "Pointe de Cameulet",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-casperaquiz-hoedic",
+  "name": "Pointe de Casperaquiz",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-chateau-renard-plevenon",
+  "name": "Pointe de Château Renard",
+  "department": "22",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-chemoulin",
+  "name": "Pointe de Chémoulin",
+  "department": "44",
+  "species": [
+   "bar",
+   "sar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-de-combrit",
+  "name": "Pointe de Combrit",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-cornouaille-roscanvel",
+  "name": "Pointe de Cornouaille",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-corsen",
+  "name": "Pointe de Corsen",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "plie"
+  ]
+ },
+ {
+  "slug": "pointe-de-creac-hmeur-plougonvelin",
+  "name": "Pointe de Créac'hmeur",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-dinan",
+  "name": "Pointe de Dinan",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-de-doubidy",
+  "name": "Pointe de Doubidy",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "lieu_jaune",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-duer-sarzeau",
+  "name": "Pointe de Duer",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "dorade_grise",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-gavres",
+  "name": "Pointe de Gâvres",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "pointe-de-goulvars-quiberon",
+  "name": "Pointe de Goulvars",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-grave",
+  "name": "Pointe de Grave",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "maigre",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "pointe-de-grosse-terre",
+  "name": "Pointe de Grosse Terre",
+  "department": "85",
+  "species": [
+   "bar",
+   "sar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-de-kastel-koz-beuzec",
+  "name": "Pointe de Kastel Koz",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-ker-biscart-ploemeur",
+  "name": "Pointe de Ker Biscart",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-kerbihan-la-trinite-sur-mer",
+  "name": "Pointe de Kerbihan",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-kerfany-moelan",
+  "name": "Pointe de Kerfany",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-kergroix-saint-pierre-quiberon",
+  "name": "Pointe de Kergroix",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-kermorvan",
+  "name": "Pointe de Kermorvan",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-kerners",
+  "name": "Pointe de Kerners",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-kerpenhir",
+  "name": "Pointe de Kerpenhir",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "lieu_jaune",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-kervihan",
+  "name": "Pointe de Kervihan",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-kervoyal",
+  "name": "Pointe de Kervoyal",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-aiguille-theoule",
+  "name": "Théoule-sur-Mer — pointe de l'Aiguille",
+  "department": "06",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "maquereau",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-aiguillon-arcachon",
+  "name": "Arcachon — pointe de l'Aiguillon",
+  "department": "33",
+  "species": [
+   "sole",
+   "dorade_royale",
+   "mulet",
+   "bar",
+   "maigre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-arcouest",
+  "name": "Pointe de l'Arcouest",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-armorique-plougastel",
+  "name": "Pointe de l'Armorique",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "congre",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-enfer-groix",
+  "name": "Pointe de l'Enfer",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-espiguette",
+  "name": "Pointe de l'Espiguette",
+  "department": "30",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "pointe-de-l-ours-sarzeau",
+  "name": "Pointe de l'Ours",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-coubre",
+  "name": "Pointe de la Coubre",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sole",
+   "seiche",
+   "mulet",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-fumee",
+  "name": "Pointe de la Fumée",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "sole",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-garde-saint-cast",
+  "name": "Pointe de la Garde",
+  "department": "22",
+  "species": [
+   "bar",
+   "maquereau",
+   "dorade_grise",
+   "mulet",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-garenne-le-hezo",
+  "name": "Pointe de la Garenne",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "dorade_grise",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-greve-osm5929905967",
+  "name": "Pointe de la Grève",
+  "department": "11",
+  "species": [
+   "sar",
+   "oblade",
+   "pageot",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-latte-plevenon",
+  "name": "Pointe de la Latte",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-palisse",
+  "name": "Pointe de la Palisse",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-parata",
+  "name": "Pointe de la Parata — Sanguinaires",
+  "department": "2A",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-tavelle-camaret",
+  "name": "Pointe de la Tavelle",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-torche",
+  "name": "Pointe de la Torche",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "sole",
+   "dorade_royale"
+  ]
+ },
+ {
+  "slug": "pointe-de-la-varde",
+  "name": "Pointe de la Varde",
+  "department": "35",
+  "species": [
+   "bar",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-de-landunvez-argenton",
+  "name": "Pointe de Landunvez",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-langoz-loctudy",
+  "name": "Pointe de Langoz",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "lieu_jaune",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-lanveoc",
+  "name": "Pointe de Lanvéoc",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "lieu_jaune",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-lervily-audierne",
+  "name": "Pointe de Lervily",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-leyde-douarnenez",
+  "name": "Pointe de Leydé",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-liouse",
+  "name": "Pointe de Liouse",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-locmiquel",
+  "name": "Pointe de Locmiquel",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-lostmarc-h-crozon",
+  "name": "Pointe de Lostmarc'h",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-luguenez-beuzec",
+  "name": "Pointe de Luguénez",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_grise",
+   "mulet",
+   "vieille",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-mane-hellec-sainte-helene",
+  "name": "Pointe de Mané-Hellec",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "sole",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-marie-venell-saint-pierre-quiberon",
+  "name": "Pointe de Marie Venell",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-men-meur-guilvinec",
+  "name": "Pointe de Men Meur",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "lieu_jaune"
+  ]
+ },
+ {
+  "slug": "pointe-de-mousterlin",
+  "name": "Pointe de Mousterlin",
+  "department": "29",
+  "species": [
+   "bar",
+   "congre",
+   "lieu_jaune",
+   "dorade_royale",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-de-nenezic-ile-d-arz",
+  "name": "Pointe de Nénézic",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-pen-lan-billiers",
+  "name": "Pointe de Pen Lan",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-penbert",
+  "name": "Pointe de Penbert",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-penchateau",
+  "name": "Pointe de Penchâteau",
+  "department": "44",
+  "species": [
+   "bar",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-de-penmarch",
+  "name": "Pointe de Penmarc'h",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-penmarch-sauzon",
+  "name": "Pointe de Penmarc'h",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-penn-al-lann-carantec",
+  "name": "Pointe de Penn al Lann",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-penvins",
+  "name": "Pointe de Penvins",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-perherel-plougasnou",
+  "name": "Pointe de Perhérel",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-de-portzen-crozon",
+  "name": "Pointe de Portzen",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-primel",
+  "name": "Pointe de Primel",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-de-roch-louet",
+  "name": "Pointe de Roc'h Louët",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-roquenec",
+  "name": "Pointe de Roquenec",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "sole",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-rostiviec-loperhet",
+  "name": "Pointe de Rostiviec",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "congre",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-rostudel-crozon",
+  "name": "Pointe de Rostudel",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-saint-nicolas-arzon",
+  "name": "Pointe de Saint-Nicolas",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-scouro",
+  "name": "Pointe de Scouro",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-sehar-locquemeau",
+  "name": "Pointe de Séhar",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "maquereau",
+   "vieille",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-de-souc-h-plouhinec",
+  "name": "Pointe de Souc'h",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "sole",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-de-suzac",
+  "name": "Pointe de Suzac",
+  "department": "17",
+  "species": [
+   "maigre",
+   "bar",
+   "sole",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-taillefer-belle-ile",
+  "name": "Pointe de Taillefer",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-toulvern",
+  "name": "Pointe de Toulvern",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-de-trech",
+  "name": "Pointe de Trec'h",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-de-trefeuntec-plonevez-porzay",
+  "name": "Pointe de Tréfeuntec",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "sole",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-de-trevignon",
+  "name": "Pointe de Trévignon",
+  "department": "29",
+  "species": [
+   "bar",
+   "maquereau",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-des-capucins-roscanvel",
+  "name": "Pointe des Capucins",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-des-chats-groix",
+  "name": "Pointe des Chats",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-des-grottes-morgat",
+  "name": "Pointe des Grottes",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-des-renards",
+  "name": "Pointe des Renards",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-du-beche-arzon",
+  "name": "Pointe du Béché",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-belure",
+  "name": "Pointe du Béluré",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-berchis-larmor-baden",
+  "name": "Pointe du Berchis",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-cabellou-concarneau",
+  "name": "Pointe du Cabellou",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "lieu_jaune",
+   "maquereau",
+   "mulet"
+  ]
+ },
+ {
+  "slug": "pointe-du-castel-ploemeur",
+  "name": "Pointe du Castel",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-chateau-logonna",
+  "name": "Pointe du Château",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "lieu_jaune",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-chateau-plougrescant",
+  "name": "Pointe du Château — Gouffre de Plougrescant",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-du-chay",
+  "name": "Pointe du Chay (Angoulins)",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-du-cleguer",
+  "name": "Pointe du Cleguer",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-conguel",
+  "name": "Pointe du Conguel",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "dorade_royale",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-coq-benodet",
+  "name": "Pointe du Coq",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-croisic",
+  "name": "Pointe du Croisic — Côte Sauvage",
+  "department": "44",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-du-dellec",
+  "name": "Pointe du Dellec",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "vieille",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-diable-plouzane",
+  "name": "Pointe du Diable",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "vieille",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-dibenn-damgan",
+  "name": "Pointe du Dibenn",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "sole",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-dolmen-crozon",
+  "name": "Pointe du Dolmen",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-dourven-tredrez-locquemeau",
+  "name": "Pointe du Dourven",
+  "department": "22",
+  "species": [
+   "bar",
+   "mulet",
+   "sole",
+   "lieu_jaune",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-du-fier-la-patache",
+  "name": "Pointe du Fier — La Patache",
+  "department": "17",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "congre",
+   "sar",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-grand-gouin-camaret",
+  "name": "Pointe du Grand Gouin",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-grand-guet-bangor",
+  "name": "Pointe du Grand Guet",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-grand-minou",
+  "name": "Pointe du Grand Minou",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "mulet",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-grand-mont",
+  "name": "Pointe du Grand Mont",
+  "department": "56",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-du-grognon-groix",
+  "name": "Pointe du Grognon",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-grouin",
+  "name": "Pointe du Grouin",
+  "department": "35",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-du-guern-baden",
+  "name": "Pointe du Guern",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-guern-telgruc",
+  "name": "Pointe du Guern",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "sole",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "pointe-du-kador-crozon",
+  "name": "Pointe du Kador (Beg ar Gador)",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-du-listrec-locoal-mendon",
+  "name": "Pointe du Listrec",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "sole",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-menhir-crozon",
+  "name": "Pointe du Menhir",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-du-millier",
+  "name": "Pointe du Millier",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-du-monteno",
+  "name": "Pointe du Monteno",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-moulinet",
+  "name": "Pointe du Moulinet",
+  "department": "35",
+  "species": [
+   "bar",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-du-nioul-ile-aux-moines",
+  "name": "Pointe du Nioul",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-payre-le-veillon",
+  "name": "Pointe du Payré — Le Veillon",
+  "department": "85",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "maigre",
+   "plie"
+  ]
+ },
+ {
+  "slug": "pointe-du-percho",
+  "name": "Pointe du Percho",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-du-raz",
+  "name": "Pointe du Raz",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-du-roc-granville",
+  "name": "Pointe du Roc — Granville",
+  "department": "50",
+  "species": [
+   "bar",
+   "maquereau",
+   "vieille",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud",
+   "lieu_noir",
+   "merlan"
+  ]
+ },
+ {
+  "slug": "pointe-du-roselier",
+  "name": "Pointe du Roselier",
+  "department": "22",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-du-spernec-groix",
+  "name": "Pointe du Spernec",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-sperneguy-ile-aux-moines",
+  "name": "Pointe du Spernéguy",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-talud",
+  "name": "Pointe du Talud",
+  "department": "56",
+  "species": [
+   "bar",
+   "maquereau",
+   "lieu_jaune",
+   "vieille",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "pointe-du-van",
+  "name": "Pointe du Van",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-du-verdon-sainte-helene",
+  "name": "Pointe du Verdon",
+  "department": "56",
+  "species": [
+   "bar",
+   "mulet",
+   "dorade_royale",
+   "sole",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-du-vieux-chateau-hoedic",
+  "name": "Pointe du Vieux Château",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "maquereau",
+   "congre"
+  ]
+ },
+ {
+  "slug": "pointe-er-hastellic-houat",
+  "name": "Pointe er Hastellic",
+  "department": "56",
+  "species": [
+   "bar",
+   "vieille",
+   "lieu_jaune",
+   "sole",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-saint-colomban-carnac",
+  "name": "Pointe Saint-Colomban",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "sole"
+  ]
+ },
+ {
+  "slug": "pointe-saint-gildas",
+  "name": "Pointe Saint-Gildas",
+  "department": "44",
+  "species": [
+   "bar",
+   "maquereau",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-saint-gilles-benodet",
+  "name": "Pointe Saint-Gilles",
+  "department": "29",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "maquereau",
+   "seiche"
+  ]
+ },
+ {
+  "slug": "pointe-saint-martin",
+  "name": "Pointe Saint-Martin",
+  "department": "64",
+  "species": [
+   "bar",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "pointe-saint-mathieu",
+  "name": "Pointe Saint-Mathieu",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "pointe-saint-nicolas-groix",
+  "name": "Pointe Saint-Nicolas",
+  "department": "56",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "congre",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-saint-samson-plougasnou",
+  "name": "Pointe Saint-Samson",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "vieille",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "pointe-saint-vincent-collioure",
+  "name": "Pointe Saint-Vincent — Collioure",
+  "department": "66",
+  "species": [
+   "sar",
+   "dorade_royale",
+   "bar",
+   "tassergal"
+  ]
+ },
+ {
+  "slug": "pointe-sainte-barbe",
+  "name": "Pointe Sainte-Barbe",
+  "department": "64",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "mulet",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "port-blanc-saint-pierre-quiberon",
+  "name": "Port Blanc",
+  "department": "56",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "lieu_jaune",
+   "vieille"
+  ]
+ },
+ {
+  "slug": "port-camargue-plage-nord-osm66098003",
+  "name": "Port Camargue Plage Nord",
+  "department": "30",
+  "species": [
+   "dorade_royale",
+   "marbre",
+   "sar",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "port-d-argeles",
+  "name": "Port d'Argelès-sur-Mer",
+  "department": "66",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche"
+  ]
+ },
+ {
+  "slug": "port-de-bonifacio",
+  "name": "Bonifacio — goulet / port",
+  "department": "2A",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "port-de-campoloro",
+  "name": "Port de Taverna / Campoloro",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "port-de-carantec",
+  "name": "Port de Carantec",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "lieu_jaune",
+   "seiche",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "port-de-carro",
+  "name": "Carro — port et jetées",
+  "department": "13",
+  "species": [
+   "dorade_royale",
+   "sar",
+   "bar",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "port-de-centuri",
+  "name": "Port de Centuri",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "port-de-guethary",
+  "name": "Guéthary — port et estran rocheux",
+  "department": "64",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "pageot",
+   "maquereau",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "port-de-gwin-zegal",
+  "name": "Port de Gwin Zégal",
+  "department": "22",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "port-de-la-salis-5857f0",
+  "name": "port de la salis",
+  "department": "06",
+  "species": [
+   "bar",
+   "dorade_royale"
+  ]
+ },
+ {
+  "slug": "port-de-macinaggio",
+  "name": "Port de Macinaggio",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "port-de-mogueriec",
+  "name": "Port de Moguériec",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "lieu_jaune"
+  ]
+ },
+ {
+  "slug": "port-de-paluden-lannilis",
+  "name": "Port de Paluden (aber Wrac'h)",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "congre",
+   "seiche",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "port-de-porto-vecchio",
+  "name": "Porto-Vecchio — port / golfe",
+  "department": "2A",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "port-de-propriano",
+  "name": "Port de Propriano",
+  "department": "2A",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "port-de-saint-florent",
+  "name": "Saint-Florent — port",
+  "department": "2B",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "port-morvan-baie-de-saint-brieuc",
+  "name": "Port Morvan : grève et bordures",
+  "department": "22",
+  "species": [
+   "bar",
+   "dorade_grise",
+   "sole",
+   "mulet",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "port-navalo",
+  "name": "Port-Navalo — passe du Golfe",
+  "department": "56",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "mulet",
+   "chinchard"
+  ]
+ },
+ {
+  "slug": "port-tino-rossi-ajaccio",
+  "name": "Ajaccio — port Tino Rossi",
+  "department": "2A",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "presqu-ile-de-giens",
+  "name": "Presqu'île de Giens",
+  "department": "83",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade",
+   "barracuda"
+  ]
+ },
+ {
+  "slug": "presqu-ile-du-gaou",
+  "name": "Le Brusc — presqu'île du Gaou",
+  "department": "83",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "orphie",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "quai-du-rosmeur-douarnenez",
+  "name": "Quai du Rosmeur",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "dorade_grise"
+  ]
+ },
+ {
+  "slug": "quai-victoria-portsall",
+  "name": "Quai Victoria",
+  "department": "29",
+  "species": [
+   "bar",
+   "mulet",
+   "seiche",
+   "maquereau",
+   "lieu_jaune"
+  ]
+ },
+ {
+  "slug": "recif-de-parlementia",
+  "name": "Bidart — récif de Parlementia",
+  "department": "64",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "pageot",
+   "maquereau"
+  ]
+ },
+ {
+  "slug": "roc-de-la-batterie",
+  "name": "Roc de la Batterie — Saint-Pierre-la-Mer",
+  "department": "11",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie"
+  ]
+ },
+ {
+  "slug": "rocher-de-la-vierge",
+  "name": "Rocher de la Vierge",
+  "department": "64",
+  "species": [
+   "bar",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "rochers-de-la-normandeliere",
+  "name": "Rochers de la Normandelière",
+  "department": "85",
+  "species": [
+   "bar",
+   "sar",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud"
+  ]
+ },
+ {
+  "slug": "rochers-de-saint-guenole",
+  "name": "Rochers de Saint-Guénolé",
+  "department": "29",
+  "species": [
+   "bar",
+   "lieu_jaune",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "vieille",
+   "tacaud",
+   "lieu_noir"
+  ]
+ },
+ {
+  "slug": "sainte-adresse-cap-de-la-heve",
+  "name": "Sainte-Adresse — Cap de la Hève",
+  "department": "76",
+  "species": [
+   "bar",
+   "maquereau",
+   "orphie",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "saintes-maries-de-la-mer",
+  "name": "Saintes-Maries-de-la-Mer",
+  "department": "13",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "pageot",
+   "marbre"
+  ]
+ },
+ {
+  "slug": "sanary-sur-mer",
+  "name": "Sanary-sur-Mer — port & pointe de la Cride",
+  "department": "83",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "sar",
+   "orphie",
+   "seiche",
+   "calmar",
+   "mulet",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "oblade",
+   "liche"
+  ]
+ },
+ {
+  "slug": "sillon-de-talbert",
+  "name": "Sillon de Talbert",
+  "department": "22",
+  "species": [
+   "bar",
+   "maquereau",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ },
+ {
+  "slug": "tour-de-campomoro",
+  "name": "Tour de Campomoro",
+  "department": "2A",
+  "species": [
+   "bar",
+   "sar",
+   "dorade_royale",
+   "seiche",
+   "calmar",
+   "dorade_grise",
+   "congre",
+   "chinchard",
+   "pageot",
+   "oblade"
+  ]
+ },
+ {
+  "slug": "wharf-de-la-salie",
+  "name": "Plage de la Salie Sud",
+  "department": "33",
+  "species": [
+   "bar",
+   "dorade_royale",
+   "maquereau",
+   "maigre",
+   "seiche",
+   "mulet",
+   "sole",
+   "rouget",
+   "plie"
+  ]
+ }
+]

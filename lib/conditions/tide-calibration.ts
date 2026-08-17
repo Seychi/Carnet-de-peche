@@ -1,78 +1,26 @@
 import { createClient } from '@/lib/supabase/server'
-import { isCoastalDepartment } from '@/lib/geo/departments'
+import { referencePortForDepartment } from '@/lib/conditions/tide-departments'
 
 // ── Calibration marées par port de référence (sprint 38, F3 + fix offset) ──────
-// Source unique du mapping département côtier → port de référence audité, et lecture
-// de la ligne `tide_calibration` (table publique). L'audit (docs/sprint-38/
+// Lecture de la ligne `tide_calibration` (table publique). L'audit (docs/sprint-38/
 // tide-calibration-results.md) a montré que l'erreur Open-Meteo vs SHOM est presque
 // entièrement un décalage de phase CONSTANT par port (biais signé), le résidu après
 // correction étant petit (1 à 8 min). On applique donc l'offset = -bias_min aux heures
 // de PM/BM affichées (décision John : v2 offset activée).
 //
-// Méditerranée volontairement absente : micro-marée surtout météorologique, non
-// auditée → pas d'encart ni d'offset (plutôt qu'un faux chiffre).
+// ⚠️ Sprint 83 : le mapping département → façade / port est parti dans
+// `lib/conditions/tide-departments.ts`, module PUR. Ce fichier-ci importe
+// `@/lib/supabase/server` au niveau module, donc tout consommateur du seul mapping
+// (ex. les titres SEO) tirait une dépendance serveur pour rien. La source de vérité
+// reste unique : on ré-exporte ci-dessous, aucun site d'import n'a bougé.
 
-export type Facade = 'manche' | 'atlantique'
-
-const FACADE_REFERENCE_PORT: Record<Facade, string> = {
-  manche: 'Saint-Malo',
-  atlantique: 'Brest',
-}
-
-// Atlantique : chaque département rattaché au port étalon audité le plus représentatif.
-const ATLANTIC_PORT_BY_DEPARTMENT: Record<string, string> = {
-  '29': 'Brest', // Finistère
-  '56': 'Pornichet', // Morbihan
-  '44': 'Pornichet', // Loire-Atlantique
-  '85': "Les Sables-d'Olonne", // Vendée
-  '17': "Les Sables-d'Olonne", // Charente-Maritime
-  '33': 'Arcachon (Eyrac)', // Gironde
-  '40': 'Arcachon (Eyrac)', // Landes
-  '64': 'Arcachon (Eyrac)', // Pyrénées-Atlantiques
-}
-
-const DEPARTMENT_FACADE: Record<string, Facade> = {
-  // Manche / mer du Nord
-  '14': 'manche', // Calvados
-  '50': 'manche', // Manche
-  '76': 'manche', // Seine-Maritime
-  '59': 'manche', // Nord
-  '62': 'manche', // Pas-de-Calais
-  '35': 'manche', // Ille-et-Vilaine (Saint-Malo)
-  '22': 'manche', // Côtes-d'Armor (côte nord Bretagne)
-  // Atlantique
-  '29': 'atlantique', // Finistère
-  '56': 'atlantique', // Morbihan
-  '44': 'atlantique', // Loire-Atlantique
-  '85': 'atlantique', // Vendée
-  '17': 'atlantique', // Charente-Maritime
-  '33': 'atlantique', // Gironde
-  '40': 'atlantique', // Landes
-  '64': 'atlantique', // Pyrénées-Atlantiques
-  // Méditerranée → volontairement non mappée (pas d'encart ni d'offset)
-}
-
-/** Port de référence audité pour un département côtier (null si non couvert). */
-export function referencePortForDepartment(department: string): string | null {
-  const dept = String(department).trim()
-  const facade = DEPARTMENT_FACADE[dept]
-  if (!facade) return null
-  if (facade === 'atlantique') {
-    return ATLANTIC_PORT_BY_DEPARTMENT[dept] ?? FACADE_REFERENCE_PORT.atlantique
-  }
-  return FACADE_REFERENCE_PORT[facade]
-}
-
-/**
- * Vrai pour un département côtier à FAIBLE marnage (Méditerranée + Corse) : pas de
- * façade Manche/Atlantique mappée, donc marée surtout météo-dominée et non auditée.
- * Sert à afficher une note honnête « marnage faible » au lieu d'un trou silencieux
- * sur la fiche spot, là où l'encart de calibration ne s'applique pas.
- */
-export function isLowTidalRangeDepartment(department: string): boolean {
-  const dept = String(department).trim()
-  return isCoastalDepartment(dept) && !DEPARTMENT_FACADE[dept]
-}
+export type { Facade } from '@/lib/conditions/tide-departments'
+export {
+  DEPARTMENT_FACADE,
+  isCalibratedTideDepartment,
+  referencePortForDepartment,
+  isLowTidalRangeDepartment,
+} from '@/lib/conditions/tide-departments'
 
 export type TideCalibration = {
   port: string

@@ -1,0 +1,18 @@
+import { chromium, devices } from '@playwright/test';
+const BASE='https://www.carnet-de-peche.com';
+const b=await chromium.launch();
+const ctx=await b.newContext({...devices['iPhone 13'],locale:'fr-FR',timezoneId:'Europe/Paris'});
+await ctx.addCookies([{name:'cdp-analytics-consent',value:'granted',domain:'www.carnet-de-peche.com',path:'/'}]);
+const p=await ctx.newPage();
+await p.goto(`${BASE}/carnet/nouvelle?spot_id=092bf5a4-7099-4deb-9e79-710c23b87076`,{waitUntil:'domcontentloaded',timeout:45000});
+await p.waitForTimeout(4000);
+await p.getByRole('button',{name:'Bar',exact:true}).click(); await p.waitForTimeout(600);
+await p.getByRole('button',{name:'Leurres',exact:true}).click(); await p.waitForTimeout(600);
+await p.getByRole('button',{name:'Relâché',exact:true}).click().catch(()=>{}); await p.waitForTimeout(1500);
+await p.getByRole('button',{name:/Garder ma prise en brouillon|Enregistrer/i}).click();
+await p.waitForTimeout(7000);
+console.log('URL après enregistrement :', p.url());
+console.log('titre :', await p.title());
+console.log('texte :', (await p.evaluate(()=> (document.body.innerText||'').replace(/\s+/g,' ').slice(0,800))));
+await p.screenshot({path:'audit-s78/PREUVE-handoff-register.png'});
+await b.close(); console.log('DONE');
