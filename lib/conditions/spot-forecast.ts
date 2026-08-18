@@ -271,6 +271,36 @@ function reportOpenMeteoFailure(source: 'marine' | 'forecast', status: number, d
 }
 
 /**
+ * Next signale « cette route ne peut pas rester statique », « 404 » et « redirige »
+ * en LEVANT une erreur porteuse d'un `digest`. Ce ne sont pas des pannes : ce sont
+ * des signaux de controle du framework, et ils doivent traverser nos try/catch.
+ *
+ * Sans ce garde, le `catch` ci-dessous avalait le `DynamicServerError` de Next,
+ * le comptait comme une panne reseau, REJOUAIT un fetch qui ne pouvait pas
+ * reussir, et laissait la bascule statique→dynamique passer inapercue pendant
+ * 22 h (issue JAVASCRIPT-NEXTJS-1P).
+ *
+ * Le digest est verifie dans
+ * `node_modules/next/dist/client/components/hooks-server-context.js` (Next 15.5.18) :
+ * `DYNAMIC_ERROR_CODE = 'DYNAMIC_SERVER_USAGE'`. On compare la chaine plutot que
+ * d'importer `isDynamicServerError`, qui vit dans un chemin interne non publie et
+ * casserait a la prochaine montee de version.
+ *
+ * Exportee UNIQUEMENT pour etre testable.
+ */
+export function rethrowIfNextControlFlow(err: unknown): void {
+  const digest = (err as { digest?: unknown } | null | undefined)?.digest
+  if (typeof digest !== 'string') return
+  if (
+    digest === 'DYNAMIC_SERVER_USAGE' ||
+    digest === 'NEXT_NOT_FOUND' ||
+    digest.startsWith('NEXT_REDIRECT')
+  ) {
+    throw err
+  }
+}
+
+/**
  * Appel Open-Meteo avec un second essai sur les erreurs transitoires (429 et 5xx)
  * et remontee explicite de l'echec. Ne retourne null qu'apres avoir signale.
  *
@@ -280,7 +310,18 @@ export async function fetchOpenMeteo<T>(url: string, source: 'marine' | 'forecas
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const res = await fetch(url, {
-        next: { revalidate: 0 },
+        // NE PAS remettre `next: { revalidate: 0 }` ici. Issue Sentry
+        // JAVASCRIPT-NEXTJS-1P : 355 evenements en 22 h, apparue avec le deploiement
+        // du sprint 84 le 17/08 a 16h48. La doc Next est explicite : un `revalidate`
+        // pose sur un fetch et PLUS BAS que celui de la route abaisse la route
+        // ENTIERE. Avec 0, `/spots/[slug]` (revalidate = 1800) basculait en dynamique
+        // a chaque regeneration ISR — soit exactement ce que le sprint 84 avait
+        // corrige, sur la page qui porte 80 % des clics Google.
+        //
+        // Sans option, le defaut Next 15 (`auto no cache`) ne met rien en cache et
+        // ne fait PAS basculer la route : c'est le comportement qu'on voulait depuis
+        // le debut. La fraicheur reelle n'a jamais dependu de Next, elle vient de
+        // `weather_cache` (readCache, FRESH_TTL_MS = 1 h, plus haut dans ce fichier).
         signal: AbortSignal.timeout(OPEN_METEO_TIMEOUT_MS),
       })
       if (res.ok) return (await res.json()) as T
@@ -293,6 +334,9 @@ export async function fetchOpenMeteo<T>(url: string, source: 'marine' | 'forecas
         return null
       }
     } catch (err) {
+      // Un signal de controle Next n'est PAS une panne Open-Meteo : le retenter est
+      // inutile, et le transformer en `null` masque la regression (cf ci-dessous).
+      rethrowIfNextControlFlow(err)
       if (attempt === 2) {
         reportOpenMeteoFailure(source, 0, err instanceof Error ? err.message : String(err))
         return null

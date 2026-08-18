@@ -89,6 +89,10 @@ async function fetchMarine(
     `&timezone=Europe%2FParis&start_date=${date}&end_date=${date}`
 
   try {
+    // `revalidate: 0` est LEGITIME ici, contrairement a lib/conditions/spot-forecast.ts :
+    // ce module n'est appele que depuis lib/catches/actions.ts (server action, donc
+    // toujours dynamique), jamais depuis une page ISR. Ne pas « corriger » par
+    // symetrie avec le fix de l'issue JAVASCRIPT-NEXTJS-1P — verifie le 18/08/2026.
     const res = await fetch(url, { next: { revalidate: 0 } })
     if (!res.ok) return null
     const json = await res.json()
@@ -110,6 +114,10 @@ async function fetchForecast(
     `&timezone=Europe%2FParis&start_date=${date}&end_date=${date}`
 
   try {
+    // `revalidate: 0` est LEGITIME ici, contrairement a lib/conditions/spot-forecast.ts :
+    // ce module n'est appele que depuis lib/catches/actions.ts (server action, donc
+    // toujours dynamique), jamais depuis une page ISR. Ne pas « corriger » par
+    // symetrie avec le fix de l'issue JAVASCRIPT-NEXTJS-1P — verifie le 18/08/2026.
     const res = await fetch(url, { next: { revalidate: 0 } })
     if (!res.ok) return null
     const json = await res.json()

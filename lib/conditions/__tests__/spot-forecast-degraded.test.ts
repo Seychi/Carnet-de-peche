@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isCachedPayloadUsable, fetchOpenMeteo, mergeTideFallback, type SpotConditions } from '../spot-forecast'
+import { isCachedPayloadUsable, fetchOpenMeteo, mergeTideFallback, rethrowIfNextControlFlow, type SpotConditions } from '../spot-forecast'
 
 // `spot-forecast` charge les clients Supabase au niveau module, dont
 // `service-role` qui est marque `server-only` et refuse de s'importer ici. Ces
@@ -166,5 +166,78 @@ describe('mergeTideFallback — une courbe du jour ne perime pas dans la journee
       expect(r.points).toEqual([])
       expect(r.fromEarlierToday).toBe(false)
     }
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Regression JAVASCRIPT-NEXTJS-1P (17/08/2026, 355 evenements en 22 h).
+//
+// `fetchOpenMeteo` portait `next: { revalidate: 0 }`. Un `revalidate` de fetch
+// plus bas que celui de la route abaisse la ROUTE ENTIERE : `/spots/[slug]`
+// (revalidate = 1800) rebasculait en dynamique a chaque regeneration, ce qui
+// annulait le sprint 84 sur 80 % du trafic Google.
+//
+// Deux verrous ici : l'option ne doit pas revenir, et le signal de controle de
+// Next ne doit plus etre avale par le `catch` generique.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('rethrowIfNextControlFlow — les signaux de Next traversent nos try/catch', () => {
+  it('★ relance un DynamicServerError (digest DYNAMIC_SERVER_USAGE)', () => {
+    const err = Object.assign(new Error('Dynamic server usage: revalidate: 0 fetch'), {
+      digest: 'DYNAMIC_SERVER_USAGE',
+    })
+    expect(() => rethrowIfNextControlFlow(err)).toThrow(err)
+  })
+
+  it('relance notFound() et redirect()', () => {
+    expect(() =>
+      rethrowIfNextControlFlow(Object.assign(new Error('x'), { digest: 'NEXT_NOT_FOUND' })),
+    ).toThrow()
+    expect(() =>
+      rethrowIfNextControlFlow(Object.assign(new Error('x'), { digest: 'NEXT_REDIRECT;replace;/x;307;' })),
+    ).toThrow()
+  })
+
+  it('laisse passer une vraie panne reseau, qui doit rester rejouable', () => {
+    expect(() => rethrowIfNextControlFlow(new Error('ECONNRESET'))).not.toThrow()
+    expect(() => rethrowIfNextControlFlow(null)).not.toThrow()
+    expect(() => rethrowIfNextControlFlow(undefined)).not.toThrow()
+    expect(() => rethrowIfNextControlFlow({ digest: 42 })).not.toThrow()
+  })
+})
+
+describe('fetchOpenMeteo — ne bascule plus la route en dynamique', () => {
+  const originalFetch = global.fetch
+  afterEach(() => {
+    global.fetch = originalFetch
+    vi.restoreAllMocks()
+  })
+
+  it("★ n'envoie AUCUNE option `next` a fetch (revalidate: 0 = route dynamique)", async () => {
+    const fn = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) })
+    global.fetch = fn as unknown as typeof fetch
+
+    await fetchOpenMeteo('https://x', 'marine')
+
+    const init = fn.mock.calls[0][1] as RequestInit & { next?: unknown }
+    expect(init.next, 'un `next.revalidate` ici rebascule /spots/[slug] en dynamique').toBeUndefined()
+    expect(init.cache, "`no-store` a le meme effet que revalidate: 0").toBeUndefined()
+    // Le garde-fou de timeout du 18/08 doit survivre a ce correctif.
+    expect(init.signal).toBeDefined()
+  })
+
+  it('★ ne rejoue pas et ne masque pas le signal de bascule de Next', async () => {
+    const dynamicErr = Object.assign(new Error('Dynamic server usage'), {
+      digest: 'DYNAMIC_SERVER_USAGE',
+    })
+    const fn = vi.fn().mockRejectedValue(dynamicErr)
+    global.fetch = fn as unknown as typeof fetch
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(fetchOpenMeteo('https://x', 'marine')).rejects.toBe(dynamicErr)
+    // Un seul essai : rejouer un fetch que Next refuse est un pur gaspillage.
+    expect(fn).toHaveBeenCalledTimes(1)
+    // Et surtout : pas de faux « Open-Meteo indisponible » dans Sentry.
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 })
