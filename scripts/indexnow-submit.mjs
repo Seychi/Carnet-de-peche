@@ -16,9 +16,13 @@
 //   pnpm indexnow -- --sitemap --prefix /peche/        (toutes les pages /peche du sitemap)
 //   pnpm indexnow -- --sitemap --prefix /peche/ --dry  (montre sans envoyer)
 //
-// La clé vient de `INDEXNOW_KEY`. Elle n'est pas secrète (elle est publiée sur le
-// site, c'est ce qui prouve qu'on contrôle le domaine), mais elle vit en variable
-// d'environnement pour pouvoir tourner sans redéploiement.
+// La clé est LUE dans `public/<clé>.txt`, le fichier que Bing doit pouvoir
+// télécharger à la racine du site. Elle n'est pas secrète : elle est publiée en
+// clair sur le site, c'est précisément ce qui prouve qu'on contrôle le domaine.
+// Aucune variable d'environnement à poser (`INDEXNOW_KEY` reste prioritaire si on
+// veut forcer une rotation ou un essai).
+
+import { readdirSync, readFileSync } from 'node:fs'
 
 const HOST = 'www.carnet-de-peche.com'
 const ORIGIN = `https://${HOST}`
@@ -33,13 +37,30 @@ const valueOf = (f) => {
   return i >= 0 ? args[i + 1] : undefined
 }
 
-const key = process.env.INDEXNOW_KEY
+// La clé se DÉDUIT du fichier de vérification, qui doit de toute façon exister et
+// être servi à la racine du site : c'est lui qui prouve à Bing qu'on contrôle le
+// domaine. Une seule source de vérité, donc aucune variable à poser, et surtout
+// impossible que la clé envoyée et le fichier publié divergent, ce qui donnerait un
+// 202 indéfini et des lots jamais vérifiés.
+// `INDEXNOW_KEY` reste prioritaire si on veut forcer (rotation, essai).
+function discoverKey() {
+  if (process.env.INDEXNOW_KEY) return process.env.INDEXNOW_KEY
+  const dir = new URL('../public/', import.meta.url)
+  const found = readdirSync(dir)
+    .filter((f) => /^[0-9a-f]{8,128}\.txt$/i.test(f))
+    .map((f) => f.replace(/\.txt$/i, ''))
+    // Le fichier doit contenir EXACTEMENT la clé, sinon Bing refuse la vérification.
+    .filter((k) => readFileSync(new URL(`${k}.txt`, dir), 'utf8').trim() === k)
+  return found[0]
+}
+
+const key = discoverKey()
 if (!key) {
   console.error(
-    '\n❌ INDEXNOW_KEY absente.\n' +
-      '   Génère la clé sur https://www.bing.com/indexnow/getstarted, puis :\n' +
-      '     - pose INDEXNOW_KEY dans Vercel (et dans .env.local pour le local) ;\n' +
-      `     - vérifie que ${ORIGIN}/<clé>.txt répond et contient la clé.\n`,
+    '\n❌ Aucune clé IndexNow trouvée.\n' +
+      '   Génère-la sur https://www.bing.com/indexnow/getstarted, puis dépose\n' +
+      '   `public/<clé>.txt` contenant EXACTEMENT la clé, et rien d’autre.\n' +
+      `   Elle sera servie sur ${ORIGIN}/<clé>.txt au déploiement suivant.\n`,
   )
   process.exit(1)
 }
