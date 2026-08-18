@@ -1,5 +1,6 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
+import * as Sentry from '@sentry/nextjs'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
@@ -19,6 +20,14 @@ export type TideExtremum = {
 export type SpotConditions = {
   fetched_at: string
   date: string
+  /**
+   * true = au moins un des deux appels Open-Meteo (marine, forecast) n'a pas
+   * repondu, donc ce payload est INCOMPLET. Il reste servi (mieux que rien) et
+   * mis en cache, mais il n'est garde que `DEGRADED_TTL_MS` au lieu d'une heure,
+   * pour que le premier rendu qui suit le retablissement le remplace.
+   * Optionnel : les payloads ecrits avant l'incident du 17/08 ne le portent pas.
+   */
+  degraded?: boolean
   tide: {
     points: TidePoint[]
     extrema: TideExtremum[]
@@ -130,16 +139,48 @@ function buildWindByHour(
 // En revanche le client de session appelait `cookies()`, ce qui rendait dynamique
 // TOUTE page atteignant ce module (la home via `lib/marketing/home-data`, les
 // fiches spot, le cockpit) et vidait leur `revalidate` de son sens.
+// Duree de vie d'un payload COMPLET.
+const FRESH_TTL_MS = 60 * 60 * 1000
+// Duree de vie d'un payload INCOMPLET (`degraded`). Volontairement courte.
+// Incident du 17/08 : un echec Open-Meteo etait mis en cache exactement comme une
+// reussite, donc « maree indisponible » restait fige une heure sur tout le site,
+// et chaque requete suivante regelait l'echec pour une heure de plus.
+const DEGRADED_TTL_MS = 5 * 60 * 1000
+
 async function readCache(key: string): Promise<SpotConditions | null> {
   const supabase = createAnonClient()
   const { data, error } = await supabase
     .from('weather_cache')
-    .select('payload')
+    .select('payload, fetched_at')
     .eq('cache_key', key)
-    .gt('fetched_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
+    .gt('fetched_at', new Date(Date.now() - FRESH_TTL_MS).toISOString())
     .maybeSingle()
   if (error || !data) return null
-  return data.payload as SpotConditions
+
+  const payload = data.payload as SpotConditions
+  if (!isCachedPayloadUsable(payload, data.fetched_at as string)) return null
+  return payload
+}
+
+/**
+ * Un payload complet vaut FRESH_TTL_MS, un payload `degraded` seulement
+ * DEGRADED_TTL_MS. Renvoyer false force un nouvel essai en amont ; les 5 min
+ * servent d'amortisseur, sinon chaque requete rappelle une API deja en panne.
+ *
+ * Exportee UNIQUEMENT pour etre testable : c'est exactement cette regle qui
+ * manquait le 17/08, et une regle qu'aucun test ne verifie n'est pas une regle.
+ */
+export function isCachedPayloadUsable(
+  payload: SpotConditions | null | undefined,
+  fetchedAtIso: string,
+  nowMs: number = Date.now(),
+): boolean {
+  if (!payload) return false
+  const fetchedMs = new Date(fetchedAtIso).getTime()
+  if (!Number.isFinite(fetchedMs)) return false
+  // Une horloge legerement en avance ne doit pas invalider une entree fraiche.
+  const ageMs = Math.max(0, nowMs - fetchedMs)
+  return ageMs <= (payload.degraded ? DEGRADED_TTL_MS : FRESH_TTL_MS)
 }
 
 // Écriture via service-role (weather_cache sans policy write → bypass RLS, serveur
@@ -158,6 +199,56 @@ async function writeCache(key: string, payload: SpotConditions): Promise<void> {
 }
 
 // ─── API calls ────────────────────────────────────────────────────────────────
+
+// Lecon de l'incident du 17/08, a ne pas defaire : les quatre appels Open-Meteo
+// faisaient `if (!res.ok) return null` puis `catch { return null }`. Zero log, zero
+// evenement Sentry. L'API marine a cesse de repondre le 17/08 vers 21h et le site a
+// servi « maree indisponible » pendant 15 h sans qu'aucune alerte ne parte : la panne
+// a ete trouvee a l'oeil, sur une capture d'ecran. Le code de statut est desormais
+// conserve et remonte, sans quoi on ne peut meme pas distinguer un 429 d'une panne.
+const OPEN_METEO_TIMEOUT_MS = 8000
+
+function reportOpenMeteoFailure(source: 'marine' | 'forecast', status: number, detail: string): void {
+  const message = `[spot-forecast] Open-Meteo ${source} indisponible (status ${status}) : ${detail}`
+  console.error(message)
+  Sentry.captureMessage(message, {
+    level: 'error',
+    tags: { openmeteo_source: source, openmeteo_status: String(status) },
+  })
+}
+
+/**
+ * Appel Open-Meteo avec un second essai sur les erreurs transitoires (429 et 5xx)
+ * et remontee explicite de l'echec. Ne retourne null qu'apres avoir signale.
+ *
+ * Exportee UNIQUEMENT pour etre testable.
+ */
+export async function fetchOpenMeteo<T>(url: string, source: 'marine' | 'forecast'): Promise<T | null> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        next: { revalidate: 0 },
+        signal: AbortSignal.timeout(OPEN_METEO_TIMEOUT_MS),
+      })
+      if (res.ok) return (await res.json()) as T
+
+      // Un 4xx autre que 429 vient de NOTRE requete : la rejouer ne changera rien.
+      const retryable = res.status === 429 || res.status >= 500
+      if (!retryable || attempt === 2) {
+        const body = await res.text().catch(() => '')
+        reportOpenMeteoFailure(source, res.status, body.slice(0, 200))
+        return null
+      }
+    } catch (err) {
+      if (attempt === 2) {
+        reportOpenMeteoFailure(source, 0, err instanceof Error ? err.message : String(err))
+        return null
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 400))
+  }
+  return null
+}
 
 type MarineResponse = {
   hourly: {
@@ -203,14 +294,8 @@ async function fetchMarineData(lat: number, lng: number, dateStr: string): Promi
     `?latitude=${lat}&longitude=${lng}` +
     `&hourly=sea_level_height_msl,wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
     `&timezone=Europe%2FParis&start_date=${dateStr}&end_date=${dateStr}`
-  try {
-    const res = await fetch(url, { next: { revalidate: 0 } })
-    if (!res.ok) return null
-    const json: MarineResponse = await res.json()
-    return json.hourly
-  } catch {
-    return null
-  }
+  const json = await fetchOpenMeteo<MarineResponse>(url, 'marine')
+  return json?.hourly ?? null
 }
 
 async function fetchForecastData(lat: number, lng: number, dateStr: string): Promise<{ hourly: ForecastHourlyResponse['hourly']; daily: ForecastHourlyResponse['daily'] } | null> {
@@ -220,14 +305,8 @@ async function fetchForecastData(lat: number, lng: number, dateStr: string): Pro
     `&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,precipitation,precipitation_probability,pressure_msl,cloud_cover,relative_humidity_2m` +
     `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset` +
     `&timezone=Europe%2FParis&start_date=${dateStr}&end_date=${dateStr}`
-  try {
-    const res = await fetch(url, { next: { revalidate: 0 } })
-    if (!res.ok) return null
-    const json: ForecastHourlyResponse = await res.json()
-    return { hourly: json.hourly, daily: json.daily }
-  } catch {
-    return null
-  }
+  const json = await fetchOpenMeteo<ForecastHourlyResponse>(url, 'forecast')
+  return json ? { hourly: json.hourly, daily: json.daily } : null
 }
 
 // ─── Fonction principale ──────────────────────────────────────────────────────
@@ -297,6 +376,8 @@ async function _fetchSpotConditions(
   const result: SpotConditions = {
     fetched_at: new Date().toISOString(),
     date: dateStr,
+    // Marque le payload incomplet pour qu'il ne soit PAS gele une heure (cf readCache).
+    degraded: marine === null || forecast === null,
     tide: { points: tidePoints, extrema: tideExtrema, current_height_m: currentTide },
     weather,
     waves,
@@ -331,14 +412,8 @@ async function fetchMarineDataWeek(
     `?latitude=${lat}&longitude=${lng}` +
     `&hourly=sea_level_height_msl,wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
     `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`
-  try {
-    const res = await fetch(url, { next: { revalidate: 0 } })
-    if (!res.ok) return null
-    const json: MarineResponse = await res.json()
-    return json.hourly
-  } catch {
-    return null
-  }
+  const json = await fetchOpenMeteo<MarineResponse>(url, 'marine')
+  return json?.hourly ?? null
 }
 
 async function fetchForecastDataWeek(
@@ -353,14 +428,8 @@ async function fetchForecastDataWeek(
     `&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,precipitation,precipitation_probability,pressure_msl,cloud_cover,relative_humidity_2m` +
     `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset` +
     `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`
-  try {
-    const res = await fetch(url, { next: { revalidate: 0 } })
-    if (!res.ok) return null
-    const json: ForecastHourlyResponse = await res.json()
-    return { hourly: json.hourly, daily: json.daily }
-  } catch {
-    return null
-  }
+  const json = await fetchOpenMeteo<ForecastHourlyResponse>(url, 'forecast')
+  return json ? { hourly: json.hourly, daily: json.daily } : null
 }
 
 // Groupe les indices du tableau hourly.time par date locale ("2026-05-20" → [0,1,...,23])
@@ -378,6 +447,7 @@ function buildEmptyConditions(dateStr: string): SpotConditions {
   return {
     fetched_at: new Date().toISOString(),
     date: dateStr,
+    degraded: true,
     tide: { points: [], extrema: [], current_height_m: null },
     weather: {
       code: null, air_temp_c: null, min_temp_c: null, max_temp_c: null,
@@ -446,6 +516,7 @@ function buildDayConditions(
   return {
     fetched_at: new Date().toISOString(),
     date: dateStr,
+    degraded: marine === null,
     tide: { points: tidePoints, extrema: computeExtrema(tidePoints), current_height_m: tideCurrent },
     weather,
     waves,
