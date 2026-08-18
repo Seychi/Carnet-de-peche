@@ -206,7 +206,9 @@ chantier à ouvrir, et il est antérieur à ce sprint.
 
 1. Merger, déployer, **noter l'heure exacte**.
 
-   > Déployé le : `_______________`
+   > Poussé sur `main` le **18/08/2026 à 01:35** (commit `4be7129`). Vercel déploie
+   > automatiquement depuis `main`. **J+14 = 01/09/2026** pour le volume de
+   > `seo_cta_clicked` par `template`.
 
 2. ★ **Vérifier `/` sur le build Vercel** (cf §8). C'est le seul point ouvert du
    sprint, et il décide s'il y a un chantier ou non.
