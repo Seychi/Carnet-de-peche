@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isCachedPayloadUsable, fetchOpenMeteo, type SpotConditions } from '../spot-forecast'
+import { isCachedPayloadUsable, fetchOpenMeteo, mergeTideFallback, type SpotConditions } from '../spot-forecast'
 
 // `spot-forecast` charge les clients Supabase au niveau module, dont
 // `service-role` qui est marque `server-only` et refuse de s'importer ici. Ces
@@ -132,5 +132,39 @@ describe('fetchOpenMeteo — un echec doit faire du bruit, jamais du silence', (
     const json = await fetchOpenMeteo('https://x', 'marine')
     expect(json).toBeNull()
     expect(String(errorSpy.mock.calls[0][0])).toContain('ECONNRESET')
+  })
+})
+
+describe('mergeTideFallback — une courbe du jour ne perime pas dans la journee', () => {
+  const pts = (n: number) => Array.from({ length: n }, (_, h) => ({ hour: h, height_m: h * 0.1 }))
+  const ext = [{ type: 'high' as const, hour: 6, height_m: 2.1 }]
+
+  it('garde les points frais quand l API a repondu', () => {
+    const r = mergeTideFallback({ points: pts(24), extrema: ext }, null)
+    expect(r.points).toHaveLength(24)
+    expect(r.fromEarlierToday).toBe(false)
+  })
+
+  it('★ rejoue la courbe connue du jour quand l API n a rien ramene', () => {
+    const r = mergeTideFallback({ points: [], extrema: [] }, { points: pts(24), extrema: ext })
+    expect(r.points).toHaveLength(24)
+    expect(r.extrema).toEqual(ext)
+    // Le drapeau existe pour que le repli se lise en SQL, comme le 17/08.
+    expect(r.fromEarlierToday).toBe(true)
+  })
+
+  it('ne prefere JAMAIS l ancien au frais', () => {
+    const frais = pts(24)
+    const r = mergeTideFallback({ points: frais, extrema: [] }, { points: pts(12), extrema: ext })
+    expect(r.points).toBe(frais)
+    expect(r.fromEarlierToday).toBe(false)
+  })
+
+  it('rend une courbe vide, sans mentir, quand il n y a rien a rejouer', () => {
+    for (const stale of [null, undefined, { points: [], extrema: [] }]) {
+      const r = mergeTideFallback({ points: [], extrema: [] }, stale)
+      expect(r.points).toEqual([])
+      expect(r.fromEarlierToday).toBe(false)
+    }
   })
 })

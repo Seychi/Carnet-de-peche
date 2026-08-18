@@ -28,6 +28,13 @@ export type SpotConditions = {
    * Optionnel : les payloads ecrits avant l'incident du 17/08 ne le portent pas.
    */
   degraded?: boolean
+  /**
+   * true = la courbe de maree ne vient pas de l'appel courant mais d'un releve
+   * ANTERIEUR DU MEME JOUR, rejoue parce que l'API marine n'a pas repondu.
+   * Sert au diagnostic : cette colonne se lit en SQL, c'est exactement comme ca
+   * que l'incident du 17/08 a fini par etre compris.
+   */
+  tide_from_earlier_today?: boolean
   tide: {
     points: TidePoint[]
     extrema: TideExtremum[]
@@ -160,6 +167,52 @@ async function readCache(key: string): Promise<SpotConditions | null> {
   const payload = data.payload as SpotConditions
   if (!isCachedPayloadUsable(payload, data.fetched_at as string)) return null
   return payload
+}
+
+/**
+ * Repli de maree : si l'appel courant n'a rien ramene, on rejoue la courbe deja
+ * connue. Fonction pure, exportee pour etre testee.
+ *
+ * Pourquoi c'est honnete, et pas du recyclage de donnee perimee : la courbe porte
+ * sur UNE date, et la cle de cache contient cette date. Une courbe recuperee a 9h
+ * pour le 18/08 decrit toujours le 18/08 a 17h. C'est la prevision du jour,
+ * rejouee pour le meme jour.
+ *
+ * Ce qui n'est deliberement PAS rejoue : vagues, houle, meteo. Elles varient dans
+ * la journee. Les rejouer afficherait du faux, ce qui est pire que d'afficher rien.
+ */
+export function mergeTideFallback(
+  fresh: { points: TidePoint[]; extrema: TideExtremum[] },
+  stale: { points: TidePoint[]; extrema: TideExtremum[] } | null | undefined,
+): { points: TidePoint[]; extrema: TideExtremum[]; fromEarlierToday: boolean } {
+  if (fresh.points.length > 0) {
+    return { points: fresh.points, extrema: fresh.extrema, fromEarlierToday: false }
+  }
+  if (!stale || stale.points.length === 0) {
+    return { points: [], extrema: [], fromEarlierToday: false }
+  }
+  return { points: stale.points, extrema: stale.extrema, fromEarlierToday: true }
+}
+
+/**
+ * Derniere maree connue pour CETTE cle, SANS borne d'age (contrairement a
+ * readCache). La cle contient la date, donc une entree trouvee ici decrit
+ * forcement le meme jour. A appeler avant writeCache, qui l'ecrasera.
+ */
+async function readKnownTide(key: string): Promise<SpotConditions['tide'] | null> {
+  try {
+    const supabase = createAnonClient()
+    const { data, error } = await supabase
+      .from('weather_cache')
+      .select('payload')
+      .eq('cache_key', key)
+      .maybeSingle()
+    if (error || !data) return null
+    const tide = (data.payload as SpotConditions)?.tide
+    return tide && Array.isArray(tide.points) && tide.points.length > 0 ? tide : null
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -338,8 +391,17 @@ async function _fetchSpotConditions(
       if (typeof v === 'number') tidePoints.push({ hour: h, height_m: v })
     }
   }
-  const tideExtrema = computeExtrema(tidePoints)
-  const currentTide = tidePoints.find((p) => p.hour === currentHourIdx)?.height_m ?? null
+  // Marine muette : plutot que d'afficher « Maree indisponible » sur une page qui
+  // restera figee jusqu'a la prochaine revalidation, on rejoue la courbe deja
+  // connue pour cette meme date. C'est le correctif de fond de l'incident du 18/08,
+  // ou la home a garde un hero vide une heure a cause d'une seconde de decalage.
+  const tideResult = mergeTideFallback(
+    { points: tidePoints, extrema: computeExtrema(tidePoints) },
+    tidePoints.length === 0 ? await readKnownTide(key) : null,
+  )
+  // Recalculee sur les points retenus : la hauteur « maintenant » depend de l'heure
+  // courante, elle ne doit jamais etre reprise telle quelle d'un ancien payload.
+  const currentTide = tideResult.points.find((p) => p.hour === currentHourIdx)?.height_m ?? null
 
   // ── Vagues / houle ──────────────────────────────────────────────────────────
   const waveIdx = currentHourIdx
@@ -378,7 +440,8 @@ async function _fetchSpotConditions(
     date: dateStr,
     // Marque le payload incomplet pour qu'il ne soit PAS gele une heure (cf readCache).
     degraded: marine === null || forecast === null,
-    tide: { points: tidePoints, extrema: tideExtrema, current_height_m: currentTide },
+    tide_from_earlier_today: tideResult.fromEarlierToday,
+    tide: { points: tideResult.points, extrema: tideResult.extrema, current_height_m: currentTide },
     weather,
     waves,
     swell,
