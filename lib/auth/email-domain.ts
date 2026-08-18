@@ -61,7 +61,38 @@ const KNOWN_GOOD = new Set([
   'proton.me', 'protonmail.com', 'gmx.fr', 'gmx.com', 'aol.com',
 ])
 
+/**
+ * ⏸️ EN PAUSE depuis le 2026-08-18, décision John : le contrôle refusait des
+ * domaines atypiques mais légitimes, et bloquait donc de vrais inscrits.
+ *
+ * Tant que `AUTH_EMAIL_DOMAIN_CHECK` ne vaut pas exactement `'true'`, aucune
+ * résolution DNS n'est faite et tout le monde passe. Le défaut est volontairement
+ * « éteint » : un drapeau oublié ne doit jamais pouvoir refermer un tunnel
+ * d'inscription. Réactivation = poser la variable dans Vercel, aucun déploiement.
+ *
+ * ★ CE QU'IL FAUT CORRIGER AVANT DE RÉACTIVER (cause probable des refus de John) :
+ * `ENODATA` est traité plus bas comme « pas de MX », alors qu'il signifie « le
+ * domaine EXISTE mais n'a pas d'enregistrement de ce type ». Or la RFC 5321 §5.1
+ * prévoit le **MX implicite** : un domaine sans MX mais avec un A / AAAA reçoit
+ * quand même du courrier, sur cet hôte. C'est le cas classique du petit domaine
+ * personnel ou professionnel auto-hébergé, exactement le profil « atypique »
+ * signalé. Le vrai correctif est de retomber sur une résolution A/AAAA avant de
+ * refuser, et de ne prononcer `no_mx` que sur `ENOTFOUND` / `NXDOMAIN`, qui eux
+ * disent bien que le domaine n'existe pas.
+ *
+ * La logique reste ci-dessous, intacte et couverte par ses tests, pour que la
+ * réactivation soit un choix et pas une réécriture.
+ */
+export const EMAIL_DOMAIN_CHECK_ENABLED = () =>
+  process.env.AUTH_EMAIL_DOMAIN_CHECK === 'true'
+
 export async function checkEmailDomain(email: string): Promise<DomainVerdict> {
+  if (!EMAIL_DOMAIN_CHECK_ENABLED()) return { deliverable: true }
+  return resolveEmailDomain(email)
+}
+
+/** La logique de contrôle elle-même, indépendante du drapeau (testée directement). */
+export async function resolveEmailDomain(email: string): Promise<DomainVerdict> {
   const domain = domainOf(email)
   // Adresse malformée : ce n'est pas à ce module de la rejeter, zod l'a déjà fait.
   if (!domain) return { deliverable: true }
