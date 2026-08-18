@@ -103,7 +103,9 @@ if (has('--sitemap')) {
 }
 
 // Une URL d'un autre hôte ferait rejeter TOUT le lot par le protocole.
-const foreign = urls.filter((u) => !u.startsWith(ORIGIN + '/'))
+// ⚠️ La home figure au sitemap SANS slash final (`https://…/com`), donc un simple
+// `startsWith(ORIGIN + '/')` la rejetterait à tort et annulerait tout l'envoi.
+const foreign = urls.filter((u) => u !== ORIGIN && !u.startsWith(ORIGIN + '/'))
 if (foreign.length > 0) {
   console.error(`❌ ${foreign.length} URL(s) hors de ${ORIGIN}, envoi annulé :`)
   for (const u of foreign.slice(0, 5)) console.error(`   ${u}`)
@@ -144,7 +146,21 @@ for (let i = 0; i < urls.length; i += BATCH_MAX) {
       console.log(`     ⚠️ 202 : vérifie que ${ORIGIN}/${key}.txt est bien en ligne.`)
     }
   } else {
-    console.error(`  ❌ lot refusé (HTTP ${res.status}) : ${(await res.text()).slice(0, 200)}`)
+    const body = (await res.text()).slice(0, 300)
+    // ⚠️ Cas TRANSITOIRE, à ne pas confondre avec une erreur de configuration :
+    // Bing n'a pas encore été chercher le fichier de vérification. Il est bien en
+    // ligne, il faut simplement laisser à Bing le temps de le lire. Rien à corriger,
+    // il suffit de relancer plus tard.
+    if (res.status === 403 && body.includes('SiteVerificationNotCompleted')) {
+      console.error(
+        `\n⏳ Bing n'a pas encore vérifié le domaine (HTTP 403, transitoire).\n` +
+          `   Le fichier ${ORIGIN}/${key}.txt est en ligne : il n'y a RIEN à corriger.\n` +
+          `   Bing doit aller le lire, ce qui prend de quelques minutes à quelques heures.\n` +
+          `   Relance simplement la même commande plus tard.\n`,
+      )
+      process.exit(2)
+    }
+    console.error(`  ❌ lot refusé (HTTP ${res.status}) : ${body}`)
     process.exit(1)
   }
 }
