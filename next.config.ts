@@ -52,7 +52,24 @@ function sentryCspReportUri(): string | null {
     return null;
   }
 }
-const cspReportUri = sentryCspReportUri();
+// ★ Sprint 88, Bloc 3b — report-uri en PRODUCTION UNIQUEMENT.
+//
+// Les rapports CSP sont POSTés directement par le NAVIGATEUR à cette URL. Ils ne
+// passent ni par `Sentry.init`, ni par `beforeSend`, ni par `ignoreErrors`, ni par
+// `denyUrls`. C'est donc ici, et strictement nulle part ailleurs, qu'on décide de
+// ce qui remonte : le `denyUrls: [/vercel\.live/]` posé au sprint 70 dans
+// `instrumentation-client.ts` filtre les ERREURS JS de la toolbar, pas ses RAPPORTS
+// CSP. La confusion est facile, elle a coûté 16 issues au projet.
+//
+// Sur un déploiement preview PROTÉGÉ, la requête d'un asset est redirigée vers
+// l'authentification Vercel ; la spec CSP masque la cible de la redirection et
+// rapporte l'URL d'origine, ce qui produit des violations fantômes same-origin
+// (issues 1G, 1C, T, 1K, 18, 1M — une quarantaine d'événements, tous en
+// HeadlessChrome depuis AWS). Jamais observé sur le domaine de production.
+//
+// On garde le canal en prod : c'est notre seule détection d'une CSP cassée en vrai.
+const cspReportUri =
+  process.env.VERCEL_ENV === "production" ? sentryCspReportUri() : null;
 
 // Origine PostHog dérivée de l'env AU BUILD (revue sprint 70) : le client lit
 // NEXT_PUBLIC_POSTHOG_HOST (lib/env.ts, défaut eu.i.posthog.com) — si la var

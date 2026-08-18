@@ -1,3 +1,4 @@
+import '@/lib/zod-config'
 import { z } from 'zod'
 import { catchTechniqueEnum } from '@/lib/catches/schema'
 import { ALL_SPECIES_DB_KEYS } from '@/lib/seo/programmatic'

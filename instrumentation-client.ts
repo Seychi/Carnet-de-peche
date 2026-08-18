@@ -1,3 +1,8 @@
+// ⚠️ EN TÊTE, avant tout autre import : Next évalue ce fichier avant le code
+// applicatif du navigateur, c'est donc le seul endroit qui garantit de précéder le
+// premier `z.object()` de n'importe quel chunk. Coupe la sonde `Function("")` de
+// zod, bloquée par notre CSP — issue JAVASCRIPT-NEXTJS-H, 1 154 événements.
+import '@/lib/zod-jitless'
 import * as Sentry from '@sentry/nextjs'
 import {
   isBotUserAgent,
@@ -30,6 +35,10 @@ Sentry.init({
     'NetworkError when attempting to fetch a resource',
     'Load failed',
     'AbortError',
+    // Sprint 88 : flux RSC coupé en cours de route — un mobile qui perd le réseau
+    // pendant une navigation (issue JAVASCRIPT-NEXTJS-1Q). Next refait la requête
+    // tout seul, l'utilisateur ne voit rien. Même famille que les quatre au-dessus.
+    'Connection closed.',
   ],
   denyUrls: [
     /extensions\//i,

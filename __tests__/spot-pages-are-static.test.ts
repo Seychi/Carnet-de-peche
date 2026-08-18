@@ -30,9 +30,15 @@ const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']
 const toPosix = (p: string) => p.split(path.sep).join('/')
 const rel = (abs: string) => toPosix(path.relative(ROOT, abs))
 
+/**
+ * Les commentaires de bloc sont remplacés par des ESPACES, pas supprimés : le
+ * détecteur d'options de cache plus bas cite des numéros de ligne, et un
+ * `.replace(…, '')` les décalerait en silence dès qu'un fichier porte un long
+ * bandeau en tête (c'est le cas de la moitié de ce repo).
+ */
 function stripComments(source: string): string {
   return source
-    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, ' '))
     .split('\n')
     .map((line) => (/^\s*\/\//.test(line) ? '' : line))
     .join('\n')
@@ -116,6 +122,105 @@ function findViolations(rootRel: string): Violation[] {
   return violations
 }
 
+/**
+ * Sprint 88, Bloc 1 — le second trou de ce verrou.
+ *
+ * `findViolations` cherche une CIBLE D'IMPORT (les cookies). C'est excellent contre
+ * la régression du sprint 84, et parfaitement aveugle à celle du sprint 88 : une
+ * option de cache posée sur un `fetch` rend la route dynamique par un chemin qui
+ * n'implique aucun import interdit. Il faut donc parcourir le même graphe, mais
+ * chercher un MOTIF DANS LE SOURCE.
+ *
+ * Renvoie tous les fichiers du graphe d'imports SERVEUR d'une racine, avec les
+ * mêmes règles que `findViolations` : imports statiques uniquement, on s'arrête à
+ * la première frontière `'use client'` (au-delà, le code tourne dans le navigateur
+ * et ne peut plus rien faire basculer).
+ */
+function collectServerGraph(rootRel: string): string[] {
+  const rootAbs = path.join(ROOT, rootRel)
+  if (!fs.existsSync(rootAbs)) throw new Error(`Racine introuvable : ${rootRel}`)
+
+  const files: string[] = []
+  const visited = new Set<string>()
+  const stack: string[] = [rootAbs]
+
+  while (stack.length > 0) {
+    const file = stack.pop()!
+    if (visited.has(file)) continue
+    visited.add(file)
+
+    const source = fs.readFileSync(file, 'utf8')
+    if (isClientBoundary(source) && file !== rootAbs) continue
+    files.push(file)
+
+    for (const { spec, typeOnly } of extractImports(source)) {
+      if (typeOnly) continue
+      const resolved = resolveLocal(spec, file)
+      if (resolved && !visited.has(resolved)) stack.push(resolved)
+    }
+  }
+  return files
+}
+
+/**
+ * Les deux options qui font sortir une route du rendu statique, vérifiées dans le
+ * source installé (`node_modules/next/dist/server/lib/patch-fetch.js`, next 15.5.18) :
+ * `revalidate: 0` déclenche `markCurrentScopeAsDynamic` l.510, `cache: 'no-store'`
+ * fait de même l.771. Une option ABSENTE, elle, ne fait rien basculer (`autoNoCache`,
+ * l.375-386, garde le bailout l.480) : c'est pour ça que le correctif du Bloc 0 est
+ * « pas d'option du tout » et non « une valeur plus douce ».
+ */
+const NO_CACHE_OPTIONS: { re: RegExp; label: string }[] = [
+  { re: /\brevalidate\s*:\s*0\b/, label: 'revalidate: 0' },
+  { re: /\bcache\s*:\s*['"]no-store['"]/, label: `cache: 'no-store'` },
+]
+
+type CachePin = { file: string; line: number; label: string; text: string }
+
+function findNoCacheOptions(rootRel: string): CachePin[] {
+  const pins: CachePin[] = []
+  for (const abs of collectServerGraph(rootRel)) {
+    const lines = stripComments(fs.readFileSync(abs, 'utf8')).split('\n')
+    lines.forEach((line, i) => {
+      for (const { re, label } of NO_CACHE_OPTIONS) {
+        if (re.test(line)) pins.push({ file: rel(abs), line: i + 1, label, text: line.trim() })
+      }
+    })
+  }
+  return pins
+}
+
+function formatCachePins(rootRel: string, pins: CachePin[]): string {
+  const lines = [
+    '',
+    `\`${rootRel}\` va rebasculer en DYNAMIQUE au runtime : ${pins.length} option(s) de cache`,
+    "dans son graphe d'imports serveur empêchent Next de garder la route statique.",
+    '',
+    "Ce n'est PAS visible au build : la page se pré-rend normalement, puis chaque",
+    'régénération ISR sort du cache. Précédent exact : issue Sentry JAVASCRIPT-NEXTJS-1P,',
+    '355 événements en 22 h sur `/spots/[slug]`, découverte par hasard trois semaines',
+    "après le sprint 84 qui l'avait introduite.",
+    '',
+  ]
+  for (const p of pins) {
+    lines.push(`  ${p.file}:${p.line}  ⛔ ${p.label}`)
+    lines.push(`    ${p.text}`)
+    lines.push('')
+  }
+  lines.push(
+    'Correctif : RETIRER l’option, sans la remplacer. Le défaut Next 15 ne met rien en',
+    'cache et ne fait pas basculer la route. Attention au piège : une valeur plus douce',
+    '(`revalidate: 900`) ne fait pas basculer non plus, mais ABAISSE en silence le',
+    'revalidate de la route entière à cette valeur.',
+    '',
+    'Si le module a réellement besoin de ne jamais être mis en cache, il n’a rien à',
+    'faire dans le graphe serveur d’une page ISR : appelle-le depuis une server action',
+    'ou une route handler (modèle : lib/conditions/openmeteo.ts).',
+    '',
+  )
+  return lines.join('\n')
+}
+
 function format(rootRel: string, violations: Violation[]): string {
   const lines = [
     '',
@@ -173,6 +278,15 @@ describe('verrou : les pages spots ne lisent aucun cookie côté serveur', () =>
   })
 })
 
+describe('verrou : aucune option de cache ne sort les pages spots du rendu statique', () => {
+  for (const rootRel of ROOTS) {
+    it(`${rootRel} n'a ni revalidate: 0 ni no-store dans son graphe serveur`, () => {
+      const pins = findNoCacheOptions(rootRel)
+      expect(pins, formatCachePins(rootRel, pins)).toEqual([])
+    })
+  }
+})
+
 describe('méta : le parseur mord toujours', () => {
   it('détecte le cas témoin components/layout/Header.tsx', () => {
     const violations = findViolations('components/layout/Header.tsx')
@@ -182,5 +296,28 @@ describe('méta : le parseur mord toujours', () => {
   it('détecte lib/auth/tier.ts comme lecteur de session', () => {
     const violations = findViolations('lib/auth/tier.ts')
     expect(violations.map((v) => v.target)).toContain('lib/supabase/server.ts')
+  })
+
+  // Un détecteur qu'aucun cas témoin ne fait mordre est un détecteur qui dort. Les
+  // deux tests ci-dessous sont les gardes du garde.
+  it('le détecteur d’options de cache mord sur lib/conditions/openmeteo.ts', () => {
+    // Ce fichier porte DEUX `revalidate: 0` parfaitement légitimes : il n'est appelé
+    // que depuis une server action, jamais depuis une page ISR. Il ne déclenche donc
+    // aucune violation réelle (il n'est dans le graphe d'aucune des deux racines),
+    // et c'est exactement ce qui en fait un bon témoin.
+    const pins = findNoCacheOptions('lib/conditions/openmeteo.ts')
+    expect(pins.map((p) => p.label)).toContain('revalidate: 0')
+    expect(pins.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('le détecteur ignore un `revalidate: 0` qui n’est QUE dans un commentaire', () => {
+    // `lib/conditions/spot-forecast.ts` explique en commentaire pourquoi l'option a
+    // été retirée, et cite donc le motif plusieurs fois. Si `stripComments` lâchait,
+    // ce verrou deviendrait ininterprétable : il hurlerait sur sa propre explication.
+    const source = fs.readFileSync(path.join(ROOT, 'lib/conditions/spot-forecast.ts'), 'utf8')
+    expect(source, 'le commentaire témoin a disparu, ce test ne prouve plus rien').toMatch(
+      /\/\/.*revalidate: 0/,
+    )
+    expect(findNoCacheOptions('lib/conditions/spot-forecast.ts')).toEqual([])
   })
 })

@@ -226,9 +226,42 @@ export function useQualityLayer({ map, enabled, filters, version, tier, spots }:
     if (map.isStyleLoaded()) ready()
     else map.once('idle', ready)
     map.on('moveend', onMoveEnd)
-    map.on('click', QUALITY_FILL_LAYER, onClick)
-    map.on('mouseenter', QUALITY_FILL_LAYER, onEnter)
-    map.on('mouseleave', QUALITY_FILL_LAYER, onLeave)
+
+    // ★ Sprint 88, Bloc 5 — les trois listeners DÉLÉGUÉS (ceux qui portent un
+    // layerId) sont branchés et débranchés ensemble.
+    //
+    // Ils empruntent le wrapper interne de MapLibre, qui fait
+    // `layerIds.filter((id) => this.getLayer(id))` (maplibre-gl 5.24.0,
+    // dist/maplibre-gl-dev.js:72135) AVANT d'appeler notre handler — et `getLayer`
+    // déréférence `this.style` sans le tester (:73161). Sur `webglcontextlost`
+    // (:71347), `map.style` devient `null` alors que la carte reste MONTÉE et ses
+    // écouteurs DOM actifs : le prochain tap plante, et notre handler n'a même pas
+    // la main pour se défendre. C'est l'issue JAVASCRIPT-NEXTJS-19, sur /carte.
+    //
+    // Le drapeau évite les doubles inscriptions : `map.off` d'un délégué ne retire
+    // que la PREMIÈRE correspondance (:72161), donc un `on` en trop resterait.
+    let delegatesOn = false
+    const attachDelegates = () => {
+      if (delegatesOn) return
+      delegatesOn = true
+      map.on('click', QUALITY_FILL_LAYER, onClick)
+      map.on('mouseenter', QUALITY_FILL_LAYER, onEnter)
+      map.on('mouseleave', QUALITY_FILL_LAYER, onLeave)
+    }
+    const detachDelegates = () => {
+      if (!delegatesOn) return
+      delegatesOn = false
+      map.off('click', QUALITY_FILL_LAYER, onClick)
+      map.off('mouseenter', QUALITY_FILL_LAYER, onEnter)
+      map.off('mouseleave', QUALITY_FILL_LAYER, onLeave)
+    }
+
+    attachDelegates()
+    // MapLibre restaure le style tout seul après un incident GPU
+    // (`_contextRestored`, :71350) : on se rebranche, sinon la couche qualité
+    // deviendrait définitivement muette jusqu'au remontage du composant.
+    map.on('webglcontextlost', detachDelegates)
+    map.on('webglcontextrestored', attachDelegates)
 
     return () => {
       cancelled = true
@@ -236,9 +269,9 @@ export function useQualityLayer({ map, enabled, filters, version, tier, spots }:
       clearTimeout(debTimer.current)
       map.off('moveend', onMoveEnd)
       map.off('idle', ready)
-      map.off('click', QUALITY_FILL_LAYER, onClick)
-      map.off('mouseenter', QUALITY_FILL_LAYER, onEnter)
-      map.off('mouseleave', QUALITY_FILL_LAYER, onLeave)
+      map.off('webglcontextlost', detachDelegates)
+      map.off('webglcontextrestored', attachDelegates)
+      detachDelegates()
       popupRef.current?.remove()
     }
   }, [map]) // eslint-disable-line react-hooks/exhaustive-deps

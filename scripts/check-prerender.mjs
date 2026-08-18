@@ -45,16 +45,31 @@ const MANIFEST = path.join(ROOT, '.next', 'prerender-manifest.json')
  * - `/especes/bar`                   → les 26 fiches espèces
  * - `/guides/peche-au-bar-au-leurre` → les guides MDX
  * - `/peche/bar/leurres/finistere`   → les pages programmatiques
+ * - `/spots/pointe-du-grand-minou`   → les fiches spots
  *
- * Volontairement PAS de `/spots/[slug]` ici : au moment où ce script est écrit,
- * la fiche spot est un go/no-go (Bloc 3) et n'est pas encore censée passer. La
- * rajouter le jour où le Bloc 3 est livré.
+ * ★ La fiche spot a été ajoutée au sprint 88. Le commentaire qui vivait ici disait
+ * « la rajouter le jour où le Bloc 3 est livré » : le Bloc 3 du sprint 84 A ÉTÉ
+ * livré, et personne n'est revenu poser le témoin. Coût de cet oubli : la fiche a
+ * perdu son rendu statique le 17/08 et personne ne l'a vu pendant 22 h, sur la page
+ * qui porte 80 % des clics Google (issue Sentry JAVASCRIPT-NEXTJS-1P).
+ *
+ * ⚠️ Ce témoin est nécessaire mais PAS suffisant, et il faut le savoir pour ne pas
+ * s'endormir dessus : il lit un manifeste de build, or la bascule statique→dynamique
+ * du 17/08 se produisait au RUNTIME, à la régénération ISR. Le manifeste était
+ * impeccable pendant tout l'incident. Le verrou qui attrape ce cas-là est le test
+ * `__tests__/spot-pages-are-static.test.ts` (« aucune option de cache »), pas ce
+ * script. Les deux sont complémentaires, aucun ne remplace l'autre.
+ *
+ * Le slug retenu est l'un des 10 de `generateStaticParams()`, donc attendu dans
+ * `routes`. S'il disparaît du catalogue, ce script échouera : c'est voulu, ça force
+ * à resynchroniser la liste des 10 plutôt qu'à la laisser pourrir.
  */
 const WITNESSES = [
   '/',
   '/especes/bar',
   '/guides/peche-au-bar-au-leurre',
   '/peche/bar/leurres/finistere',
+  '/spots/pointe-du-grand-minou',
 ]
 
 function fail(lines) {

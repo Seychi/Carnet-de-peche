@@ -35,19 +35,52 @@ export function isBotUserAgent(ua: string): boolean {
 }
 
 /**
- * Vrai si l'erreur vient du runtime inline $RS/$RC/$RB du streaming React 19
- * (complétion de segments Suspense) : le nœud attendu a été retiré du DOM par un
- * tiers. Détection précise : message `parentNode`/`insertBefore` ET au moins une
- * frame dont la fonction est `$RS`/`$RC`/`$RB` (noms réservés du runtime React,
- * jamais définis par notre code).
+ * Frames INTERNES à React qui appliquent les mutations DOM au commit. Ces noms ne
+ * sont jamais définis par notre code : leur présence prouve que le plantage a eu
+ * lieu pendant que React réconciliait l'arbre, pas dans un de nos handlers.
+ *
+ * Sprint 88, Bloc 7 : c'est l'élargissement rendu nécessaire par l'issue
+ * `JAVASCRIPT-NEXTJS-1D` (`insertBefore … not a child of this node`, page traduite
+ * par un outil tiers). Même phénomène que les issues A/B/C — le DOM est muté sous
+ * React par un traducteur ou une extension — mais SANS frame `$RS`, parce que la
+ * casse survient au commit et non à la complétion d'un segment streamé.
+ */
+const REACT_COMMIT_FRAMES = new Set([
+  'commitMutationEffectsOnFiber',
+  'commitMutationEffects',
+  'recursivelyTraverseMutationEffects',
+  'commitDeletionEffects',
+  'commitDeletionEffectsOnFiber',
+])
+
+/**
+ * Vrai si l'erreur vient d'un tiers qui a muté le DOM sous React : soit le runtime
+ * inline `$RS`/`$RC`/`$RB` du streaming React 19 (complétion de segments Suspense),
+ * soit la phase de commit. Dans les deux cas, le nœud que React s'attendait à
+ * trouver a été déplacé ou supprimé par une extension ou un traducteur de page.
+ *
+ * Trois conditions, toutes nécessaires :
+ *   1. le message parle de manipulation de nœud (`parentNode`, `insertBefore`,
+ *      `removeChild`) ;
+ *   2. ce n'est PAS une erreur d'hydratation reconnaissable — celles-là restent
+ *      visibles et taguées, cf `isHydrationError` ci-dessous. C'est le garde-fou
+ *      qui empêche cet élargissement d'avaler un vrai bug de notre code ;
+ *   3. au moins une frame appartient au runtime interne de React.
  */
 export function isReactStreamInterference(event: SentryEventLike): boolean {
   const exc = event.exception?.values?.[0]
   if (!exc) return false
-  if (!/parentNode|insertBefore/.test(exc.value ?? '')) return false
+  const message = exc.value ?? ''
+  if (!/parentNode|insertBefore|removeChild/.test(message)) return false
+  // Une vraie erreur d'hydratation ne doit JAMAIS tomber ici : elle vient de nous.
+  if (isHydrationError(message)) return false
   const frames = exc.stacktrace?.frames ?? []
   return frames.some(
-    (f) => f.function === '$RS' || f.function === '$RC' || f.function === '$RB'
+    (f) =>
+      f.function === '$RS' ||
+      f.function === '$RC' ||
+      f.function === '$RB' ||
+      (f.function !== undefined && REACT_COMMIT_FRAMES.has(f.function))
   )
 }
 

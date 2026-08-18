@@ -11,6 +11,10 @@ type HeaderRule = { source: string; headers: HeaderKV[] }
 type ConfigWithHeaders = { headers: () => Promise<HeaderRule[]> }
 
 const DSN_BACKUP = process.env.NEXT_PUBLIC_SENTRY_DSN
+// Sprint 88 Bloc 3b : le report-uri dépend désormais de VERCEL_ENV, donc ces tests
+// le pilotent. Sauvegardé/restauré comme le DSN, sinon un test qui le pose fuite
+// sur tous les fichiers suivants de la suite.
+const VERCEL_ENV_BACKUP = process.env.VERCEL_ENV
 
 async function loadHeaders(): Promise<HeaderKV[]> {
   vi.resetModules()
@@ -29,6 +33,8 @@ function headerValue(headers: HeaderKV[], key: string): string | null {
 afterEach(() => {
   if (DSN_BACKUP === undefined) delete process.env.NEXT_PUBLIC_SENTRY_DSN
   else process.env.NEXT_PUBLIC_SENTRY_DSN = DSN_BACKUP
+  if (VERCEL_ENV_BACKUP === undefined) delete process.env.VERCEL_ENV
+  else process.env.VERCEL_ENV = VERCEL_ENV_BACKUP
 })
 
 describe('en-têtes de sécurité (sprint 70 : CSP enforce + Permissions-Policy)', () => {
@@ -101,7 +107,8 @@ describe('en-têtes de sécurité (sprint 70 : CSP enforce + Permissions-Policy)
     expect(csp).not.toContain("'unsafe-eval'")
   })
 
-  it('CSP : report-uri dérivé du DSN Sentry quand il est présent', async () => {
+  it('CSP : report-uri dérivé du DSN Sentry quand il est présent (en PRODUCTION)', async () => {
+    process.env.VERCEL_ENV = 'production'
     process.env.NEXT_PUBLIC_SENTRY_DSN = 'https://abc123@o4500.ingest.de.sentry.io/4509'
     const csp = headerValue(await loadHeaders(), 'Content-Security-Policy')!
     expect(csp).toContain(
@@ -110,12 +117,35 @@ describe('en-têtes de sécurité (sprint 70 : CSP enforce + Permissions-Policy)
   })
 
   it('CSP : pas de report-uri (et pas de crash) sans DSN ou avec un DSN invalide', async () => {
+    process.env.VERCEL_ENV = 'production'
     delete process.env.NEXT_PUBLIC_SENTRY_DSN
     let csp = headerValue(await loadHeaders(), 'Content-Security-Policy')!
     expect(csp).not.toContain('report-uri')
 
     process.env.NEXT_PUBLIC_SENTRY_DSN = 'pas-un-dsn'
     csp = headerValue(await loadHeaders(), 'Content-Security-Policy')!
+    expect(csp).not.toContain('report-uri')
+  })
+
+  // ★ Sprint 88, Bloc 3b. Sur un preview PROTÉGÉ, la redirection d'authentification
+  // Vercel fabrique des violations CSP fantômes same-origin que le navigateur POSTe
+  // au report-uri — hors de portée de tout filtre du SDK Sentry, puisqu'elles ne
+  // passent jamais par `Sentry.init`. Six issues du projet venaient de là.
+  it("CSP : AUCUN report-uri sur un déploiement preview, même avec un DSN valide", async () => {
+    process.env.VERCEL_ENV = 'preview'
+    process.env.NEXT_PUBLIC_SENTRY_DSN = 'https://abc123@o4500.ingest.de.sentry.io/4509'
+    const csp = headerValue(await loadHeaders(), 'Content-Security-Policy')!
+    expect(csp).not.toContain('report-uri')
+    // Et la CSP reste par ailleurs intacte : on coupe un canal de rapport, pas une
+    // protection. `vercel.live` reste ouvert en preview, c'est le sens du réglage.
+    expect(csp).toContain("default-src 'self'")
+    expect(csp).toContain('https://vercel.live')
+  })
+
+  it("CSP : AUCUN report-uri en développement local (VERCEL_ENV absent)", async () => {
+    delete process.env.VERCEL_ENV
+    process.env.NEXT_PUBLIC_SENTRY_DSN = 'https://abc123@o4500.ingest.de.sentry.io/4509'
+    const csp = headerValue(await loadHeaders(), 'Content-Security-Policy')!
     expect(csp).not.toContain('report-uri')
   })
 })

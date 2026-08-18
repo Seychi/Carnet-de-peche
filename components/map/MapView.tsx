@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification } from 'maplibre-gl'
+import type { Map as MapLibreMap, Marker, GeoJSONSource, ExpressionSpecification, Subscription } from 'maplibre-gl'
 import { type SpotMarker, createFuzzyCircle, markerColorForQuality, QUALITY_MARKER_COLORS, QUALITY_NEUTRAL_COLOR } from '@/lib/map/utils'
 import { scheduleReliableResize, resizeIfSized } from '@/lib/map/resize'
 import MapSkeleton from '@/components/map/MapSkeleton'
@@ -215,7 +215,7 @@ function addFuzzyLayers(
   map: MapLibreMap,
   getSpotById: (id: string) => SpotMarker | undefined,
   onMarkerClick?: (spot: SpotMarker) => void,
-): void {
+): Subscription[] {
   map.addSource(FUZZY_SOURCE, {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
@@ -232,15 +232,39 @@ function addFuzzyLayers(
     source: FUZZY_SOURCE,
     paint: { 'line-color': QUALITY_COLOR_EXPR, 'line-width': 1.5 },
   })
-  map.on('mouseenter', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = 'pointer' })
-  map.on('mouseleave', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = '' })
-  // Lookup via getSpotById (ref) et pas une closure sur la liste : la liste
-  // filtrée change après le mount, une closure servirait des spots périmés.
-  map.on('click', FUZZY_FILL_LAYER, (e) => {
-    const spotId = e.features?.[0]?.properties?.spotId as string | undefined
-    const spot = spotId ? getSpotById(spotId) : undefined
-    if (spot) onMarkerClick?.(spot)
-  })
+  return subscribeFuzzyHandlers(map, getSpotById, onMarkerClick)
+}
+
+/**
+ * ★ Sprint 88, Bloc 5 — inscription des listeners DÉLÉGUÉS, séparée de la création
+ * des couches.
+ *
+ * Les deux sont séparés parce qu'ils n'ont pas le même cycle de vie : après un
+ * incident GPU, MapLibre restaure le style et donc les couches tout seul
+ * (`_contextRestored`, dist/maplibre-gl-dev.js:71350), mais les listeners, eux,
+ * doivent être re-posés à la main. Rejouer `addFuzzyLayers` échouerait sur
+ * `addSource` (la source existe déjà).
+ *
+ * `map.on(type, layerId, …)` rend une `Subscription` en MapLibre 5
+ * (maplibre-gl.d.ts:12028) : c'est la seule prise sur un listener délégué déclaré
+ * en flèche inline, `map.off()` exigeant la référence exacte de la fonction.
+ */
+function subscribeFuzzyHandlers(
+  map: MapLibreMap,
+  getSpotById: (id: string) => SpotMarker | undefined,
+  onMarkerClick?: (spot: SpotMarker) => void,
+): Subscription[] {
+  return [
+    map.on('mouseenter', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = 'pointer' }),
+    map.on('mouseleave', FUZZY_FILL_LAYER, () => { map.getCanvas().style.cursor = '' }),
+    // Lookup via getSpotById (ref) et pas une closure sur la liste : la liste
+    // filtrée change après le mount, une closure servirait des spots périmés.
+    map.on('click', FUZZY_FILL_LAYER, (e) => {
+      const spotId = e.features?.[0]?.properties?.spotId as string | undefined
+      const spot = spotId ? getSpotById(spotId) : undefined
+      if (spot) onMarkerClick?.(spot)
+    }),
+  ]
 }
 
 // Pins HTML pour TOUS les spots (précis ET floutés). En Discovery les spots
@@ -286,7 +310,7 @@ function addClusteredSpotsToMap(
   map: MapLibreMap,
   getSpotById: (id: string) => SpotMarker | undefined,
   onMarkerClick?: (spot: SpotMarker) => void,
-): void {
+): Subscription[] {
   // Source initialisée vide — peuplée par setData dans l'effet de resync.
   map.addSource(CLUSTER_SOURCE, {
     type: 'geojson',
@@ -354,34 +378,45 @@ function addClusteredSpotsToMap(
     },
   })
 
+  return subscribeClusterHandlers(map, getSpotById, onMarkerClick)
+}
+
+/** Pendant de `subscribeFuzzyHandlers` pour le mode cluster. Même raison d'être. */
+function subscribeClusterHandlers(
+  map: MapLibreMap,
+  getSpotById: (id: string) => SpotMarker | undefined,
+  onMarkerClick?: (spot: SpotMarker) => void,
+): Subscription[] {
   const setPointer = () => { map.getCanvas().style.cursor = 'pointer' }
   const clearPointer = () => { map.getCanvas().style.cursor = '' }
 
-  map.on('mouseenter', CLUSTER_LAYER, setPointer)
-  map.on('mouseleave', CLUSTER_LAYER, clearPointer)
-  map.on('mouseenter', UNCLUSTERED_LAYER, setPointer)
-  map.on('mouseleave', UNCLUSTERED_LAYER, clearPointer)
+  return [
+    map.on('mouseenter', CLUSTER_LAYER, setPointer),
+    map.on('mouseleave', CLUSTER_LAYER, clearPointer),
+    map.on('mouseenter', UNCLUSTERED_LAYER, setPointer),
+    map.on('mouseleave', UNCLUSTERED_LAYER, clearPointer),
 
-  // Clic sur cluster → zoom in
-  map.on('click', CLUSTER_LAYER, async (e) => {
-    const features = map.queryRenderedFeatures(e.point, { layers: [CLUSTER_LAYER] })
-    if (!features.length) return
-    const clusterId = features[0].properties?.cluster_id as number
-    const source = map.getSource(CLUSTER_SOURCE) as GeoJSONSource
-    try {
-      const zoom = await source.getClusterExpansionZoom(clusterId)
-      const geom = features[0].geometry as { type: 'Point'; coordinates: [number, number] }
-      map.easeTo({ center: geom.coordinates, zoom: zoom + 1 })
-    } catch { /* cluster inexistant entre deux renders */ }
-  })
+    // Clic sur cluster → zoom in
+    map.on('click', CLUSTER_LAYER, async (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: [CLUSTER_LAYER] })
+      if (!features.length) return
+      const clusterId = features[0].properties?.cluster_id as number
+      const source = map.getSource(CLUSTER_SOURCE) as GeoJSONSource
+      try {
+        const zoom = await source.getClusterExpansionZoom(clusterId)
+        const geom = features[0].geometry as { type: 'Point'; coordinates: [number, number] }
+        map.easeTo({ center: geom.coordinates, zoom: zoom + 1 })
+      } catch { /* cluster inexistant entre deux renders */ }
+    }),
 
-  // Clic sur point individuel → popup. Lookup via getSpotById (ref) : la liste
-  // filtrée change après le mount, une closure servirait des spots périmés.
-  map.on('click', UNCLUSTERED_LAYER, (e) => {
-    const spotId = e.features?.[0]?.properties?.spotId as string | undefined
-    const spot = spotId ? getSpotById(spotId) : undefined
-    if (spot) onMarkerClick?.(spot)
-  })
+    // Clic sur point individuel → popup. Lookup via getSpotById (ref) : la liste
+    // filtrée change après le mount, une closure servirait des spots périmés.
+    map.on('click', UNCLUSTERED_LAYER, (e) => {
+      const spotId = e.features?.[0]?.properties?.spotId as string | undefined
+      const spot = spotId ? getSpotById(spotId) : undefined
+      if (spot) onMarkerClick?.(spot)
+    }),
+  ]
 }
 
 // ── Prefetch de tuiles pour accélérer le premier affichage ───────────────────
@@ -432,6 +467,33 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null)
   const readoutRef = useRef<HTMLSpanElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
+  // Sprint 88, Bloc 5 : abonnements aux listeners DÉLÉGUÉS (ceux qui portent un
+  // layerId). Ce sont les seuls qui empruntent le wrapper interne de MapLibre, lequel
+  // fait `layerIds.filter((id) => this.getLayer(id))` — un appel qui déréférence
+  // `map.style` SANS le tester (maplibre-gl 5.24.0, dist/maplibre-gl-dev.js:72132 et
+  // :73161). Si le style a disparu, ça lève avant même que NOTRE handler ne tourne.
+  const layerSubsRef = useRef<Subscription[]>([])
+  // Comment re-poser ces listeners apres un `webglcontextrestored`. Rempli au
+  // 'load', car c'est la qu'on sait si la carte tourne en mode cluster ou flou.
+  const resubscribeRef = useRef<(() => Subscription[]) | null>(null)
+
+  /**
+   * Coupe tous les listeners délégués. Idempotent : appelable au démontage ET sur
+   * perte de contexte WebGL, dans n'importe quel ordre.
+   */
+  const unsubscribeLayers = () => {
+    for (const sub of layerSubsRef.current) {
+      try {
+        sub.unsubscribe()
+      } catch {
+        // La carte est peut-être déjà à moitié détruite. Se désabonner est un
+        // nettoyage : il n'a pas le droit d'empêcher le reste du cleanup de tourner.
+      }
+    }
+    layerSubsRef.current = []
+  }
+
+
   const markerElemsRef = useRef<Map<string, HTMLElement>>(new Map())
   // Refs pour le resync des markers au changement de filtre (la liste `spots`
   // change après le mount) : module maplibre, markers HTML posés, liste courante
@@ -577,6 +639,31 @@ export default function MapView({
       mapRef.current = map
       maplibreRef.current = maplibre
 
+      // ★ Sprint 88, Bloc 5 — perte de contexte WebGL.
+      //
+      // C'est le SEUL endroit de maplibre-gl 5.24.0 qui met `map.style` à `null`
+      // (dist/maplibre-gl-dev.js:71346, handler `_contextLost`) ; `remove()`, lui,
+      // fait `delete this.style`, donc `undefined`. Or les deux issues Sentry
+      // parlent de « null/undefined », soit les deux chemins.
+      //
+      // Le cas `null` est le plus vicieux : la carte reste MONTÉE, ses écouteurs DOM
+      // sont toujours actifs, et le prochain tap part droit dans le wrapper délégué
+      // de MapLibre, qui appelle `getLayer()` sur un style nul. Fréquent sur mobile
+      // (onglet en arrière-plan, pression GPU) — les deux issues sont bien sur
+      // Chrome Mobile Android. On coupe donc les délégués dès la perte du contexte.
+      map.on('webglcontextlost', unsubscribeLayers)
+      // ⚠️ Et on SE REBRANCHE a la restauration, sinon on echangeait 3 evenements
+      // Sentry contre une carte silencieusement inerte : MapLibre restaure bien le
+      // style (`_contextRestored`, :71350), mais son evenement 'load' ne repart
+      // JAMAIS (`_loaded` n'est jamais remis a false, :73845), donc le bloc qui
+      // cree les couches et pose les listeners n'est pas rejoue. Sans cette ligne,
+      // apres un incident GPU : plus de clic sur un spot, plus de zoom sur un
+      // cluster, plus de curseur, jusqu'au remontage du composant.
+      map.on('webglcontextrestored', () => {
+        if (layerSubsRef.current.length > 0) return
+        layerSubsRef.current = resubscribeRef.current?.() ?? []
+      })
+
       // Erreur style (401 clé invalide, 403 domaine non autorisé, réseau, etc.).
       // Un tile 4xx isolé pré-load ne condamne pas la carte : on n'échoue que si le
       // style n'est TOUJOURS pas chargé après le délai de grâce.
@@ -639,11 +726,12 @@ export default function MapView({
 
         // Sources/layers créés vides — le peuplement (pins + setData) est fait
         // par l'effet de resync sur [spots, loaded], y compris au premier rendu.
-        if (useClusterRef.current) {
-          addClusteredSpotsToMap(map, getSpotById, onMarkerClick)
-        } else {
-          addFuzzyLayers(map, getSpotById, onMarkerClick)
-        }
+        resubscribeRef.current = useClusterRef.current
+          ? () => subscribeClusterHandlers(map, getSpotById, onMarkerClick)
+          : () => subscribeFuzzyHandlers(map, getSpotById, onMarkerClick)
+        layerSubsRef.current = useClusterRef.current
+          ? addClusteredSpotsToMap(map, getSpotById, onMarkerClick)
+          : addFuzzyLayers(map, getSpotById, onMarkerClick)
       })
     }
 
@@ -675,6 +763,12 @@ export default function MapView({
       markersRef.current = []
       // eslint-disable-next-line react-hooks/exhaustive-deps -- ref Map stable (jamais réassignée), cleanup d'unmount : faux positif
       markerElemsRef.current.clear()
+      // ★ Couper les listeners délégués AVANT `remove()`. Ce dernier fait
+      // `handlers.destroy()` puis `delete this.style` : entre les deux, et surtout
+      // pendant l'itération d'un `fire()` déclenché par le tap qui provoque la
+      // navigation, un délégué encore branché tombe sur un style disparu
+      // (issues JAVASCRIPT-NEXTJS-12 et -19, Chrome Mobile Android).
+      unsubscribeLayers()
       mapRef.current?.remove()
       mapRef.current = null
       maplibreRef.current = null
