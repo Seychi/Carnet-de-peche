@@ -310,18 +310,27 @@ export async function fetchOpenMeteo<T>(url: string, source: 'marine' | 'forecas
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const res = await fetch(url, {
-        // NE PAS remettre `next: { revalidate: 0 }` ici. Issue Sentry
-        // JAVASCRIPT-NEXTJS-1P : 355 evenements en 22 h, apparue avec le deploiement
-        // du sprint 84 le 17/08 a 16h48. La doc Next est explicite : un `revalidate`
-        // pose sur un fetch et PLUS BAS que celui de la route abaisse la route
-        // ENTIERE. Avec 0, `/spots/[slug]` (revalidate = 1800) basculait en dynamique
-        // a chaque regeneration ISR — soit exactement ce que le sprint 84 avait
-        // corrige, sur la page qui porte 80 % des clics Google.
+        // ★ AUCUNE option de cache ici, et surtout PAS `next: { revalidate: N }`.
+        // Issue Sentry JAVASCRIPT-NEXTJS-1P : 355 evenements en 22 h, apparue avec le
+        // deploiement du sprint 84 le 17/08 a 16h48, sur la page qui porte 80 % des
+        // clics Google.
         //
-        // Sans option, le defaut Next 15 (`auto no cache`) ne met rien en cache et
-        // ne fait PAS basculer la route : c'est le comportement qu'on voulait depuis
-        // le debut. La fraicheur reelle n'a jamais dependu de Next, elle vient de
-        // `weather_cache` (readCache, FRESH_TTL_MS = 1 h, plus haut dans ce fichier).
+        // Verifie dans le source installe, pas de memoire —
+        // `node_modules/next/dist/server/lib/patch-fetch.js` (next 15.5.18) :
+        //   • sans option de cache, `autoNoCache = true` (l.375-386), et le bailout
+        //     l.480 est garde par `!autoNoCache` : la route NE bascule PAS. Le fetch
+        //     n'est simplement pas mis dans le Data Cache.
+        //   • avec `revalidate: 0`, `autoNoCache` est faux et `finalRevalidate === 0`
+        //     declenche `markCurrentScopeAsDynamic` (l.510) : toute la fiche repasse
+        //     en dynamique a chaque regeneration ISR. C'etait le bug.
+        //   • avec `revalidate: 900` (la variante suggeree par le brief S88), pas de
+        //     bascule, mais `revalidateStore.revalidate = 900` (l.514) ABAISSE le
+        //     `revalidate` de la route entiere de 1800 a 900, en silence. Non merci.
+        //   • le `signal` ci-dessous n'entre pas dans la cacheabilite : il n'est ni
+        //     dans `hasUnCacheableHeader` (l.355) ni dans la cle de cache.
+        //
+        // La fraicheur reelle n'a de toute facon jamais dependu de Next : elle vient
+        // de `weather_cache` (readCache, FRESH_TTL_MS = 1 h, plus haut dans ce fichier).
         signal: AbortSignal.timeout(OPEN_METEO_TIMEOUT_MS),
       })
       if (res.ok) return (await res.json()) as T

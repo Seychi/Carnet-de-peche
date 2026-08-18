@@ -41,7 +41,7 @@ import {
 } from '@/components/spots/viewer/slots'
 import { getAllGuides } from '@/lib/guides/loader'
 import { relatedGuidesFor } from '@/lib/guides/related'
-import { fetchSpotConditions } from '@/lib/conditions/spot-forecast'
+import { fetchSpotConditions, rethrowIfNextControlFlow } from '@/lib/conditions/spot-forecast'
 import { isLowTidalRangeDepartment, getTideAccuracyChip, monthsAgo } from '@/lib/conditions/tide-calibration'
 import { fetchSpotDepth, fetchSeabedSubstrate } from '@/lib/conditions/bathymetry'
 import { buildSpotWeek, calibratedExtremumLabel, pickDates } from '@/lib/spots/week'
@@ -510,6 +510,28 @@ function RecentCatchesSection({
   )
 }
 
+/**
+ * Dégradation silencieuse d'une section secondaire, SANS avaler les signaux de
+ * contrôle de Next.
+ *
+ * L'intention des dix `catch` de cette page reste la bonne : aucune section annexe
+ * ne doit casser la fiche qui porte 80 % des clics Google. Mais un `catch` nu
+ * attrape AUSSI le `DynamicServerError` que Next lève pour dire « cette route ne
+ * peut plus rester statique ». C'est exactement ce qui s'est passé du 17/08 16h48
+ * au 18/08 : la fiche rendait en dynamique à chaque régénération, 355 événements
+ * Sentry (JAVASCRIPT-NEXTJS-1P), et pas une seule de ces dix lignes n'a bronché.
+ *
+ * Vérifié le 18/08/2026 : aucun des fetchers appelés ici n'appelle `notFound()`
+ * ni `redirect()`, donc relancer les erreurs porteuses d'un `digest` ne peut rien
+ * casser — ça ne fait que rendre la prochaine bascule bruyante.
+ */
+function degradeTo<T>(fallback: T) {
+  return (err: unknown): T => {
+    rethrowIfNextControlFlow(err)
+    return fallback
+  }
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function SpotPage({
@@ -532,18 +554,18 @@ export default async function SpotPage({
   ] = await Promise.all([
     fetchRecentCatches(spot.id),
     fetchCatchCount(spot.id),
-    fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(() => null),
+    fetchSpotConditions(spot.lat, spot.lng, new Date()).catch(degradeTo(null)),
     // Semaine + calibration marée en un seul module, partagé avec
     // /api/spots/[slug]/viewer pour que les deux chemins donnent le même jour 1.
-    buildSpotWeek(spot.lat, spot.lng, deptKey).catch(() => null),
-    getAllGuides().catch(() => []),
-    fetchSpotDepth(spot.lat, spot.lng).catch(() => null),
-    fetchSeabedSubstrate(spot.lat, spot.lng).catch(() => null),
+    buildSpotWeek(spot.lat, spot.lng, deptKey).catch(degradeTo(null)),
+    getAllGuides().catch(degradeTo([])),
+    fetchSpotDepth(spot.lat, spot.lng).catch(degradeTo(null)),
+    fetchSeabedSubstrate(spot.lat, spot.lng).catch(degradeTo(null)),
     // WS B (D2) compteur confirmations ; WS C prises depuis vérif ; WS D chip
     // précision marées. Tous agrégés / sans coordonnée, donc mis en cache sans risque.
-    fetchConfirmationCount(spot.id).catch(() => 0),
-    fetchCatchesSinceVerified(spot.id, spot.verified_at).catch(() => null),
-    getTideAccuracyChip(deptKey).catch(() => null),
+    fetchConfirmationCount(spot.id).catch(degradeTo(0)),
+    fetchCatchesSinceVerified(spot.id, spot.verified_at).catch(degradeTo(null)),
+    getTideAccuracyChip(deptKey).catch(degradeTo(null)),
   ])
 
   // ★ Coordonnée telle qu'elle part dans le HTML MIS EN CACHE : déjà floutée par
@@ -569,8 +591,8 @@ export default async function SpotPage({
   // PARALLÈLE l'une de l'autre. Toute erreur dégrade en silence : cette section
   // ne doit jamais casser la page qui fait 80 % des clics Google.
   const [nearbyRaw, deptSpots] = await Promise.all([
-    fetchNearbySpots(spot.lat, spot.lng, spot.id).catch(() => []),
-    fetchDepartmentSpots(deptKey, spot.id, spot.slug).catch(() => []),
+    fetchNearbySpots(spot.lat, spot.lng, spot.id).catch(degradeTo([])),
+    fetchDepartmentSpots(deptKey, spot.id, spot.slug).catch(degradeTo([])),
   ])
 
   // Les spots proches d'abord (avec leur distance), complétés par le département
