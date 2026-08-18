@@ -20,7 +20,8 @@
     "e2e:ui": "playwright test --ui",
     "lhci": "lhci autorun",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "indexnow": "node scripts/indexnow-submit.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
