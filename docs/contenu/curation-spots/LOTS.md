@@ -286,6 +286,100 @@ Deux sessions ont préparé un lot 3 en parallèle sans se voir. La session Cowo
 42. **Un guide de pêche local qui publie ses coins vaut mieux que dix pages d'office de tourisme.** Les deux articles de `guidedepechebretagne.fr` (Pêche Évasion, Erquy) ont documenté **7 fiches** du lot 15 avec de la matière utilisable : espèce, saison, technique, et le point précis de la plage qui marche. **À chercher en tout début de département** : « guide de pêche en mer [secteur] coins du bord ».
 43. **Un phare posé sur une roche ou une île isolée au large n'est pas un poste.** Quatre rejets d'un coup au lot 15 (Triagoz, Sept-Îles, Grand Léjon, Ost-Pic). Prolonge la décision 38 au vocabulaire des feux de navigation : `phare de [roche]` sans continuité terrestre = rejet, à distinguer des phares de digue ou de pointe qui sont, eux, d'excellents postes (Petite Muette, Pointe à l'Aigle, Mean Ruz, tous publiés au même lot).
 
+## Lot 16 — Bouches-du-Rhône (13), Porte 2 seule · 19/08/2026
+
+**Statut : Porte 2 livrée + 13 fiches publiées** (batch `S89-MED-13-01`, secteur Côte Bleue).
+Ouverture du département dans le cadre de `BRIEF-CAMPAGNE-MED-2026-08-24.md`.
+Document : **`lots/lot-16-13-ZNP-CALANQUES.md`**, réutilisable pour tous les lots suivants du 13.
+
+**Deux batches écrits** : `S89-MED-13-01` (13 fiches, Côte Bleue) et `S89-MED-13-02` (8 fiches,
+Camargue et golfe de Fos).
+
+Compteurs 13 : **278 → 253 pending**, 10 → **14 rejected**, 36 → **57 publiées**.
+Base entière : **632 fiches publiées**. Sitemap 1 158 → **1 179 URLs**, soit +21 exactement.
+
+Contrôles post-lot : 13/13 descriptions distinctes, longueurs 305-362 et 173-196, espèces 4-7,
+hazards 2-4, 0 tiret cadratin, `verified` et `source` intacts, 13/13 au sitemap, 3 pages testées
+en HTTP 200. Communes obtenues par **géocodage inverse**, jamais déduites du nom OSM.
+
+**4 rejets secs, sourcés :**
+
+| Spot | Motif | Source |
+|---|---|---|
+| Anse de la Baume | dans la **ZNP Devenson** | coordonnées GPS officielles du parc |
+| Anse des Enfers | dans la **ZNP Devenson** | idem |
+| Anse du Grand Mugel | **pêche du bord interdite depuis avril 2025** (réserve marine des enfants) | Réglementations en mer, PN Calanques |
+| Plage Calanque du Grand Mugel | idem | idem |
+
+## Décisions tranchées (lot 16)
+
+44. ★★★ **En Méditerranée, la Porte 2 remplace la Porte 1 comme filtre discriminant.** Les 45 candidats
+    du 13 passent le test « en mer » d'Open-Meteo : **45 sur 45**, zéro écarté. Sur un littoral aussi
+    découpé, ce test ne trie rien. Ce qui trie, c'est la réglementation : **2 spots dans une ZNP** et
+    **33 à moins d'un kilomètre**. Ne jamais se croire couvert parce que la Porte 1 est verte.
+45. ★★★ **Un poste hors zone interdite peut quand même être illégal à pêcher : le lancer compte, pas
+    le point.** Onze spots du 13 sont à moins de 300 m d'une ZNP, dont la Pointe de Cacau à **1 m** et
+    la Crique des Morgerets à **13 m**. Un surfcasting normal y tombe dans la zone où tout prélèvement
+    est interdit. Règle **validée par John le 19/08/2026** : **moins de 300 m → reste `pending`** ;
+    300 m à 1 km → publiable, mais la fiche **doit** nommer la ZNP et sa direction dans `access_notes`.
+    S'applique à tous les lots du 13 et, par extension, au 83 quand Port-Cros s'ouvrira.
+46. ★★ **L'ordre de notoriété peut mener droit dans le problème.** Le brief prévoyait d'ouvrir le 13
+    par les spots les plus connus : ce sont précisément les calanques, donc le secteur le plus exposé
+    aux ZNP. Ordre corrigé : Côte Bleue, puis Camargue et golfe de Fos, puis Marseille nord, puis la
+    corniche, **et les calanques en dernier**. Publier vite ce qui est sûr, garder pour la fin ce qui
+    demande une précaution rédactionnelle.
+47. ★★ **Deux jeux de polygones se cumulent sur le 13, il faut tester contre les DEUX.** Le décret du
+    parc national (7 ZNP) et l'**arrêté du 01/07/2014** sur les cantonnements de pêche de
+    **Carry-le-Rouet** et du **Cap Couronne** sont indépendants. Sur les 22 spots de la Côte Bleue
+    testés : **aucun dans une réserve**, 2 sous 300 m (Cap Rousset, les Bouchons), 8 entre 300 m et
+    1 km. Le secteur reste donc le bon point de départ du département.
+48. ★★★ **Trois régimes réglementaires cohabitent sur le seul département du 13, et ils ne se
+    traitent pas pareil.** Les **ZNP du parc national** (interdiction totale, au rivage) appellent la
+    règle des 300 m. Les **cantonnements de la Côte Bleue** (arrêté 2014, au rivage aussi) l'appellent
+    également. Le **cantonnement du golfe de Beauduc** (2013, 6 balises jaunes) est **au large** : la
+    pêche du bord y reste légale et la règle des 300 m ne s'applique pas. Lire chaque zonage pour ce
+    qu'il dit, jamais par analogie avec le précédent.
+49. ★★ **Le contrôle d'homonymie contre les fiches DÉJÀ publiées est ce qui rattrape le défaut du
+    lot S78.** Il a écarté « Plage Napoléon » (doublon d'une fiche curée à 1,4 km, même commune) et
+    « Anse de Carteau » (même toponyme qu'une fiche publiée à 1,9 km). Le seuil mécanique de 500 m ne
+    les aurait pas vus : c'est la **coïncidence de toponyme dans la même commune** qui tranche.
+50. ★★ **Une interdiction récente ne sort d'aucun test géométrique.** L'interdiction de pêche du bord
+    au Mugel date d'**avril 2025** et ne figure dans aucun polygone : elle vient d'un arrêté, et il
+    fallait aller la lire. Le test de polygone est nécessaire, il n'est pas suffisant.
+
+## Lot 17 — Bouches-du-Rhône (13), Côte Bleue et Camargue · 19/08/2026
+
+**Statut : 21 fiches publiées.** Détail : **`lots/lot-17-13-COTE-BLEUE-CAMARGUE.md`**.
+Batches `S89-MED-13-01` (13 fiches, Côte Bleue) et `S89-MED-13-02` (8 fiches, Camargue et golfe de Fos).
+
+Compteurs 13 : **36 → 57 publiées**, 278 → **253 pending**, 10 → **14 rejected**.
+Sitemap de production 1 158 → **1 179 URLs**, vérifié en direct. Reste **43 fiches** pour la cible de 100.
+
+Contrôles post-lot : 21/21 descriptions et `access_notes` distinctes, 21/21 dans le calibre,
+0 tiret cadratin, **0 mention de marée**, 0 `submersion_maree`, `verified`/`source` intacts,
+3 pages live en 200, les 4 rejetés absents du sitemap.
+
+## Décisions tranchées (lot 17)
+
+48. ★★★ **Renommer une fiche ne renomme pas son slug, et l'oubli est invisible.** « Zone naturiste de
+    la plage de Piémanson » a été correctement renommée en « Plage de Piémanson » (Porte 3), mais
+    l'URL est restée `/spots/zone-naturiste-de-la-plage-de-piemanson-…`. Le titre affiché et l'URL se
+    contredisaient, et l'URL portait un mot-clé qui attire exactement le mauvais trafic. **Le nom et le
+    slug se décident ensemble, avant l'approbation**, parce que l'URL devient stable à la publication.
+    Contrôle à rejouer en fin de lot : comparer `name` et `slug` de chaque fiche du batch.
+49. ★★★ **Ne jamais sonder une URL qui n'existe pas encore : on empoisonne son propre cache.** J'ai
+    testé le nouveau slug **avant** de faire le changement en base, pour vérifier qu'il était libre.
+    Ce `curl` a mis un **404 en cache ISR pour 30 minutes**, et la page correcte a renvoyé 404 juste
+    après la correction. Vérifier la disponibilité d'un slug **en SQL**, jamais en HTTP.
+50. ★★ **En Méditerranée, le contrôle « aucune mention de marée » doit être une requête, pas une
+    relecture.** `select count(*) ... where description ~ 'mar[ée]e|coefficient|[ée]tale|descendante'`
+    plus `'submersion_maree' = any(hazards)`. Les deux à zéro sur ce lot, mais c'est le réflexe le plus
+    facile à perdre en recopiant le ton des fiches bretonnes.
+51. ★★ **Une fiche curée voisine n'est pas forcément un doublon : compare les granularités.** Trois
+    fiches du lot sont à moins de 350 m d'une fiche curée, mais les curées sont des fiches de
+    **secteur** (« Carry-le-Rouet — Côte Bleue », « Carro — port et jetées ») et les nouvelles décrivent
+    un **poste précis**. Vérifier par la coordonnée et le type de poste, pas par la distance seule.
+
 ---
 
 **Prochaine étape — poursuivre le 22 Côtes-d'Armor** (245 pending, **33 publiés**, cible 100, soit ~4 lots).
