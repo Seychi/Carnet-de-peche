@@ -11,6 +11,13 @@ export type SpotScoresJobResult = {
   total: number
   succeeded: number
   failed: number
+  /**
+   * Spots dont Open-Meteo n'a rien renvoyé (429 « Too many concurrent requests »
+   * en pratique) et dont le score n'a donc PAS été réécrit. Sprint 89 : ils étaient
+   * auparavant comptés en `succeeded`, ce qui rendait le job structurellement
+   * aveugle à son propre mode de panne le plus fréquent.
+   */
+  degraded: number
   elapsedMs: number
 }
 
@@ -45,12 +52,43 @@ export async function computeAndStoreSpotScores(
   const today = new Date()
   let succeeded = 0
   let failed = 0
+  let degraded = 0
 
   for (const batch of chunk(spots, BATCH_SIZE)) {
     await Promise.all(
       batch.map(async (spot) => {
         try {
           const forecasts = await fetchSpotForecastWeek(spot.lat, spot.lng)
+
+          // ★ Sprint 89 — ne JAMAIS écraser un score valide par un score fabriqué.
+          //
+          // Quand Open-Meteo répond 429, `fetchOpenMeteo` renvoie null sans lever et
+          // la semaine retombe sur `buildEmptyConditions`, marquée `degraded`. Le job
+          // calculait alors un score sur les seuls termes qui n'ont pas besoin de la
+          // mer (le solunaire), l'upsertait pour 26 h, et comptait le spot en « ok ».
+          //
+          // ⚠️ Le piège est là : la valeur produite n'est PAS visiblement fausse.
+          // Mesuré en base sur le run du 19/08 — 81 des 208 lignes portent
+          // EXACTEMENT `day_score = 64`, `current_score = 64`, `current_quality =
+          // 'bonne'`, et zéro ligne 'faible' dans toute la table. Un score identique
+          // en Méditerranée et sur l'estran charentais est physiquement impossible
+          // avec de la marée réelle : c'est la signature du chemin dégradé
+          // (`scoreTide` → NO_DATA_SCORE 0.35, vent → UNKNOWN_SCORE 0.7).
+          //
+          // Autrement dit, 39 % de la carte annonçait « bonne » sur des données
+          // absentes, de façon parfaitement crédible à l'œil. Un 0 se serait vu.
+          //
+          // On préfère laisser le score de la veille vivre jusqu'à son `valid_until`,
+          // et à défaut un marqueur neutre. « Je ne sais pas » est une information
+          // honnête ; un 64 fabriqué est une information fausse.
+          //
+          // Requête de détection à rejouer : `select day_score, count(*) from
+          // spot_scores where computed_at >= <run> group by 1 having count(*) > 20;`
+          if (forecasts.some((f) => f.degraded)) {
+            degraded++
+            return
+          }
+
           const weekly = await computeWeeklyForecast(today, spot.lat, spot.lng, forecasts)
 
           const current = findCurrentWindow(weekly)
@@ -86,8 +124,17 @@ export async function computeAndStoreSpotScores(
 
   const elapsedMs = Date.now() - started
   console.log(
-    `Spot scores computed: ${spots.length} spots (${succeeded} ok, ${failed} échec) in ${elapsedMs}ms`
+    `Spot scores computed: ${spots.length} spots (${succeeded} ok, ${degraded} sans données, ` +
+      `${failed} échec) in ${elapsedMs}ms`
   )
+  // Un run où la donnée manque pour plus d'un spot sur dix n'est pas un run réussi :
+  // il faut que ça se voie dans les logs sans avoir à les lire ligne à ligne.
+  if (degraded > spots.length / 10) {
+    console.error(
+      `[spot-scores] ${degraded}/${spots.length} spots sans données Open-Meteo ` +
+        `(429 ?). Les scores de la veille ont été conservés.`
+    )
+  }
 
-  return { total: spots.length, succeeded, failed, elapsedMs }
+  return { total: spots.length, succeeded, failed, degraded, elapsedMs }
 }

@@ -351,7 +351,18 @@ export async function fetchOpenMeteo<T>(url: string, source: 'marine' | 'forecas
         return null
       }
     }
-    await new Promise((resolve) => setTimeout(resolve, 400))
+    // ★ Sprint 89 — 400 ms + un aléa, et l'aléa n'est pas cosmétique.
+    //
+    // Le cron `compute-spot-scores` lance 10 spots en parallèle et chaque spot fait
+    // 2 appels : 20 requêtes Open-Meteo simultanées. Quand le lot se prend un 429
+    // « Too many concurrent requests », un délai FIXE les fait toutes repartir
+    // exactement ensemble 400 ms plus tard, et elles se recollisionnent. Mesuré le
+    // 19/08 : environ 82 réponses 429 dans une seule invocation du cron.
+    //
+    // Le jitter étale le second essai sur une fenêtre d'une seconde. Coût nul en
+    // temps de mur pour un appel isolé (une page qui rend n'en fait qu'un), et c'est
+    // ce qui casse la synchronisation du troupeau.
+    await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 600))
   }
   return null
 }

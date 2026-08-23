@@ -9,7 +9,7 @@ Ce n'est **pas** un problème d'import. Les deux spots signalés sont `source='c
 
 | Spot | Coordonnée en base | Réalité | Écart |
 |---|---|---|---|
-| Plage de Penhors | `47.96000 / -4.31000` | ~47.976 / -4.374 (Pouldreuzic) | **~5 km dans les terres** |
+| Plage de Penhors | `47.96000 / -4.31000` | **47.940033 / -4.403622** (cale de Penhors, Pouldreuzic) | **7,3 km dans les terres** |
 | Le Diben (Brest) | `48.21000 / -4.43000` | Le Diben est un port de **Plougasnou**, baie de Morlaix, ~48.71 / -3.83 | **~60 km, et en pleine mer** |
 
 Le signal qui les trahit : **des coordonnées à deux décimales pile**. Une latitude à deux décimales, c'est une grille de 1,1 km : personne ne relève un point GPS comme ça. C'est une saisie approximative faite de mémoire ou d'après une carte.
