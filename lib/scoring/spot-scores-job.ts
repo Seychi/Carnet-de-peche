@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { fetchSpotForecastWeek } from '@/lib/conditions/spot-forecast'
+import { fetchSpotForecastWeekBatch } from '@/lib/conditions/spot-forecast'
 import { computeWeeklyForecast } from '@/lib/solunar/index'
 import { getNextBestWindow, findCurrentWindow } from '@/lib/solunar/next-window'
 
@@ -29,10 +29,22 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out
 }
 
-const BATCH_SIZE = 10
-// Le cron tourne 1×/jour (plan Hobby Vercel) : la validité doit couvrir tout
-// l'intervalle entre deux runs + une marge, sinon les markers carte redeviennent
-// gris quelques heures après le calcul. 26h = 24h + marge.
+// ★ Sprint 89 — ce nombre ne gouverne PLUS d'appels HTTP, seulement des upserts.
+//
+// Avant, il gouvernait les deux à la fois : chaque spot déclenchait ses 2 appels
+// Open-Meteo, donc un lot de 10 lançait 20 requêtes simultanées et l'API répondait
+// « Too many concurrent requests » en rafale. La météo est désormais récupérée en
+// une campagne groupée AVANT cette boucle (`fetchSpotForecastWeekBatch`), qui fait
+// 10 requêtes au total pour 212 spots au lieu de 424.
+//
+// Il ne reste ici que du calcul local (solunaire) et des upserts Supabase, qui
+// n'ont jamais posé de problème de débit. 10 est confortable pour Postgres.
+const UPSERT_CONCURRENCY = 10
+// Le cron tourne 1×/jour : la validité doit couvrir tout l'intervalle entre deux
+// runs + une marge, sinon les markers carte redeviennent gris quelques heures après
+// le calcul. 26h = 24h + marge.
+// (Le « plan Hobby Vercel » invoqué ici auparavant était faux : le projet est en
+// plan pro, la fréquence du cron est libre. Cf le commentaire de la route.)
 const VALIDITY_MS = 93_600_000 // 26h
 
 // ─── Job principal ──────────────────────────────────────────────────────────
@@ -54,12 +66,28 @@ export async function computeAndStoreSpotScores(
   let failed = 0
   let degraded = 0
 
-  for (const batch of chunk(spots, BATCH_SIZE)) {
-    await Promise.all(
-      batch.map(async (spot) => {
-        try {
-          const forecasts = await fetchSpotForecastWeek(spot.lat, spot.lng)
+  // ★ Sprint 89 — UNE campagne d'appels groupés pour tout le catalogue, au lieu de
+  // deux appels par spot.
+  //
+  // Mesure du run du 24/08 à 05:00 UTC, avec le jitter de réessai déjà déployé :
+  // « 212 spots (57 ok, 155 sans données, 0 échec) in 8730ms », et 57 lignes encore
+  // valides sur 217 en base. Soit 74 % de la carte sans couleur. Le grain du
+  // problème n'était pas le parallélisme mais le NOMBRE de requêtes : 424 par run
+  // contre 10 aujourd'hui. Le détail de la démonstration est dans
+  // `lib/conditions/spot-forecast.ts`, au-dessus de `fetchSpotForecastWeekBatch`.
+  //
+  // Cet appel ne lève pas sur un 429 : `fetchOpenMeteo` signale puis renvoie null,
+  // et les points concernés reviennent marqués `degraded`, traités juste en dessous.
+  const weeks = await fetchSpotForecastWeekBatch(
+    spots.map((s) => ({ lat: s.lat, lng: s.lng }))
+  )
 
+  const jobs = spots.map((spot, i) => ({ spot, forecasts: weeks[i] }))
+
+  for (const batch of chunk(jobs, UPSERT_CONCURRENCY)) {
+    await Promise.all(
+      batch.map(async ({ spot, forecasts }) => {
+        try {
           // ★ Sprint 89 — ne JAMAIS écraser un score valide par un score fabriqué.
           //
           // Quand Open-Meteo répond 429, `fetchOpenMeteo` renvoie null sans lever et
@@ -84,7 +112,9 @@ export async function computeAndStoreSpotScores(
           //
           // Requête de détection à rejouer : `select day_score, count(*) from
           // spot_scores where computed_at >= <run> group by 1 having count(*) > 20;`
-          if (forecasts.some((f) => f.degraded)) {
+          // `forecasts` peut être absent si la campagne groupée a rendu moins
+          // d'entrées que de spots : on s'abstient plutôt que de deviner.
+          if (!forecasts || forecasts.some((f) => f.degraded)) {
             degraded++
             return
           }

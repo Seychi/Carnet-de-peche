@@ -261,12 +261,27 @@ async function writeCache(key: string, payload: SpotConditions): Promise<void> {
 // conserve et remonte, sans quoi on ne peut meme pas distinguer un 429 d'une panne.
 const OPEN_METEO_TIMEOUT_MS = 8000
 
+/**
+ * ★ Sprint 89 — le corps brut de la reponse ne va PLUS dans le titre Sentry.
+ *
+ * Sentry groupe les `captureMessage` par leur texte. Open-Meteo serialise son
+ * erreur sans ordre de cles stable : `{"error":true,"reason":"Too many concurrent
+ * requests"}` et `{"reason":"...","error":true}` sont le MEME incident, et
+ * arrivaient dans DEUX issues distinctes (1S : 396 evenements, 1R : 340). Un
+ * compteur coupe en deux au hasard n'est pas un compteur, et les deux issues se
+ * classaient separement dans le tri par frequence, ce qui a masque l'ampleur reelle.
+ *
+ * Le titre ne porte donc plus que ce qui identifie le mode de panne (la source et
+ * le statut). Le detail reste consultable, mais en `extra`, qui n'entre pas dans
+ * le regroupement.
+ */
 function reportOpenMeteoFailure(source: 'marine' | 'forecast', status: number, detail: string): void {
-  const message = `[spot-forecast] Open-Meteo ${source} indisponible (status ${status}) : ${detail}`
-  console.error(message)
+  const message = `[spot-forecast] Open-Meteo ${source} indisponible (status ${status})`
+  console.error(`${message} : ${detail}`)
   Sentry.captureMessage(message, {
     level: 'error',
     tags: { openmeteo_source: source, openmeteo_status: String(status) },
+    extra: { detail },
   })
 }
 
@@ -651,18 +666,19 @@ function buildDayConditions(
   }
 }
 
-async function _fetchSpotForecastWeek(lat: number, lng: number): Promise<SpotConditions[]> {
+/**
+ * Met en forme une semaine de 7 jours a partir des deux charges Open-Meteo brutes.
+ *
+ * Extraite du chemin « un spot » pour etre partagee telle quelle avec le chemin
+ * « lot de spots » (`fetchSpotForecastWeekBatch`). Les deux doivent produire un
+ * `SpotConditions[]` rigoureusement identique : si la mise en forme etait
+ * dupliquee, la carte et la fiche spot finiraient par diverger en silence.
+ */
+function shapeWeek(
+  marine: MarineResponse['hourly'] | null,
+  forecast: { hourly: ForecastHourlyResponse['hourly']; daily: ForecastHourlyResponse['daily'] } | null
+): SpotConditions[] {
   const { dateStr: todayStr, currentHourIdx } = getParisInfo()
-
-  // Calculer la date de fin (aujourd'hui + 6 jours)
-  const endDay = new Date()
-  endDay.setDate(endDay.getDate() + 6)
-  const endDateStr = getParisInfo(endDay).dateStr
-
-  const [marine, forecast] = await Promise.all([
-    fetchMarineDataWeek(lat, lng, todayStr, endDateStr),
-    fetchForecastDataWeek(lat, lng, todayStr, endDateStr),
-  ])
 
   // Fallback si Open-Meteo ne répond pas
   if (!forecast) {
@@ -698,6 +714,137 @@ async function _fetchSpotForecastWeek(lat: number, lng: number): Promise<SpotCon
   }
 
   return result
+}
+
+/** Fenetre demandee a Open-Meteo : aujourd'hui + 6 jours, en dates locales Paris. */
+function weekRange(): { startDate: string; endDate: string } {
+  const endDay = new Date()
+  endDay.setDate(endDay.getDate() + 6)
+  return { startDate: getParisInfo().dateStr, endDate: getParisInfo(endDay).dateStr }
+}
+
+async function _fetchSpotForecastWeek(lat: number, lng: number): Promise<SpotConditions[]> {
+  const { startDate, endDate } = weekRange()
+
+  const [marine, forecast] = await Promise.all([
+    fetchMarineDataWeek(lat, lng, startDate, endDate),
+    fetchForecastDataWeek(lat, lng, startDate, endDate),
+  ])
+
+  return shapeWeek(marine, forecast)
+}
+
+// ─── Fetch 7 jours, PAR LOT DE COORDONNEES ───────────────────────────────────
+//
+// ★ Sprint 89 — la vraie cause des 429, et pourquoi baisser le parallelisme ne
+// suffisait pas.
+//
+// Le cron `compute-spot-scores` demandait la meteo spot par spot : 212 spots x 2
+// API = 424 requetes HTTP par run, lancees 20 a la fois. Open-Meteo repondait
+// « Too many concurrent requests » a la chaine (issues Sentry 1S + 1R, ~180
+// evenements par jour, premiere source de bruit du projet).
+//
+// ⚠️ Le correctif evident, « baisser BATCH_SIZE de 10 a 5 », est un leurre, et
+// c'est mesure, pas suppose :
+//   - 20 requetes simultanees depuis une IP propre passent toutes (20 sur 20),
+//     donc 20 n'est pas intrinsequement trop. Le quota est PAR IP, et l'IP de
+//     sortie d'une fonction Vercel est mutualisee avec les autres clients de la
+//     region : on partage le seau avec des voisins qu'on ne controle pas. Baisser
+//     notre propre parallelisme ne rend pas le seau plus vide.
+//   - preuve directe : le jitter de reessai etait DEJA deploye au run du 24/08 a
+//     05:00 UTC, qui a quand meme rendu « 212 spots (57 ok, 155 sans donnees) ».
+//
+// Le seul levier reel est le NOMBRE de requetes. Les deux API acceptent une liste
+// de coordonnees (`latitude=a,b,c&longitude=d,e,f`) et repondent par un tableau
+// dans l'ordre d'entree. 424 requetes deviennent 10, verifiees a l'echelle reelle
+// des 212 spots : 10 sur 10 en succes, 2,5 s, 4,1 Mo.
+//
+// ⚠️ Piege verifie contre l'API : avec UNE seule coordonnee, Open-Meteo repond un
+// OBJET nu, pas un tableau d'un element. Le dernier lot vaut 1 des que le
+// catalogue franchit un multiple de 50 plus un, et la curation en cours ajoute
+// des spots toutes les semaines. D'ou `asLocationArray`.
+
+/** Coordonnees par requete groupee. 50 = ~0,5 Mo par reponse, mesure a 1,3 s. */
+const BATCH_COORDS = 50
+
+/**
+ * Normalise la reponse Open-Meteo en un tableau de `expected` entrees.
+ *
+ * Couvre les trois formes reelles : le tableau attendu, l'objet nu renvoye pour
+ * une coordonnee unique, et l'absence de reponse (429/5xx deja signale par
+ * `fetchOpenMeteo`). Une reponse de longueur inattendue est traitee comme une
+ * absence plutot que decalee : un decalage d'index attribuerait la meteo d'un
+ * spot a un autre, ce qui est pire qu'une donnee manquante.
+ *
+ * Exportee UNIQUEMENT pour etre testable.
+ */
+export function asLocationArray<T>(payload: T | T[] | null, expected: number): (T | null)[] {
+  if (payload === null || payload === undefined) return new Array(expected).fill(null)
+  const arr = Array.isArray(payload) ? payload : [payload]
+  if (arr.length !== expected) {
+    console.error(
+      `[spot-forecast] lot Open-Meteo de taille inattendue : ${arr.length} pour ${expected} coordonnees`
+    )
+    return new Array(expected).fill(null)
+  }
+  return arr
+}
+
+/**
+ * Semaine de conditions pour PLUSIEURS points, en groupant les coordonnees.
+ *
+ * Rend une entree par point d'entree, dans le meme ordre, toujours longue de 7.
+ * Un point dont la donnee manque porte `degraded: true`, exactement comme le
+ * chemin « un spot » : l'appelant garde donc sa logique d'abstention inchangee.
+ *
+ * Volontairement PAS enveloppee dans `unstable_cache` : la cle serait la liste
+ * complete des coordonnees, donc jamais rejouee a l'identique, et le seul
+ * appelant tourne une fois par jour.
+ */
+export async function fetchSpotForecastWeekBatch(
+  points: { lat: number; lng: number }[]
+): Promise<SpotConditions[][]> {
+  if (points.length === 0) return []
+
+  const { startDate, endDate } = weekRange()
+  const out: SpotConditions[][] = []
+
+  for (let i = 0; i < points.length; i += BATCH_COORDS) {
+    const lot = points.slice(i, i + BATCH_COORDS)
+    const lats = lot.map((p) => p.lat).join(',')
+    const lngs = lot.map((p) => p.lng).join(',')
+
+    // Les deux API sont deux hotes distincts : les appeler de front ne pese pas
+    // sur le meme quota de simultaneite, et ca divise le temps de mur par deux.
+    // C'est 2 requetes en vol, contre 20 dans l'ancien code.
+    const [marineRaw, forecastRaw] = await Promise.all([
+      fetchOpenMeteo<MarineResponse | MarineResponse[]>(
+        `https://marine-api.open-meteo.com/v1/marine` +
+          `?latitude=${lats}&longitude=${lngs}` +
+          `&hourly=sea_level_height_msl,wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature` +
+          `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`,
+        'marine'
+      ),
+      fetchOpenMeteo<ForecastHourlyResponse | ForecastHourlyResponse[]>(
+        `https://api.open-meteo.com/v1/forecast` +
+          `?latitude=${lats}&longitude=${lngs}` +
+          `&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,precipitation,precipitation_probability,pressure_msl,cloud_cover,relative_humidity_2m` +
+          `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset` +
+          `&timezone=Europe%2FParis&start_date=${startDate}&end_date=${endDate}`,
+        'forecast'
+      ),
+    ])
+
+    const marine = asLocationArray(marineRaw, lot.length)
+    const forecast = asLocationArray(forecastRaw, lot.length)
+
+    for (let k = 0; k < lot.length; k++) {
+      const f = forecast[k]
+      out.push(shapeWeek(marine[k]?.hourly ?? null, f ? { hourly: f.hourly, daily: f.daily } : null))
+    }
+  }
+
+  return out
 }
 
 // Cache Next.js 1h — la clé inclut lat/lng automatiquement via les arguments

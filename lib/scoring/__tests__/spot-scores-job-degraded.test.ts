@@ -14,11 +14,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
  * de succès structurellement aveugle à son mode de panne le plus fréquent.
  */
 
-const fetchSpotForecastWeek = vi.fn()
+const fetchSpotForecastWeekBatch = vi.fn()
 const computeWeeklyForecast = vi.fn()
 
 vi.mock('@/lib/conditions/spot-forecast', () => ({
-  fetchSpotForecastWeek: (...args: unknown[]) => fetchSpotForecastWeek(...args),
+  fetchSpotForecastWeekBatch: (...args: unknown[]) => fetchSpotForecastWeekBatch(...args),
 }))
 vi.mock('@/lib/solunar/index', () => ({
   computeWeeklyForecast: (...args: unknown[]) => computeWeeklyForecast(...args),
@@ -36,6 +36,16 @@ function week(degraded: boolean) {
     date: `2026-08-${String(19 + i).padStart(2, '0')}`,
     degraded,
   }))
+}
+
+/**
+ * Sprint 89 : la météo arrive désormais en UNE campagne groupée qui rend une
+ * semaine PAR POINT, dans l'ordre d'entrée. Le mock doit servir un tableau de la
+ * bonne longueur, sans quoi le job s'abstient (ce qui est le comportement voulu,
+ * mais masquerait ce que ces tests veulent vérifier).
+ */
+function weeksFor(n: number, degraded: boolean) {
+  return Array.from({ length: n }, () => week(degraded))
 }
 
 type UpsertRow = { spot_id: string; current_score: number; current_quality: string }
@@ -66,7 +76,7 @@ beforeEach(() => {
 
 describe('computeAndStoreSpotScores — un 429 Open-Meteo n’écrase plus le score de la veille', () => {
   it('★ n’upserte RIEN pour un spot dont la semaine est dégradée', async () => {
-    fetchSpotForecastWeek.mockResolvedValue(week(true))
+    fetchSpotForecastWeekBatch.mockResolvedValue(weeksFor(2, true))
     const upserts: UpsertRow[] = []
 
     const res = await computeAndStoreSpotScores(fakeAdmin(['a', 'b'], upserts))
@@ -79,7 +89,7 @@ describe('computeAndStoreSpotScores — un 429 Open-Meteo n’écrase plus le sc
   })
 
   it('upserte normalement quand la donnée est complète', async () => {
-    fetchSpotForecastWeek.mockResolvedValue(week(false))
+    fetchSpotForecastWeekBatch.mockResolvedValue(weeksFor(2, false))
     const upserts: UpsertRow[] = []
 
     const res = await computeAndStoreSpotScores(fakeAdmin(['a', 'b'], upserts))
@@ -96,7 +106,7 @@ describe('computeAndStoreSpotScores — un 429 Open-Meteo n’écrase plus le sc
     // le prochain créneau annoncé, donc on ne publie pas.
     const mixed = week(false)
     mixed[3].degraded = true
-    fetchSpotForecastWeek.mockResolvedValue(mixed)
+    fetchSpotForecastWeekBatch.mockResolvedValue([mixed])
     const upserts: UpsertRow[] = []
 
     const res = await computeAndStoreSpotScores(fakeAdmin(['a'], upserts))
@@ -106,7 +116,11 @@ describe('computeAndStoreSpotScores — un 429 Open-Meteo n’écrase plus le sc
   })
 
   it('sépare une vraie panne (exception) d’une donnée absente', async () => {
-    fetchSpotForecastWeek.mockRejectedValue(new Error('réseau coupé'))
+    // La campagne groupée ne lève pas sur un 429 (elle rend des semaines dégradées) ;
+    // ce qui peut encore lever, c'est le calcul solunaire ou l'upsert. Ça reste un
+    // échec TECHNIQUE, à ne pas confondre avec une donnée absente.
+    fetchSpotForecastWeekBatch.mockResolvedValue(weeksFor(1, false))
+    computeWeeklyForecast.mockRejectedValue(new Error('réseau coupé'))
     const upserts: UpsertRow[] = []
     vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -115,5 +129,20 @@ describe('computeAndStoreSpotScores — un 429 Open-Meteo n’écrase plus le sc
     expect(res.failed).toBe(1)
     expect(res.degraded).toBe(0)
     expect(res.succeeded).toBe(0)
+  })
+
+  it('★ s’abstient pour les spots que la campagne groupée n’a pas couverts', async () => {
+    // Filet de sécurité : si le lot rend moins d'entrées que de spots demandés, on
+    // ne doit surtout pas décaler les indices et attribuer la météo d'un spot à un
+    // autre. Le spot non couvert est compté « sans données », pas « ok ».
+    fetchSpotForecastWeekBatch.mockResolvedValue(weeksFor(1, false))
+    const upserts: UpsertRow[] = []
+
+    const res = await computeAndStoreSpotScores(fakeAdmin(['a', 'b'], upserts))
+
+    expect(upserts).toHaveLength(1)
+    expect(upserts[0].spot_id).toBe('a')
+    expect(res.succeeded).toBe(1)
+    expect(res.degraded).toBe(1)
   })
 })
