@@ -1,0 +1,6 @@
+Réponse,Ratio du total des demandes
+OK (200),0.9868
+Introuvable (404),0.0106
+Déplacement permanent (301),0.0019
+Déplacement temporaire (302),0.0005
+Erreur serveur (5XX),0.0002

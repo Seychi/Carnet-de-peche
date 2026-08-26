@@ -925,8 +925,15 @@ export default async function SpotPage({
                   Itinéraire GPS
                 </p>
                 <SpotItineraryLinks lat={pubLat} lng={pubLng} />
+                {/* ★ Sprint 89 — le lien porte la coordonnée, sinon il ne sert à rien.
+                    Il pointait sur `/carte` nu : tu quittais la fiche pour atterrir
+                    sur la carte de France entière, sans rien qui rappelle le spot que
+                    tu venais de lire (signalé par John le 23/08).
+                    `pubLat`/`pubLng` sont la coordonnée DÉJÀ floutée et arrondie à
+                    3 décimales, celle qui est déjà dans ce HTML : aucune précision
+                    nouvelle ne sort d'ici. */}
                 <Link
-                  href="/carte"
+                  href={`/carte?lat=${pubLat}&lng=${pubLng}`}
                   className="mt-2 flex items-center justify-center min-h-[44px] rounded-xl border border-teal-400 bg-teal-50 text-navy-900 text-[13px] font-semibold hover:bg-teal-100 transition-colors"
                 >
                   Voir sur la carte

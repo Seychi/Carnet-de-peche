@@ -1,0 +1,10 @@
+Raison,Source,Validation,Pages
+Page en double sans URL canonique sélectionnée par l'utilisateur,Site Web,Non commencé,17
+Introuvable (404),Site Web,Non commencé,9
+Page avec redirection,Site Web,Non commencé,3
+Erreur serveur (5xx),Site Web,Non commencé,1
+"Exclue par la balise ""noindex""",Site Web,Non commencé,1
+"Explorée, actuellement non indexée",Systèmes Google,Non commencé,65
+"Détectée, actuellement non indexée",Systèmes Google,Commencé,305
+Erreur liée à des redirections,Site Web,Sans objet,0
+Autre page avec balise canonique correcte,Site Web,Sans objet,0
