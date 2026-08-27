@@ -24,7 +24,14 @@ import { MintCodesForm, CopyCodeButton } from './InviteCodesClient'
 import { Shield, Trash2, X, Check, GitMerge, MapPin, BadgeCheck, Anchor, RotateCw, Ticket, Ban } from 'lucide-react'
 import { ModActionForm, type ModResult } from './ModActionForm'
 
-export const metadata = { title: 'Modération — Carnet de Pêche' }
+export const metadata = {
+  // Sprint 90 : page applicative, jamais un resultat de recherche pertinent.
+  // `follow: false` car il n'y a rien a suivre depuis une page privee, et PAS de
+  // `disallow` dans robots.ts a dessein : une page bloquee au crawl ne peut pas
+  // voir son noindex et resterait indexee (meme raisonnement qu'`/auth/login`).
+  title: 'Modération — Carnet de Pêche',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
 // ---------------------------------------------------------------------------

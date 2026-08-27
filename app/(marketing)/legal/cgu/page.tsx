@@ -2,6 +2,12 @@ import type { Metadata } from 'next'
 import { LegalLayout } from '@/components/layout/LegalLayout'
 
 export const metadata: Metadata = {
+  // Sprint 90 : URL canonique absolue. Ces quatre pages publiques n'en avaient
+  // aucune, et le rapport de couverture du 23/08 comptait 17 pages « en double
+  // sans URL canonique selectionnee par l'utilisateur ». `metadataBase` est pose
+  // dans app/layout.tsx, donc un chemin relatif suffirait, mais on ecrit l'URL
+  // entiere comme le fait deja app/(marketing)/especes/[slug]/page.tsx.
+  alternates: { canonical: 'https://www.carnet-de-peche.com/legal/cgu' },
   title: 'Conditions générales d’utilisation — Carnet de Pêche',
   description: 'Conditions générales d’utilisation du service Carnet de Pêche : objet, abonnements, contenu utilisateur, charte communautaire, responsabilités.',
   robots: { index: true, follow: true },

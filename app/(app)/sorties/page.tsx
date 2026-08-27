@@ -11,6 +11,11 @@ import { departmentArticle } from '@/lib/geo/departments'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
+  // Sprint 90 : page applicative, jamais un resultat de recherche pertinent.
+  // `follow: false` car il n'y a rien a suivre depuis une page privee, et PAS de
+  // `disallow` dans robots.ts a dessein : une page bloquee au crawl ne peut pas
+  // voir son noindex et resterait indexee (meme raisonnement qu'`/auth/login`).
+  robots: { index: false, follow: false },
   title: 'Co-pêchage — sorties à plusieurs · Carnet de Pêche',
 }
 

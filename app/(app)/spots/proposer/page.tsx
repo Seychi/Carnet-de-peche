@@ -5,7 +5,14 @@ import { createClient } from '@/lib/supabase/server'
 import { isCoastalDepartment } from '@/lib/geo/departments'
 import ProposeSpotForm from '@/components/spots/ProposeSpotForm'
 
-export const metadata = { title: 'Proposer un spot — Carnet de Pêche' }
+export const metadata = {
+  // Sprint 90 : page applicative, jamais un resultat de recherche pertinent.
+  // `follow: false` car il n'y a rien a suivre depuis une page privee, et PAS de
+  // `disallow` dans robots.ts a dessein : une page bloquee au crawl ne peut pas
+  // voir son noindex et resterait indexee (meme raisonnement qu'`/auth/login`).
+  title: 'Proposer un spot — Carnet de Pêche',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
 export default async function ProposeSpotPage() {

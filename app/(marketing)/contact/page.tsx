@@ -3,6 +3,12 @@ import Link from 'next/link'
 import { MessageCircle, Lock, Bug } from 'lucide-react'
 
 export const metadata: Metadata = {
+  // Sprint 90 : URL canonique absolue. Ces quatre pages publiques n'en avaient
+  // aucune, et le rapport de couverture du 23/08 comptait 17 pages « en double
+  // sans URL canonique selectionnee par l'utilisateur ». `metadataBase` est pose
+  // dans app/layout.tsx, donc un chemin relatif suffirait, mais on ecrit l'URL
+  // entiere comme le fait deja app/(marketing)/especes/[slug]/page.tsx.
+  alternates: { canonical: 'https://www.carnet-de-peche.com/contact' },
   title: 'Contact — Carnet de Pêche',
   description:
     'Une question sur l\'app, ton compte, ou tes données ? Écris-nous à contact@carnet-de-peche.com, réponse sous 24h.',

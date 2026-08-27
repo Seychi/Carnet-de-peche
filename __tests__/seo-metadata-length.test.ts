@@ -65,7 +65,18 @@ const pages: PageMeta[] = walkPages(APP_DIR)
     const source = readFileSync(file, 'utf8')
     const at = source.indexOf('export const metadata')
     if (at < 0) return null
-    const block = source.slice(at, at + 2500)
+    // ★ Sprint 90 : les lignes de commentaire sont neutralisées AVANT la lecture.
+    // `literalValue` lit d'une clé jusqu'à la suivante : un `//` glissé entre deux
+    // clés était donc avalé dans la valeur, et ses guillemets comptés comme du
+    // titre. Trois pages ont été rapportées à 249, 255 et 264 caractères alors que
+    // leur titre en fait 30. Le message d'échec accusait la longueur du titre, ce
+    // qui envoyait chercher au mauvais endroit. On remplace par des lignes vides
+    // pour ne pas décaler la structure dont dépendent les regex ci-dessous.
+    const block = source
+      .slice(at, at + 2500)
+      .split('\n')
+      .map((l) => (/^\s*\/\//.test(l) ? '' : l))
+      .join('\n')
     const rel = path.relative(path.resolve(__dirname, '..'), file)
     const templated = rel.startsWith(TEMPLATED_PREFIX)
     const rawTitle = literalValue(block, 'title')

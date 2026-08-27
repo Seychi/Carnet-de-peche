@@ -9,6 +9,12 @@ const ANALYTICS_COOKIELESS =
   process.env.NEXT_PUBLIC_ANALYTICS_COOKIELESS === 'true'
 
 export const metadata: Metadata = {
+  // Sprint 90 : URL canonique absolue. Ces quatre pages publiques n'en avaient
+  // aucune, et le rapport de couverture du 23/08 comptait 17 pages « en double
+  // sans URL canonique selectionnee par l'utilisateur ». `metadataBase` est pose
+  // dans app/layout.tsx, donc un chemin relatif suffirait, mais on ecrit l'URL
+  // entiere comme le fait deja app/(marketing)/especes/[slug]/page.tsx.
+  alternates: { canonical: 'https://www.carnet-de-peche.com/legal/confidentialite' },
   title: 'Politique de confidentialité — Carnet de Pêche',
   description: 'Comment Carnet de Pêche collecte, utilise et protège tes données personnelles, conformément au RGPD et à la loi Informatique et Libertés.',
   robots: { index: true, follow: true },
