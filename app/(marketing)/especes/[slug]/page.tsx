@@ -29,6 +29,7 @@ import { SpeciesAnswer } from '@/components/especes/species-answer'
 import { POSTES_PUCES } from '@/lib/especes/postes-puces'
 import { SpeciesCtaLink } from '@/components/especes/tracked-links'
 import { SpeciesSeasons } from '@/components/especes/species-seasons'
+import { SpeciesHeroArt } from '@/components/especes/species-cover'
 import { RECFISHING_SENSITIVE } from '@/lib/regulation/recfishing'
 
 // Espèces de NOTRE carnet soumises à déclaration RecFishing sous 24 h (source
@@ -195,6 +196,10 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy-950 pt-7 pb-8 sm:pt-10 sm:pb-12">
         <Bathy opacity={0.3} withLabels />
+        {/* Filigrane hors flux, ≥ lg uniquement : la réponse (maille, statut du
+            jour) doit rester le premier élément sous le titre en 390 px, cf le
+            commentaire du sprint 75 Bloc 2 plus bas. Rien ne bouge sur mobile. */}
+        <SpeciesHeroArt slug={speciesSlug} />
         <div className="relative mx-auto max-w-[980px] px-5">
           <nav className="mb-6 flex items-center gap-2" aria-label="Fil d'ariane">
             <Link

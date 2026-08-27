@@ -41,3 +41,13 @@ supabase/.branches/
 
 .vercel
 .env*
+
+# Sources d'images générées à la main pour les vidéos et les fiches espèces (~71 Mo
+# de PNG). Elles restent LOCALES : ce qui est versionné, ce sont les dérivés servis
+# par le site (public/images/especes/, produits par `pnpm species:images`). Les mettre
+# dans git alourdirait chaque clone pour des fichiers que seul le poste d'auteur relit.
+docs/contenu/assets-video/*/
+
+# Corbeille de travail : `device_bash` ne peut pas supprimer dans les dossiers montés,
+# les fichiers temporaires y sont déplacés en attendant une suppression manuelle.
+_to_delete/

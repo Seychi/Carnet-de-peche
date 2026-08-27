@@ -1,16 +1,22 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Fish } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
 import { ESPECES_CONTENT } from '@/lib/especes/content'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { MarketingCTA } from '@/components/marketing/MarketingCTA'
+import { SpeciesCover } from '@/components/especes/species-cover'
 
 // Page 100 % statique : les espèces viennent de modules statiques (SPECIES,
-// ESPECES_CONTENT), aucune lecture async/réseau au rendu et les couvertures
-// sont des SVG décoratifs (<Bathy>), pas des images distantes. Donc pas de
-// loading.tsx ni de next/image à optimiser ici (rien à charger → CLS nul).
+// ESPECES_CONTENT), aucune lecture async/réseau au rendu. Donc pas de loading.tsx.
+//
+// Les couvertures étaient des SVG décoratifs (<Bathy> + icône) « pour garder le
+// CLS nul ». Elles sont maintenant des planches (next/image), et le CLS reste nul
+// pour une autre raison : <SpeciesCover> fige le ratio en CSS, la boîte est donc
+// réservée avant le premier octet téléchargé. Les fichiers sont servis depuis
+// public/images/especes/, générés par `pnpm species:images`. Une espèce sans
+// planche retombe sur l'ancien motif — voir components/especes/species-cover.
 export const revalidate = 86400
 
 export const metadata: Metadata = {
@@ -73,7 +79,7 @@ export default function EspecesIndexPage() {
       <section className="py-12">
         <div className="mx-auto max-w-[1100px] px-5">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {especes.map((slug) => {
+            {especes.map((slug, i) => {
               const sp = SPECIES[slug]
               const content = ESPECES_CONTENT[slug]
               return (
@@ -82,18 +88,22 @@ export default function EspecesIndexPage() {
                   href={`/especes/${slug}`}
                   className="group flex flex-col overflow-hidden rounded-[18px] border border-sand-200 bg-white transition-colors hover:border-teal-500/40"
                 >
-                  <div className="relative h-28 overflow-hidden bg-gradient-to-br from-navy-800 to-navy-950">
-                    <Bathy density={3} opacity={0.4} />
-                    <Fish
-                      size={32}
-                      strokeWidth={1.7}
-                      className="absolute inset-0 m-auto text-teal-300/60"
-                      aria-hidden="true"
-                    />
+                  <SpeciesCover
+                    slug={slug}
+                    // Grille 1 / 2 / 3 colonnes dans un conteneur de 1100 px : une
+                    // carte fait toute la largeur en mobile, la moitié en sm, ~360 px
+                    // au-delà. Sans `sizes`, Next servirait la variante 100vw partout.
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
+                    // Seule la première rangée est au-dessus de la ligne de flottaison
+                    // sur un écran de bureau. Précharger les 26 coûterait la bande
+                    // passante de toute la grille pour trois images vues.
+                    priority={i < 3}
+                    imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+                  >
                     <TagData className="absolute bottom-2.5 left-4 text-white/40">
                       {sp.latin.toUpperCase()}
                     </TagData>
-                  </div>
+                  </SpeciesCover>
                   <div className="flex flex-1 flex-col gap-2.5 p-5">
                     <h2 className="font-display text-lg leading-snug text-navy-900 group-hover:text-teal-700 transition-colors">
                       {sp.label}

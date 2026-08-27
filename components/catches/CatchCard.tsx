@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Fish, Lock, Users, Globe, MapPin, Ruler } from 'lucide-react'
+import { Lock, Users, Globe, MapPin, Ruler } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { ElementType } from 'react'
@@ -8,6 +8,7 @@ import type { CatchRow } from '@/lib/catches/queries'
 import { SPECIES_LABELS, TECHNIQUE_LABELS } from '@/lib/labels'
 import { checkSize, getFacadeForCatch } from '@/lib/regulation'
 import { estimateWeightG } from '@/lib/species/morphometry'
+import { CatchThumbPlaceholder } from './CatchThumbPlaceholder'
 
 const PRIVACY_CONFIG: Record<
   string,
@@ -68,9 +69,11 @@ export function CatchCard({
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-            <Fish size={36} className="text-slate-300" />
-          </div>
+          <CatchThumbPlaceholder
+            species={c.species}
+            sizes="(max-width: 640px) 50vw, 320px"
+            iconSize={36}
+          />
         )}
 
         {/* Badge privacy */}

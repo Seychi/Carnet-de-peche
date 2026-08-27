@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import { Fish } from 'lucide-react'
 import type { CatchRow } from '@/lib/catches/queries'
 import { SPECIES_LABELS } from '@/lib/labels'
 import { estimateWeightG } from '@/lib/species/morphometry'
 import { TagData } from '@/components/ui-v2/tag-data'
 import { Chip } from '@/components/ui-v2/chip'
+import { CatchThumbPlaceholder } from './CatchThumbPlaceholder'
 
 const PRIVACY_LABELS: Record<string, string> = {
   private: 'PRIVÉE',
@@ -81,10 +81,7 @@ export function CatchRowItem({ catch: c, photoUrl }: { catch: CatchRow; photoUrl
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photoUrl} alt={speciesLabel} className="size-full object-cover" />
         ) : (
-          <>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(94,234,212,.25),transparent_60%)]" />
-            <Fish size={20} className="absolute inset-0 m-auto text-teal-300/70" strokeWidth={1.7} />
-          </>
+          <CatchThumbPlaceholder species={c.species} sizes="56px" iconSize={20} />
         )}
       </div>
 

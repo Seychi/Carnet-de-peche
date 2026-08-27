@@ -21,7 +21,9 @@
     "lhci": "lhci autorun",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "indexnow": "node scripts/indexnow-submit.mjs"
+    "indexnow": "node scripts/indexnow-submit.mjs",
+    "gsc": "node scripts/gsc-export.mjs",
+    "species:images": "node scripts/build-species-images.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
