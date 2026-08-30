@@ -73,6 +73,7 @@ describe('lib/analytics (client)', () => {
       analytics.signupSubmitAttempted({ tab: 'signup', client_valid: true })
       analytics.signupErrorShown({ tab: 'signin', error_type: 'invalid_credentials' })
       analytics.signupOauthClicked({ tab: 'signin', provider: 'google' })
+      analytics.classementPublished()
       analytics.identify('user-123')
       analytics.reset()
       analytics.capturePageview('https://example.test/')

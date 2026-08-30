@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { analytics } from '@/lib/analytics'
 import { updateRankingVisibility } from './actions'
 
 // Toggle opt-in aux classements (Sprint 66, Bloc 2). Instantané et réversible. L'état n'est
@@ -22,6 +23,10 @@ export function RankingVisibilityToggle({ initial }: { initial: boolean }) {
         setEnabled(!next) // revert en cas d'échec
         toast.error(res.error)
       } else {
+        // Analytics : émis seulement à l'opt-in (publication), pas au retrait.
+        if (next) {
+          analytics.classementPublished()
+        }
         toast.success(
           next
             ? 'Tu apparais désormais dans les classements.'
