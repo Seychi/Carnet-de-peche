@@ -223,4 +223,16 @@ export const analytics = {
   capturePageview(url: string): void {
     capture('$pageview', { $current_url: url })
   },
+
+  // ── Classements (opt-in aux rankings) ───────────────────────────────────────
+  /**
+   * Un utilisateur opte in pour apparaître dans les classements publics (sprint
+   * amorçage). Émis uniquement au passage `public_ranking: false → true`, pas à
+   * l'opt-out ni au retour d'un compte déjà opt-in.
+   *
+   * ⚠️ Pas de PII : pas de pseudo ni de département, juste le geste de publication.
+   */
+  classementPublished(): void {
+    capture('classement_published')
+  },
 }
