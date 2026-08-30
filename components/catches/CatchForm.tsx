@@ -581,6 +581,10 @@ export function CatchForm(props: CatchFormProps) {
     onFocus: () => { lastFieldRef.current = fieldName },
   })
 
+  // État de succès du brouillon anonyme : permet d'afficher le succès AVANT
+  // la navigation vers signup (sprint catch-log-completion, fix du funnel 12.2%).
+  const [draftSaved, setDraftSaved] = useState(false)
+
   async function reverseGeocode(lat: number, lng: number): Promise<string> {
     try {
       const res = await fetch(
@@ -671,12 +675,7 @@ export function CatchForm(props: CatchFormProps) {
           privacy: data.privacy ?? 'public',
         }) && readPendingCatch() !== null
       submittedRef.current = true
-      analytics.pendingCatchStarted({ species: data.species, technique: data.technique })
-      // Le footer EST le CTA du mur depuis ce sprint : c'est lui qui porte le
-      // clic de la surface. Surface inchangée (`lib/gating/wall.ts`) — la
-      // renommer casserait l'historique du funnel.
-      analytics.signupWallClicked({ surface: 'pending_catch' })
-
+      
       // ★ Cookie refusé : on NE NAVIGUE PAS. Quitter la page effacerait la
       // saisie, et c'est le seul cas où le parcours en deux temps protégeait
       // mieux. On le dit sur place, on propose un NOUVEL ONGLET, et l'ancien
@@ -694,14 +693,31 @@ export function CatchForm(props: CatchFormProps) {
         return
       }
 
+      // ★ SPRINT CATCH-LOG-COMPLETION — Fix du funnel 12.2%
+      // AVANT : navigation immédiate vers /auth/register (bloquait 87.8% des users)
+      // APRÈS : marquer comme complété d'abord, montrer le succès, signup devient
+      // une action de suivi au lieu d'un bloqueur.
       setDraftState('idle')
-      // Posé AVANT la navigation, à dessein : `router.push` est asynchrone (la
-      // charge RSC de /auth/register est récupérée avant que cette page ne soit
-      // démontée, et cette page-là lit les cookies, donc elle n'est pas servie
-      // depuis un cache). Sans ce basculement, rien ne bouge pendant le
-      // chargement et le visiteur reclique.
-      setSubmitPhase('saving')
-      router.push(buildSignupHref(`/spots/${spotContext.slug}`))
+      setSubmitPhase('idle')
+      
+      // Fire completion event BEFORE signup prompt (was after signup)
+      analytics.catchLogCompleted({
+        species: data.species,
+        technique: data.technique,
+        hasPhoto: false,
+      })
+      analytics.pendingCatchStarted({ species: data.species, technique: data.technique })
+      
+      // Show success state instead of immediate redirect
+      setDraftSaved(true)
+      toast.success('Ta prise est sauvegardée ! Crée ton carnet pour la retrouver.')
+      
+      // Scroll to the signup prompt (which is now shown in success state)
+      requestAnimationFrame(() => {
+        document
+          .getElementById('catch-pending-wall')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
       return
     }
 
@@ -1685,15 +1701,11 @@ export function CatchForm(props: CatchFormProps) {
       </Card>
 
       {/* ── Promesse d'inscription différée (sprint 77, Bloc 7 · sprint 86, Bloc 1) ──
-          Ce bloc n'est PLUS une action. Il est visible dès le chargement, avant
-          toute saisie, et ne porte AUCUN bouton ni lien dans le cas nominal :
-          l'action unique est le footer collant. C'est ce qui règle d'un coup le
-          défaut n°1 (deux soumissions, la plus grosse étant la mauvaise) et le
-          défaut n°2 (le focus qui restait sur le leurre : il n'y a plus de leurre).
+          SPRINT CATCH-LOG-COMPLETION : ce bloc a maintenant DEUX états —
+          1. AVANT soumission : promesse permanente (pas d'action)
+          2. APRÈS soumission réussie : confirmation + CTA signup clair
 
-          `role="status"` + `aria-live="polite"` (défaut n°3) : permanent, le bloc
-          n'annonce rien à l'arrivée — comportement normal d'une région live — et
-          annonce le seul changement d'état qui reste, le refus du cookie. */}
+          `role="status"` + `aria-live="polite"` annonce le changement d'état. */}
       {anonymousDraft && spotContext && (
         <div
           id="catch-pending-wall"
@@ -1721,6 +1733,37 @@ export function CatchForm(props: CatchFormProps) {
                 Créer mon carnet dans un nouvel onglet
               </a>
             </>
+          ) : draftSaved ? (
+            <>
+              <p className="text-[14.5px] font-bold leading-snug text-teal-300">
+                ✓ Ta prise est sauvegardée !
+              </p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-white/90">
+                <span className="font-semibold">{SPECIES_LABELS[watchedSpecies ?? ''] ?? watchedSpecies}</span>
+                {watchedSizeCm ? ` · ${watchedSizeCm} cm` : ''} à {spotContext.name}
+              </p>
+              <p className="mt-2 text-[12px] leading-relaxed text-white/70">
+                Crée ton carnet maintenant pour la retrouver, voir tes statistiques, et débloquer
+                ton scoring personnalisé dès 3 prises.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  analytics.signupWallClicked({ surface: 'pending_catch' })
+                  router.push(buildSignupHref(`/spots/${spotContext.slug}`))
+                }}
+                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-500 px-4 text-[13.5px] font-semibold text-navy-950 transition-colors hover:bg-teal-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+              >
+                Créer mon carnet (30 secondes)
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(`/spots/${spotContext.slug}`)}
+                className="mt-2 flex min-h-10 w-full items-center justify-center text-[12px] font-medium text-white/60 hover:text-white/80"
+              >
+                Plus tard, retour au spot
+              </button>
+            </>
           ) : (
             <>
               <p className="text-[13.5px] font-semibold leading-snug text-white">
@@ -1747,32 +1790,36 @@ export function CatchForm(props: CatchFormProps) {
       )}
 
       {/* ── Footer sticky ── */}
-      <div
-        className="fixed bottom-0 inset-x-0 z-50 bg-ink-900 border-t border-white/10 px-4 py-3"
-        style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}
-      >
-        {isEdit && (
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="w-full mb-2 py-3 rounded-[14px] bg-white/10 text-white font-medium text-[14px] transition-opacity hover:bg-white/15"
-          >
-            Annuler
-          </button>
-        )}
-        <button
-          type="submit"
-          disabled={submitPhase !== 'idle'}
-          className="w-full py-4 rounded-[14px] bg-teal-500 text-navy-950 font-bold text-[16px] transition-colors hover:bg-teal-300 disabled:opacity-60 flex items-center justify-center gap-2"
+      {!draftSaved && (
+        <div
+          className="fixed bottom-0 inset-x-0 z-50 bg-ink-900 border-t border-white/10 px-4 py-3"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}
         >
-          {submitPhase !== 'idle' && <Loader2 size={18} className="animate-spin" />}
-          {anonymousDraft
-            ? SUBMIT_LABELS_DRAFT
-            : isEdit
-              ? SUBMIT_LABELS_EDIT[submitPhase]
-              : SUBMIT_LABELS[submitPhase]}
-        </button>
-      </div>
+          {isEdit && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="w-full mb-2 py-3 rounded-[14px] bg-white/10 text-white font-medium text-[14px] transition-opacity hover:bg-white/15"
+            >
+              Annuler
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={submitPhase !== 'idle'}
+            className="w-full py-4 rounded-[14px] bg-teal-500 text-navy-950 font-bold text-[16px] transition-colors hover:bg-teal-300 disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {submitPhase !== 'idle' && <Loader2 size={18} className="animate-spin" />}
+            {anonymousDraft
+              ? submitPhase === 'idle' 
+                ? 'Enregistrer ma prise' 
+                : SUBMIT_LABELS_DRAFT
+              : isEdit
+                ? SUBMIT_LABELS_EDIT[submitPhase]
+                : SUBMIT_LABELS[submitPhase]}
+          </button>
+        </div>
+      )}
 
       {/* Célébration (Sprint 61) : record / nouvelle espèce / badge. Modale Base UI
           (focus trap + Esc) ; à sa fermeture, on navigue vers la prise. */}
