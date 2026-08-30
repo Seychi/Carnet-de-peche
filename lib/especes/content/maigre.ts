@@ -11,10 +11,13 @@ import type { EspeceContent } from "../types"
 export const maigreEspece: EspeceContent = {
   slug: "maigre",
 
-  // Sprint 78, Bloc 4 : titre porté à l'intention PÊCHE.
-  // Relevé GSC 90 j au 2026-08-15 : 1 212 impressions / 19 clics / 1,57 %. La formule générique menait avec la maille sans donner de raison de cliquer.
-  // 55 caractères, mesuré. Aucun doublon avec les 25 autres fiches.
-  seoTitle: 'Maigre : où le pêcher du bord, spots, saisons et maille',
+  // Sprint 90, correction SERP CTR : override retiré. Relevé GSC 21-27/08/2026 :
+  // 620 impressions / 1 clic / 0,16 % (vs 1,57 % avec la formule générique avant
+  // le sprint 78). L'override listait les sections sans répondre à la requête ;
+  // la formule générique porte la maille (45 à 50 cm) + année en tête de title,
+  // conforme au pattern validé sur mulet (sprint 83). Le title généré sera :
+  // « Maigre : maille 45 à 50 cm (2026), saisons et spots du bord » (59 car.).
+  // La description mène sur la maille par façade + marquage obligatoire.
 
   intro: [
     `Le maigre, c'est le poisson de cauchemar des bredouilles et le rêve de toute une vie de pêcheur du bord. Gros sciaenidé argenté qui dépasse facilement le mètre, il remonte les grands estuaires de la façade atlantique (la Gironde en tête) et patrouille les vastes étendues de sable des baies ouvertes. Tu peux pêcher dix ans sans en voir un, puis sentir un soir une traction sourde qui te scie les bras : à ce moment-là, plus rien d'autre ne compte.`,
