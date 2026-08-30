@@ -29,7 +29,8 @@ import { SpeciesAnswer } from '@/components/especes/species-answer'
 import { POSTES_PUCES } from '@/lib/especes/postes-puces'
 import { SpeciesCtaLink } from '@/components/especes/tracked-links'
 import { SpeciesSeasons } from '@/components/especes/species-seasons'
-import { SpeciesHeroArt } from '@/components/especes/species-cover'
+import { SpeciesPlate } from '@/components/especes/species-cover'
+import { speciesCover } from '@/lib/especes/covers'
 import { RECFISHING_SENSITIVE } from '@/lib/regulation/recfishing'
 
 // Espèces de NOTRE carnet soumises à déclaration RecFishing sous 24 h (source
@@ -148,7 +149,12 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       inLanguage: 'fr',
       datePublished: toIso(content.regulation.verifiedAt),
       dateModified: toIso(content.regulation.verifiedAt),
-      image: `${BASE_URL}/especes/${speciesSlug}/opengraph-image`,
+      // L'OG image sert les partages, la planche sert la recherche d'images :
+      // les deux sont des représentations légitimes de l'article.
+      image: [
+        `${BASE_URL}/especes/${speciesSlug}/opengraph-image`,
+        ...(speciesCover(speciesSlug) ? [`${BASE_URL}${speciesCover(speciesSlug)}`] : []),
+      ],
     },
     {
       '@context': 'https://schema.org',
@@ -196,10 +202,6 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy-950 pt-7 pb-8 sm:pt-10 sm:pb-12">
         <Bathy opacity={0.3} withLabels />
-        {/* Filigrane hors flux, ≥ lg uniquement : la réponse (maille, statut du
-            jour) doit rester le premier élément sous le titre en 390 px, cf le
-            commentaire du sprint 75 Bloc 2 plus bas. Rien ne bouge sur mobile. */}
-        <SpeciesHeroArt slug={speciesSlug} />
         <div className="relative mx-auto max-w-[980px] px-5">
           <nav className="mb-6 flex items-center gap-2" aria-label="Fil d'ariane">
             <Link
@@ -265,6 +267,14 @@ export default async function EspecePage({ params }: { params: Promise<{ slug: s
               </div>
             ))}
           </div>
+
+          {/* Placée APRÈS la carte d'identité, jamais avant : tout ce qui monte
+              ici repousse la maille et le statut du jour hors de l'écran en
+              390 px (sprint 75 Bloc 2). C'est aussi la seule image indexable de
+              la fiche — l'indexation étant mobile-first, elle doit être visible
+              sans condition de largeur. */}
+          <SpeciesPlate slug={speciesSlug} />
+
           {catches30d > 0 && (
             <TagData variant="on-dark" className="mt-6 block">
               ● {catches30d} PRISE{catches30d > 1 ? 'S' : ''} LOGUÉE{catches30d > 1 ? 'S' : ''} CES

@@ -3,7 +3,8 @@ import { Fish } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Bathy } from '@/components/ui-v2/bathy'
 import { speciesCover } from '@/lib/especes/covers'
-import type { SpeciesSlug } from '@/lib/seo/programmatic'
+import { speciesCoverAlt } from '@/lib/especes/cover-lookup'
+import { SPECIES, type SpeciesSlug } from '@/lib/seo/programmatic'
 import { cn } from '@/lib/utils'
 
 /**
@@ -19,12 +20,11 @@ import { cn } from '@/lib/utils'
  * avant le premier octet d'image, donc le CLS reste nul — c'était la propriété
  * que la page /especes tenait en n'ayant aucune image, on la garde en en ayant.
  *
- * `alt=""` volontaire : le nom de l'espèce est déjà rendu en texte juste à côté
- * (titre de carte, H1 de fiche). Une alternative qui le répéterait ferait dire
- * deux fois la même chose à un lecteur d'écran. Les planches sont ici de la
- * DÉCORATION, pas des documents d'identification — plusieurs sont d'ailleurs
- * approximatives (cf QA du 27/08) : leur faire porter une affirmation
- * « ceci est un X » dans le texte alternatif serait faux.
+ * Les planches portent un `alt` DESCRIPTIF (cf `speciesCoverAlt`). Elles avaient
+ * d'abord `alt=""` — correct pour un lecteur d'écran, le nom étant déjà en texte
+ * juste à côté — mais c'était renoncer au premier signal de la recherche
+ * d'images. Arbitrage assumé le 27/08 : une petite redondance à l'oral contre la
+ * seule chance qu'a Google de savoir ce que montre le fichier.
  */
 export function SpeciesCover({
   slug,
@@ -56,7 +56,7 @@ export function SpeciesCover({
       {src ? (
         <Image
           src={src}
-          alt=""
+          alt={speciesCoverAlt(slug)}
           fill
           sizes={sizes}
           priority={priority}
@@ -89,34 +89,40 @@ export function SpeciesCover({
 }
 
 /**
- * Filigrane de la planche dans le hero d'une fiche espèce.
+ * Planche de l'espèce sur sa fiche, avec sa légende.
  *
- * Contrainte non négociable (sprint 75 Bloc 2) : le hero fait remonter la maille
- * et le statut du jour AU-DESSUS de l'intro parce qu'en 390 px — 82 % du trafic —
- * tout ce qui passe après est hors écran. Une illustration insérée dans le flux
- * repousserait cette réponse vers le bas et annulerait le gain.
+ * Elle a d'abord été posée en FILIGRANE hors flux, masqué sous 1280 px, pour ne
+ * pas repousser la réponse (maille, statut du jour) que le sprint 75 Bloc 2 fait
+ * remonter en tête. Le filigrane tenait cette contrainte mais était invisible
+ * pour Google : l'indexation est mobile-first, et sous `lg` l'élément était en
+ * `display:none`. La page qui vise réellement « lieu jaune » ou « congre »
+ * n'avait donc AUCUNE image indexable.
  *
- * D'où ce parti : hors flux (`absolute`), masqué sous `lg`, opacité basse et
- * fondu vers la gauche. Sur mobile il ne se passe donc RIEN, et sur grand écran
- * la planche habille la marge droite sans disputer la lecture.
+ * D'où cette figure : visible à toutes les tailles, mais placée APRÈS la carte
+ * d'identité. La réponse ne bouge pas d'un pixel, et l'image gagne un contexte
+ * textuel — la légende, que Google utilise explicitement pour comprendre le sujet
+ * d'une image.
  */
-export function SpeciesHeroArt({ slug }: { slug: SpeciesSlug }) {
+export function SpeciesPlate({ slug }: { slug: SpeciesSlug }) {
   const src = speciesCover(slug)
   if (!src) return null
+  const meta = SPECIES[slug]
   return (
-    <div
-      aria-hidden="true"
-      // Seuil à xl (1280 px) et pas lg : le contenu du hero fait 980 px de large,
-      // il ne reste donc AUCUNE marge libre avant 1280 px. Testé à 1024 px — le
-      // poisson passait sous l'intro. Largeur 520 + décalage -60 + fondu sur les
-      // 55 % gauche : la partie visible commence au bord de la colonne de texte.
-      className="pointer-events-none absolute -right-[60px] top-1/2 hidden h-[300px] w-[520px] -translate-y-1/2 xl:block"
-      style={{
-        maskImage: 'linear-gradient(to right, transparent, black 55%)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, black 55%)',
-      }}
-    >
-      <Image src={src} alt="" fill sizes="520px" className="object-contain opacity-25" />
-    </div>
+    <figure className="mt-8 max-w-md">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-[14px] border border-white/10 bg-navy-900/50">
+        <Image
+          src={src}
+          alt={speciesCoverAlt(slug)}
+          fill
+          sizes="(max-width: 640px) 100vw, 448px"
+          className="object-contain"
+        />
+      </div>
+      <figcaption className="mt-2.5 text-[12.5px] leading-relaxed text-white/45">
+        {meta.article}
+        {meta.labelLower} (<span className="italic">{meta.latin}</span>) — illustration de
+        référence, pas une photo de prise.
+      </figcaption>
+    </figure>
   )
 }

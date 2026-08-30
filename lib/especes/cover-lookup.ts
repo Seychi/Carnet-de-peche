@@ -1,4 +1,4 @@
-import { SPECIES_BY_DB_KEY } from '@/lib/seo/programmatic'
+import { SPECIES, SPECIES_BY_DB_KEY, type SpeciesSlug } from '@/lib/seo/programmatic'
 import { speciesCover } from '@/lib/especes/covers'
 
 /**
@@ -14,4 +14,22 @@ export function speciesCoverForDbKey(dbKey: string | null | undefined): string |
   if (!dbKey) return null
   const slug = SPECIES_BY_DB_KEY[dbKey]
   return slug ? speciesCover(slug) : null
+}
+
+/**
+ * Texte alternatif d'une planche d'espèce.
+ *
+ * C'est LE signal que Google dit être « le plus important » pour comprendre une
+ * image, avec le nom de fichier et le contexte de page. Les planches sont donc
+ * décrites, pas masquées — au prix d'une petite redondance pour un lecteur
+ * d'écran sur la grille de cartes, où le nom est déjà écrit à côté.
+ *
+ * Formulation volontairement honnête : « Illustration d'un… ». Ce sont des
+ * planches de référence dessinées, pas des photographies, et la fiche ne doit pas
+ * laisser croire le contraire.
+ */
+export function speciesCoverAlt(slug: SpeciesSlug): string {
+  const meta = SPECIES[slug]
+  const article = meta.gender === 'f' ? "d'une" : "d'un"
+  return `Illustration ${article} ${meta.labelLower} (${meta.latin})`
 }

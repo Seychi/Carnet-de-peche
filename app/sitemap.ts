@@ -7,6 +7,7 @@ import {
   SPECIES,
   type SpeciesSlug,
 } from '@/lib/seo/programmatic'
+import { SPECIES_COVERS, speciesCover } from '@/lib/especes/covers'
 
 const BASE_URL = 'https://www.carnet-de-peche.com'
 
@@ -20,7 +21,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/tarifs`,                priority: 0.8, changeFrequency: 'monthly' },
     { url: `${BASE_URL}/guides`,                priority: 0.8, changeFrequency: 'weekly' },
     { url: `${BASE_URL}/fil`,                   priority: 0.5, changeFrequency: 'monthly' },
-    { url: `${BASE_URL}/especes`,               priority: 0.6, changeFrequency: 'monthly' },
+    {
+      url: `${BASE_URL}/especes`,
+      priority: 0.6,
+      changeFrequency: 'monthly',
+      // Les planches ne sont référencées dans le HTML qu'à travers /_next/image :
+      // le sitemap donne à Google leur URL de fichier, stable et directe, comme
+      // il le recommande. La grille les affiche toutes, elles sont donc déclarées
+      // ici en bloc, et une par une sur la fiche de leur espèce plus bas.
+      images: Object.values(SPECIES_COVERS).map((path) => `${BASE_URL}${path}`),
+    },
     { url: `${BASE_URL}/declarer-ses-prises`,   priority: 0.7, changeFrequency: 'monthly' },
     // /techniques exclu : la page est en robots noindex (stub teaser) tant que les
     // guides techniques ne sont pas publiés → ne pas l'annoncer dans le sitemap.
@@ -92,11 +102,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   // Fiches espèces profondes (sprint 10 Bloc 3)
-  const especePages: MetadataRoute.Sitemap = (Object.keys(SPECIES) as SpeciesSlug[]).map((s) => ({
-    url: `${BASE_URL}/especes/${s}`,
-    priority: 0.8,
-    changeFrequency: 'monthly',
-  }))
+  const especePages: MetadataRoute.Sitemap = (Object.keys(SPECIES) as SpeciesSlug[]).map((s) => {
+    const cover = speciesCover(s)
+    return {
+      url: `${BASE_URL}/especes/${s}`,
+      priority: 0.8,
+      changeFrequency: 'monthly' as const,
+      // Une espèce sans planche n'en déclare aucune : un sitemap qui annonce une
+      // image absente est une erreur d'exploration, pas un signal.
+      ...(cover ? { images: [`${BASE_URL}${cover}`] } : {}),
+    }
+  })
 
   return [...staticPages, ...spotPages, ...spotsFacetPages, ...guidePages, ...programmaticPages, ...especePages]
 }
